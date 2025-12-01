@@ -1,5 +1,6 @@
 package com.crm.app.web.auth;
 
+import com.crm.app.port.consumer.ConsumerRepositoryPort;
 import com.crm.app.web.security.JwtService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,13 +17,15 @@ public class AuthenticationService {
     private final AuthenticationManager authManager;
     private final UserDetailsService userDetailsService;
     private final JwtService jwtService;
+    private final ConsumerRepositoryPort consumerRepositoryPort;
 
     public AuthenticationService(AuthenticationManager authManager,
                                  UserDetailsService userDetailsService,
-                                 JwtService jwtService) {
+                                 JwtService jwtService, ConsumerRepositoryPort consumerRepositoryPort) {
         this.authManager = authManager;
         this.userDetailsService = userDetailsService;
         this.jwtService = jwtService;
+        this.consumerRepositoryPort = consumerRepositoryPort;
     }
 
     public LoginResponse login(LoginRequest request) {
@@ -41,8 +44,11 @@ public class AuthenticationService {
         }
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(request.username());
+        String emailAddress = request.username();
         String token = jwtService.generateToken(userDetails);
 
-        return new LoginResponse(token);
+        boolean enabled = consumerRepositoryPort.isEnabledByEmail(emailAddress);
+
+        return new LoginResponse(token,enabled);
     }
 }

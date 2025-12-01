@@ -2,16 +2,25 @@ package com.crm.app.adapter.jdbc.consumer;
 
 import com.crm.app.port.consumer.Consumer;
 import com.crm.app.port.consumer.ConsumerRepositoryPort;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class JdbcConsumerRepository implements ConsumerRepositoryPort {
+@Slf4j
+public class JdbcConsumerRepositoryAdapter implements ConsumerRepositoryPort {
+
+    private static final String LITERAL_EMAIL = "email_address";
+
+    private static final String SQL_FIND_ENABLED_BY_EMAIL =
+            "SELECT enabled FROM app.consumer WHERE email_address = :email_address";
 
     private final NamedParameterJdbcTemplate jdbc;
 
-    public JdbcConsumerRepository(NamedParameterJdbcTemplate jdbc) {
+    public JdbcConsumerRepositoryAdapter(NamedParameterJdbcTemplate jdbc) {
         this.jdbc = jdbc;
     }
 
@@ -24,7 +33,7 @@ public class JdbcConsumerRepository implements ConsumerRepositoryPort {
                 """;
 
         Long count = jdbc.queryForObject(sql,
-                new MapSqlParameterSource("email", emailAddress),
+                new MapSqlParameterSource(LITERAL_EMAIL, emailAddress),
                 Long.class);
         return count != null && count > 0;
     }
@@ -59,7 +68,7 @@ public class JdbcConsumerRepository implements ConsumerRepositoryPort {
                 .addValue("userId", consumer.userId())
                 .addValue("firstname", consumer.firstname())
                 .addValue("lastname", consumer.lastname())
-                .addValue("email", consumer.emailAddress())
+                .addValue(LITERAL_EMAIL, consumer.emailAddress())
                 .addValue("phone", consumer.phoneNumber())
                 .addValue("adr1", consumer.adrline1())
                 .addValue("adr2", consumer.adrline2())
@@ -68,5 +77,33 @@ public class JdbcConsumerRepository implements ConsumerRepositoryPort {
                 .addValue("country", consumer.country());
 
         jdbc.update(sql, params);
+    }
+
+    @Override
+    public boolean isEnabledByEmail(String emailAddress) {
+        MapSqlParameterSource params = new MapSqlParameterSource(LITERAL_EMAIL, emailAddress);
+
+        try {
+            Boolean enabled = jdbc.queryForObject(
+                    SQL_FIND_ENABLED_BY_EMAIL,
+                    params,
+                    Boolean.class
+            );
+
+            if (enabled == null) {
+                throw new IllegalStateException(
+                        "Column enabled is null for consumer with email '%s'".formatted(emailAddress)
+                );
+            }
+
+            log.debug("Consumer '{}' enabled={}", emailAddress, enabled);
+            return enabled;
+        } catch (EmptyResultDataAccessException ex) {
+            log.warn("No consumer found for email '{}'", emailAddress);
+            throw new IllegalStateException("No consumer found for email '" + emailAddress + "'", ex);
+        } catch (DataAccessException ex) {
+            log.error("Failed to read enabled flag for consumer '{}'", emailAddress, ex);
+            throw new IllegalStateException("Could not read enabled flag for consumer '" + emailAddress + "'", ex);
+        }
     }
 }

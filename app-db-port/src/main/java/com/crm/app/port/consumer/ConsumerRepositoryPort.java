@@ -7,4 +7,6 @@ public interface ConsumerRepositoryPort {
     long nextConsumerId();
 
     void insertConsumer(Consumer consumer);
+
+    boolean isEnabledByEmail(String emailAddress);
 }

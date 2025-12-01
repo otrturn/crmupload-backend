@@ -55,6 +55,7 @@ CREATE TABLE IF NOT EXISTS app.consumer
     postalcode    TEXT        NOT NULL,
     city          TEXT        NOT NULL,
     country       TEXT        NOT NULL,
+    enabled       BOOLEAN     NOT NULL DEFAULT false,
     created       TIMESTAMPTZ NOT NULL DEFAULT now(),
     modified      TIMESTAMPTZ NOT NULL DEFAULT now()
 );
