@@ -24,7 +24,8 @@ public class GlobalExceptionHandler {
                 HttpStatus.CONFLICT.getReasonPhrase(),   // "Conflict"
                 ex.getMessage(),
                 request.getRequestURI(),
-                Instant.now()
+                Instant.now(),
+                "BUSINESS_CONFLICT"
         );
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
@@ -40,7 +41,8 @@ public class GlobalExceptionHandler {
                 HttpStatus.UNAUTHORIZED.getReasonPhrase(),    // "Unauthorized"
                 "Invalid username or password",
                 request.getRequestURI(),
-                Instant.now()
+                Instant.now(),
+                "AUTH_INVALID_CREDENTIALS"
         );
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
@@ -56,7 +58,8 @@ public class GlobalExceptionHandler {
                 HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
                 "Unexpected server error",
                 request.getRequestURI(),
-                Instant.now()
+                Instant.now(),
+                "GENERIC_ERROR"
         );
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
