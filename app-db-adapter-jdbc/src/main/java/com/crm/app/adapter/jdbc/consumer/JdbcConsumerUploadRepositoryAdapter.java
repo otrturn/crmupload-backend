@@ -30,7 +30,7 @@ public class JdbcConsumerUploadRepositoryAdapter implements ConsumerUploadReposi
      * <p>
      * Hinweis: Der Sequenzname muss zur Datenbankdefinition passen.
      */
-    private static final String SEQUENCE_CONSUMER_UPLOAD_UPLOAD_ID = "app.consumer_upload_upload_id_seq";
+    private static final String SEQUENCE_CONSUMER_UPLOAD_UPLOAD_ID = "app.sequence_consumer_upload";
 
     private static final String SQL_NEXT_UPLOAD_ID =
             "SELECT nextval('" + SEQUENCE_CONSUMER_UPLOAD_UPLOAD_ID + "')";

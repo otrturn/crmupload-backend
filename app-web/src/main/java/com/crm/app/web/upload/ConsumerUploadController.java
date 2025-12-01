@@ -44,11 +44,11 @@ public class ConsumerUploadController {
 
         // 1) Consumer-ID aus email bestimmen
         long consumerId = repository.findConsumerIdByEmail(request.emailAddress());
-        log.debug("Resolved consumerId={} for email={}", consumerId, emailAddress);
+        log.info("Resolved consumerId={} for email={}", consumerId, emailAddress);
 
         // 2) Upload-ID erzeugen
         long uploadId = repository.nextUploadId();
-        log.debug("Generated uploadId={}", uploadId);
+        log.info("Generated uploadId={}", uploadId);
 
         // 3) Insert
         try {
