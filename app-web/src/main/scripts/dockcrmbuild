@@ -1,0 +1,2 @@
+remove-crm.sh
+dockcrm build crmupload-web

@@ -1,0 +1,40 @@
+services:
+  app-db:
+    image: postgres:16
+    container_name: crmupload-db
+    environment:
+      POSTGRES_DB: crmupload-appdb
+      POSTGRES_USER: appuser
+      POSTGRES_PASSWORD: apppass
+    ports:
+      - "5436:5432"
+    volumes:
+      - ./app-db-data:/var/lib/postgresql/data
+      - ./db-init/app:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U appuser -d appdb" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: [ crmuploadnet ]
+
+  crmupload-web:
+    image: crmupload-web
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: crmupload-web
+    depends_on:
+      app-db:
+        condition: service_healthy
+    environment:
+      APP_DATASOURCE_URL: jdbc:postgresql://app-db:5432/appdb
+      APP_DATASOURCE_USERNAME: appuser
+      APP_DATASOURCE_PASSWORD: apppass
+    ports:
+      - "8086:8086"
+    networks: [ crmuploadnet ]
+
+networks:
+  crmuploadnet:
+    external: true
