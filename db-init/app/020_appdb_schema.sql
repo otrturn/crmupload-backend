@@ -16,12 +16,15 @@ CREATE SEQUENCE app.sequence_user_account
 
 CREATE TABLE app.user_account
 (
-    id        INT PRIMARY KEY,
+    id        INT,
     username  TEXT NOT NULL UNIQUE,
     password  TEXT NOT NULL,
     roles     TEXT NOT NULL,
     lastlogin TIMESTAMPTZ
 );
+
+ALTER TABLE app.user_account
+    ADD CONSTRAINT uq_user_account_id UNIQUE (id);
 
 CREATE UNIQUE INDEX idx_user_account_username
     ON app.user_account (username);
@@ -39,9 +42,16 @@ CREATE SEQUENCE app.sequence_consumer
 CREATE TABLE IF NOT EXISTS app.consumer
 (
     consumer_id   INT  NOT NULL,
+    user_id       INT  NOT NULL,
+    firstname     TEXT NOT NULL,
+    lastname      TEXT NOT NULL,
     email_address TEXT NOT NULL,
-    password      TEXT NOT NULL,
-    lastlogin     TIMESTAMPTZ
+    phone_number  TEXT NOT NULL,
+    adrline1      TEXT NOT NULL,
+    adrline2      TEXT,
+    postalcode    TEXT NOT NULL,
+    city          TEXT NOT NULL,
+    country       TEXT NOT NULL
 );
 
 ALTER TABLE app.consumer
@@ -49,3 +59,12 @@ ALTER TABLE app.consumer
 
 CREATE UNIQUE INDEX idx_consumer_email_address
     ON app.consumer (email_address);
+
+CREATE UNIQUE INDEX idx_consumer_user_id
+    ON app.consumer (user_id);
+
+ALTER TABLE app.consumer
+    ADD CONSTRAINT fk_consumer_user_id
+        FOREIGN KEY (user_id)
+            REFERENCES app.user_account (id)
+            ON DELETE RESTRICT;
