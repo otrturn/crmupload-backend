@@ -19,6 +19,7 @@ CREATE TABLE app.user_account
     id        INT PRIMARY KEY,
     username  TEXT NOT NULL UNIQUE,
     password  TEXT NOT NULL,
+    roles     TEXT NOT NULL,
     lastlogin TIMESTAMPTZ
 );
 

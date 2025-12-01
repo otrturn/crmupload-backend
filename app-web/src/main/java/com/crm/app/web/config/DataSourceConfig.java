@@ -10,18 +10,9 @@ import javax.sql.DataSource;
 @Configuration
 public class DataSourceConfig {
 
-    @Bean
-    public DataSource appDataSource(AppDataSourceProperties props) {
-        return DataSourceBuilder.create()
-                .url(props.getUrl())
-                .username(props.getUsername())
-                .password(props.getPassword())
-                .driverClassName(props.getDriverClassName())
-                .build();
-    }
 
     @Bean
-    public NamedParameterJdbcTemplate namedParameterJdbcTemplate(DataSource appDataSource) {
-        return new NamedParameterJdbcTemplate(appDataSource);
+    public NamedParameterJdbcTemplate namedParameterJdbcTemplate(DataSource dataSource) {
+        return new NamedParameterJdbcTemplate(dataSource);
     }
 }

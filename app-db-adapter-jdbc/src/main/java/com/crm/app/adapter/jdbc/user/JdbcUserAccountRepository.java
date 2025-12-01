@@ -22,10 +22,10 @@ public class JdbcUserAccountRepository implements UserAccountRepositoryPort {
     @Override
     public Optional<UserAccount> findByUsername(String username) {
         String sql = """
-                SELECT id, username, password, roles
-                FROM app.user_account
-                WHERE username = :username
-                """;
+            SELECT id, username, password, roles
+            FROM app.user_account
+            WHERE username = :username
+            """;
 
         var params = new MapSqlParameterSource("username", username);
 
@@ -43,5 +43,4 @@ public class JdbcUserAccountRepository implements UserAccountRepositoryPort {
         });
 
         return users.stream().findFirst();
-    }
-}
+    }}

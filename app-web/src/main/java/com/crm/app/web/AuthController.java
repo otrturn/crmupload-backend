@@ -3,13 +3,16 @@ package com.crm.app.web;
 import com.crm.app.web.auth.LoginRequest;
 import com.crm.app.web.auth.LoginResponse;
 import com.crm.app.web.security.JwtService;
-import org.springframework.security.authentication.*;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
+@Slf4j
 public class AuthController {
 
     private final AuthenticationManager authManager;
@@ -29,11 +32,22 @@ public class AuthController {
         var authToken = new UsernamePasswordAuthenticationToken(
                 request.username(), request.password()
         );
-        authManager.authenticate(authToken);
+
+        try {
+            authManager.authenticate(authToken);
+        } catch (org.springframework.security.core.AuthenticationException ex) {
+            log.error("RSX(ERR): Authentication failed: {} - {}", ex.getClass().getSimpleName(), ex.getMessage());
+            throw ex;
+        }
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(request.username());
         String token = jwtService.generateToken(userDetails);
 
         return new LoginResponse(token);
+    }
+
+    @GetMapping("/test")
+    public String test() {
+        return "auth-ok";
     }
 }

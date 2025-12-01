@@ -24,11 +24,11 @@ public class AppUserDetailsService implements UserDetailsService {
 
         var authorities = user.roles().stream()
                 .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
+                .toList();
 
         return new org.springframework.security.core.userdetails.User(
                 user.username(),
-                user.passwordHash(),   // BCrypt-Hash aus der DB
+                user.passwordHash(),  // genau der Delegating-Hash mit {bcrypt}
                 authorities
         );
     }
