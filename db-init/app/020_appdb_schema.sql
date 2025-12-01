@@ -86,12 +86,14 @@ CREATE SEQUENCE app.sequence_consumer_upload
 
 CREATE TABLE IF NOT EXISTS app.consumer_upload
 (
-    upload_id   INT         NOT NULL,
-    consumer_id INT         NOT NULL,
-    content     BYTEA       NOT NULL,
-    status      TEXT        NOT NULL DEFAULT 'new',
-    created     TIMESTAMPTZ NOT NULL DEFAULT now(),
-    modifified  TIMESTAMPTZ NOT NULL DEFAULT now(),
+    upload_id       INT         NOT NULL,
+    consumer_id     INT         NOT NULL,
+    crm_customer_id TEXT        NOT NULL,
+    api_key         TEXT        NOT NULL,
+    content         BYTEA       NOT NULL,
+    status          TEXT        NOT NULL DEFAULT 'new',
+    created         TIMESTAMPTZ NOT NULL DEFAULT now(),
+    modifified      TIMESTAMPTZ NOT NULL DEFAULT now(),
     CONSTRAINT chk_consumer_upload_status CHECK (status IN ('new', 'processed'))
 );
 
