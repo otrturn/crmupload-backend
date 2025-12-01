@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,7 +29,7 @@ public class ConsumerUploadController {
      * und schreibt alles in die Tabelle app.consumer_upload.
      */
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public UploadResponse upload(
+    public ResponseEntity<UploadResponse>  upload(
             @RequestParam("emailAddress") @NotBlank String emailAddress,
             @RequestParam("crmCustomerId") @NotBlank String crmCustomerId,
             @RequestParam("crmApiKey") @NotBlank String crmApiKey,
@@ -64,7 +65,7 @@ public class ConsumerUploadController {
             throw new IllegalStateException("Upload failed: " + ex.getMessage(), ex);
         }
 
-        return new UploadResponse("ok");
+        return ResponseEntity.ok().build();
     }
 
     /**
