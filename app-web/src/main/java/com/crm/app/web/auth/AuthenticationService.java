@@ -26,6 +26,7 @@ public class AuthenticationService {
     }
 
     public LoginResponse login(LoginRequest request) {
+        log.info("login request: {}", request);
         var authToken = new UsernamePasswordAuthenticationToken(
                 request.username(), request.password()
         );
