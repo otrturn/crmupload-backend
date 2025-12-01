@@ -5,6 +5,7 @@ import java.util.Optional;
 public interface UserAccountRepositoryPort {
 
     Optional<UserAccount> findByUsername(String username);
+
     boolean existsByUsername(String username);
 
     long nextUserId();

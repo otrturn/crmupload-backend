@@ -32,4 +32,5 @@ public class DataSourceConfig {
     @Bean
     public PlatformTransactionManager transactionManager(DataSource appDataSource) {
         return new DataSourceTransactionManager(appDataSource);
-    }}
+    }
+}

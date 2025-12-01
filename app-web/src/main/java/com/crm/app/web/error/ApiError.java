@@ -8,4 +8,5 @@ public record ApiError(
         String message,
         String path,
         Instant timestamp
-) {}
+) {
+}

@@ -2,7 +2,8 @@ package com.crm.app.adapter.jdbc.consumer;
 
 import com.crm.app.port.consumer.Consumer;
 import com.crm.app.port.consumer.ConsumerRepositoryPort;
-import org.springframework.jdbc.core.namedparam.*;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -17,10 +18,10 @@ public class JdbcConsumerRepository implements ConsumerRepositoryPort {
     @Override
     public boolean emailExists(String emailAddress) {
         String sql = """
-            SELECT COUNT(*)
-            FROM app.consumer
-            WHERE email_address = :email
-            """;
+                SELECT COUNT(*)
+                FROM app.consumer
+                WHERE email_address = :email
+                """;
 
         Long count = jdbc.queryForObject(sql,
                 new MapSqlParameterSource("email", emailAddress),
@@ -41,17 +42,17 @@ public class JdbcConsumerRepository implements ConsumerRepositoryPort {
     @Override
     public void insertConsumer(Consumer consumer) {
         String sql = """
-            INSERT INTO app.consumer (
-                consumer_id, user_id, firstname, lastname,
-                email_address, phone_number,
-                adrline1, adrline2, postalcode, city, country
-            )
-            VALUES (
-                :consumerId, :userId, :firstname, :lastname,
-                :email, :phone,
-                :adr1, :adr2, :postal, :city, :country
-            )
-            """;
+                INSERT INTO app.consumer (
+                    consumer_id, user_id, firstname, lastname,
+                    email_address, phone_number,
+                    adrline1, adrline2, postalcode, city, country
+                )
+                VALUES (
+                    :consumerId, :userId, :firstname, :lastname,
+                    :email, :phone,
+                    :adr1, :adr2, :postal, :city, :country
+                )
+                """;
 
         var params = new MapSqlParameterSource()
                 .addValue("consumerId", consumer.consumerId())
