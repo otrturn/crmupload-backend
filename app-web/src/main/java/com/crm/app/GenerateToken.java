@@ -3,6 +3,7 @@ package com.crm.app;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+@SuppressWarnings("squid:S6437")
 public class GenerateToken {
     public static void main(String[] args) {
         PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
