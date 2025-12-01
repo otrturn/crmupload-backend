@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS app.consumer
     city          TEXT        NOT NULL,
     country       TEXT        NOT NULL,
     created       TIMESTAMPTZ NOT NULL DEFAULT now(),
-    modifified    TIMESTAMPTZ NOT NULL DEFAULT now()
+    modified      TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 ALTER TABLE app.consumer
@@ -93,7 +93,7 @@ CREATE TABLE IF NOT EXISTS app.consumer_upload
     content         BYTEA       NOT NULL,
     status          TEXT        NOT NULL DEFAULT 'new',
     created         TIMESTAMPTZ NOT NULL DEFAULT now(),
-    modifified      TIMESTAMPTZ NOT NULL DEFAULT now(),
+    modified        TIMESTAMPTZ NOT NULL DEFAULT now(),
     CONSTRAINT chk_consumer_upload_status CHECK (status IN ('new', 'processed'))
 );
 
