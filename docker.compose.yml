@@ -12,7 +12,7 @@ services:
       - ./app-db-data:/var/lib/postgresql/data
       - ./db-init/app:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U appuser -d appdb" ]
+      test: [ "CMD-SHELL", "pg_isready -U appuser -d crmupload-appdb" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -27,10 +27,6 @@ services:
     depends_on:
       app-db:
         condition: service_healthy
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://app-db:5432/crmupload-appdb
-      SPRING_DATASOURCE_USERNAME: appuser
-      SPRING_DATASOURCE_PASSWORD: apppass
     ports:
       - "8086:8086"
     networks: [ crmuploadnet ]

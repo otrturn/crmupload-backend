@@ -3,10 +3,10 @@ package com.crm.app.web.security;
 import com.crm.app.port.user.UserAccount;
 import com.crm.app.port.user.UserAccountRepositoryPort;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.*;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-
-import java.util.stream.Collectors;
 
 @Service
 public class AppUserDetailsService implements UserDetailsService {
@@ -28,7 +28,7 @@ public class AppUserDetailsService implements UserDetailsService {
 
         return new org.springframework.security.core.userdetails.User(
                 user.username(),
-                user.passwordHash(),  // genau der Delegating-Hash mit {bcrypt}
+                user.passwordHash(),
                 authorities
         );
     }
