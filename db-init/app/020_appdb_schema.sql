@@ -112,3 +112,20 @@ ALTER TABLE app.consumer_upload
         FOREIGN KEY (consumer_id)
             REFERENCES app.consumer (consumer_id)
             ON DELETE RESTRICT;
+
+-- ****************************************************************************************************
+-- consumer_activation
+-- ****************************************************************************************************
+
+CREATE TABLE IF NOT EXISTS app.consumer_activation
+(
+    token       UUID        NOT NULL PRIMARY KEY,
+    consumer_id INT         NOT NULL REFERENCES app.consumer (consumer_id),
+    created     TIMESTAMPTZ NOT NULL DEFAULT now(),
+    expires_at  TIMESTAMPTZ NOT NULL, -- z. B. now() + interval '24 hours'
+    used        BOOLEAN     NOT NULL DEFAULT FALSE,
+    used_at     TIMESTAMPTZ
+);
+
+CREATE INDEX IF NOT EXISTS idx_consumer_activation_consumer
+    ON app.consumer_activation (consumer_id);

@@ -1,7 +1,7 @@
-package com.crm.app.consumer.worker;
+package com.crm.app.worker;
 
-import com.crm.app.consumer.worker.config.ConsumerUploadProperties;
 import com.crm.app.port.consumer.ConsumerUploadContent;
+import com.crm.app.worker.config.ConsumerUploadProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;

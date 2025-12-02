@@ -28,6 +28,13 @@ public class JdbcConsumerRepositoryAdapter implements ConsumerRepositoryPort {
                           AND cu.status IN ('new', 'processing')
                     ) AS has_open_uploads;""";
 
+    private static final String SQL_UPDATE_ENABLED = """
+            UPDATE app.consumer
+               SET enabled = :enabled,
+                   modified = now()
+             WHERE consumer_id = :consumerId
+            """;
+
     private final NamedParameterJdbcTemplate jdbc;
 
     public JdbcConsumerRepositoryAdapter(NamedParameterJdbcTemplate jdbc) {
@@ -144,4 +151,22 @@ public class JdbcConsumerRepositoryAdapter implements ConsumerRepositoryPort {
             throw new IllegalStateException("Could not read file pending for consumer '" + emailAddress + "'", ex);
         }
     }
+
+    @Override
+    public void setEnabled(final long consumerId, final boolean enabled) {
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("consumerId", consumerId)
+                .addValue("enabled", enabled);
+
+        try {
+            int updated = jdbc.update(SQL_UPDATE_ENABLED, params);
+            if (updated == 0) {
+                throw new IllegalStateException("No consumer found for consumerId=" + consumerId);
+            }
+        } catch (DataAccessException ex) {
+            log.error("Failed to update enabled flag for consumerId={}", consumerId, ex);
+            throw new IllegalStateException("Could not update enabled flag for consumer " + consumerId, ex);
+        }
+    }
+
 }

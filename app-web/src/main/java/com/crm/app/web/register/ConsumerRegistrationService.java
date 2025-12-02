@@ -1,10 +1,13 @@
 package com.crm.app.web.register;
 
 import com.crm.app.port.consumer.Consumer;
+import com.crm.app.port.consumer.ConsumerActivationRepositoryPort;
 import com.crm.app.port.consumer.ConsumerRepositoryPort;
 import com.crm.app.port.user.UserAccount;
 import com.crm.app.port.user.UserAccountRepositoryPort;
+import com.crm.app.web.mail.ActivationMailService;
 import com.crm.app.web.security.JwtService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -22,17 +25,24 @@ public class ConsumerRegistrationService {
     private final PasswordEncoder passwordEncoder;
     private final UserDetailsService userDetailsService;
     private final JwtService jwtService;
+    private final ConsumerActivationRepositoryPort activationRepository;
+    private final ActivationMailService activationMailService;
+
+    @Value("${app.activation.base-url:http://localhost:8086}")
+    private String activationBaseUrl;
 
     public ConsumerRegistrationService(UserAccountRepositoryPort userAccountRepository,
                                        ConsumerRepositoryPort consumerRepository,
                                        PasswordEncoder passwordEncoder,
                                        UserDetailsService userDetailsService,
-                                       JwtService jwtService) {
+                                       JwtService jwtService, ConsumerActivationRepositoryPort activationRepository, ActivationMailService activationMailService) {
         this.userAccountRepository = userAccountRepository;
         this.consumerRepository = consumerRepository;
         this.passwordEncoder = passwordEncoder;
         this.userDetailsService = userDetailsService;
         this.jwtService = jwtService;
+        this.activationRepository = activationRepository;
+        this.activationMailService = activationMailService;
     }
 
     @Transactional
@@ -73,6 +83,16 @@ public class ConsumerRegistrationService {
                 request.country()
         );
         consumerRepository.insertConsumer(consumer);
+
+        String activationToken = activationRepository.createActivationToken(consumerId);
+
+        String activationLink = activationBaseUrl + "/auth/activate?token=" + activationToken;
+
+        activationMailService.sendActivationMail(
+                request.email_address(),
+                request.firstname() + " " + request.lastname(),
+                activationLink
+        );
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(email);
         String token = jwtService.generateToken(userDetails);
