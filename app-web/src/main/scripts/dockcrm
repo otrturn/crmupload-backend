@@ -1,1 +1,1 @@
-docker compose -f docker.compose.upload.yml --env-file .env.crm $*
+docker compose -f docker.compose.upload.yml $*

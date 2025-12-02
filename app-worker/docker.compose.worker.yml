@@ -1,0 +1,13 @@
+services:
+  crmupload-worker:
+    image: crmupload-worker
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: crmupload-worker
+    restart: unless-stopped
+    networks: [ crmuploadnet ]
+
+networks:
+  crmuploadnet:
+    external: true

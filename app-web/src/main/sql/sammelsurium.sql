@@ -7,3 +7,4 @@ select * from app.consumer_upload;
 
 update app.consumer set enabled=true;
 commit;
+

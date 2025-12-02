@@ -13,6 +13,7 @@
         <module>app-db-port</module>
         <module>app-db-adapter-jdbc</module>
         <module>app-web</module>
+        <module>app-worker</module>
     </modules>
 
     <parent>
