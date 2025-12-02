@@ -29,7 +29,7 @@ public class ConsumerUploadController {
      * und schreibt alles in die Tabelle app.consumer_upload.
      */
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<UploadResponse>  upload(
+    public ResponseEntity<UploadResponse> upload(
             @RequestParam("emailAddress") @NotBlank String emailAddress,
             @RequestParam("sourceSystem") @NotBlank String sourceSystem,
             @RequestParam("crmSystem") @NotBlank String crmSystem,

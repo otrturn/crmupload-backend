@@ -57,6 +57,7 @@ public class JdbcConsumerUploadRepositoryAdapter implements ConsumerUploadReposi
             """;
 
     private static final String STATUS_NEW = "new";
+    private static final String LITERAL_UPLOADID = "uploadId";
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
 
@@ -143,7 +144,7 @@ public class JdbcConsumerUploadRepositoryAdapter implements ConsumerUploadReposi
         }
 
         final MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("uploadId", uploadId)
+                .addValue(LITERAL_UPLOADID, uploadId)
                 .addValue("consumerId", consumerId)
                 .addValue("crmCustomerId", crmCustomerId)
                 .addValue("sourceSystem", sourceSystem)
@@ -194,7 +195,7 @@ public class JdbcConsumerUploadRepositoryAdapter implements ConsumerUploadReposi
 
     @Override
     public void markUploadDone(final long uploadId) {
-        final MapSqlParameterSource params = new MapSqlParameterSource("uploadId", uploadId);
+        final MapSqlParameterSource params = new MapSqlParameterSource(LITERAL_UPLOADID, uploadId);
         try {
             jdbcTemplate.update(SQL_MARK_DONE, params);
         } catch (DataAccessException ex) {
@@ -206,7 +207,7 @@ public class JdbcConsumerUploadRepositoryAdapter implements ConsumerUploadReposi
     @Override
     public void markUploadFailed(final long uploadId, final String errorMessage) {
         final MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("uploadId", uploadId)
+                .addValue(LITERAL_UPLOADID, uploadId)
                 .addValue("error", errorMessage);
         try {
             jdbcTemplate.update(SQL_MARK_FAILED, params);

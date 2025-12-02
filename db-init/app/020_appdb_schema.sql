@@ -95,6 +95,7 @@ CREATE TABLE IF NOT EXISTS app.consumer_upload
     api_key         TEXT,
     content         BYTEA,
     status          TEXT        NOT NULL DEFAULT 'new',
+    last_error      TEXT,
     created         TIMESTAMPTZ NOT NULL DEFAULT now(),
     modified        TIMESTAMPTZ NOT NULL DEFAULT now(),
     CONSTRAINT chk_consumer_upload_status CHECK (status IN ('new', 'processing', 'done', 'failed'))

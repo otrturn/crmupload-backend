@@ -10,5 +10,5 @@ public interface ConsumerRepositoryPort {
 
     boolean isEnabledByEmail(String emailAddress);
 
-     boolean isHasOpenUploads(String emailAddress);
+    boolean isHasOpenUploads(String emailAddress);
 }
