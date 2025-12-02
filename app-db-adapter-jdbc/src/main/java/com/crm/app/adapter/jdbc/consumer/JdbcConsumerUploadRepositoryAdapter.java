@@ -256,4 +256,5 @@ public class JdbcConsumerUploadRepositoryAdapter implements ConsumerUploadReposi
             log.error("Failed to load consumer_uploads for ids={}", uploadIds, ex);
             throw new IllegalStateException("Could not load consumer uploads", ex);
         }
-    }}
+    }
+}

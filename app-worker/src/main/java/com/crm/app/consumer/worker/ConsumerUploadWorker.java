@@ -58,7 +58,7 @@ public class ConsumerUploadWorker {
         try {
             Files.write(target, data);
         } catch (IOException e) {
-            log.info("Failed to write Excel file {}" , target.getFileName());
+            log.info("Failed to write Excel file {}", target.getFileName());
             throw new IllegalStateException("Failed to write Excel file {}" + target.getFileName(), e);
         }
     }
