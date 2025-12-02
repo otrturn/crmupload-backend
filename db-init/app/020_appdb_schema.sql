@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS app.consumer_activation CASCADE;
+
 DROP TABLE IF EXISTS app.consumer_upload CASCADE;
 DROP SEQUENCE IF EXISTS app.sequence_consumer_upload;
 

@@ -7,9 +7,10 @@ CREATE OR REPLACE PROCEDURE rag.clearAccounts()
 AS
 $$
 BEGIN
-    TRUNCATE TABLE app.consumer_upload CASCADE ;
-    TRUNCATE TABLE app.consumer CASCADE ;
-    TRUNCATE TABLE app.user_account CASCADE ;
+    TRUNCATE TABLE app.consumer_activation CASCADE;
+    TRUNCATE TABLE app.consumer_upload CASCADE;
+    TRUNCATE TABLE app.consumer CASCADE;
+    TRUNCATE TABLE app.user_account CASCADE;
     COMMIT;
 END;
 $$;
