@@ -14,6 +14,7 @@
         <module>app-db-adapter-jdbc</module>
         <module>app-web</module>
         <module>app-worker</module>
+        <module>app-common</module>
     </modules>
 
     <parent>

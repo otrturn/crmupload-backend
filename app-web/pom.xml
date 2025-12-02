@@ -21,6 +21,11 @@
     <dependencies>
         <dependency>
             <groupId>com.crm</groupId>
+            <artifactId>app-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.crm</groupId>
             <artifactId>app-db-port</artifactId>
             <version>${project.version}</version>
         </dependency>

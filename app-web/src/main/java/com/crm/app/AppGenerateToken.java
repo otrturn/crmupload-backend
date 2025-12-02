@@ -4,7 +4,7 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @SuppressWarnings("squid:S6437")
-public class GenerateToken {
+public class AppGenerateToken {
     public static void main(String[] args) {
         PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
         String raw = "test123"; // dein Klartext-Passwort

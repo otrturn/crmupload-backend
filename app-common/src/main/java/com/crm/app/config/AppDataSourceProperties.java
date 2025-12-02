@@ -1,4 +1,4 @@
-package com.crm.app.consumer.worker.config;
+package com.crm.app.config;
 
 import lombok.Getter;
 import lombok.Setter;

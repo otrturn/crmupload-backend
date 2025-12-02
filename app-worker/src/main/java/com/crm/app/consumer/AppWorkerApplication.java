@@ -1,6 +1,6 @@
 package com.crm.app.consumer;
 
-import com.crm.app.consumer.worker.config.AppDataSourceProperties;
+import com.crm.app.config.AppDataSourceProperties;
 import com.crm.app.consumer.worker.config.ConsumerUploadProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
