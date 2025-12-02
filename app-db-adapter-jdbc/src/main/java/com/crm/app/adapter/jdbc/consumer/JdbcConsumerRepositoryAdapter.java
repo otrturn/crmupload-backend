@@ -25,7 +25,7 @@ public class JdbcConsumerRepositoryAdapter implements ConsumerRepositoryPort {
                         FROM app.consumer_upload cu
                         JOIN app.consumer c ON c.consumer_id = cu.consumer_id
                         WHERE c.email_address = :email_address
-                          AND cu.status IN ('new', 'in-process')
+                          AND cu.status IN ('new', 'processing')
                     ) AS has_open_uploads;""";
 
     private final NamedParameterJdbcTemplate jdbc;

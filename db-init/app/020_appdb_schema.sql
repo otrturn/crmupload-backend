@@ -97,7 +97,7 @@ CREATE TABLE IF NOT EXISTS app.consumer_upload
     status          TEXT        NOT NULL DEFAULT 'new',
     created         TIMESTAMPTZ NOT NULL DEFAULT now(),
     modified        TIMESTAMPTZ NOT NULL DEFAULT now(),
-    CONSTRAINT chk_consumer_upload_status CHECK (status IN ('new', 'in-process', 'processed', 'failed'))
+    CONSTRAINT chk_consumer_upload_status CHECK (status IN ('new', 'processing', 'done', 'failed'))
 );
 
 ALTER TABLE app.consumer_upload

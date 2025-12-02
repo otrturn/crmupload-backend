@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Objects;
 
 @Slf4j
@@ -26,6 +27,34 @@ public class JdbcConsumerUploadRepositoryAdapter implements ConsumerUploadReposi
             "INSERT INTO app.consumer_upload " +
                     "(upload_id, consumer_id, source_system, crm_system, crm_customer_id, api_key, content, status) " +
                     "VALUES (:uploadId, :consumerId, :sourceSystem, :crmSystem, :crmCustomerId, :apiKey, :content, :status)";
+
+    private static final String SQL_CLAIM_NEXT_UPLOADS = """
+            UPDATE app.consumer_upload cu
+               SET status = 'processing'
+             WHERE cu.upload_id IN (
+                   SELECT upload_id
+                     FROM app.consumer_upload
+                    WHERE status = 'new'
+                    ORDER BY upload_id
+                    FOR UPDATE SKIP LOCKED
+                    LIMIT :limit
+               )
+             RETURNING upload_id
+            """;
+
+    private static final String SQL_MARK_DONE = """
+            UPDATE app.consumer_upload
+               SET status = 'done',
+                   last_error = NULL
+             WHERE upload_id = :uploadId
+            """;
+
+    private static final String SQL_MARK_FAILED = """
+            UPDATE app.consumer_upload
+               SET status = 'failed',
+                   last_error = :error
+             WHERE upload_id = :uploadId
+            """;
 
     private static final String STATUS_NEW = "new";
 
@@ -148,5 +177,42 @@ public class JdbcConsumerUploadRepositoryAdapter implements ConsumerUploadReposi
         }
     }
 
+    @Override
+    public List<Long> claimNextUploads(final int limit) {
+        final MapSqlParameterSource params = new MapSqlParameterSource("limit", limit);
+        try {
+            return jdbcTemplate.query(
+                    SQL_CLAIM_NEXT_UPLOADS,
+                    params,
+                    (rs, rowNum) -> rs.getLong("upload_id")
+            );
+        } catch (DataAccessException ex) {
+            log.error("Failed to claim next uploads", ex);
+            throw new IllegalStateException("Could not claim next uploads", ex);
+        }
+    }
 
+    @Override
+    public void markUploadDone(final long uploadId) {
+        final MapSqlParameterSource params = new MapSqlParameterSource("uploadId", uploadId);
+        try {
+            jdbcTemplate.update(SQL_MARK_DONE, params);
+        } catch (DataAccessException ex) {
+            log.error("Failed to mark upload {} as done", uploadId, ex);
+            throw new IllegalStateException("Could not mark upload as done", ex);
+        }
+    }
+
+    @Override
+    public void markUploadFailed(final long uploadId, final String errorMessage) {
+        final MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("uploadId", uploadId)
+                .addValue("error", errorMessage);
+        try {
+            jdbcTemplate.update(SQL_MARK_FAILED, params);
+        } catch (DataAccessException ex) {
+            log.error("Failed to mark upload {} as failed", uploadId, ex);
+            throw new IllegalStateException("Could not mark upload as failed", ex);
+        }
+    }
 }

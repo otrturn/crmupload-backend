@@ -7,6 +7,9 @@ app:
     username: appuser
     password: apppass
     driver-class-name: org.postgresql.Driver
+  consumer-upload:
+    poll-interval-ms: 10000
+    batch-size: 5
 
   jwt:
     secret: "eine-lange-zufällige-zeichenkette-hier-eintragen-32+Zeichen"
