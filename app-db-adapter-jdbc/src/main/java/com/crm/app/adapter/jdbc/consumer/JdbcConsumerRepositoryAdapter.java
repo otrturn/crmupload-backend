@@ -18,6 +18,16 @@ public class JdbcConsumerRepositoryAdapter implements ConsumerRepositoryPort {
     private static final String SQL_FIND_ENABLED_BY_EMAIL =
             "SELECT enabled FROM app.consumer WHERE email_address = :email_address";
 
+    private static final String SQL_FIND_HAS_OPEN_UPLOADS =
+            """
+                    SELECT EXISTS (
+                        SELECT 1
+                        FROM app.consumer_upload cu
+                        JOIN app.consumer c ON c.consumer_id = cu.consumer_id
+                        WHERE c.email_address = :email_address
+                          AND cu.status IN ('new', 'in-process')
+                    ) AS has_open_uploads;""";
+
     private final NamedParameterJdbcTemplate jdbc;
 
     public JdbcConsumerRepositoryAdapter(NamedParameterJdbcTemplate jdbc) {
@@ -29,7 +39,7 @@ public class JdbcConsumerRepositoryAdapter implements ConsumerRepositoryPort {
         String sql = """
                 SELECT COUNT(*)
                 FROM app.consumer
-                WHERE email_address = :email
+                WHERE email_address = :email_address
                 """;
 
         Long count = jdbc.queryForObject(sql,
@@ -58,7 +68,7 @@ public class JdbcConsumerRepositoryAdapter implements ConsumerRepositoryPort {
                 )
                 VALUES (
                     :consumerId, :userId, :firstname, :lastname,
-                    :email, :phone,
+                    :email_address, :phone,
                     :adr1, :adr2, :postal, :city, :country
                 )
                 """;
@@ -104,6 +114,34 @@ public class JdbcConsumerRepositoryAdapter implements ConsumerRepositoryPort {
         } catch (DataAccessException ex) {
             log.error("Failed to read enabled flag for consumer '{}'", emailAddress, ex);
             throw new IllegalStateException("Could not read enabled flag for consumer '" + emailAddress + "'", ex);
+        }
+    }
+
+    @Override
+    public boolean isHasOpenUploads(String emailAddress) {
+        MapSqlParameterSource params = new MapSqlParameterSource(LITERAL_EMAIL, emailAddress);
+
+        try {
+            Boolean hasOpenUploads = jdbc.queryForObject(
+                    SQL_FIND_HAS_OPEN_UPLOADS,
+                    params,
+                    Boolean.class
+            );
+
+            if (hasOpenUploads == null) {
+                throw new IllegalStateException(
+                        "Column enabled is null for consumer with email '%s'".formatted(emailAddress)
+                );
+            }
+
+            log.debug("Consumer '{}' hasOpenUploads={}", emailAddress, hasOpenUploads);
+            return hasOpenUploads;
+        } catch (EmptyResultDataAccessException ex) {
+            log.warn("No consumer found for email '{}'", emailAddress);
+            throw new IllegalStateException("No consumer found for email '" + emailAddress + "'", ex);
+        } catch (DataAccessException ex) {
+            log.error("Failed to read file pending for consumer '{}'", emailAddress, ex);
+            throw new IllegalStateException("Could not read file pending for consumer '" + emailAddress + "'", ex);
         }
     }
 }

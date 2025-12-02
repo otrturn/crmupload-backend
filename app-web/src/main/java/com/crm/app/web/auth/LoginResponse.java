@@ -1,4 +1,4 @@
 package com.crm.app.web.auth;
 
-public record LoginResponse(String token, Boolean enabled) {
+public record LoginResponse(String token, Boolean enabled, Boolean hasOpenUploads) {
 }

@@ -31,6 +31,8 @@ public class ConsumerUploadController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<UploadResponse>  upload(
             @RequestParam("emailAddress") @NotBlank String emailAddress,
+            @RequestParam("sourceSystem") @NotBlank String sourceSystem,
+            @RequestParam("crmSystem") @NotBlank String crmSystem,
             @RequestParam("crmCustomerId") @NotBlank String crmCustomerId,
             @RequestParam("crmApiKey") @NotBlank String crmApiKey,
             @RequestPart("file") MultipartFile file
@@ -41,7 +43,7 @@ public class ConsumerUploadController {
 
         log.info("Received upload: email={}, crmCustomerId={}", emailAddress, crmCustomerId);
 
-        UploadRequest request = new UploadRequest(emailAddress, crmCustomerId, crmApiKey);
+        UploadRequest request = new UploadRequest(emailAddress, sourceSystem, crmSystem, crmCustomerId, crmApiKey);
 
         // 1) Consumer-ID aus email bestimmen
         long consumerId = repository.findConsumerIdByEmail(request.emailAddress());
@@ -56,6 +58,8 @@ public class ConsumerUploadController {
             repository.insertConsumerUpload(
                     uploadId,
                     consumerId,
+                    sourceSystem,
+                    crmSystem,
                     request.crmCustomerId(),
                     request.crmApiKey(),
                     file.getBytes()

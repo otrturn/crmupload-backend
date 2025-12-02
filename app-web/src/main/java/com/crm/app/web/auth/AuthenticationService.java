@@ -48,7 +48,8 @@ public class AuthenticationService {
         String token = jwtService.generateToken(userDetails);
 
         boolean enabled = consumerRepositoryPort.isEnabledByEmail(emailAddress);
+        boolean hasOpenUploads = consumerRepositoryPort.isHasOpenUploads(emailAddress);
 
-        return new LoginResponse(token,enabled);
+        return new LoginResponse(token, enabled, hasOpenUploads);
     }
 }

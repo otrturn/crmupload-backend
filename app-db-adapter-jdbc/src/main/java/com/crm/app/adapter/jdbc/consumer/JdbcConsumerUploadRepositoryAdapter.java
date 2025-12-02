@@ -24,8 +24,8 @@ public class JdbcConsumerUploadRepositoryAdapter implements ConsumerUploadReposi
 
     private static final String SQL_INSERT_CONSUMER_UPLOAD =
             "INSERT INTO app.consumer_upload " +
-                    "(upload_id, consumer_id, crm_customer_id, api_key, content, status) " +
-                    "VALUES (:uploadId, :consumerId, :crmCustomerId, :apiKey, :content, :status)";
+                    "(upload_id, consumer_id, source_system, crm_system, crm_customer_id, api_key, content, status) " +
+                    "VALUES (:uploadId, :consumerId, :sourceSystem, :crmSystem, :crmCustomerId, :apiKey, :content, :status)";
 
     private static final String STATUS_NEW = "new";
 
@@ -97,6 +97,8 @@ public class JdbcConsumerUploadRepositoryAdapter implements ConsumerUploadReposi
     public void insertConsumerUpload(
             final long uploadId,
             final long consumerId,
+            final String sourceSystem,
+            final String crmSystem,
             final String crmCustomerId,
             final String apiKey,
             final byte[] content
@@ -115,6 +117,8 @@ public class JdbcConsumerUploadRepositoryAdapter implements ConsumerUploadReposi
                 .addValue("uploadId", uploadId)
                 .addValue("consumerId", consumerId)
                 .addValue("crmCustomerId", crmCustomerId)
+                .addValue("sourceSystem", sourceSystem)
+                .addValue("crmSystem", crmSystem)
                 .addValue("apiKey", apiKey)
                 .addValue("content", content)
                 .addValue("status", STATUS_NEW);

@@ -89,13 +89,15 @@ CREATE TABLE IF NOT EXISTS app.consumer_upload
 (
     upload_id       INT         NOT NULL,
     consumer_id     INT         NOT NULL,
-    crm_customer_id TEXT        NOT NULL,
-    api_key         TEXT        NOT NULL,
-    content         BYTEA       NOT NULL,
+    crm_customer_id TEXT,
+    source_system   TEXT,
+    crm_system      TEXT,
+    api_key         TEXT,
+    content         BYTEA,
     status          TEXT        NOT NULL DEFAULT 'new',
     created         TIMESTAMPTZ NOT NULL DEFAULT now(),
     modified        TIMESTAMPTZ NOT NULL DEFAULT now(),
-    CONSTRAINT chk_consumer_upload_status CHECK (status IN ('new', 'processed'))
+    CONSTRAINT chk_consumer_upload_status CHECK (status IN ('new', 'in-process', 'processed', 'failed'))
 );
 
 ALTER TABLE app.consumer_upload

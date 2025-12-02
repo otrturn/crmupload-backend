@@ -8,6 +8,8 @@ public interface ConsumerUploadRepositoryPort {
     void insertConsumerUpload(
             long uploadId,
             long consumerId,
+            String sourceSystem,
+            String crmSystem,
             String crmCustomerId,
             String apiKey,
             byte[] content

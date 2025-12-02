@@ -9,4 +9,6 @@ public interface ConsumerRepositoryPort {
     void insertConsumer(Consumer consumer);
 
     boolean isEnabledByEmail(String emailAddress);
+
+     boolean isHasOpenUploads(String emailAddress);
 }
