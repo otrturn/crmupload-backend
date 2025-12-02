@@ -1,5 +1,6 @@
 package com.crm.app.adapter.jdbc.consumer;
 
+import com.crm.app.port.consumer.ConsumerUploadContent;
 import com.crm.app.port.consumer.ConsumerUploadRepositoryPort;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
@@ -54,6 +55,18 @@ public class JdbcConsumerUploadRepositoryAdapter implements ConsumerUploadReposi
                SET status = 'failed',
                    last_error = :error
              WHERE upload_id = :uploadId
+            """;
+
+    private static final String SQL_FIND_UPLOADS_BY_IDS = """
+            SELECT upload_id,
+                   consumer_id,
+                   source_system,
+                   crm_system,
+                   crm_customer_id,
+                   api_key,
+                   content
+              FROM app.consumer_upload
+             WHERE upload_id = ANY(ARRAY[:uploadIds])
             """;
 
     private static final String STATUS_NEW = "new";
@@ -216,4 +229,31 @@ public class JdbcConsumerUploadRepositoryAdapter implements ConsumerUploadReposi
             throw new IllegalStateException("Could not mark upload as failed", ex);
         }
     }
-}
+
+    @Override
+    public List<ConsumerUploadContent> findUploadsByIds(List<Long> uploadIds) {
+        if (uploadIds == null || uploadIds.isEmpty()) {
+            return List.of();
+        }
+
+        MapSqlParameterSource params = new MapSqlParameterSource("uploadIds", uploadIds);
+
+        try {
+            return jdbcTemplate.query(
+                    SQL_FIND_UPLOADS_BY_IDS,
+                    params,
+                    (rs, rowNum) -> new ConsumerUploadContent(
+                            rs.getLong("upload_id"),
+                            rs.getLong("consumer_id"),
+                            rs.getString("source_system"),
+                            rs.getString("crm_system"),
+                            rs.getString("crm_customer_id"),
+                            rs.getString("api_key"),
+                            rs.getBytes("content")
+                    )
+            );
+        } catch (DataAccessException ex) {
+            log.error("Failed to load consumer_uploads for ids={}", uploadIds, ex);
+            throw new IllegalStateException("Could not load consumer uploads", ex);
+        }
+    }}

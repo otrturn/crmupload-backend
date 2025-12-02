@@ -7,7 +7,8 @@ services:
     container_name: crmupload-worker
     restart: unless-stopped
     networks: [ crmuploadnet ]
-
+    volumes:
+      - /home/ralf/tmp:/data/tmp
 networks:
   crmuploadnet:
     external: true

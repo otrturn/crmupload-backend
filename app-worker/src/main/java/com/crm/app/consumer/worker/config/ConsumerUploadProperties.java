@@ -11,6 +11,7 @@ public class ConsumerUploadProperties {
 
     private int pollIntervalMs = 10000;
     private int batchSize = 5;
+    private String workdir;
 
 }
 

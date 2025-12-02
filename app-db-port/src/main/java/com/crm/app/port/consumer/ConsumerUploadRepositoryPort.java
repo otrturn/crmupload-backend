@@ -22,4 +22,6 @@ public interface ConsumerUploadRepositoryPort {
     void markUploadDone(long uploadId);
 
     void markUploadFailed(long uploadId, String errorMessage);
+
+    List<ConsumerUploadContent> findUploadsByIds(List<Long> uploadIds);
 }
