@@ -3,16 +3,18 @@ package com.crm.app.worker.process;
 import com.crm.app.port.consumer.ConsumerUploadContent;
 import com.crm.app.port.consumer.ConsumerUploadRepositoryPort;
 import com.crm.app.worker.config.ConsumerUploadProperties;
+import com.crmmacher.bexio_excel.dto.BexioEntry;
+import com.crmmacher.bexio_excel.reader.ReadBexioExcel;
+import com.crmmacher.error.ErrMsg;
+import com.crmmacher.espo.dto.EspoEntityPool;
+import com.crmmacher.espo.importer.bexio_excel.util.MyBexioToEspoMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.crm.app.worker.util.WorkerUtils.writeExcelToFile;
@@ -28,7 +30,13 @@ public class UploadWorkerProcessForBexio {
     public void processUpload(ConsumerUploadContent upload) {
         log.info("Processing consumer_upload for Bexio uploadId={} sourceSysten={} crmSystem={}", upload.uploadId(), upload.sourceSystem(), upload.crmSystem());
         try {
-            writeExcelToFile(upload.content(), Paths.get(String.format("%s/Upload_Bexio_%06d.xlsx", properties.getWorkdir(), upload.uploadId())));
+            Path excelFile = Paths.get(String.format("%s/Upload_Bexio_%06d.xlsx", properties.getWorkdir(), upload.uploadId()));
+            writeExcelToFile(upload.content(), excelFile);
+            List<BexioEntry> bexioEntries = new ArrayList<>();
+            List<ErrMsg> errors = new ArrayList<>();
+            EspoEntityPool espoEntityPool = new EspoEntityPool();
+            new ReadBexioExcel().getEntries(excelFile, bexioEntries, errors);
+            //MyBexioToEspoMapper.toEspoAccounts(ctx, bexioEntries, espoEntityPool, errors);
             repository.markUploadDone(upload.uploadId());
         } catch (Exception ex) {
             repository.markUploadFailed(upload.uploadId(), ex.getMessage());
