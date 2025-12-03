@@ -2,7 +2,7 @@
 -- Clear all accounts
 -- ------------------------------------------------------------
 
-CREATE OR REPLACE PROCEDURE rag.clearAccounts()
+CREATE OR REPLACE PROCEDURE app.clearAccounts()
     LANGUAGE plpgsql
 AS
 $$

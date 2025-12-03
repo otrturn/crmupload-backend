@@ -5,9 +5,9 @@ import com.crm.app.port.consumer.ConsumerActivationRepositoryPort;
 import com.crm.app.port.consumer.ConsumerRepositoryPort;
 import com.crm.app.port.user.UserAccount;
 import com.crm.app.port.user.UserAccountRepositoryPort;
+import com.crm.app.web.config.AppWebProperties;
 import com.crm.app.web.mail.ActivationMailService;
 import com.crm.app.web.security.JwtService;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -27,15 +27,16 @@ public class ConsumerRegistrationService {
     private final JwtService jwtService;
     private final ConsumerActivationRepositoryPort activationRepository;
     private final ActivationMailService activationMailService;
-
-    @Value("${app.activation.base-url:http://localhost:8086}")
-    private String activationBaseUrl;
+    private final AppWebProperties appWebProperties;
 
     public ConsumerRegistrationService(UserAccountRepositoryPort userAccountRepository,
                                        ConsumerRepositoryPort consumerRepository,
                                        PasswordEncoder passwordEncoder,
                                        UserDetailsService userDetailsService,
-                                       JwtService jwtService, ConsumerActivationRepositoryPort activationRepository, ActivationMailService activationMailService) {
+                                       JwtService jwtService,
+                                       ConsumerActivationRepositoryPort activationRepository,
+                                       ActivationMailService activationMailService,
+                                       AppWebProperties appWebProperties) {
         this.userAccountRepository = userAccountRepository;
         this.consumerRepository = consumerRepository;
         this.passwordEncoder = passwordEncoder;
@@ -43,6 +44,7 @@ public class ConsumerRegistrationService {
         this.jwtService = jwtService;
         this.activationRepository = activationRepository;
         this.activationMailService = activationMailService;
+        this.appWebProperties = appWebProperties;
     }
 
     @Transactional
@@ -86,7 +88,7 @@ public class ConsumerRegistrationService {
 
         String activationToken = activationRepository.createActivationToken(consumerId);
 
-        String activationLink = activationBaseUrl + "/auth/activate?token=" + activationToken;
+        String activationLink = appWebProperties.getBaseUrl() + appWebProperties.getUri() + "?token=" + activationToken;
 
         activationMailService.sendActivationMail(
                 request.email_address(),
