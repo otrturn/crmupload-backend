@@ -1,6 +1,6 @@
 package com.crm.app.web;
 
-import com.crm.app.web.register.ActivationService;
+import com.crm.app.web.activation.ConsumerActivationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,11 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class ActivationController {
 
-    private final ActivationService activationService;
+    private final ConsumerActivationService consumerActivationService;
 
     @GetMapping("/activate")
     public ResponseEntity<String> activate(@RequestParam("token") String token) {
-        boolean success = activationService.activateByToken(token);
+        boolean success = consumerActivationService.activateByToken(token);
 
         if (success) {
             return ResponseEntity.ok("Ihr Konto wurde erfolgreich freigeschaltet. Sie können sich jetzt einloggen.");

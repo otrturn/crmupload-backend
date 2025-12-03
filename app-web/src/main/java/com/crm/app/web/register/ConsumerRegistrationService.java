@@ -1,13 +1,12 @@
 package com.crm.app.web.register;
 
 import com.crm.app.port.consumer.Consumer;
-import com.crm.app.port.consumer.ConsumerActivationRepositoryPort;
 import com.crm.app.port.consumer.ConsumerRepositoryPort;
 import com.crm.app.port.user.UserAccount;
 import com.crm.app.port.user.UserAccountRepositoryPort;
-import com.crm.app.web.config.AppWebProperties;
-import com.crm.app.web.mail.ActivationMailService;
+import com.crm.app.web.activation.ConsumerActivationService;
 import com.crm.app.web.security.JwtService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -18,44 +17,26 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class ConsumerRegistrationService {
 
     private final UserAccountRepositoryPort userAccountRepository;
-    private final ConsumerRepositoryPort consumerRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserDetailsService userDetailsService;
     private final JwtService jwtService;
-    private final ConsumerActivationRepositoryPort activationRepository;
-    private final ActivationMailService activationMailService;
-    private final AppWebProperties appWebProperties;
 
-    public ConsumerRegistrationService(UserAccountRepositoryPort userAccountRepository,
-                                       ConsumerRepositoryPort consumerRepository,
-                                       PasswordEncoder passwordEncoder,
-                                       UserDetailsService userDetailsService,
-                                       JwtService jwtService,
-                                       ConsumerActivationRepositoryPort activationRepository,
-                                       ActivationMailService activationMailService,
-                                       AppWebProperties appWebProperties) {
-        this.userAccountRepository = userAccountRepository;
-        this.consumerRepository = consumerRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.userDetailsService = userDetailsService;
-        this.jwtService = jwtService;
-        this.activationRepository = activationRepository;
-        this.activationMailService = activationMailService;
-        this.appWebProperties = appWebProperties;
-    }
+    private final ConsumerRepositoryPort consumerRepository;
+    private final ConsumerActivationService consumerActivationService;
 
     @Transactional
     public ResponseEntity<RegisterResponse> registerConsumer(RegisterRequest request) {
-        String email = request.email_address();
+        String emailAddress = request.email_address();
 
-        if (userAccountRepository.existsByUsername(email)) {
-            throw new IllegalStateException("Username already exists: " + email);
+        if (userAccountRepository.existsByUsername(emailAddress)) {
+            throw new IllegalStateException("Username already exists: " + emailAddress);
         }
-        if (consumerRepository.emailExists(email)) {
-            throw new IllegalStateException("Consumer with email already exists: " + email);
+        if (consumerRepository.emailExists(emailAddress)) {
+            throw new IllegalStateException("Consumer with email already exists: " + emailAddress);
         }
 
         long userId = userAccountRepository.nextUserId();
@@ -65,7 +46,7 @@ public class ConsumerRegistrationService {
 
         UserAccount user = new UserAccount(
                 userId,
-                email,
+                emailAddress,
                 passwordHash,
                 List.of("ROLE_USER")
         );
@@ -86,18 +67,10 @@ public class ConsumerRegistrationService {
         );
         consumerRepository.insertConsumer(consumer);
 
-        String activationToken = activationRepository.createActivationToken(consumerId);
-
-        String activationLink = appWebProperties.getBaseUrl() + appWebProperties.getUri() + "?token=" + activationToken;
-
-        activationMailService.sendActivationMail(
-                request.email_address(),
-                request.firstname() + " " + request.lastname(),
-                activationLink
-        );
-
-        UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(emailAddress);
         String token = jwtService.generateToken(userDetails);
+
+        consumerActivationService.sendActivationEmail(emailAddress,request.firstname() + " " + request.lastname(),consumerId);
 
         return ResponseEntity
                 .status(201)
