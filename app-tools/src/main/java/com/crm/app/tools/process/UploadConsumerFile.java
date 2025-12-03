@@ -1,4 +1,4 @@
-package com.crm.app.tools;
+package com.crm.app.tools.process;
 
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpEntity;
@@ -10,15 +10,9 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
-@SuppressWarnings("squid:S6437")
-public class AppBulkUpload {
-    public static void main(String[] args) {
-        uploadConsumerFile(Paths.get("/home/ralf/espocrm-demo/Bexio_Generated.xlsx"), 10);
-    }
-
-    public static void uploadConsumerFile(Path filePath, int n) {
+public class UploadConsumerFile {
+    public static void uploadConsumerFile(Path filePath, int n, String sourceSystem, String crmSystem ) {
         String url = "http://localhost:8086/api/consumer-upload";
 
         RestTemplate restTemplate = new RestTemplate();
@@ -32,8 +26,8 @@ public class AppBulkUpload {
                 MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
                 String email = "ralf@test.de".replace("@", "+" + i + "@");
                 body.add("emailAddress", email);
-                body.add("sourceSystem", "Bexio");
-                body.add("crmSystem", "EspoCRM");
+                body.add("sourceSystem", sourceSystem);
+                body.add("crmSystem", crmSystem);
                 body.add("crmCustomerId", "CUST-" + i);
                 body.add("crmApiKey", "API-KEY-TEST-" + i);
                 body.add("file", fileResource);
