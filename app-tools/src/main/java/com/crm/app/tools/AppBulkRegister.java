@@ -1,9 +1,11 @@
-package com.crm.app;
+package com.crm.app.tools;
 
-import com.crm.app.web.register.RegisterRequest;
+import com.crm.app.dto.RegisterRequest;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.reactive.function.client.WebClient;
 
 @SuppressWarnings("squid:S6437")
+@SpringBootApplication(scanBasePackages = "com.crm")
 public class AppBulkRegister {
     public static void main(String[] args) {
         RegisterRequest request = new RegisterRequest("Ralf", "Scholler", "ralf@test.de", "01702934959",

@@ -1,5 +1,7 @@
 package com.crm.app.web.register;
 
+import com.crm.app.dto.RegisterRequest;
+import com.crm.app.dto.RegisterResponse;
 import com.crm.app.port.consumer.Consumer;
 import com.crm.app.port.consumer.ConsumerRepositoryPort;
 import com.crm.app.web.activation.ConsumerActivationService;

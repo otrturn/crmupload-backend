@@ -1,4 +1,4 @@
-package com.crm.app.web.upload;
+package com.crm.app.dto;
 
 public record UploadResponse(String result) {
 }

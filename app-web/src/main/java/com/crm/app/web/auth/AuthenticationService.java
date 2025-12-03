@@ -1,5 +1,7 @@
 package com.crm.app.web.auth;
 
+import com.crm.app.dto.LoginRequest;
+import com.crm.app.dto.LoginResponse;
 import com.crm.app.port.consumer.ConsumerRepositoryPort;
 import com.crm.app.web.security.JwtService;
 import lombok.extern.slf4j.Slf4j;

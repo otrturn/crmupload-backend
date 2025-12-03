@@ -1,5 +1,7 @@
 package com.crm.app.web.upload;
 
+import com.crm.app.dto.UploadRequest;
+import com.crm.app.dto.UploadResponse;
 import com.crm.app.port.consumer.ConsumerUploadRepositoryPort;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;

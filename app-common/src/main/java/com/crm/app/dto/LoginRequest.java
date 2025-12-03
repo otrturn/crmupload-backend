@@ -1,4 +1,4 @@
-package com.crm.app.web.auth;
+package com.crm.app.dto;
 
 public record LoginRequest(String username, String password) {
 }

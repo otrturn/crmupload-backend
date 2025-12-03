@@ -1,11 +1,11 @@
 package com.crm.app.web;
 
+import com.crm.app.dto.LoginRequest;
+import com.crm.app.dto.LoginResponse;
 import com.crm.app.web.auth.AuthenticationService;
-import com.crm.app.web.auth.LoginRequest;
-import com.crm.app.web.auth.LoginResponse;
 import com.crm.app.web.register.ConsumerRegistrationService;
-import com.crm.app.web.register.RegisterRequest;
-import com.crm.app.web.register.RegisterResponse;
+import com.crm.app.dto.RegisterRequest;
+import com.crm.app.dto.RegisterResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

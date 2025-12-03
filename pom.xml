@@ -15,6 +15,7 @@
         <module>app-web</module>
         <module>app-worker</module>
         <module>app-common</module>
+        <module>app-tools</module>
     </modules>
 
     <parent>

@@ -1,4 +1,4 @@
-package com.crm.app;
+package com.crm.app.tools;
 
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
