@@ -3,6 +3,7 @@ package com.crm.app.worker.mail;
 import com.crm.app.port.consumer.Consumer;
 import com.crm.app.port.consumer.ConsumerUploadContent;
 import com.crm.app.worker.util.WorkerUtils;
+import com.crmmacher.error.ErrMsg;
 import com.crmmacher.espo.dto.EspoEntityPool;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -11,6 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Slf4j
 @Service
@@ -50,5 +53,55 @@ public class UploadMailService {
                 """.formatted(WorkerUtils.getFullname(consumer), sourceSystem, crmSystem,
                 espoEntityPool.getAccounts().size(), espoEntityPool.getContacts().size());
     }
+
+    public void sendErrorMailForEspo(Consumer consumer, ConsumerUploadContent upload, List<ErrMsg> errors) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, "UTF-8");
+
+            helper.setTo(consumer.emailAddress());
+            helper.setSubject(String.format("Ihre %s Daten müssen noch korrigiert werden", upload.sourceSystem()));
+            helper.setText(bodyFailedForEspo(consumer, upload.sourceSystem(), upload.crmSystem(), errors), false);
+
+            helper.setFrom("noreply@crmupload.de");
+
+            mailSender.send(message);
+            log.info("Activation mail sent to {}", consumer.emailAddress());
+        } catch (MessagingException e) {
+            log.error("Failed to send activation mail to {}", consumer.emailAddress(), e);
+        }
+    }
+
+    private String bodyFailedForEspo(Consumer consumer, String sourceSystem, String crmSystem, List<ErrMsg> errors) {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("Hallo ")
+                .append(WorkerUtils.getFullname(consumer))
+                .append(",\n\n")
+                .append("Ihre ")
+                .append(sourceSystem)
+                .append(" Daten konnten noch nicht in das CRM ")
+                .append(crmSystem)
+                .append(" übertragen werden.\n\n")
+                .append("Folgende Korrekturen müssen noch vorgenommen werden:\n");
+
+        for (ErrMsg error : errors) {
+            sb.append("- Arbeitsblatt ")
+                    .append(error.getSheetNum()+1)
+                    .append(" Zeile ")
+                    .append(error.getRowNum()+1)
+                    .append(" Spalte ")
+                    .append(error.getColNum()+1)
+                    .append(": ")
+                    .append(error.getMessage())
+                    .append("\n");
+        }
+
+        sb.append("\nViele Grüße\n")
+                .append("Ihr CRM-Upload-Team\n");
+
+        return sb.toString();
+    }
+
 }
 

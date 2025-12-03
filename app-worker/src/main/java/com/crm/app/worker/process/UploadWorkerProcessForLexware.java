@@ -21,7 +21,7 @@ public class UploadWorkerProcessForLexware {
     private final ConsumerUploadRepositoryPort repository;
     private final ConsumerUploadProperties properties;
 
-    public void processUpload(ConsumerUploadContent upload) {
+    public void processUploadForEspo(ConsumerUploadContent upload) {
         Path excelFile = Paths.get(String.format("%s/Upload_Lexware_%06d.xlsx", properties.getWorkdir(), upload.uploadId()));
         log.info("Processing consumer_upload for Lexware uploadId={} sourceSysten={} crmSystem={}", upload.uploadId(), upload.sourceSystem(), upload.crmSystem());
         try {

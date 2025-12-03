@@ -31,11 +31,11 @@ public class UploadWorkerProcessForBexio {
 
     private final ConsumerUploadRepositoryPort repository;
     private final ConsumerUploadProperties properties;
-    private final UploadMailService uploadMailService;
+    private final UploadHandlingForEspo uploadHandlingForEspo;
 
     private final BexioCtx bexioCtx;
 
-    public void processUpload(ConsumerUploadContent upload) {
+    public void processUploadForEspo(ConsumerUploadContent upload) {
         Path excelFile = Paths.get(String.format("%s/Upload_Bexio_%06d.xlsx", properties.getWorkdir(), upload.uploadId()));
         log.info("Processing consumer_upload for Bexio uploadId={} sourceSysten={} crmSystem={}", upload.uploadId(), upload.sourceSystem(), upload.crmSystem());
         try {
@@ -44,27 +44,24 @@ public class UploadWorkerProcessForBexio {
             List<ErrMsg> errors = new ArrayList<>();
 
             List<BexioEntry> bexioEntries = new ArrayList<>();
-            EspoEntityPool espoEntityPool = new EspoEntityPool();
             new ReadBexioExcel().getEntries(excelFile, bexioEntries, errors);
             log.info(String.format("Bexio %d entries read, %d errors", bexioEntries.size(), errors.size()));
+
+            EspoEntityPool espoEntityPool = new EspoEntityPool();
             MyBexioToEspoMapper.toEspoAccounts(bexioCtx, bexioEntries, espoEntityPool, errors);
             log.info(String.format("Bexio %d entries mapped, %d errors", bexioEntries.size(), errors.size()));
 
-
-            if (!ErrMsg.containsErrors(errors)) {
-                repository.markUploadDone(upload.uploadId());
-                Optional<Consumer> consumer = repository.findConsumerByConsumerId(upload.consumerId());
-                if (consumer.isPresent()) {
-                    uploadMailService.sendSuccessMailForEspo(consumer.get(), upload, espoEntityPool);
-                } else {
-                    log.error("Consumer not found for consumer id={}", upload.consumerId());
-                }
+            Optional<Consumer> consumer = repository.findConsumerByConsumerId(upload.consumerId());
+            if (consumer.isPresent()) {
+                uploadHandlingForEspo.processForEspo(upload, errors, consumer.get(), espoEntityPool);
             } else {
-                repository.markUploadFailed(upload.uploadId(), "Validation failed");
+                log.error("Consumer not found for consumer id={}", upload.consumerId());
             }
+
         } catch (Exception ex) {
             repository.markUploadFailed(upload.uploadId(), ex.getMessage());
         }
         WorkerUtils.removeFile(excelFile);
     }
+
 }

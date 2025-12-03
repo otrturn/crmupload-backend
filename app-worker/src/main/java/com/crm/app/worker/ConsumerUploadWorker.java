@@ -1,5 +1,7 @@
 package com.crm.app.worker;
 
+import com.crm.app.dto.CrmSystem;
+import com.crm.app.dto.SourceSystem;
 import com.crm.app.port.consumer.ConsumerUploadContent;
 import com.crm.app.port.consumer.ConsumerUploadRepositoryPort;
 import com.crm.app.worker.config.ConsumerUploadProperties;
@@ -28,6 +30,9 @@ public class ConsumerUploadWorker {
     @Scheduled(fixedDelayString = "${app.consumer-upload.poll-interval-ms:10000}")
     @Transactional
     public void pollAndProcess() {
+        final String UNKNOWN_CRM_SYSTEM = "Unknown crmSystem";
+        final String UNKNOWN_SOURCE_SYSTEM = "Unknown sourceSystem";
+
         final List<Long> uploadIds = repository.claimNextUploads(properties.getBatchSize());
 
         if (uploadIds.isEmpty()) {
@@ -40,21 +45,59 @@ public class ConsumerUploadWorker {
 
         for (ConsumerUploadContent upload : uploads) {
             try {
-                switch (upload.sourceSystem()) {
-                    case "Bexio": {
-                        uploadWorkerProcessForBexio.processUpload(upload);
+                SourceSystem sourceSystem = SourceSystem.fromString(upload.sourceSystem());
+                CrmSystem crmSystem = CrmSystem.fromString(upload.crmSystem());
+                switch (sourceSystem) {
+                    case BEXIO: {
+                        switch (crmSystem) {
+                            case ESPOCRM: {
+                                uploadWorkerProcessForBexio.processUploadForEspo(upload);
+                                break;
+                            }
+                            case PIPEDRIVE: {
+                                //@Todo to be implemented
+                                break;
+                            }
+                            default: {
+                                repository.markUploadFailed(upload.uploadId(), UNKNOWN_CRM_SYSTEM + upload.crmSystem());
+                            }
+                        }
                         break;
                     }
-                    case "Lexware": {
-                        uploadWorkerProcessForLexware.processUpload(upload);
+                    case LEXWARE: {
+                        switch (crmSystem) {
+                            case ESPOCRM: {
+                                uploadWorkerProcessForLexware.processUploadForEspo(upload);
+                                break;
+                            }
+                            case PIPEDRIVE: {
+                                //@Todo to be implemented
+                                break;
+                            }
+                            default: {
+                                repository.markUploadFailed(upload.uploadId(), UNKNOWN_CRM_SYSTEM + upload.crmSystem());
+                            }
+                        }
                         break;
                     }
-                    case "MyExcel": {
-                        uploadWorkerProcessForMyExcel.processUpload(upload);
+                    case MYEXCEL: {
+                        switch (crmSystem) {
+                            case ESPOCRM: {
+                                uploadWorkerProcessForMyExcel.processUploadForEspo(upload);
+                                break;
+                            }
+                            case PIPEDRIVE: {
+                                //@Todo to be implemented
+                                break;
+                            }
+                            default: {
+                                repository.markUploadFailed(upload.uploadId(), UNKNOWN_CRM_SYSTEM + upload.crmSystem());
+                            }
+                        }
                         break;
                     }
                     default: {
-                        repository.markUploadFailed(upload.uploadId(), "Unknown sourceSystem" + upload.sourceSystem());
+                        repository.markUploadFailed(upload.uploadId(), UNKNOWN_SOURCE_SYSTEM + upload.sourceSystem());
                     }
                 }
             } catch (Exception ex) {

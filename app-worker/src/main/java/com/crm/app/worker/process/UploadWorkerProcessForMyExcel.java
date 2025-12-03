@@ -41,11 +41,11 @@ public class UploadWorkerProcessForMyExcel {
 
     private final ConsumerUploadRepositoryPort repository;
     private final ConsumerUploadProperties properties;
-    private final UploadMailService uploadMailService;
+    private final UploadHandlingForEspo uploadHandlingForEspo;
 
     private final MyExcelCtx myExcelCtx;
 
-    public void processUpload(ConsumerUploadContent upload) {
+    public void processUploadForEspo(ConsumerUploadContent upload) {
         Path excelFile = Paths.get(String.format("%s/Upload_MyExcel_%06d.xlsx", properties.getWorkdir(), upload.uploadId()));
         log.info("Processing consumer_upload for MyExcel uploadId={} sourceSysten={} crmSystem={}", upload.uploadId(), upload.sourceSystem(), upload.crmSystem());
         try {
@@ -78,16 +78,11 @@ public class UploadWorkerProcessForMyExcel {
             log.info(String.format("MyExcel %d leads read, %d errors", espoLeads.size(), errors.size()));
             log.info(String.format("MyExcel %d leads mapped, %d errors", espoLeads.size(), errors.size()));
 
-            if (!ErrMsg.containsErrors(errors)) {
-                repository.markUploadDone(upload.uploadId());
-                Optional<Consumer> consumer = repository.findConsumerByConsumerId(upload.consumerId());
-                if (consumer.isPresent()) {
-                    uploadMailService.sendSuccessMailForEspo(consumer.get(), upload, espoEntityPool);
-                } else {
-                    log.error("Consumer not found for consumer id={}", upload.consumerId());
-                }
+            Optional<Consumer> consumer = repository.findConsumerByConsumerId(upload.consumerId());
+            if (consumer.isPresent()) {
+                uploadHandlingForEspo.processForEspo(upload, errors, consumer.get(), espoEntityPool);
             } else {
-                repository.markUploadFailed(upload.uploadId(), "Validation failed");
+                log.error("Consumer not found for consumer id={}", upload.consumerId());
             }
         } catch (Exception ex) {
             repository.markUploadFailed(upload.uploadId(), ex.getMessage());
