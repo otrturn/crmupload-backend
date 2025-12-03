@@ -55,7 +55,7 @@ public class UploadWorkerProcessForBexio {
                 repository.markUploadDone(upload.uploadId());
                 Optional<Consumer> consumer = repository.findConsumerByConsumerId(upload.consumerId());
                 if (consumer.isPresent()) {
-                    uploadMailService.sendSuccessMail(consumer.get(), upload);
+                    uploadMailService.sendSuccessMailForEspo(consumer.get(), upload, espoEntityPool);
                 } else {
                     log.error("Consumer not found for consumer id={}", upload.consumerId());
                 }

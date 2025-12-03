@@ -1,12 +1,15 @@
 package com.crm.app.worker.process;
 
+import com.crm.app.port.consumer.Consumer;
 import com.crm.app.port.consumer.ConsumerUploadContent;
 import com.crm.app.port.consumer.ConsumerUploadRepositoryPort;
 import com.crm.app.worker.config.ConsumerUploadProperties;
+import com.crm.app.worker.mail.UploadMailService;
 import com.crm.app.worker.util.WorkerUtils;
 import com.crmmacher.error.ErrMsg;
 import com.crmmacher.espo.dto.EspoAccount;
 import com.crmmacher.espo.dto.EspoContact;
+import com.crmmacher.espo.dto.EspoEntityPool;
 import com.crmmacher.espo.dto.EspoLead;
 import com.crmmacher.espo.importer.my_excel.config.MyExcelCtx;
 import com.crmmacher.espo.importer.my_excel.util.MyExcelToEspoAccountMapper;
@@ -27,6 +30,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static com.crm.app.worker.util.WorkerUtils.writeExcelToFile;
 
@@ -37,6 +41,7 @@ public class UploadWorkerProcessForMyExcel {
 
     private final ConsumerUploadRepositoryPort repository;
     private final ConsumerUploadProperties properties;
+    private final UploadMailService uploadMailService;
 
     private final MyExcelCtx myExcelCtx;
 
@@ -66,11 +71,21 @@ public class UploadWorkerProcessForMyExcel {
             List<EspoLead> espoLeads = MyExcelToEspoLeadMapper.toEspoLeads(myExcelLeads);
             VerifyMyExcelForEspo.verifyEspoLead(myExcelCtx, espoLeads, errors);
 
+            EspoEntityPool espoEntityPool = new EspoEntityPool();
+            espoEntityPool.setAccounts(espoAccounts);
+            espoEntityPool.setContacts(espoContacts);
+
             log.info(String.format("MyExcel %d leads read, %d errors", espoLeads.size(), errors.size()));
             log.info(String.format("MyExcel %d leads mapped, %d errors", espoLeads.size(), errors.size()));
 
             if (!ErrMsg.containsErrors(errors)) {
                 repository.markUploadDone(upload.uploadId());
+                Optional<Consumer> consumer = repository.findConsumerByConsumerId(upload.consumerId());
+                if (consumer.isPresent()) {
+                    uploadMailService.sendSuccessMailForEspo(consumer.get(), upload, espoEntityPool);
+                } else {
+                    log.error("Consumer not found for consumer id={}", upload.consumerId());
+                }
             } else {
                 repository.markUploadFailed(upload.uploadId(), "Validation failed");
             }
