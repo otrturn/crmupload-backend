@@ -16,6 +16,7 @@
         <module>app-worker</module>
         <module>app-common</module>
         <module>app-tools</module>
+        <module>app-prod</module>
     </modules>
 
     <parent>
