@@ -1,29 +1,27 @@
 package com.crm.app.worker;
 
 import com.crm.app.port.consumer.ConsumerUploadContent;
+import com.crm.app.port.consumer.ConsumerUploadRepositoryPort;
 import com.crm.app.worker.config.ConsumerUploadProperties;
+import com.crm.app.worker.process.UploadWorkerProcessForBexio;
+import com.crm.app.worker.process.UploadWorkerProcessForLexware;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class ConsumerUploadWorker {
 
-    private final com.crm.app.port.consumer.ConsumerUploadRepositoryPort repository;
+    private final ConsumerUploadRepositoryPort repository;
     private final ConsumerUploadProperties properties;
-
-    public ConsumerUploadWorker(com.crm.app.port.consumer.ConsumerUploadRepositoryPort repository, ConsumerUploadProperties properties) {
-        this.repository = repository;
-        this.properties = properties;
-    }
+    private final UploadWorkerProcessForBexio uploadWorkerProcessForBexio;
+    private final UploadWorkerProcessForLexware uploadWorkerProcessForLexware;
 
     @Scheduled(fixedDelayString = "${app.consumer-upload.poll-interval-ms:10000}")
     @Transactional
@@ -42,11 +40,11 @@ public class ConsumerUploadWorker {
             try {
                 switch (upload.sourceSystem()) {
                     case "Bexio": {
-                        processUploadForBexio(upload);
+                        uploadWorkerProcessForBexio.processUpload(upload);
                         break;
                     }
                     case "Lexware": {
-                        processUploadForLexware(upload);
+                        uploadWorkerProcessForLexware.processUpload(upload);
                         break;
                     }
                     default: {
@@ -57,35 +55,6 @@ public class ConsumerUploadWorker {
                 log.error("Error processing consumer_upload with uploadId={}", upload.uploadId(), ex);
                 repository.markUploadFailed(upload.uploadId(), ex.getMessage());
             }
-        }
-    }
-
-    private void processUploadForBexio(ConsumerUploadContent upload) {
-        log.info("Processing consumer_upload for Bexio uploadId={} sourceSysten={} crmSystem={}", upload.uploadId(), upload.sourceSystem(), upload.crmSystem());
-        try {
-            writeExcelToFile(upload.content(), Paths.get(String.format("%s/Upload_Bexio_%06d.xlsx", properties.getWorkdir(), upload.uploadId())));
-            repository.markUploadDone(upload.uploadId());
-        } catch (Exception ex) {
-            repository.markUploadFailed(upload.uploadId(), ex.getMessage());
-        }
-    }
-
-    private void processUploadForLexware(ConsumerUploadContent upload) {
-        log.info("Processing consumer_upload for Lexware uploadId={} sourceSysten={} crmSystem={}", upload.uploadId(), upload.sourceSystem(), upload.crmSystem());
-        try {
-            writeExcelToFile(upload.content(), Paths.get(String.format("%s/Upload_Lexware_%06d.xlsx", properties.getWorkdir(), upload.uploadId())));
-            repository.markUploadDone(upload.uploadId());
-        } catch (Exception ex) {
-            repository.markUploadFailed(upload.uploadId(), ex.getMessage());
-        }
-    }
-
-    private void writeExcelToFile(byte[] data, Path target) {
-        try {
-            Files.write(target, data);
-        } catch (IOException e) {
-            log.info("Failed to write Excel file {}", target.getFileName());
-            throw new IllegalStateException("Failed to write Excel file {}" + target.getFileName(), e);
         }
     }
 }
