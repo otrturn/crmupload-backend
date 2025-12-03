@@ -12,7 +12,9 @@ app:
 spring:
   main:
     web-application-type: none
-
+  mail:
+    host: crmupload-mailhog
+    port: 1025
 ctx:
 
   bexio:

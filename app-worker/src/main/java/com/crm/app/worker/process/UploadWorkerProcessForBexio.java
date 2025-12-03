@@ -1,8 +1,10 @@
 package com.crm.app.worker.process;
 
+import com.crm.app.port.consumer.Consumer;
 import com.crm.app.port.consumer.ConsumerUploadContent;
 import com.crm.app.port.consumer.ConsumerUploadRepositoryPort;
 import com.crm.app.worker.config.ConsumerUploadProperties;
+import com.crm.app.worker.mail.UploadMailService;
 import com.crm.app.worker.util.WorkerUtils;
 import com.crmmacher.bexio_excel.dto.BexioEntry;
 import com.crmmacher.bexio_excel.reader.ReadBexioExcel;
@@ -18,6 +20,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static com.crm.app.worker.util.WorkerUtils.writeExcelToFile;
 
@@ -28,6 +31,7 @@ public class UploadWorkerProcessForBexio {
 
     private final ConsumerUploadRepositoryPort repository;
     private final ConsumerUploadProperties properties;
+    private final UploadMailService uploadMailService;
 
     private final BexioCtx bexioCtx;
 
@@ -46,12 +50,18 @@ public class UploadWorkerProcessForBexio {
             MyBexioToEspoMapper.toEspoAccounts(bexioCtx, bexioEntries, espoEntityPool, errors);
             log.info(String.format("Bexio %d entries mapped, %d errors", bexioEntries.size(), errors.size()));
 
+
             if (!ErrMsg.containsErrors(errors)) {
                 repository.markUploadDone(upload.uploadId());
+                Optional<Consumer> consumer = repository.findConsumerByConsumerId(upload.consumerId());
+                if (consumer.isPresent()) {
+                    uploadMailService.sendSuccessMail(consumer.get(), upload);
+                } else {
+                    log.error("Consumer not found for consumer id={}", upload.consumerId());
+                }
             } else {
                 repository.markUploadFailed(upload.uploadId(), "Validation failed");
             }
-            repository.markUploadDone(upload.uploadId());
         } catch (Exception ex) {
             repository.markUploadFailed(upload.uploadId(), ex.getMessage());
         }

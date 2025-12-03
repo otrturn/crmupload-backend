@@ -15,16 +15,16 @@ public class ActivationMailService {
 
     private final JavaMailSender mailSender;
 
-    public void sendActivationMail(String recipientEmail, String firstname, String activationLink) {
+    public void sendActivationMail(String recipientEmail, String name, String activationLink) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, "UTF-8");
 
             helper.setTo(recipientEmail);
             helper.setSubject("Bitte Account freischalten");
-            helper.setText(buildBody(firstname, activationLink), false);
+            helper.setText(buildBody(name, activationLink), false);
 
-            helper.setFrom("noreply@crmmacher.de");
+            helper.setFrom("noreply@crmupload.de");
 
             mailSender.send(message);
             log.info("Activation mail sent to {}", recipientEmail);
@@ -36,7 +36,7 @@ public class ActivationMailService {
         }
     }
 
-    private String buildBody(String firstname, String activationLink) {
+    private String buildBody(String name, String activationLink) {
         return """
                 Hallo %s,
                 
@@ -48,7 +48,7 @@ public class ActivationMailService {
                 
                 Viele Grüße
                 Ihr CRM-Upload-Team
-                """.formatted(firstname != null ? firstname : "", activationLink);
+                """.formatted(name, activationLink);
     }
 }
 

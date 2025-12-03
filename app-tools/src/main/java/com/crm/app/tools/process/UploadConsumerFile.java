@@ -12,7 +12,10 @@ import org.springframework.web.client.RestTemplate;
 import java.nio.file.Path;
 
 public class UploadConsumerFile {
-    public static void uploadConsumerFile(Path filePath, int n, String sourceSystem, String crmSystem ) {
+    private UploadConsumerFile() {
+    }
+
+    public static void uploadConsumerFile(Path filePath, int n, String sourceSystem, String crmSystem) {
         String url = "http://localhost:8086/api/consumer-upload";
 
         RestTemplate restTemplate = new RestTemplate();

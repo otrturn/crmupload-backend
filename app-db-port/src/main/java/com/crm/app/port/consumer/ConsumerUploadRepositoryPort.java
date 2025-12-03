@@ -1,11 +1,14 @@
 package com.crm.app.port.consumer;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ConsumerUploadRepositoryPort {
     long nextUploadId();
 
     long findConsumerIdByEmail(String email);
+
+    Optional<Consumer> findConsumerByConsumerId(long consumerId);
 
     void insertConsumerUpload(
             long uploadId,

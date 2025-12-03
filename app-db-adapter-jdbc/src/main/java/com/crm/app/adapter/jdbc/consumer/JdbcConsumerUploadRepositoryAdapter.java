@@ -1,5 +1,6 @@
 package com.crm.app.adapter.jdbc.consumer;
 
+import com.crm.app.port.consumer.Consumer;
 import com.crm.app.port.consumer.ConsumerUploadContent;
 import com.crm.app.port.consumer.ConsumerUploadRepositoryPort;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Slf4j
 @Repository
@@ -23,6 +25,22 @@ public class JdbcConsumerUploadRepositoryAdapter implements ConsumerUploadReposi
 
     private static final String SQL_FIND_CONSUMER_ID_BY_EMAIL =
             "SELECT c.consumer_id FROM app.consumer c WHERE c.email_address = :email_address";
+
+    private static final String SQL_FIND_BY_CONSUMER_ID = """
+            SELECT consumer_id,
+                   user_id,
+                   firstname,
+                   lastname,
+                   email_address,
+                   phone_number,
+                   adrline1,
+                   adrline2,
+                   postalcode,
+                   city,
+                   country
+              FROM app.consumer
+             WHERE consumer_id = :consumerId
+            """;
 
     private static final String SQL_INSERT_CONSUMER_UPLOAD =
             "INSERT INTO app.consumer_upload " +
@@ -255,6 +273,51 @@ public class JdbcConsumerUploadRepositoryAdapter implements ConsumerUploadReposi
         } catch (DataAccessException ex) {
             log.error("Failed to load consumer_uploads for ids={}", uploadIds, ex);
             throw new IllegalStateException("Could not load consumer uploads", ex);
+        }
+    }
+
+    @Override
+    public Optional<Consumer> findConsumerByConsumerId(long consumerId) {
+
+        MapSqlParameterSource params =
+                new MapSqlParameterSource("consumerId", consumerId);
+
+        try {
+            List<Consumer> rows = jdbcTemplate.query(
+                    SQL_FIND_BY_CONSUMER_ID,
+                    params,
+                    (rs, rowNum) -> new Consumer(
+                            rs.getLong("consumer_id"),
+                            rs.getLong("user_id"),
+                            rs.getString("firstname"),
+                            rs.getString("lastname"),
+                            rs.getString("email_address"),
+                            rs.getString("phone_number"),
+                            rs.getString("adrline1"),
+                            rs.getString("adrline2"),
+                            rs.getString("postalcode"),
+                            rs.getString("city"),
+                            rs.getString("country")
+                    )
+            );
+
+            if (rows.isEmpty()) {
+                return Optional.empty();
+            }
+
+            if (rows.size() > 1) {
+                throw new IllegalStateException(
+                        "Mehrere Consumers mit consumer_id=" + consumerId + " gefunden"
+                );
+            }
+
+            return Optional.of(rows.get(0));
+
+        } catch (DataAccessException ex) {
+            log.error("Fehler beim Lesen von Consumer consumer_id={}", consumerId, ex);
+            throw new IllegalStateException(
+                    "Fehler beim Lesen von Consumer consumer_id=" + consumerId, ex
+            );
         }
     }
 }
