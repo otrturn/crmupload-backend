@@ -35,7 +35,7 @@ public class JdbcConsumerActivationRepositoryAdapter implements ConsumerActivati
              WHERE token = :token
             """;
 
-    private static final String LITERAL_TOKEN="token";
+    private static final String LITERAL_TOKEN = "token";
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
 
