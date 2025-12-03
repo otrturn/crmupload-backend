@@ -36,15 +36,16 @@ public class UploadWorkerProcessForBexio {
     private final BexioCtx bexioCtx;
 
     public void processUploadForEspo(ConsumerUploadContent upload) {
-        Path excelFile = Paths.get(String.format("%s/Upload_Bexio_%06d.xlsx", properties.getWorkdir(), upload.uploadId()));
+        Path excelSourceFile = Paths.get(String.format("%s/Upload_Bexio_%06d.xlsx", properties.getWorkdir(), upload.uploadId()));
+        Path excelTargetFile = Paths.get(String.format("%s/Upload_Bexio_Korrektur_%06d.xlsx", properties.getWorkdir(), upload.uploadId()));
         log.info("Processing consumer_upload for Bexio uploadId={} sourceSysten={} crmSystem={}", upload.uploadId(), upload.sourceSystem(), upload.crmSystem());
         try {
-            writeExcelToFile(upload.content(), excelFile);
+            writeExcelToFile(upload.content(), excelSourceFile);
 
             List<ErrMsg> errors = new ArrayList<>();
 
             List<BexioEntry> bexioEntries = new ArrayList<>();
-            new ReadBexioExcel().getEntries(excelFile, bexioEntries, errors);
+            new ReadBexioExcel().getEntries(excelSourceFile, bexioEntries, errors);
             log.info(String.format("Bexio %d entries read, %d errors", bexioEntries.size(), errors.size()));
 
             EspoEntityPool espoEntityPool = new EspoEntityPool();
@@ -53,7 +54,7 @@ public class UploadWorkerProcessForBexio {
 
             Optional<Consumer> consumer = repository.findConsumerByConsumerId(upload.consumerId());
             if (consumer.isPresent()) {
-                uploadHandlingForEspo.processForEspo(upload, errors, consumer.get(), espoEntityPool);
+                uploadHandlingForEspo.processForEspo(upload, excelSourceFile, excelTargetFile, errors, consumer.get(), espoEntityPool);
             } else {
                 log.error("Consumer not found for consumer id={}", upload.consumerId());
             }
@@ -61,7 +62,7 @@ public class UploadWorkerProcessForBexio {
         } catch (Exception ex) {
             repository.markUploadFailed(upload.uploadId(), ex.getMessage());
         }
-        WorkerUtils.removeFile(excelFile);
+        WorkerUtils.removeFile(excelSourceFile);
     }
 
 }
