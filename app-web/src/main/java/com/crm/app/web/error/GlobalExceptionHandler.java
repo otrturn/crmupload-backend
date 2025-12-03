@@ -18,7 +18,6 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiError> handleIllegalState(IllegalStateException ex,
                                                        HttpServletRequest request) {
         log.warn("Business error on {}: {}", request.getRequestURI(), ex.getMessage());
-        System.out.println(ex.getMessage());
 
         ApiError body = new ApiError(
                 HttpStatus.CONFLICT.value(),
