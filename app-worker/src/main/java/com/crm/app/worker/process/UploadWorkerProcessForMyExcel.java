@@ -4,7 +4,6 @@ import com.crm.app.port.consumer.Consumer;
 import com.crm.app.port.consumer.ConsumerUploadContent;
 import com.crm.app.port.consumer.ConsumerUploadRepositoryPort;
 import com.crm.app.worker.config.ConsumerUploadProperties;
-import com.crm.app.worker.mail.UploadMailService;
 import com.crm.app.worker.util.WorkerUtils;
 import com.crmmacher.error.ErrMsg;
 import com.crmmacher.espo.dto.EspoAccount;

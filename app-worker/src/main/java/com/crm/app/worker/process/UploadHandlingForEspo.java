@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
-import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Component;
 
@@ -36,8 +35,8 @@ public class UploadHandlingForEspo {
             uploadMailService.sendSuccessMailForEspo(consumer, upload, espoEntityPool);
         } else {
             repository.markUploadFailed(upload.uploadId(), "Validation failed");
-            uploadMailService.sendErrorMailForEspo(consumer, upload, errors);
             markExcelFile(excelSourcefile, excelTargetfile, errors);
+            uploadMailService.sendErrorMailForEspo(consumer, upload, errors, excelTargetfile);
         }
     }
 

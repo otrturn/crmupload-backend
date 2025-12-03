@@ -9,10 +9,12 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.Path;
 import java.util.List;
 
 @Slf4j
@@ -54,16 +56,19 @@ public class UploadMailService {
                 espoEntityPool.getAccounts().size(), espoEntityPool.getContacts().size());
     }
 
-    public void sendErrorMailForEspo(Consumer consumer, ConsumerUploadContent upload, List<ErrMsg> errors) {
+    public void sendErrorMailForEspo(Consumer consumer, ConsumerUploadContent upload, List<ErrMsg> errors, Path excelTargetfile) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, "UTF-8");
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(consumer.emailAddress());
             helper.setSubject(String.format("Ihre %s Daten müssen noch korrigiert werden", upload.sourceSystem()));
             helper.setText(bodyFailedForEspo(consumer, upload.sourceSystem(), upload.crmSystem(), errors), false);
 
             helper.setFrom("noreply@crmupload.de");
+
+            FileSystemResource file = new FileSystemResource(excelTargetfile.toFile());
+            helper.addAttachment(file.getFilename(), file);
 
             mailSender.send(message);
             log.info("Activation mail sent to {}", consumer.emailAddress());
@@ -87,11 +92,11 @@ public class UploadMailService {
 
         for (ErrMsg error : errors) {
             sb.append("- Arbeitsblatt ")
-                    .append(error.getSheetNum()+1)
+                    .append(error.getSheetNum() + 1)
                     .append(" Zeile ")
-                    .append(error.getRowNum()+1)
+                    .append(error.getRowNum() + 1)
                     .append(" Spalte ")
-                    .append(error.getColNum()+1)
+                    .append(error.getColNum() + 1)
                     .append(": ")
                     .append(error.getMessage())
                     .append("\n");
