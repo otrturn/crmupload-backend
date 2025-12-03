@@ -3,6 +3,7 @@ package com.crm.app.worker.process;
 import com.crm.app.port.consumer.ConsumerUploadContent;
 import com.crm.app.port.consumer.ConsumerUploadRepositoryPort;
 import com.crm.app.worker.config.ConsumerUploadProperties;
+import com.crm.app.worker.util.WorkerUtils;
 import com.crmmacher.bexio_excel.dto.BexioEntry;
 import com.crmmacher.bexio_excel.reader.ReadBexioExcel;
 import com.crmmacher.error.ErrMsg;
@@ -31,20 +32,29 @@ public class UploadWorkerProcessForBexio {
     private final BexioCtx bexioCtx;
 
     public void processUpload(ConsumerUploadContent upload) {
+        Path excelFile = Paths.get(String.format("%s/Upload_Bexio_%06d.xlsx", properties.getWorkdir(), upload.uploadId()));
         log.info("Processing consumer_upload for Bexio uploadId={} sourceSysten={} crmSystem={}", upload.uploadId(), upload.sourceSystem(), upload.crmSystem());
         try {
-            Path excelFile = Paths.get(String.format("%s/Upload_Bexio_%06d.xlsx", properties.getWorkdir(), upload.uploadId()));
             writeExcelToFile(upload.content(), excelFile);
-            List<BexioEntry> bexioEntries = new ArrayList<>();
+
             List<ErrMsg> errors = new ArrayList<>();
+
+            List<BexioEntry> bexioEntries = new ArrayList<>();
             EspoEntityPool espoEntityPool = new EspoEntityPool();
             new ReadBexioExcel().getEntries(excelFile, bexioEntries, errors);
-            log.info(String.format("Bexio %d entries read, %d errors", bexioEntries.size(),errors.size()));
+            log.info(String.format("Bexio %d entries read, %d errors", bexioEntries.size(), errors.size()));
             MyBexioToEspoMapper.toEspoAccounts(bexioCtx, bexioEntries, espoEntityPool, errors);
-            log.info(String.format("Bexio %d entries mapped, %d errors", bexioEntries.size(),errors.size()));
+            log.info(String.format("Bexio %d entries mapped, %d errors", bexioEntries.size(), errors.size()));
+
+            if (!ErrMsg.containsErrors(errors)) {
+                repository.markUploadDone(upload.uploadId());
+            } else {
+                repository.markUploadFailed(upload.uploadId(), "Validation failed");
+            }
             repository.markUploadDone(upload.uploadId());
         } catch (Exception ex) {
             repository.markUploadFailed(upload.uploadId(), ex.getMessage());
         }
+        WorkerUtils.removeFile(excelFile);
     }
 }

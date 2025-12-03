@@ -19,4 +19,13 @@ public class WorkerUtils {
             throw new IllegalStateException("Failed to write Excel file {}" + target.getFileName(), e);
         }
     }
+
+    public static void removeFile( Path target) {
+        try {
+            Files.delete(target);
+        } catch (IOException e) {
+            log.info("Failed to remove file {}", target.getFileName());
+        }
+    }
+
 }
