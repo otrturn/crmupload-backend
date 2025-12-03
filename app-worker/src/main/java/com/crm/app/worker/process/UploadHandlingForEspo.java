@@ -9,7 +9,9 @@ import com.crmmacher.error.ErrMsg;
 import com.crmmacher.espo.dto.EspoEntityPool;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Component;
 
@@ -43,10 +45,30 @@ public class UploadHandlingForEspo {
         try (InputStream fis = Files.newInputStream(excelSourcefile);
              Workbook workbook = new XSSFWorkbook(fis);
              OutputStream os = Files.newOutputStream(excelTargetfile)) {
+            colourCells(errors, workbook);
             workbook.write(os);
         } catch (IOException e) {
             log.error(e.getMessage());
             throw new BexioReaderException("Cannot process excel files [" + excelSourcefile + "][" + excelTargetfile + "]");
         }
     }
+
+    private static void colourCells(List<ErrMsg> errors, Workbook workbook) {
+        XSSFCellStyle cellStyleMarkedCell = (XSSFCellStyle) workbook.createCellStyle();
+        cellStyleMarkedCell.setFillForegroundColor(IndexedColors.RED.index);
+        cellStyleMarkedCell.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+        for (ErrMsg errMsg : errors) {
+            Sheet sheet = workbook.getSheetAt(errMsg.getSheetNum());
+            Row row = sheet.getRow(errMsg.getRowNum());
+            Cell cell = row.getCell(errMsg.getColNum());
+            if (cell == null) {
+                cell = row.createCell(errMsg.getColNum());
+            }
+
+            cell.setCellStyle(cellStyleMarkedCell);
+        }
+    }
+
+
 }
