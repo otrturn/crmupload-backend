@@ -32,7 +32,7 @@ public class AppBulkUpload {
                 MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
                 String email = "ralf@test.de".replace("@", "+" + i + "@");
                 body.add("emailAddress", email);
-                body.add("sourceSystem", "Lexware");
+                body.add("sourceSystem", "Bexio");
                 body.add("crmSystem", "EspoCRM");
                 body.add("crmCustomerId", "CUST-" + i);
                 body.add("crmApiKey", "API-KEY-TEST-" + i);
