@@ -12,3 +12,78 @@ app:
 spring:
   main:
     web-application-type: none
+
+ctx:
+
+  bexio:
+    accountType:
+      - Customer
+      - Investor
+      - Partner
+      - Reseller
+
+    mappings:
+      accountType:
+        Kunden: Customer
+        Partner: Partner
+
+  myexcel:
+    accountType:
+      - Customer
+      - Investor
+      - Partner
+      - Reseller
+
+    accountPhoneType:
+      - Office
+      - Mobile
+      - Fax
+      - Other
+
+    industry:
+      - Consulting
+      - Software
+      - Manufacturing
+      - Retail
+      - Construction
+
+    contactSalutationName:
+      - Mr.
+      - Ms.
+      - Mrs.
+      - Dr.
+
+    contactPhoneType:
+      - Office
+      - Mobile
+      - Fax
+      - Home
+      - Other
+
+    mappings:
+
+      accountType:
+        Kunde: Customer
+        Weiterverkaeufer: Reseller
+
+      accountPhoneType:
+        Buero: Office
+        Handy: Mobile
+        Sonstige: Other
+
+      industry:
+        Beratung: Consulting
+        Software: Software
+        Fertigung: Manufacturing
+        Handel: Retail
+        Produktion: Construction
+
+      contactSalutationName:
+        Herr: Mr.
+        Frau: Ms.
+
+      contactPhoneType:
+        Buero: Office
+        Handy: Mobile
+        Privat: Home
+        Sonstige: Other

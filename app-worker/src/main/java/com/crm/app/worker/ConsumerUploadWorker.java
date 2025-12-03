@@ -5,6 +5,7 @@ import com.crm.app.port.consumer.ConsumerUploadRepositoryPort;
 import com.crm.app.worker.config.ConsumerUploadProperties;
 import com.crm.app.worker.process.UploadWorkerProcessForBexio;
 import com.crm.app.worker.process.UploadWorkerProcessForLexware;
+import com.crm.app.worker.process.UploadWorkerProcessForMyExcel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -22,6 +23,7 @@ public class ConsumerUploadWorker {
     private final ConsumerUploadProperties properties;
     private final UploadWorkerProcessForBexio uploadWorkerProcessForBexio;
     private final UploadWorkerProcessForLexware uploadWorkerProcessForLexware;
+    private final UploadWorkerProcessForMyExcel uploadWorkerProcessForMyExcel;
 
     @Scheduled(fixedDelayString = "${app.consumer-upload.poll-interval-ms:10000}")
     @Transactional
@@ -45,6 +47,10 @@ public class ConsumerUploadWorker {
                     }
                     case "Lexware": {
                         uploadWorkerProcessForLexware.processUpload(upload);
+                        break;
+                    }
+                    case "MyExcel": {
+                        uploadWorkerProcessForMyExcel.processUpload(upload);
                         break;
                     }
                     default: {

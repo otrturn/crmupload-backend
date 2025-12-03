@@ -7,6 +7,7 @@ import com.crmmacher.bexio_excel.dto.BexioEntry;
 import com.crmmacher.bexio_excel.reader.ReadBexioExcel;
 import com.crmmacher.error.ErrMsg;
 import com.crmmacher.espo.dto.EspoEntityPool;
+import com.crmmacher.espo.importer.bexio_excel.config.BexioCtx;
 import com.crmmacher.espo.importer.bexio_excel.util.MyBexioToEspoMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +28,8 @@ public class UploadWorkerProcessForBexio {
     private final ConsumerUploadRepositoryPort repository;
     private final ConsumerUploadProperties properties;
 
+    private final BexioCtx bexioCtx;
+
     public void processUpload(ConsumerUploadContent upload) {
         log.info("Processing consumer_upload for Bexio uploadId={} sourceSysten={} crmSystem={}", upload.uploadId(), upload.sourceSystem(), upload.crmSystem());
         try {
@@ -36,7 +39,9 @@ public class UploadWorkerProcessForBexio {
             List<ErrMsg> errors = new ArrayList<>();
             EspoEntityPool espoEntityPool = new EspoEntityPool();
             new ReadBexioExcel().getEntries(excelFile, bexioEntries, errors);
-            //MyBexioToEspoMapper.toEspoAccounts(ctx, bexioEntries, espoEntityPool, errors);
+            log.info(String.format("Bexio %d entries read, %d errors", bexioEntries.size(),errors.size()));
+            MyBexioToEspoMapper.toEspoAccounts(bexioCtx, bexioEntries, espoEntityPool, errors);
+            log.info(String.format("Bexio %d entries mapped, %d errors", bexioEntries.size(),errors.size()));
             repository.markUploadDone(upload.uploadId());
         } catch (Exception ex) {
             repository.markUploadFailed(upload.uploadId(), ex.getMessage());

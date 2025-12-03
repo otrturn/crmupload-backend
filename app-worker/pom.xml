@@ -45,6 +45,7 @@
             <artifactId>espo-storage-handler</artifactId>
             <version>${project.version}</version>
         </dependency>
+
         <dependency>
             <groupId>com.crmmacher</groupId>
             <artifactId>reader-bexio-excel</artifactId>
@@ -53,6 +54,17 @@
         <dependency>
             <groupId>com.crmmacher</groupId>
             <artifactId>espo-importer-bexio-excel</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.crmmacher</groupId>
+            <artifactId>reader-my-excel</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.crmmacher</groupId>
+            <artifactId>espo-importer-my-excel</artifactId>
             <version>${project.version}</version>
         </dependency>
 
