@@ -100,6 +100,8 @@ CREATE TABLE IF NOT EXISTS app.consumer_upload
     last_error      TEXT,
     created         TIMESTAMPTZ NOT NULL DEFAULT now(),
     modified        TIMESTAMPTZ NOT NULL DEFAULT now(),
+    CONSTRAINT chk_consumer_upload_source_system CHECK (source_system IN ('Lexware', 'Bexio', 'MyExcel')),
+    CONSTRAINT chk_consumer_upload_crm_system CHECK (crm_system IN ('EspoCRM', 'Pipedrive')),
     CONSTRAINT chk_consumer_upload_status CHECK (status IN ('new', 'processing', 'done', 'failed'))
 );
 
