@@ -3,9 +3,13 @@ package com.crm.app.web.upload;
 import com.crm.app.dto.UploadRequest;
 import com.crm.app.dto.UploadResponse;
 import com.crm.app.port.consumer.ConsumerUploadRepositoryPort;
+import com.crm.app.web.error.UploadAlreadyInProgressException;
+import com.crm.app.web.error.UploadNotAllowedException;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.BadRequestException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -24,7 +28,9 @@ import org.springframework.web.multipart.MultipartFile;
 @Slf4j
 public class ConsumerUploadController {
 
-    private final ConsumerUploadRepositoryPort repository;
+    private final ConsumerUploadService uploadService;
+
+    private static final String LITERAL_ERROR="error: ";
 
     /**
      * Empfängt einen Upload, ermittelt die Consumer-ID, erzeugt eine Upload-ID
@@ -39,48 +45,36 @@ public class ConsumerUploadController {
             @RequestParam("crmApiKey") @NotBlank String crmApiKey,
             @RequestPart("file") MultipartFile file
     ) {
-        if (file == null || file.isEmpty()) {
-            throw new IllegalArgumentException("Uploaded file must not be empty");
-        }
+        uploadService.processUpload(
+                emailAddress,
+                sourceSystem,
+                crmSystem,
+                crmCustomerId,
+                crmApiKey,
+                file
+        );
 
-        log.info("Received upload: email={}, crmCustomerId={}", emailAddress, crmCustomerId);
+        return ResponseEntity.ok().build();    }
 
-        UploadRequest request = new UploadRequest(emailAddress, sourceSystem, crmSystem, crmCustomerId, crmApiKey);
-
-        // 1) Consumer-ID aus email bestimmen
-        long consumerId = repository.findConsumerIdByEmail(request.emailAddress());
-        log.info("Resolved consumerId={} for email={}", consumerId, emailAddress);
-
-        // 2) Upload-ID erzeugen
-        long uploadId = repository.nextUploadId();
-        log.info("Generated uploadId={}", uploadId);
-
-        // 3) Insert
-        try {
-            repository.insertConsumerUpload(
-                    uploadId,
-                    consumerId,
-                    sourceSystem,
-                    crmSystem,
-                    request.crmCustomerId(),
-                    request.crmApiKey(),
-                    file.getBytes()
-            );
-        } catch (Exception ex) {
-            log.error("Failed to insert consumer upload: uploadId={}, consumerId={}", uploadId, consumerId, ex);
-            throw new IllegalStateException("Upload failed: " + ex.getMessage(), ex);
-        }
-
-        return ResponseEntity.ok().build();
+    @ExceptionHandler(UploadNotAllowedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public UploadResponse handleUploadNotAllowed(UploadNotAllowedException ex) {
+        log.warn("Upload not allowed: {}", ex.getMessage());
+        return new UploadResponse(LITERAL_ERROR + ex.getMessage());
     }
 
-    /**
-     * Einfaches Fehlermapping für Requests, die unvollständig oder falsch sind.
-     */
+    @ExceptionHandler(UploadAlreadyInProgressException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public UploadResponse handleUploadAlreadyInProgress(UploadAlreadyInProgressException ex) {
+        log.warn("Upload already in progress: {}", ex.getMessage());
+        return new UploadResponse(LITERAL_ERROR + ex.getMessage());
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseStatus(org.springframework.http.HttpStatus.BAD_REQUEST)
     public UploadResponse handleIllegalArgument(IllegalArgumentException ex) {
         log.warn("Bad request: {}", ex.getMessage());
-        return new UploadResponse("error: " + ex.getMessage());
+        return new UploadResponse(LITERAL_ERROR + ex.getMessage());
     }
+
 }

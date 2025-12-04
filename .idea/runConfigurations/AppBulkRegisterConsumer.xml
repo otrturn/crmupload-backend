@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="AppBulkToolRegisterConsumer" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+  <configuration default="false" name="AppBulkRegisterConsumer" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
     <module name="app-tools" />
     <option name="PROGRAM_PARAMETERS" value="--registerConsumer" />
     <option name="SPRING_BOOT_MAIN_CLASS" value="com.crm.app.tools.AppBulkTool" />
