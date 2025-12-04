@@ -11,14 +11,14 @@ import org.springframework.web.client.RestTemplate;
 
 import java.nio.file.Path;
 
-import static com.crm.app.tools.util.Constants.baseUrl;
+import static com.crm.app.tools.util.Constants.BASE_URL;
 
 public class UploadConsumerFile {
     private UploadConsumerFile() {
     }
 
     public static void uploadConsumerFile(Path filePath, int n, String sourceSystem, String crmSystem) {
-        String url = baseUrl + "/api/consumer-upload";
+        String url = BASE_URL + "/api/consumer-upload";
 
         System.out.println("url=" + url);
 
