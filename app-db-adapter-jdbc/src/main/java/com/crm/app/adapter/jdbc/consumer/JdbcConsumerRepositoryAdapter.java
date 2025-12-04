@@ -14,17 +14,31 @@ import org.springframework.stereotype.Repository;
 public class JdbcConsumerRepositoryAdapter implements ConsumerRepositoryPort {
 
     private static final String LITERAL_EMAIL = "email_address";
+    private static final String LITERAL_CONSUMER_ID = "consumer_id";
+    private static final String LITERAL_NO_CONSUMER_FOR_EMAIL = "No consumer found for email '{}'";
 
     private static final String SQL_FIND_ENABLED_BY_EMAIL =
             "SELECT enabled FROM app.consumer WHERE email_address = :email_address";
 
-    private static final String SQL_FIND_HAS_OPEN_UPLOADS =
+    private static final String SQL_FIND_ENABLED_BY_CONSUMER_ID =
+            "SELECT enabled FROM app.consumer WHERE consumer_id = :consumer_id";
+
+    private static final String SQL_FIND_HAS_OPEN_UPLOADS_BY_EMAIL =
             """
                     SELECT EXISTS (
                         SELECT 1
                         FROM app.consumer_upload cu
                         JOIN app.consumer c ON c.consumer_id = cu.consumer_id
                         WHERE c.email_address = :email_address
+                          AND cu.status IN ('new', 'processing')
+                    ) AS has_open_uploads;""";
+
+    private static final String SQL_FIND_HAS_OPEN_UPLOADS_BY_CONSUMER_ID =
+            """
+                    SELECT EXISTS (
+                        SELECT 1
+                        FROM app.consumer_upload cu
+                        WHERE cu.consumer_id = :consumer_id
                           AND cu.status IN ('new', 'processing')
                     ) AS has_open_uploads;""";
 
@@ -109,14 +123,14 @@ public class JdbcConsumerRepositoryAdapter implements ConsumerRepositoryPort {
 
             if (enabled == null) {
                 throw new IllegalStateException(
-                        "Column enabled is null for consumer with email '%s'" .formatted(emailAddress)
+                        "Column enabled is null for consumer with email '%s'".formatted(emailAddress)
                 );
             }
 
             log.debug("Consumer '{}' enabled={}", emailAddress, enabled);
             return enabled;
         } catch (EmptyResultDataAccessException ex) {
-            log.warn("No consumer found for email '{}'", emailAddress);
+            log.warn(LITERAL_NO_CONSUMER_FOR_EMAIL, emailAddress);
             throw new IllegalStateException("No consumer found for email '" + emailAddress + "'", ex);
         } catch (DataAccessException ex) {
             log.error("Failed to read enabled flag for consumer '{}'", emailAddress, ex);
@@ -125,30 +139,86 @@ public class JdbcConsumerRepositoryAdapter implements ConsumerRepositoryPort {
     }
 
     @Override
-    public boolean isHasOpenUploads(String emailAddress) {
+    public boolean isEnabledByConsumerId(long consumerId) {
+        MapSqlParameterSource params = new MapSqlParameterSource(LITERAL_CONSUMER_ID, consumerId);
+
+        try {
+            Boolean enabled = jdbc.queryForObject(
+                    SQL_FIND_ENABLED_BY_CONSUMER_ID,
+                    params,
+                    Boolean.class
+            );
+
+            if (enabled == null) {
+                throw new IllegalStateException(
+                        "Column enabled is null for consumer with email '%d'".formatted(consumerId)
+                );
+            }
+
+            log.debug("Consumer '{}' enabled={}", consumerId, enabled);
+            return enabled;
+        } catch (EmptyResultDataAccessException ex) {
+            log.warn("No consumer found for consumerId '{}'", consumerId);
+            throw new IllegalStateException("No consumer found for consumerId '" + consumerId + "'", ex);
+        } catch (DataAccessException ex) {
+            log.error("Failed to read enabled flag for consumer '{}'", consumerId, ex);
+            throw new IllegalStateException("Could not read enabled flag for consumerId '" + consumerId + "'", ex);
+        }
+    }
+
+    @Override
+    public boolean isHasOpenUploadsByEmail(String emailAddress) {
         MapSqlParameterSource params = new MapSqlParameterSource(LITERAL_EMAIL, emailAddress);
 
         try {
             Boolean hasOpenUploads = jdbc.queryForObject(
-                    SQL_FIND_HAS_OPEN_UPLOADS,
+                    SQL_FIND_HAS_OPEN_UPLOADS_BY_EMAIL,
                     params,
                     Boolean.class
             );
 
             if (hasOpenUploads == null) {
                 throw new IllegalStateException(
-                        "Column enabled is null for consumer with email '%s'" .formatted(emailAddress)
+                        "Column hasOpenUploads is null for consumer with email '%s'".formatted(emailAddress)
                 );
             }
 
             log.debug("Consumer '{}' hasOpenUploads={}", emailAddress, hasOpenUploads);
             return hasOpenUploads;
         } catch (EmptyResultDataAccessException ex) {
-            log.warn("No consumer found for email '{}'", emailAddress);
+            log.warn(LITERAL_NO_CONSUMER_FOR_EMAIL, emailAddress);
             throw new IllegalStateException("No consumer found for email '" + emailAddress + "'", ex);
         } catch (DataAccessException ex) {
             log.error("Failed to read file pending for consumer '{}'", emailAddress, ex);
             throw new IllegalStateException("Could not read file pending for consumer '" + emailAddress + "'", ex);
+        }
+    }
+
+    @Override
+    public boolean isHasOpenUploadsByConsumerId(long consumerId) {
+        MapSqlParameterSource params = new MapSqlParameterSource(LITERAL_CONSUMER_ID, consumerId);
+
+        try {
+            Boolean hasOpenUploads = jdbc.queryForObject(
+                    SQL_FIND_HAS_OPEN_UPLOADS_BY_CONSUMER_ID,
+                    params,
+                    Boolean.class
+            );
+
+            if (hasOpenUploads == null) {
+                throw new IllegalStateException(
+                        "Column hasOpenUploads is null for consumer with consumerId '%d'".formatted(consumerId)
+                );
+            }
+
+            log.debug("Consumer '{}' hasOpenUploads={}", consumerId, hasOpenUploads);
+            return hasOpenUploads;
+        } catch (EmptyResultDataAccessException ex) {
+            log.warn(LITERAL_NO_CONSUMER_FOR_EMAIL, consumerId);
+            throw new IllegalStateException("No consumer found for consumerId '" + consumerId + "'", ex);
+        } catch (DataAccessException ex) {
+            log.error("Failed to read file pending for consumer '{}'", consumerId, ex);
+            throw new IllegalStateException("Could not read file pending for consumer '" + consumerId + "'", ex);
         }
     }
 

@@ -50,7 +50,7 @@ public class AuthenticationService {
         String token = jwtService.generateToken(userDetails);
 
         boolean enabled = consumerRepositoryPort.isEnabledByEmail(emailAddress);
-        boolean hasOpenUploads = consumerRepositoryPort.isHasOpenUploads(emailAddress);
+        boolean hasOpenUploads = consumerRepositoryPort.isHasOpenUploadsByEmail(emailAddress);
 
         return new LoginResponse(token, enabled, hasOpenUploads);
     }

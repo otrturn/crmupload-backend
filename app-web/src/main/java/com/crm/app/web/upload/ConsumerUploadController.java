@@ -1,14 +1,11 @@
 package com.crm.app.web.upload;
 
-import com.crm.app.dto.UploadRequest;
 import com.crm.app.dto.UploadResponse;
-import com.crm.app.port.consumer.ConsumerUploadRepositoryPort;
 import com.crm.app.web.error.UploadAlreadyInProgressException;
 import com.crm.app.web.error.UploadNotAllowedException;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +27,7 @@ public class ConsumerUploadController {
 
     private final ConsumerUploadService uploadService;
 
-    private static final String LITERAL_ERROR="error: ";
+    private static final String LITERAL_ERROR = "error: ";
 
     /**
      * Empfängt einen Upload, ermittelt die Consumer-ID, erzeugt eine Upload-ID
@@ -54,7 +51,8 @@ public class ConsumerUploadController {
                 file
         );
 
-        return ResponseEntity.ok().build();    }
+        return ResponseEntity.ok().build();
+    }
 
     @ExceptionHandler(UploadNotAllowedException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)

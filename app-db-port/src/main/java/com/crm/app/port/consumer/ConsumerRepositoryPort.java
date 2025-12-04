@@ -10,7 +10,11 @@ public interface ConsumerRepositoryPort {
 
     boolean isEnabledByEmail(String emailAddress);
 
-    boolean isHasOpenUploads(String emailAddress);
+    boolean isEnabledByConsumerId(long consumerId);
+
+    boolean isHasOpenUploadsByEmail(String emailAddress);
+
+    boolean isHasOpenUploadsByConsumerId(long consumerId);
 
     void setEnabled(long consumerId, boolean enabled);
 }

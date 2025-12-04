@@ -25,14 +25,14 @@ public class UploadConsumerFile {
         String url = appToolsConfig.getBaseUrl() + "/api/consumer-upload";
 
         log.info("uploadConsumerFile:baseUrl=" + appToolsConfig.getBaseUrl());
-        log.info("uploadConsumerFile:url=" +url);
+        log.info("uploadConsumerFile:url=" + url);
 
         RestTemplate restTemplate = new RestTemplate();
 
         for (int i = 0; i < n; i++) {
             try {
-                String email = "ralf@test.de" .replace("@", "+" + i + "@");
-                LoginRequest loginRequest= new LoginRequest(email,"test123");
+                String email = "ralf@test.de".replace("@", "+" + i + "@");
+                LoginRequest loginRequest = new LoginRequest(email, "test123");
                 LoginResponse loginResponse = login(appToolsConfig.getBaseUrl(), loginRequest);
 
                 // Multipart-Datei
@@ -90,14 +90,13 @@ public class UploadConsumerFile {
                     );
 
             return response.getBody();
-        }
-        catch (HttpStatusCodeException ex) {
+        } catch (HttpStatusCodeException ex) {
             // 4xx / 5xx
             log.error("Login failed [{}]: {}", ex.getStatusCode(), ex.getResponseBodyAsString());
             throw new IllegalStateException("Login failed: " + ex.getMessage(), ex);
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             log.error("Unexpected error during login", ex);
             throw new IllegalStateException("Unexpected login error: " + ex.getMessage(), ex);
         }
-    }}
+    }
+}

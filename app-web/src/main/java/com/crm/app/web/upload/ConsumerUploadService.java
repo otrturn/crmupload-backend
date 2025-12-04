@@ -39,25 +39,22 @@ public class ConsumerUploadService {
                 crmApiKey
         );
 
-        // 1) Consumer-ID via Email bestimmen
         long consumerId = repository.findConsumerIdByEmail(request.emailAddress());
         log.info("Resolved consumerId={} for email={}", consumerId, emailAddress);
 
-        boolean enabled = consumerRepositoryPort.isEnabledByEmail(emailAddress);
-        boolean hasOpenUploads = consumerRepositoryPort.isHasOpenUploads(emailAddress);
+        boolean enabled = consumerRepositoryPort.isEnabledByConsumerId(consumerId);
+        boolean hasOpenUploads = consumerRepositoryPort.isHasOpenUploadsByConsumerId(consumerId);
 
         if (!enabled) {
             throw new UploadNotAllowedException(String.format("processUpload: Consumer %s is not enabled", emailAddress));
         }
-        if (!hasOpenUploads) {
+        if (hasOpenUploads) {
             throw new UploadNotAllowedException(String.format("processUpload: Consumer %s has open uploads", emailAddress));
         }
 
-        // 2) Upload-ID erzeugen
         long uploadId = repository.nextUploadId();
         log.info("Generated uploadId={}", uploadId);
 
-        // 3) Insert
         try {
             repository.insertConsumerUpload(
                     uploadId,
