@@ -1,7 +1,8 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="AppBulkRegister" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+  <configuration default="false" name="AppBulkToolRegisterConsumer" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
     <module name="app-tools" />
-    <option name="SPRING_BOOT_MAIN_CLASS" value="com.crm.app.tools.BulkRegister.AppBulkRegister" />
+    <option name="PROGRAM_PARAMETERS" value="--registerConsumer" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="com.crm.app.tools.AppBulkTool" />
     <extension name="net.ashald.envfile">
       <option name="IS_ENABLED" value="false" />
       <option name="IS_SUBST" value="false" />
