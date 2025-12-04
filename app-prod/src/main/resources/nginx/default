@@ -16,7 +16,7 @@ server {
 }
 
 # ----------------------------------------------------------------------
-# HTTPS: Angular-App (SPA)
+# HTTPS: Angular-App (SPA) + Backend-Proxy
 # ----------------------------------------------------------------------
 server {
     listen 443 ssl;
@@ -28,7 +28,26 @@ server {
     root /opt/websites/crmupload;
     index index.html;
 
-    # Angular SPA – Routing
+    # ---- Backend-API über Docker-Container crmupload-web (Port 8086) ----
+    # Alle Requests unter /api/ an das Backend weiterreichen
+    location /api/ {
+        proxy_pass http://127.0.0.1:8086;  # crmupload-web auf dem Host (per Docker-Port 8086)
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # Optional: weitere technische Endpoints (falls vorhanden)
+    # location /actuator/ {
+    #     proxy_pass http://127.0.0.1:8086;
+    #     proxy_set_header Host $host;
+    #     proxy_set_header X-Real-IP $remote_addr;
+    #     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    #     proxy_set_header X-Forwarded-Proto $scheme;
+    # }
+
+    # ---- Angular SPA – alle anderen Routen ----
     location / {
         try_files $uri $uri/ /index.html;
     }

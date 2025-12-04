@@ -1,0 +1,73 @@
+version: "3.9"
+
+services:
+  # --------------------------------------------------------------
+  # POSTGRES DATABASE
+  # --------------------------------------------------------------
+  app-db:
+    image: postgres:16
+    container_name: crmupload-db
+    environment:
+      POSTGRES_DB: crmupload-appdb
+      POSTGRES_USER: appuser
+      POSTGRES_PASSWORD: apppass
+    ports:
+      - "5436:5432"                    # optional: Zugriff via WireGuard
+    restart: unless-stopped
+    volumes:
+      - ./app-db-data:/var/lib/postgresql/data
+      - ./db-init/app:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U appuser -d crmupload-appdb" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - crmuploadnet
+
+  # --------------------------------------------------------------
+  # BACKEND WEB API
+  # --------------------------------------------------------------
+  crmupload-web:
+    image: ghcr.io/otrturn/crmupload-web:prod
+    container_name: crmupload-web
+    depends_on:
+      app-db:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8086:8086"          # nur auf localhost! Nginx reverse-proxy
+    restart: unless-stopped
+    networks:
+      - crmuploadnet
+
+  # --------------------------------------------------------------
+  # BACKGROUND WORKER / BATCH PROCESSOR
+  # --------------------------------------------------------------
+  crmupload-worker:
+    image: ghcr.io/otrturn/crmupload-worker:prod
+    container_name: crmupload-worker
+    depends_on:
+      app-db:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - crmuploadnet
+    volumes:
+      - ./tmp:/data/tmp                # ersetzt /home/ralf/tmp
+
+  # --------------------------------------------------------------
+  # MAILHOG (SMTP debugging)
+  # --------------------------------------------------------------
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: crmupload-mailhog
+    ports:
+      - "${MAILHOG_SMTP_PORT:-1025}:1025"
+      - "${MAILHOG_HTTP_PORT:-8025}:8025"
+    restart: unless-stopped
+    networks:
+      - crmuploadnet
+
+networks:
+  crmuploadnet:
+    external: true

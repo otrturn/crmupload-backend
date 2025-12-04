@@ -1,0 +1,1 @@
+ssh ralf@server "cd /opt/crmupload-deploy && ./deploy.sh"
