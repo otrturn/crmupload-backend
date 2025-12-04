@@ -18,7 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
  * ConsumerUploadRepositoryPort (Adapter implementiert: JdbcConsumerUploadRepositoryAdapter).
  */
 @RestController
-@RequestMapping("/api/consumer-upload")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 @Validated
 @Slf4j
@@ -30,7 +30,7 @@ public class ConsumerUploadController {
      * Empfängt einen Upload, ermittelt die Consumer-ID, erzeugt eine Upload-ID
      * und schreibt alles in die Tabelle app.consumer_upload.
      */
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(name = "/consumer-upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<UploadResponse> upload(
             @RequestParam("emailAddress") @NotBlank String emailAddress,
             @RequestParam("sourceSystem") @NotBlank String sourceSystem,
