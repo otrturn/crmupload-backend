@@ -1,6 +1,6 @@
 app:
   crm:
-    base-url: "http://localhost:8086"
+    base-url: http://localhost:8086
   datasource:
     url: jdbc:postgresql://crmupload-db:5432/crmupload-appdb
     username: appuser
