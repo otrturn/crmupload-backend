@@ -11,12 +11,16 @@ import org.springframework.web.client.RestTemplate;
 
 import java.nio.file.Path;
 
+import static com.crm.app.tools.util.Constants.baseUrl;
+
 public class UploadConsumerFile {
     private UploadConsumerFile() {
     }
 
     public static void uploadConsumerFile(Path filePath, int n, String sourceSystem, String crmSystem) {
-        String url = "http://localhost:8086/api/consumer-upload";
+        String url = baseUrl + "/api/consumer-upload";
+
+        System.out.println("url=" + url);
 
         RestTemplate restTemplate = new RestTemplate();
 
@@ -27,7 +31,7 @@ public class UploadConsumerFile {
 
                 // Multipart-Formulardaten
                 MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-                String email = "ralf@test.de".replace("@", "+" + i + "@");
+                String email = "ralf@test.de" .replace("@", "+" + i + "@");
                 body.add("emailAddress", email);
                 body.add("sourceSystem", sourceSystem);
                 body.add("crmSystem", crmSystem);

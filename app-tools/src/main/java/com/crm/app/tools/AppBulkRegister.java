@@ -4,6 +4,8 @@ import com.crm.app.dto.RegisterRequest;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import static com.crm.app.tools.util.Constants.baseUrl;
+
 @SuppressWarnings("squid:S6437")
 @SpringBootApplication(scanBasePackages = "com.crm")
 public class AppBulkRegister {
@@ -15,8 +17,10 @@ public class AppBulkRegister {
 
     public static void registerConsumers(int n, RegisterRequest requestTemplate) {
 
+        System.out.println("baseUrl=" + baseUrl);
+
         WebClient client = WebClient.builder()
-                .baseUrl("http://localhost:8086")
+                .baseUrl(baseUrl)
                 .build();
 
         for (int i = 0; i < n; i++) {
