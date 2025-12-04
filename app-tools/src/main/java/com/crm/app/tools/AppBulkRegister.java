@@ -7,7 +7,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import static com.crm.app.tools.util.Constants.BASE_URL;
 
 @SuppressWarnings("squid:S6437")
-@SpringBootApplication(scanBasePackages = "com.crm")
+@SpringBootApplication(scanBasePackages = "com.crm.app.tools")
 public class AppBulkRegister {
     public static void main(String[] args) {
         RegisterRequest request = new RegisterRequest("Ralf", "Scholler", "ralf@test.de", "01702934959",
