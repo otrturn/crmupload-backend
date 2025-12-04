@@ -7,7 +7,7 @@ cd "${SCRIPT_DIR}" || exit
 
 echo ">>> Projekt-Root: $(pwd)"
 
-GHCR_USER="otrturn"
+GHCR_USER="${GHCR_USER:-otrturn}"          # nutzt Env oder fällt auf 'otrturn' zurück
 SERVER="ralf@crmupload.de"
 REMOTE_DIR="/opt/crmupload-deploy"
 

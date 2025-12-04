@@ -107,3 +107,10 @@ sudo chown -R ralf:ralf /opt/crmupload-deploy
 `
 ssh ralf@server "cd /opt/crmupload-deploy && ./deploy.sh"
 `
+
+# Postgres
+## Auf dem Prod-Server
+
+`
+sudo ufw allow from 10.10.0.0/24 to any port 5436
+`

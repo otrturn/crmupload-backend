@@ -32,6 +32,7 @@ server {
     # Alle Requests unter /api/ an das Backend weiterreichen
     location /api/ {
         proxy_pass http://127.0.0.1:8086;  # crmupload-web auf dem Host (per Docker-Port 8086)
+        proxy_http_version 1.1;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -41,6 +42,7 @@ server {
     # Optional: weitere technische Endpoints (falls vorhanden)
     # location /actuator/ {
     #     proxy_pass http://127.0.0.1:8086;
+    #     proxy_http_version 1.1;
     #     proxy_set_header Host $host;
     #     proxy_set_header X-Real-IP $remote_addr;
     #     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -57,4 +59,31 @@ server {
     ssl_certificate_key /etc/letsencrypt/live/www.crmupload.de/privkey.pem;
     include /etc/letsencrypt/options-ssl-nginx.conf;
     ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+}
+
+# ----------------------------------------------------------------------
+# HTTPS: EspoCRM über Port 8180 → 9180 (Reverse Proxy)
+# Aufruf von außen: https://crmupload.de:8180/
+# ----------------------------------------------------------------------
+server {
+    listen 8180 ssl;
+    listen [::]:8180 ssl;
+
+    server_name crmupload.de www.crmupload.de;
+
+    # SSL wie oben
+    ssl_certificate /etc/letsencrypt/live/www.crmupload.de/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/www.crmupload.de/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+    location / {
+        # EspoCRM läuft lokal auf Port 9180
+        proxy_pass http://127.0.0.1:9180;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
 }
