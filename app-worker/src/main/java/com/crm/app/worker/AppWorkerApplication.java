@@ -1,6 +1,6 @@
 package com.crm.app.worker;
 
-import com.crm.app.config.AppDataSourceProperties;
+import com.crm.app.adapter.jdbc.config.AppDataSourceProperties;
 import com.crm.app.worker.config.ConsumerUploadProperties;
 import com.crmmacher.espo.importer.bexio_excel.config.BexioCtx;
 import com.crmmacher.espo.importer.my_excel.config.MyExcelCtx;

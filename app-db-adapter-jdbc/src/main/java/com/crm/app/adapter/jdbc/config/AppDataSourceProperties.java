@@ -1,4 +1,4 @@
-package com.crm.app.config;
+package com.crm.app.adapter.jdbc.config;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -1,4 +1,4 @@
-package com.crm.app.config;
+package com.crm.app.adapter.jdbc.config;
 
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;

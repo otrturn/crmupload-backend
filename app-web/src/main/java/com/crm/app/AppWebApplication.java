@@ -1,6 +1,6 @@
 package com.crm.app;
 
-import com.crm.app.config.AppDataSourceProperties;
+import com.crm.app.adapter.jdbc.config.AppDataSourceProperties;
 import com.crm.app.web.config.AppWebProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
