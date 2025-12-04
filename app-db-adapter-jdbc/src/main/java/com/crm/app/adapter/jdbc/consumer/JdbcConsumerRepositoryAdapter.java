@@ -109,7 +109,7 @@ public class JdbcConsumerRepositoryAdapter implements ConsumerRepositoryPort {
 
             if (enabled == null) {
                 throw new IllegalStateException(
-                        "Column enabled is null for consumer with email '%s'".formatted(emailAddress)
+                        "Column enabled is null for consumer with email '%s'" .formatted(emailAddress)
                 );
             }
 
@@ -137,7 +137,7 @@ public class JdbcConsumerRepositoryAdapter implements ConsumerRepositoryPort {
 
             if (hasOpenUploads == null) {
                 throw new IllegalStateException(
-                        "Column enabled is null for consumer with email '%s'".formatted(emailAddress)
+                        "Column enabled is null for consumer with email '%s'" .formatted(emailAddress)
                 );
             }
 
