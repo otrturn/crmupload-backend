@@ -1,26 +1,43 @@
-package com.crm.app.tools;
+package com.crm.app.tools.BulkRegister;
 
 import com.crm.app.dto.RegisterRequest;
+import com.crm.app.tools.config.AppToolsConfig;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.ExitCodeGenerator;
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import static com.crm.app.tools.util.Constants.BASE_URL;
-
+@Slf4j
 @SuppressWarnings("squid:S6437")
 @SpringBootApplication(scanBasePackages = "com.crm.app.tools")
-public class AppBulkRegister {
+@RequiredArgsConstructor
+public class AppBulkRegister implements CommandLineRunner, ExitCodeGenerator {
+    private final AppToolsConfig appToolsConfig;
+
     public static void main(String[] args) {
+        SpringApplication app = new SpringApplication(AppBulkRegister.class);
+        int code = SpringApplication.exit(app.run(args));
+        System.exit(code);
+    }
+
+    @Override
+    public void run(String... args) throws Exception {
+        log.info("Starte Batch-Prozess…");
         RegisterRequest request = new RegisterRequest("Ralf", "Scholler", "ralf@test.de", "01702934959",
                 "Am Dorfplatz 6", null, "57610", "Ingelbach", "Deutschland", "test123");
         registerConsumers(10, request);
+        log.info("Batch-Prozess beendet.");
     }
 
-    public static void registerConsumers(int n, RegisterRequest requestTemplate) {
+    public void registerConsumers(int n, RegisterRequest requestTemplate) {
 
-        System.out.println("baseUrl=" + BASE_URL);
+        log.info("baseUrl=" + appToolsConfig.getBaseUrl());
 
         WebClient client = WebClient.builder()
-                .baseUrl(BASE_URL)
+                .baseUrl(appToolsConfig.getBaseUrl())
                 .build();
 
         for (int i = 0; i < n; i++) {
@@ -34,10 +51,11 @@ public class AppBulkRegister {
                         .bodyToMono(String.class)
                         .block(); // synchron
 
-                System.out.println("Response " + i + ": " + response);
+                log.info("Response " + i + ": " + response);
 
             } catch (Exception ex) {
                 System.err.println("Error in request " + i + ": " + ex.getMessage());
+                log.error("Error in request {} {}", i, ex.getMessage(), ex);
             }
         }
     }
@@ -59,4 +77,8 @@ public class AppBulkRegister {
         );
     }
 
+    @Override
+    public int getExitCode() {
+        return 0;
+    }
 }
