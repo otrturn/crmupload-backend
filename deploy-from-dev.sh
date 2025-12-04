@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -e
 
+# -------------------------------------------------------------------
+# !!! NUR ZUR ERINNERUNG !!!
+# -------------------------------------------------------------------
+
 # Verzeichnis, in dem das Skript liegt (→ Projekt-Root)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "${SCRIPT_DIR}" || exit
