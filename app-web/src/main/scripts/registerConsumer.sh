@@ -1,4 +1,4 @@
-curl -v -X POST http://localhost:8086/auth/registerConsumer \
+curl -v -X POST http://localhost:8086/auth/register-consumer \
 -H "Content-Type: application/json" \
 -d '{
 "firstname": "Ralf",

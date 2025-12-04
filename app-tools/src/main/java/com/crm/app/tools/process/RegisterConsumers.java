@@ -25,7 +25,7 @@ public class RegisterConsumers {
 
             try {
                 String response = client.post()
-                        .uri("/auth/registerConsumer")
+                        .uri("/auth/register-consumer")
                         .bodyValue(req)
                         .retrieve()
                         .bodyToMono(String.class)
