@@ -9,6 +9,7 @@ services:
     networks: [ crmuploadnet ]
     volumes:
       - /home/ralf/tmp:/data/tmp
+
 networks:
   crmuploadnet:
     external: true
