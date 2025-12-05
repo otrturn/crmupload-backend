@@ -3,6 +3,7 @@ package com.crm.app.maintenance;
 import com.crm.app.adapter.jdbc.config.AppDataSourceProperties;
 import com.crm.app.config.AppParameters;
 import com.crm.app.error.MaintenanceException;
+import com.crm.app.process.GetUploadFile;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
@@ -16,6 +17,11 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 @RequiredArgsConstructor
 @EnableConfigurationProperties(AppDataSourceProperties.class)
 public class AppMaintenance implements CommandLineRunner, ExitCodeGenerator {
+
+    private final GetUploadFile getUploadFile;
+    private Option option = null;
+
+
     public static void main(String[] args) {
         SpringApplication app = new SpringApplication(AppMaintenance.class);
         int code = SpringApplication.exit(app.run(args));
@@ -26,7 +32,11 @@ public class AppMaintenance implements CommandLineRunner, ExitCodeGenerator {
     public void run(String... args) throws Exception {
         AppParameters appParameters = parseArgs(args);
         log.info("Starte Batch-Prozess…");
-        log.info("Upload-Id={}", appParameters.getUploadId());
+        if (option == null) {
+            throw new MaintenanceException("No valid arguments were provided [--get-upload-file {id}");
+        } else if (option.equals(Option.GET_UPLOAD_FILE)) {
+            getUploadFile.get(appParameters.getUploadId());
+        }
         log.info("Batch-Prozess beendet.");
     }
 
@@ -37,13 +47,14 @@ public class AppMaintenance implements CommandLineRunner, ExitCodeGenerator {
 
     private AppParameters parseArgs(String... args) {
         if (args == null || args.length == 0) {
-            throw new MaintenanceException("No arguments were provided [--get-file {id}");
+            throw new MaintenanceException("No arguments were provided [--get-upload-file {id}");
         }
         AppParameters appParameters = new AppParameters();
         int i = 0;
         while (i < args.length) {
-            if (args[i].equals("--get-file")) {
+            if (args[i].equals("--get-upload-file")) {
                 appParameters.setUploadId(Long.parseLong(nextArg(args, i, "---get-file")));
+                option = Option.GET_UPLOAD_FILE;
                 i += 2;
             } else {
                 i++;
@@ -59,6 +70,9 @@ public class AppMaintenance implements CommandLineRunner, ExitCodeGenerator {
         }
         return args[i + 1];
     }
+
+    private enum Option {
+        GET_UPLOAD_FILE
+    }
+
 }
-
-

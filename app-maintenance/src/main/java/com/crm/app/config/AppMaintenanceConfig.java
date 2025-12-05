@@ -14,11 +14,15 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class AppMaintenanceConfig {
     private String baseUrl;
+    private String workdir;
 
     @PostConstruct
     public void init() {
         if (baseUrl == null || baseUrl.isBlank()) {
             throw new IllegalStateException("baseUrl is blank");
+        }
+        if (workdir == null || workdir.isBlank()) {
+            throw new IllegalStateException("workdir is blank");
         }
     }
 }
