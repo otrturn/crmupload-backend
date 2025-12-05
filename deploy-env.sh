@@ -21,3 +21,6 @@ export DEPLOY_NETWORK="crmuploadnet"
 
 # Optional: Komponierte Datei für Prod
 export DEPLOY_COMPOSE_FILE="docker-compose.prod.yml"
+
+# Optional: Neuaufbau der Datenbank
+export RESET_DB=true

@@ -2,16 +2,60 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-cd "${SCRIPT_DIR}" || exit
+cd "${SCRIPT_DIR}" || exit 1
 
 # Gemeinsame Variablen laden
 source ./deploy-env.sh
 
-echo ">>> Deploy to server: ${DEPLOY_SERVER}"
+# Fallbacks (falls nicht gesetzt)
+DEPLOY_PORT="${DEPLOY_PORT:-22}"
+REMOTE_DIR="${REMOTE_DIR:-/opt/crmupload-deploy}"
 
-rsync -avz ./db-init/ "${DEPLOY_SERVER}:${REMOTE_DIR}/db-init/"
-rsync -avz ./app-prod/${DEPLOY_COMPOSE_FILE} "${DEPLOY_SERVER}:${REMOTE_DIR}/${DEPLOY_COMPOSE_FILE}"
-rsync -avz ./app-prod/src/main/scripts/deploy-on-server.sh \
+echo ">>> Deploy to server: ${DEPLOY_SERVER}"
+echo ">>> DEPLOY_PORT: ${DEPLOY_PORT}"
+echo ">>> REMOTE_DIR: ${REMOTE_DIR}"
+echo ">>> RESET_DB flag: ${RESET_DB}"
+
+# 1) Optional DB-Reset
+if [ "${RESET_DB}" = "true" ]; then
+  echo ">>> Resetting database on server ${DEPLOY_SERVER} ..."
+
+  ssh -p "${DEPLOY_PORT}" "${DEPLOY_SERVER}" "
+    set -e
+    cd ${REMOTE_DIR} || exit 1
+
+    echo '>>> Stopping docker compose stack...'
+    docker compose -f ${DEPLOY_COMPOSE_FILE} down || echo '>>> Stack not running, continuing...'
+
+    echo '>>> Removing app-db-data directory via sudo...'
+    sudo rm -rf app-db-data || echo '>>> sudo rm -rf app-db-data failed, please check permissions.'
+
+    echo '>>> Database reset completed (Postgres will recreate app-db-data).'
+  "
+else
+  echo ">>> RESET_DB=false → Skipping DB reset."
+fi
+
+echo ">>> Uploading deployment files ..."
+
+RSYNC_SSH="ssh -p ${DEPLOY_PORT}"
+
+# Zum Debuggen einmal explizit zeigen, was das Ziel ist:
+echo ">>> rsync target for db-init: ${DEPLOY_SERVER}:${REMOTE_DIR}/db-init/"
+
+rsync -avz -e "${RSYNC_SSH}" ./db-init/ \
+  "${DEPLOY_SERVER}:${REMOTE_DIR}/db-init/"
+
+rsync -avz -e "${RSYNC_SSH}" ./app-prod/${DEPLOY_COMPOSE_FILE} \
+  "${DEPLOY_SERVER}:${REMOTE_DIR}/${DEPLOY_COMPOSE_FILE}"
+
+rsync -avz -e "${RSYNC_SSH}" ./app-prod/src/main/scripts/deploy-on-server.sh \
   "${DEPLOY_SERVER}:${REMOTE_DIR}/deploy.sh"
 
-ssh "${DEPLOY_SERVER}" "cd ${REMOTE_DIR} && chmod +x deploy.sh && ./deploy.sh"
+echo ">>> Running deploy.sh on server ..."
+
+ssh -p "${DEPLOY_PORT}" "${DEPLOY_SERVER}" "
+  cd ${REMOTE_DIR} && chmod +x deploy.sh && ./deploy.sh
+"
+
+echo ">>> Deployment completed."
