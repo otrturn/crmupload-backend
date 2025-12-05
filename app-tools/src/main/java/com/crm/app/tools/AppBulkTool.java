@@ -38,7 +38,7 @@ public class AppBulkTool implements CommandLineRunner, ExitCodeGenerator {
         switch (args[0]) {
             case "--registerConsumer" -> {
                 RegisterRequest request = new RegisterRequest("Ralf", "Scholler", null, "ralf@test.de", "01702934959",
-                        "Am Dorfplatz 6", null, "57610", "Ingelbach", "Deutschland", "test123");
+                        "Am Dorfplatz 6", null, "57610", "Ingelbach", "DE", "test123");
                 registerConsumers.process(10, request);
             }
             case "--BexioToEspo" ->
