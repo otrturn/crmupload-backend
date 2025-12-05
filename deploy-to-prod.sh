@@ -14,27 +14,6 @@ REMOTE_DIR="${REMOTE_DIR:-/opt/crmupload-deploy}"
 echo ">>> Deploy to server: ${DEPLOY_SERVER}"
 echo ">>> DEPLOY_PORT: ${DEPLOY_PORT}"
 echo ">>> REMOTE_DIR: ${REMOTE_DIR}"
-echo ">>> RESET_DB flag: ${RESET_DB}"
-
-# 1) Optional DB-Reset
-if [ "${RESET_DB}" = "true" ]; then
-  echo ">>> Resetting database on server ${DEPLOY_SERVER} ..."
-
-  ssh -p "${DEPLOY_PORT}" "${DEPLOY_SERVER}" "
-    set -e
-    cd ${REMOTE_DIR} || exit 1
-
-    echo '>>> Stopping docker compose stack...'
-    docker compose -f ${DEPLOY_COMPOSE_FILE} down || echo '>>> Stack not running, continuing...'
-
-    echo '>>> Removing app-db-data directory via sudo...'
-    sudo rm -rf app-db-data || echo '>>> sudo rm -rf app-db-data failed, please check permissions.'
-
-    echo '>>> Database reset completed (Postgres will recreate app-db-data).'
-  "
-else
-  echo ">>> RESET_DB=false → Skipping DB reset."
-fi
 
 echo ">>> Uploading deployment files ..."
 
