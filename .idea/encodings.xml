@@ -6,8 +6,10 @@
     <file url="file://$PROJECT_DIR$/app-db-adapter-jdbc/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/app-db-port/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/app-db-port/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app-maintenance/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/app-prod/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/app-tools/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app-web/app-maintenance/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/app-web/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/app-web/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/app-worker/src/main/java" charset="UTF-8" />

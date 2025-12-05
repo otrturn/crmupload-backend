@@ -17,6 +17,7 @@
         <module>app-common</module>
         <module>app-tools</module>
         <module>app-prod</module>
+        <module>app-maintenance</module>
     </modules>
 
     <parent>
