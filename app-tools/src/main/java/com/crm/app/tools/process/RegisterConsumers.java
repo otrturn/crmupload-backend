@@ -46,6 +46,7 @@ public class RegisterConsumers {
         return new RegisterRequest(
                 base.firstname(),
                 base.lastname(),
+                base.company_name(),
                 email,
                 base.phone_number(),
                 base.adrline1(),

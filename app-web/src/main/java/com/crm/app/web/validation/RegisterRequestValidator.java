@@ -1,0 +1,36 @@
+package com.crm.app.web.validation;
+
+import com.crm.app.dto.RegisterRequest;
+import com.crm.app.web.error.ReqgisterRequestInvalidDataException;
+
+public final class RegisterRequestValidator {
+
+    private RegisterRequestValidator() {
+    }
+
+    public static void assertValid(RegisterRequest request) {
+        if (request == null) {
+            throw new ReqgisterRequestInvalidDataException("registration: request must not be null");
+        }
+
+        String emailAddress = request.email_address(); // für Logging/Fehlermeldung
+
+        boolean invalid =
+                (!stringIsFilled(request.firstname()) || !stringIsFilled(request.lastname()))
+                        && !stringIsFilled(request.company_name());
+
+        if (invalid) {
+            throw new ReqgisterRequestInvalidDataException(
+                    String.format(
+                            "registration: Consumer %s firstName/lastName/company_name invalid",
+                            emailAddress
+                    )
+            );
+        }
+    }
+
+    private static boolean stringIsFilled(String value) {
+        return value != null && !value.isBlank();
+    }
+}
+

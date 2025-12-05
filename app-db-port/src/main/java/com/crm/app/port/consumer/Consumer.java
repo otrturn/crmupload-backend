@@ -5,6 +5,7 @@ public record Consumer(
         Long userId,
         String firstname,
         String lastname,
+        String companyName,
         String emailAddress,
         String phoneNumber,
         String adrline1,

@@ -5,8 +5,10 @@ import com.crm.app.dto.LoginResponse;
 import com.crm.app.dto.RegisterRequest;
 import com.crm.app.dto.RegisterResponse;
 import com.crm.app.web.auth.AuthenticationService;
+import com.crm.app.web.error.ReqgisterRequestInvalidDataException;
 import com.crm.app.web.register.ConsumerRegistrationService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,4 +41,12 @@ public class AuthController {
     public String test() {
         return "auth-ok";
     }
+
+    @ExceptionHandler(ReqgisterRequestInvalidDataException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public RegisterResponse handleRegisterRequestInvalidData(ReqgisterRequestInvalidDataException ex) {
+        log.warn("registration: : {}", ex.getMessage());
+        return new RegisterResponse("error: " + ex.getMessage());
+    }
+
 }

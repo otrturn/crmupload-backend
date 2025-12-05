@@ -83,12 +83,12 @@ public class JdbcConsumerRepositoryAdapter implements ConsumerRepositoryPort {
     public void insertConsumer(Consumer consumer) {
         String sql = """
                 INSERT INTO app.consumer (
-                    consumer_id, user_id, firstname, lastname,
+                    consumer_id, user_id, firstname, lastname, company_name,
                     email_address, phone_number,
                     adrline1, adrline2, postalcode, city, country
                 )
                 VALUES (
-                    :consumerId, :userId, :firstname, :lastname,
+                    :consumerId, :userId, :firstname, :lastname, :companyName,
                     :email_address, :phone,
                     :adr1, :adr2, :postal, :city, :country
                 )
@@ -99,6 +99,7 @@ public class JdbcConsumerRepositoryAdapter implements ConsumerRepositoryPort {
                 .addValue("userId", consumer.userId())
                 .addValue("firstname", consumer.firstname())
                 .addValue("lastname", consumer.lastname())
+                .addValue("companyName", consumer.companyName())
                 .addValue(LITERAL_EMAIL, consumer.emailAddress())
                 .addValue("phone", consumer.phoneNumber())
                 .addValue("adr1", consumer.adrline1())

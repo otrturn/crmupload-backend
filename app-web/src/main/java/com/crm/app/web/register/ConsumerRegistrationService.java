@@ -5,6 +5,7 @@ import com.crm.app.dto.RegisterResponse;
 import com.crm.app.port.consumer.Consumer;
 import com.crm.app.port.consumer.ConsumerRepositoryPort;
 import com.crm.app.web.activation.ConsumerActivationService;
+import com.crm.app.web.validation.RegisterRequestValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,8 @@ public class ConsumerRegistrationService {
     public ResponseEntity<RegisterResponse> registerConsumer(RegisterRequest request) {
         String emailAddress = request.email_address();
 
+        RegisterRequestValidator.assertValid(request);
+
         if (consumerRepository.emailExists(emailAddress)) {
             throw new IllegalStateException("Consumer with email already exists: " + emailAddress);
         }
@@ -36,6 +39,7 @@ public class ConsumerRegistrationService {
                 accountResult.userId(),
                 request.firstname(),
                 request.lastname(),
+                request.company_name(),
                 request.email_address(),
                 request.phone_number(),
                 request.adrline1(),
@@ -44,6 +48,7 @@ public class ConsumerRegistrationService {
                 request.city(),
                 request.country()
         );
+
         consumerRepository.insertConsumer(consumer);
 
         consumerActivationService.sendActivationEmail(
@@ -56,4 +61,5 @@ public class ConsumerRegistrationService {
                 .status(201)
                 .body(new RegisterResponse(accountResult.jwtToken()));
     }
+
 }

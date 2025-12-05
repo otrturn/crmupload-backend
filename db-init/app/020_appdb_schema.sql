@@ -48,8 +48,9 @@ CREATE TABLE IF NOT EXISTS app.consumer
 (
     consumer_id   INT         NOT NULL,
     user_id       INT         NOT NULL,
-    firstname     TEXT        NOT NULL,
-    lastname      TEXT        NOT NULL,
+    firstname     TEXT,
+    lastname      TEXT,
+    company_name  TEXT,
     email_address TEXT        NOT NULL,
     phone_number  TEXT        NOT NULL,
     adrline1      TEXT        NOT NULL,
@@ -61,6 +62,17 @@ CREATE TABLE IF NOT EXISTS app.consumer
     created       TIMESTAMPTZ NOT NULL DEFAULT now(),
     modified      TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+ALTER TABLE app.consumer
+    ADD CONSTRAINT consumer_person_or_company_chk
+        CHECK (
+            (
+                firstname IS NOT NULL
+                    AND lastname IS NOT NULL
+                )
+                OR
+            company_name IS NOT NULL
+            );
 
 ALTER TABLE app.consumer
     ADD CONSTRAINT uq_consumer_consumer_id UNIQUE (consumer_id);

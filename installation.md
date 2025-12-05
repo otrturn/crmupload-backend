@@ -49,6 +49,7 @@ sudo wg-quick down ./wg-client.conf
 `
 
 ## /etc
+
 `
 sudo cp wg-client.conf /etc/wireguard/wg-client.conf
 sudo chmod 600 /etc/wireguard/wg-client.conf
@@ -70,12 +71,14 @@ ghcr.io/<github-user>/crmupload-worker:prod
 ## Docker Images bauen
 
 ### App-Web
+
 `
 docker build -t ghcr.io/<github-user>/crmupload-web:prod -f Dockerfile.web .
 docker push ghcr.io/<github-user>/crmupload-web:prod
 `
 
 ### App-Worker
+
 `
 docker build -t ghcr.io/<github-user>/crmupload-worker:prod -f Dockerfile.worker .
 docker push ghcr.io/<github-user>/crmupload-worker:prod
@@ -104,11 +107,13 @@ sudo chown -R ralf:ralf /opt/crmupload-deploy
 `
 
 ## Docker Deployment auf dem Prod-Server ausführen
+
 `
 ssh ralf@server "cd /opt/crmupload-deploy && ./deploy.sh"
 `
 
 # Postgres
+
 ## Auf dem Prod-Server
 
 `
