@@ -1,23 +1,19 @@
-select *
-from app.user_account;
+#!/bin/bash
 
-select *
-from app.consumer;
+# Timestamp für Dateinamen (ohne Leerzeichen/Doppelpunkte)
+timestamp=$(date +"%Y-%m-%d_%H-%M-%S")
+file="${timestamp}-Billing.csv"
 
-select *
-from app.consumer_upload;
+DB_HOST="localhost"
+DB_PORT="5436"
+DB_NAME="crmupload-appdb"
+DB_USER="appuser"
 
-update app.consumer
-set enabled= true;
-commit;
+echo "Exportiere nach Datei: ${file}"
 
-call app.clearAccounts();
-
-update app.consumer_upload
-set status= 'done';
-commit;
-
-\COPY (
+# WICHTIG: Ausgabe von psql wird in die Datei ${file} umgeleitet
+psql -h "${DB_HOST}" -p "${DB_PORT}" -U "${DB_USER}" -d "${DB_NAME}" > "${file}" <<'EOF'
+COPY (
     WITH updated_consumer AS (
         UPDATE app.consumer c
         SET submitted_to_billing = now()
@@ -58,5 +54,7 @@ commit;
     JOIN app.consumer_upload cu
       ON cu.consumer_id = uc.consumer_id
     WHERE cu.status = 'done'
-) TO '${file}' CSV HEADER;
+) TO STDOUT WITH (FORMAT csv, HEADER true);
+EOF
 
+echo "Fertig. Datei gespeichert als: ${file}"
