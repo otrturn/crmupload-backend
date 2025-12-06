@@ -2,6 +2,7 @@ package com.crm.app.web;
 
 import com.crm.app.dto.ConsumerProfileRequest;
 import com.crm.app.dto.ConsumerProfileResponse;
+import com.crm.app.dto.UpdatePasswordRequest;
 import com.crm.app.web.consumer.ConsumerProfileService;
 import com.crm.app.web.error.ConsumerNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -21,8 +22,8 @@ public class ConsumerController {
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/update/{emailAddress:.+}")
-    public ResponseEntity<Void> update(
+    @PutMapping("/updateConsumer/{emailAddress:.+}")
+    public ResponseEntity<Void> updateConsumer(
             @PathVariable("emailAddress") String emailAddress,
             @RequestBody ConsumerProfileRequest request
     ) {
@@ -30,14 +31,23 @@ public class ConsumerController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/ping")
-    public String ping() {
-        return "pong";
+    @PutMapping("/updatePassword/{emailAddress:.+}")
+    public ResponseEntity<Void> updatePassword(
+            @PathVariable("emailAddress") String emailAddress,
+            @RequestBody UpdatePasswordRequest request
+    ) {
+        consumerProfileService.updateConsumerPassword(emailAddress, request);
+        return ResponseEntity.noContent().build();
     }
 
     @ExceptionHandler(ConsumerNotFoundException.class)
-    public ResponseEntity<Void> handleCustomerNotFound(ConsumerNotFoundException ex) {
+    public ResponseEntity<Void> handleConsumeNotFound(ConsumerNotFoundException ex) {
         return ResponseEntity.notFound().build();
+    }
+
+    @GetMapping("/ping")
+    public String ping() {
+        return "pong";
     }
 
 }

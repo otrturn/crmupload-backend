@@ -2,6 +2,7 @@ package com.crm.app.adapter.jdbc.consumer;
 
 import com.crm.app.dto.ConsumerProfileRequest;
 import com.crm.app.dto.ConsumerProfileResponse;
+import com.crm.app.dto.UpdatePasswordRequest;
 import com.crm.app.port.consumer.Consumer;
 import com.crm.app.port.consumer.ConsumerRepositoryPort;
 import lombok.extern.slf4j.Slf4j;
@@ -293,21 +294,21 @@ public class JdbcConsumerRepositoryAdapter implements ConsumerRepositoryPort {
     }
 
     @Override
-    public int updateConsumerProfile(String emailAddress,ConsumerProfileRequest request) {
+    public int updateConsumerProfile(String emailAddress, ConsumerProfileRequest request) {
         String sql = """
-            UPDATE app.consumer
-            SET firstname   = :firstname,
-                lastname    = :lastname,
-                company_name = :company_name,
-                phone_number = :phone_number,
-                adrline1    = :adrline1,
-                adrline2    = :adrline2,
-                postalcode  = :postalcode,
-                city        = :city,
-                country     = :country,
-                modified    = now()
-            WHERE email_address = :email_address
-            """;
+                UPDATE app.consumer
+                SET firstname   = :firstname,
+                    lastname    = :lastname,
+                    company_name = :company_name,
+                    phone_number = :phone_number,
+                    adrline1    = :adrline1,
+                    adrline2    = :adrline2,
+                    postalcode  = :postalcode,
+                    city        = :city,
+                    country     = :country,
+                    modified    = now()
+                WHERE email_address = :email_address
+                """;
 
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue(LITERAL_FIRSTNAME, request.firstname())
@@ -322,4 +323,33 @@ public class JdbcConsumerRepositoryAdapter implements ConsumerRepositoryPort {
                 .addValue(LITERAL_EMAIL_ADDRESS, emailAddress);
 
         return jdbc.update(sql, params);
-    }}
+    }
+
+    @Override
+    public int updateConsumerPassword(String emailAddress, UpdatePasswordRequest request) {
+        String sql = """
+                UPDATE app.user_account ua
+                   SET password = :password,
+                       lastlogin = lastlogin -- unverändert lassen, nur damit es syntaktisch klar ist
+                FROM app.consumer c
+                WHERE c.user_id = ua.id
+                  AND c.email_address = :email_address
+                """;
+
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("password", request.password())
+                .addValue(LITERAL_EMAIL_ADDRESS, emailAddress);
+
+        try {
+            int updated = jdbc.update(sql, params);
+            if (updated == 0) {
+                log.warn("No user_account/consumer found for email '{}'", emailAddress);
+            }
+            return updated;
+        } catch (DataAccessException ex) {
+            log.error("Failed to update password for consumer/user with email '{}'", emailAddress, ex);
+            throw new IllegalStateException("Could not update password for email '" + emailAddress + "'", ex);
+        }
+    }
+
+}

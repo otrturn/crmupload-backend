@@ -2,6 +2,7 @@ package com.crm.app.port.consumer;
 
 import com.crm.app.dto.ConsumerProfileRequest;
 import com.crm.app.dto.ConsumerProfileResponse;
+import com.crm.app.dto.UpdatePasswordRequest;
 
 public interface ConsumerRepositoryPort {
 
@@ -24,5 +25,7 @@ public interface ConsumerRepositoryPort {
     ConsumerProfileResponse getConsumer(String emailAddress);
 
     int updateConsumerProfile(String emailAddress, ConsumerProfileRequest request);
+
+    int updateConsumerPassword(String emailAddress, UpdatePasswordRequest request);
 
 }
