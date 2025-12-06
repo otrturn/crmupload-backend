@@ -2,7 +2,7 @@ package com.crm.app.worker;
 
 import com.crm.app.dto.CrmSystem;
 import com.crm.app.dto.SourceSystem;
-import com.crm.app.port.consumer.ConsumerUploadContent;
+import com.crm.app.dto.ConsumerUploadContent;
 import com.crm.app.port.consumer.ConsumerUploadRepositoryPort;
 import com.crm.app.worker.config.ConsumerUploadProperties;
 import com.crm.app.worker.process.UploadWorkerProcessForBexio;

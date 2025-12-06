@@ -2,6 +2,7 @@ package com.crm.app.adapter.jdbc.consumer;
 
 import com.crm.app.dto.ConsumerProfileRequest;
 import com.crm.app.dto.ConsumerProfileResponse;
+import com.crm.app.dto.ConsumerUploadHistory;
 import com.crm.app.dto.UpdatePasswordRequest;
 import com.crm.app.port.consumer.Consumer;
 import com.crm.app.port.consumer.ConsumerRepositoryPort;
@@ -57,6 +58,19 @@ public class JdbcConsumerRepositoryAdapter implements ConsumerRepositoryPort {
                SET enabled = :enabled,
                    modified = now()
              WHERE consumer_id = :consumerId
+            """;
+
+    private static final String SQL_FIND_UPLOAD_HISTORY_BY_EMAIL = """
+            SELECT
+                cu.created       AS ts,
+                cu.source_system AS source_system,
+                cu.crm_system    AS crm_system,
+                cu.status        AS status
+            FROM app.consumer_upload cu
+            JOIN app.consumer c
+              ON c.consumer_id = cu.consumer_id
+            WHERE c.email_address = :email_address
+            ORDER BY cu.created DESC
             """;
 
     private final NamedParameterJdbcTemplate jdbc;
@@ -350,6 +364,23 @@ public class JdbcConsumerRepositoryAdapter implements ConsumerRepositoryPort {
             log.error("Failed to update password for consumer/user with email '{}'", emailAddress, ex);
             throw new IllegalStateException("Could not update password for email '" + emailAddress + "'", ex);
         }
+    }
+
+    @Override
+    public List<ConsumerUploadHistory> findUploadHistoryByEmailAddress(String emailAddress) {
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue(LITERAL_EMAIL_ADDRESS, emailAddress);
+
+        return jdbc.query(
+                SQL_FIND_UPLOAD_HISTORY_BY_EMAIL,
+                params,
+                (rs, rowNum) -> new ConsumerUploadHistory(
+                        rs.getTimestamp("ts"),
+                        rs.getString("source_system"),
+                        rs.getString("crm_system"),
+                        rs.getString("status")
+                )
+        );
     }
 
 }

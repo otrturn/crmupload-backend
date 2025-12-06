@@ -1,7 +1,8 @@
 package com.crm.app.adapter.jdbc.consumer;
 
+import com.crm.app.dto.ConsumerUploadHistory;
 import com.crm.app.port.consumer.Consumer;
-import com.crm.app.port.consumer.ConsumerUploadContent;
+import com.crm.app.dto.ConsumerUploadContent;
 import com.crm.app.port.consumer.ConsumerUploadRepositoryPort;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;

@@ -1,6 +1,6 @@
 package com.crm.app.web.security;
 
-import com.crm.app.port.user.UserAccount;
+import com.crm.app.dto.UserAccount;
 import com.crm.app.port.user.UserAccountRepositoryPort;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

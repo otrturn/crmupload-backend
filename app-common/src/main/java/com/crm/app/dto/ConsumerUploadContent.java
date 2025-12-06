@@ -1,4 +1,4 @@
-package com.crm.app.port.consumer;
+package com.crm.app.dto;
 
 @SuppressWarnings("squid:S6218")
 public record ConsumerUploadContent(

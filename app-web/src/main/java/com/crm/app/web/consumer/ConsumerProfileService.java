@@ -17,7 +17,7 @@ public class ConsumerProfileService {
     private final ConsumerRepositoryPort consumerRepositoryPort;
     private final PasswordEncoder passwordEncoder;
 
-    public ConsumerProfileResponse getCustomerByEmail(String emailAddress) {
+    public ConsumerProfileResponse getConsumerByEmail(String emailAddress) {
         ConsumerProfileResponse response = consumerRepositoryPort.getConsumer(emailAddress);
         if (response == null) {
             throw new ConsumerNotFoundException(emailAddress);
@@ -25,7 +25,7 @@ public class ConsumerProfileService {
         return response;
     }
 
-    public void updateCustomerProfile(String email, ConsumerProfileRequest request) {
+    public void updateConsumerProfile(String email, ConsumerProfileRequest request) {
         int rows = consumerRepositoryPort.updateConsumerProfile(email, request);
         if (rows == 0) {
             throw new ConsumerNotFoundException(request.email_address());

@@ -1,4 +1,4 @@
-package com.crm.app.port.user;
+package com.crm.app.dto;
 
 import java.util.List;
 

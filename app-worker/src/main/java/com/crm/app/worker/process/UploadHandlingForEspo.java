@@ -1,7 +1,7 @@
 package com.crm.app.worker.process;
 
 import com.crm.app.port.consumer.Consumer;
-import com.crm.app.port.consumer.ConsumerUploadContent;
+import com.crm.app.dto.ConsumerUploadContent;
 import com.crm.app.port.consumer.ConsumerUploadRepositoryPort;
 import com.crm.app.worker.mail.UploadMailService;
 import com.crmmacher.bexio_excel.error.BexioReaderException;

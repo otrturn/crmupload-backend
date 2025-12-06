@@ -1,8 +1,9 @@
-package com.crm.app.web.upload;
+package com.crm.app.web;
 
 import com.crm.app.dto.UploadResponse;
 import com.crm.app.web.error.UploadAlreadyInProgressException;
 import com.crm.app.web.error.UploadNotAllowedException;
+import com.crm.app.web.upload.ConsumerUploadService;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

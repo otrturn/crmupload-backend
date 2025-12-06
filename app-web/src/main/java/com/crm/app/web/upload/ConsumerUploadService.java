@@ -1,13 +1,18 @@
 package com.crm.app.web.upload;
 
+import com.crm.app.dto.ConsumerUploadHistory;
 import com.crm.app.dto.UploadRequest;
 import com.crm.app.port.consumer.ConsumerRepositoryPort;
 import com.crm.app.port.consumer.ConsumerUploadRepositoryPort;
+import com.crm.app.web.error.ConsumerNotFoundException;
 import com.crm.app.web.error.UploadNotAllowedException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -70,4 +75,13 @@ public class ConsumerUploadService {
             throw new IllegalStateException("Upload failed: " + ex.getMessage(), ex);
         }
     }
+
+    public List<ConsumerUploadHistory> getConsumerUploadHistoryByEmail(String emailAddress) {
+        List<ConsumerUploadHistory> response = consumerRepositoryPort.findUploadHistoryByEmailAddress(emailAddress);
+        if (response == null) {
+            throw new ConsumerNotFoundException(emailAddress);
+        }
+        return response;
+    }
+
 }

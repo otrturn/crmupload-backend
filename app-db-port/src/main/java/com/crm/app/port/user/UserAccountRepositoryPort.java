@@ -1,5 +1,7 @@
 package com.crm.app.port.user;
 
+import com.crm.app.dto.UserAccount;
+
 import java.util.Optional;
 
 public interface UserAccountRepositoryPort {

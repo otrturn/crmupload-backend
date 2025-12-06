@@ -2,7 +2,7 @@ package com.crm.app.process;
 
 import com.crm.app.config.AppMaintenanceConfig;
 import com.crm.app.error.MaintenanceException;
-import com.crm.app.port.consumer.ConsumerUploadContent;
+import com.crm.app.dto.ConsumerUploadContent;
 import com.crm.app.port.consumer.ConsumerUploadRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

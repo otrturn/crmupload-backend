@@ -1,6 +1,6 @@
 package com.crm.app.web.register;
 
-import com.crm.app.port.user.UserAccount;
+import com.crm.app.dto.UserAccount;
 import com.crm.app.port.user.UserAccountRepositoryPort;
 import com.crm.app.web.security.JwtService;
 import lombok.RequiredArgsConstructor;

@@ -1,6 +1,6 @@
 package com.crm.app.adapter.jdbc.user;
 
-import com.crm.app.port.user.UserAccount;
+import com.crm.app.dto.UserAccount;
 import com.crm.app.port.user.UserAccountRepositoryPort;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
