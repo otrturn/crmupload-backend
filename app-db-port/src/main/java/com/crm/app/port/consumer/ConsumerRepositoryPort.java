@@ -1,5 +1,7 @@
 package com.crm.app.port.consumer;
 
+import com.crm.app.dto.ConsumerProfileResponse;
+
 public interface ConsumerRepositoryPort {
 
     boolean emailExists(String emailAddress);
@@ -17,4 +19,6 @@ public interface ConsumerRepositoryPort {
     boolean isHasOpenUploadsByConsumerId(long consumerId);
 
     void setEnabled(long consumerId, boolean enabled);
+
+    ConsumerProfileResponse getConsumer(String emailAddress);
 }

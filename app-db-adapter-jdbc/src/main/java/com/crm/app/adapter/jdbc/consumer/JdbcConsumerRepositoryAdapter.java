@@ -1,5 +1,6 @@
 package com.crm.app.adapter.jdbc.consumer;
 
+import com.crm.app.dto.ConsumerProfileResponse;
 import com.crm.app.port.consumer.Consumer;
 import com.crm.app.port.consumer.ConsumerRepositoryPort;
 import lombok.extern.slf4j.Slf4j;
@@ -8,6 +9,10 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
 
 @Repository
 @Slf4j
@@ -240,4 +245,46 @@ public class JdbcConsumerRepositoryAdapter implements ConsumerRepositoryPort {
         }
     }
 
+    @Override
+    public ConsumerProfileResponse getConsumer(String emailAddress) {
+        String sql = """
+                SELECT firstname,
+                       lastname,
+                       company_name,
+                       phone_number,
+                       adrline1,
+                       adrline2,
+                       postalcode,
+                       city,
+                       country
+                FROM app.consumer
+                WHERE email_address = :email
+                """;
+
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("email", emailAddress);
+
+        List<ConsumerProfileResponse> result = jdbc.query(
+                sql,
+                params,
+                (rs, rowNum) -> mapToCustomerProfileResponse(rs, emailAddress)
+        );
+
+        return result.isEmpty() ? null : result.get(0);
+    }
+
+    private ConsumerProfileResponse mapToCustomerProfileResponse(ResultSet rs, String emailAddress) throws SQLException {
+        return new ConsumerProfileResponse(
+                rs.getString("firstname"),
+                rs.getString("lastname"),
+                rs.getString("company_name"),
+                emailAddress,
+                rs.getString("phone_number"),
+                rs.getString("adrline1"),
+                rs.getString("adrline2"),
+                rs.getString("postalcode"),
+                rs.getString("city"),
+                rs.getString("country")
+        );
+    }
 }
