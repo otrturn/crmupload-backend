@@ -125,7 +125,7 @@ public class JdbcConsumerUploadRepositoryAdapter implements ConsumerUploadReposi
     @Override
     public long findConsumerIdByEmail(final String emailAddress) {
         if (emailAddress == null || emailAddress.isBlank()) {
-            throw new IllegalArgumentException("email must not be null or blank");
+            throw new IllegalArgumentException("emailAddress must not be null or blank");
         }
 
         final MapSqlParameterSource params = new MapSqlParameterSource("email_address", emailAddress);
@@ -138,20 +138,20 @@ public class JdbcConsumerUploadRepositoryAdapter implements ConsumerUploadReposi
             );
 
             if (consumerId == null) {
-                throw new IllegalStateException("Consumer ID for email '" + emailAddress + "' is null");
+                throw new IllegalStateException("Consumer ID for emailAddress '" + emailAddress + "' is null");
             }
 
             if (log.isDebugEnabled()) {
-                log.debug("Found consumer id {} for email {}", consumerId, emailAddress);
+                log.debug("Found consumer id {} for emailAddress {}", consumerId, emailAddress);
             }
 
             return consumerId;
         } catch (EmptyResultDataAccessException ex) {
-            log.warn("No consumer found for email {}", emailAddress);
-            throw new IllegalStateException("No consumer found for email '" + emailAddress + "'", ex);
+            log.warn("No consumer found for emailAddress {}", emailAddress);
+            throw new IllegalStateException("No consumer found for emailAddress '" + emailAddress + "'", ex);
         } catch (DataAccessException ex) {
-            log.error("Failed to find consumer id for email {}", emailAddress, ex);
-            throw new IllegalStateException("Could not retrieve consumer id for email '" + emailAddress + "'", ex);
+            log.error("Failed to find consumer id for emailAddress {}", emailAddress, ex);
+            throw new IllegalStateException("Could not retrieve consumer id for emailAddress '" + emailAddress + "'", ex);
         }
     }
 

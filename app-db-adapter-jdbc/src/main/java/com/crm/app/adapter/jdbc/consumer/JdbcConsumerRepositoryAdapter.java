@@ -1,5 +1,6 @@
 package com.crm.app.adapter.jdbc.consumer;
 
+import com.crm.app.dto.ConsumerProfileRequest;
 import com.crm.app.dto.ConsumerProfileResponse;
 import com.crm.app.port.consumer.Consumer;
 import com.crm.app.port.consumer.ConsumerRepositoryPort;
@@ -18,7 +19,10 @@ import java.util.List;
 @Slf4j
 public class JdbcConsumerRepositoryAdapter implements ConsumerRepositoryPort {
 
-    private static final String LITERAL_EMAIL = "email_address";
+    private static final String LITERAL_FIRSTNAME = "firstname";
+    private static final String LITERAL_LASTNAME = "lastname";
+    private static final String LITERAL_COUNTRY = "country";
+    private static final String LITERAL_EMAIL_ADDRESS = "email_address";
     private static final String LITERAL_CONSUMER_ID = "consumer_id";
     private static final String LITERAL_NO_CONSUMER_FOR_EMAIL = "No consumer found for email '{}'";
 
@@ -69,7 +73,7 @@ public class JdbcConsumerRepositoryAdapter implements ConsumerRepositoryPort {
                 """;
 
         Long count = jdbc.queryForObject(sql,
-                new MapSqlParameterSource(LITERAL_EMAIL, emailAddress),
+                new MapSqlParameterSource(LITERAL_EMAIL_ADDRESS, emailAddress),
                 Long.class);
         return count != null && count > 0;
     }
@@ -102,23 +106,23 @@ public class JdbcConsumerRepositoryAdapter implements ConsumerRepositoryPort {
         var params = new MapSqlParameterSource()
                 .addValue("consumerId", consumer.consumerId())
                 .addValue("userId", consumer.userId())
-                .addValue("firstname", consumer.firstname())
-                .addValue("lastname", consumer.lastname())
+                .addValue(LITERAL_FIRSTNAME, consumer.firstname())
+                .addValue(LITERAL_LASTNAME, consumer.lastname())
                 .addValue("companyName", consumer.companyName())
-                .addValue(LITERAL_EMAIL, consumer.emailAddress())
+                .addValue(LITERAL_EMAIL_ADDRESS, consumer.emailAddress())
                 .addValue("phone", consumer.phoneNumber())
                 .addValue("adr1", consumer.adrline1())
                 .addValue("adr2", consumer.adrline2())
                 .addValue("postal", consumer.postalcode())
                 .addValue("city", consumer.city())
-                .addValue("country", consumer.country());
+                .addValue(LITERAL_COUNTRY, consumer.country());
 
         jdbc.update(sql, params);
     }
 
     @Override
     public boolean isEnabledByEmail(String emailAddress) {
-        MapSqlParameterSource params = new MapSqlParameterSource(LITERAL_EMAIL, emailAddress);
+        MapSqlParameterSource params = new MapSqlParameterSource(LITERAL_EMAIL_ADDRESS, emailAddress);
 
         try {
             Boolean enabled = jdbc.queryForObject(
@@ -174,7 +178,7 @@ public class JdbcConsumerRepositoryAdapter implements ConsumerRepositoryPort {
 
     @Override
     public boolean isHasOpenUploadsByEmail(String emailAddress) {
-        MapSqlParameterSource params = new MapSqlParameterSource(LITERAL_EMAIL, emailAddress);
+        MapSqlParameterSource params = new MapSqlParameterSource(LITERAL_EMAIL_ADDRESS, emailAddress);
 
         try {
             Boolean hasOpenUploads = jdbc.queryForObject(
@@ -275,8 +279,8 @@ public class JdbcConsumerRepositoryAdapter implements ConsumerRepositoryPort {
 
     private ConsumerProfileResponse mapToCustomerProfileResponse(ResultSet rs, String emailAddress) throws SQLException {
         return new ConsumerProfileResponse(
-                rs.getString("firstname"),
-                rs.getString("lastname"),
+                rs.getString(LITERAL_FIRSTNAME),
+                rs.getString(LITERAL_LASTNAME),
                 rs.getString("company_name"),
                 emailAddress,
                 rs.getString("phone_number"),
@@ -284,7 +288,38 @@ public class JdbcConsumerRepositoryAdapter implements ConsumerRepositoryPort {
                 rs.getString("adrline2"),
                 rs.getString("postalcode"),
                 rs.getString("city"),
-                rs.getString("country")
+                rs.getString(LITERAL_COUNTRY)
         );
     }
-}
+
+    @Override
+    public int updateConsumerProfile(String emailAddress,ConsumerProfileRequest request) {
+        String sql = """
+            UPDATE app.consumer
+            SET firstname   = :firstname,
+                lastname    = :lastname,
+                company_name = :company_name,
+                phone_number = :phone_number,
+                adrline1    = :adrline1,
+                adrline2    = :adrline2,
+                postalcode  = :postalcode,
+                city        = :city,
+                country     = :country,
+                modified    = now()
+            WHERE email_address = :email_address
+            """;
+
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue(LITERAL_FIRSTNAME, request.firstname())
+                .addValue(LITERAL_LASTNAME, request.lastname())
+                .addValue("company_name", request.company_name())
+                .addValue("phone_number", request.phone_number())
+                .addValue("adrline1", request.adrline1())
+                .addValue("adrline2", request.adrline2())
+                .addValue("postalcode", request.postalcode())
+                .addValue("city", request.city())
+                .addValue(LITERAL_COUNTRY, request.country())
+                .addValue(LITERAL_EMAIL_ADDRESS, emailAddress);
+
+        return jdbc.update(sql, params);
+    }}

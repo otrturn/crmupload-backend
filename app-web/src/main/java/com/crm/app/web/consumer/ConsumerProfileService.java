@@ -1,6 +1,7 @@
 package com.crm.app.web.consumer;
 
 
+import com.crm.app.dto.ConsumerProfileRequest;
 import com.crm.app.dto.ConsumerProfileResponse;
 import com.crm.app.port.consumer.ConsumerRepositoryPort;
 import com.crm.app.web.error.ConsumerNotFoundException;
@@ -22,4 +23,10 @@ public class ConsumerProfileService {
         }
         return response;
     }
-}
+
+    public void updateCustomerProfile(String email, ConsumerProfileRequest request) {
+        int rows = consumerRepositoryPort.updateConsumerProfile(email, request);
+        if (rows == 0) {
+            throw new ConsumerNotFoundException(request.email_address());
+        }
+    }}

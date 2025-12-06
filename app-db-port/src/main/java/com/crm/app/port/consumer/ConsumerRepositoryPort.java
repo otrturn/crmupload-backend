@@ -1,5 +1,6 @@
 package com.crm.app.port.consumer;
 
+import com.crm.app.dto.ConsumerProfileRequest;
 import com.crm.app.dto.ConsumerProfileResponse;
 
 public interface ConsumerRepositoryPort {
@@ -21,4 +22,7 @@ public interface ConsumerRepositoryPort {
     void setEnabled(long consumerId, boolean enabled);
 
     ConsumerProfileResponse getConsumer(String emailAddress);
+
+    int updateConsumerProfile(String emailAddress, ConsumerProfileRequest request);
+
 }
