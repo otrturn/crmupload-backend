@@ -66,14 +66,16 @@ public class JdbcConsumerUploadRepositoryAdapter implements ConsumerUploadReposi
     private static final String SQL_MARK_DONE = """
             UPDATE app.consumer_upload
                SET status = 'done',
-                   last_error = NULL
+                   last_error = NULL,
+                   modified = now()
              WHERE upload_id = :uploadId
             """;
 
     private static final String SQL_MARK_FAILED = """
             UPDATE app.consumer_upload
                SET status = 'failed',
-                   last_error = :error
+                   last_error = :error,
+                   modified = now()
              WHERE upload_id = :uploadId
             """;
 

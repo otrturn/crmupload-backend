@@ -1,5 +1,7 @@
 DROP TABLE IF EXISTS app.consumer_activation CASCADE;
 
+DROP TABLE IF EXISTS app.consumer_billing CASCADE;
+
 DROP TABLE IF EXISTS app.consumer_upload CASCADE;
 DROP SEQUENCE IF EXISTS app.sequence_consumer_upload;
 
@@ -46,22 +48,21 @@ CREATE SEQUENCE app.sequence_consumer
 
 CREATE TABLE IF NOT EXISTS app.consumer
 (
-    consumer_id          INT         NOT NULL,
-    user_id              INT         NOT NULL,
-    firstname            TEXT,
-    lastname             TEXT,
-    company_name         TEXT,
-    email_address        TEXT        NOT NULL,
-    phone_number         TEXT        NOT NULL,
-    adrline1             TEXT        NOT NULL,
-    adrline2             TEXT,
-    postalcode           TEXT        NOT NULL,
-    city                 TEXT        NOT NULL,
-    country              TEXT        NOT NULL CHECK (country IN ('DE', 'AT', 'CH')),
-    submitted_to_billing TIMESTAMPTZ,
-    enabled              BOOLEAN     NOT NULL DEFAULT false,
-    created              TIMESTAMPTZ NOT NULL DEFAULT now(),
-    modified             TIMESTAMPTZ NOT NULL DEFAULT now()
+    consumer_id   INT         NOT NULL,
+    user_id       INT         NOT NULL,
+    firstname     TEXT,
+    lastname      TEXT,
+    company_name  TEXT,
+    email_address TEXT        NOT NULL,
+    phone_number  TEXT        NOT NULL,
+    adrline1      TEXT        NOT NULL,
+    adrline2      TEXT,
+    postalcode    TEXT        NOT NULL,
+    city          TEXT        NOT NULL,
+    country       TEXT        NOT NULL CHECK (country IN ('DE', 'AT', 'CH')),
+    enabled       BOOLEAN     NOT NULL DEFAULT false,
+    created       TIMESTAMPTZ NOT NULL DEFAULT now(),
+    modified      TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 ALTER TABLE app.consumer
@@ -146,3 +147,24 @@ CREATE TABLE IF NOT EXISTS app.consumer_activation
 
 CREATE INDEX IF NOT EXISTS idx_consumer_activation_consumer
     ON app.consumer_activation (consumer_id);
+
+-- ****************************************************************************************************
+-- consumer_billing
+-- ****************************************************************************************************
+
+CREATE TABLE IF NOT EXISTS app.consumer_billing
+(
+    consumer_id           INT         NOT NULL,
+    status                TEXT        NOT NULL DEFAULT 'new',
+    start_of_subscription TIMESTAMPTZ,
+    submitted_to_billing  TIMESTAMPTZ,
+    created               TIMESTAMPTZ NOT NULL DEFAULT now(),
+    modified              TIMESTAMPTZ NOT NULL DEFAULT now(),
+    CONSTRAINT chk_consumer_billing_status CHECK (status IN ('new', 'renewal'))
+);
+
+ALTER TABLE app.consumer_billing
+    ADD CONSTRAINT fk_consumer_billing_consumer_id
+        FOREIGN KEY (consumer_id)
+            REFERENCES app.consumer (consumer_id)
+            ON DELETE RESTRICT;
