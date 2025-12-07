@@ -59,7 +59,6 @@ public class UploadWorkerProcessForBexio {
             } else {
                 log.error("Consumer not found for consumer id={}", upload.consumerId());
             }
-
         } catch (Exception ex) {
             repository.markUploadFailed(upload.uploadId(), ex.getMessage());
         }

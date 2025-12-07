@@ -59,6 +59,17 @@
 
         <dependency>
             <groupId>com.crmmacher-suite</groupId>
+            <artifactId>reader-lexware-excel</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.crmmacher-suite</groupId>
+            <artifactId>espo-importer-lexware-excel</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.crmmacher-suite</groupId>
             <artifactId>reader-my-excel</artifactId>
             <version>${project.version}</version>
         </dependency>
