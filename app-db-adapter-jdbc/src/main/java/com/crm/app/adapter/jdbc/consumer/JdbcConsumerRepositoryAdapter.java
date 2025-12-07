@@ -65,10 +65,11 @@ public class JdbcConsumerRepositoryAdapter implements ConsumerRepositoryPort {
 
     private static final String SQL_FIND_UPLOAD_HISTORY_BY_EMAIL = """
             SELECT
-                cu.created       AS ts,
-                cu.source_system AS source_system,
-                cu.crm_system    AS crm_system,
-                cu.status        AS status
+                cu.created         AS ts,
+                cu.source_system   AS source_system,
+                cu.crm_system      AS crm_system,
+                cu.crm_customer_id AS crm_customer_id,
+                cu.status          AS status
             FROM app.consumer_upload cu
             JOIN app.consumer c
               ON c.consumer_id = cu.consumer_id
@@ -400,6 +401,7 @@ public class JdbcConsumerRepositoryAdapter implements ConsumerRepositoryPort {
                         rs.getTimestamp("ts"),
                         rs.getString(LITERAL_SOURCE_SYSTEM),
                         rs.getString(LITERAL_CRM_SYSTEM),
+                        rs.getString(LITERAL_CRM_CUSTOMER_ID),
                         rs.getString("status")
                 )
         );
