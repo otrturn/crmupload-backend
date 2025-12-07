@@ -58,11 +58,10 @@ public class ConsumerUploadService {
         if (hasOpenUploads) {
             throw new UploadNotAllowedException(String.format("processUpload: Consumer %s has open uploads", emailAddress));
         }
-        if (consumerUploadInfo.isPresent() && (!consumerUploadInfo.get().sourceSystem().equals(sourceSystem)
-                || !consumerUploadInfo.get().crmSystem().equals(crmSystem)
+        if (consumerUploadInfo.isPresent() && (!consumerUploadInfo.get().crmSystem().equals(crmSystem)
                 || !consumerUploadInfo.get().crmCustomerId().equals(crmCustomerId))) {
-            throw new UploadNotAllowedException(String.format("processUpload: sourceSystem/crmSystem/crmCustomerId %s/%s/%s for consumer %d invalid",
-                    sourceSystem, crmSystem, crmCustomerId, consumerId));
+            throw new UploadNotAllowedException(String.format("processUpload: crmSystem/crmCustomerId %s/%s for consumer %d invalid",
+                    crmSystem, crmCustomerId, consumerId));
         }
 
 
