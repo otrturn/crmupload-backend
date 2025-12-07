@@ -57,7 +57,8 @@ public class UploadWorkerProcessForLexware {
                 uploadHandlingForEspo.processForEspo(upload, excelSourceFile, excelTargetFile, errors, consumer.get(), espoEntityPool);
             } else {
                 log.error("Consumer not found for consumer id={}", upload.consumerId());
-            }        } catch (Exception ex) {
+            }
+        } catch (Exception ex) {
             repository.markUploadFailed(upload.uploadId(), ex.getMessage());
         }
         WorkerUtils.removeFile(excelSourceFile);

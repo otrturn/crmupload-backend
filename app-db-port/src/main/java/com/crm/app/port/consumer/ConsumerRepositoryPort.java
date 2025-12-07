@@ -1,11 +1,9 @@
 package com.crm.app.port.consumer;
 
-import com.crm.app.dto.ConsumerProfileRequest;
-import com.crm.app.dto.ConsumerProfileResponse;
-import com.crm.app.dto.ConsumerUploadHistory;
-import com.crm.app.dto.UpdatePasswordRequest;
+import com.crm.app.dto.*;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ConsumerRepositoryPort {
 
@@ -32,5 +30,9 @@ public interface ConsumerRepositoryPort {
     int updateConsumerPassword(String emailAddress, UpdatePasswordRequest request);
 
     List<ConsumerUploadHistory> findUploadHistoryByEmailAddress(String emailAddress);
+
+    Optional<ConsumerUploadInfo> findLatestByConsumerId(long consumerId);
+
+    Optional<ConsumerUploadInfo> findLatestByEmail(String email);
 
 }

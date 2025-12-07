@@ -1,6 +1,7 @@
 package com.crm.app.web.upload;
 
 import com.crm.app.dto.ConsumerUploadHistory;
+import com.crm.app.dto.ConsumerUploadInfo;
 import com.crm.app.dto.UploadRequest;
 import com.crm.app.port.consumer.ConsumerRepositoryPort;
 import com.crm.app.port.consumer.ConsumerUploadRepositoryPort;
@@ -11,8 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -49,6 +50,7 @@ public class ConsumerUploadService {
 
         boolean enabled = consumerRepositoryPort.isEnabledByConsumerId(consumerId);
         boolean hasOpenUploads = consumerRepositoryPort.isHasOpenUploadsByConsumerId(consumerId);
+        Optional<ConsumerUploadInfo> consumerUploadInfo = consumerRepositoryPort.findLatestByConsumerId(consumerId);
 
         if (!enabled) {
             throw new UploadNotAllowedException(String.format("processUpload: Consumer %s is not enabled", emailAddress));
@@ -56,6 +58,13 @@ public class ConsumerUploadService {
         if (hasOpenUploads) {
             throw new UploadNotAllowedException(String.format("processUpload: Consumer %s has open uploads", emailAddress));
         }
+        if (consumerUploadInfo.isPresent() && (!consumerUploadInfo.get().sourceSystem().equals(sourceSystem)
+                || !consumerUploadInfo.get().crmSystem().equals(crmSystem)
+                || !consumerUploadInfo.get().crmCustomerId().equals(crmCustomerId))) {
+            throw new UploadNotAllowedException(String.format("processUpload: sourceSystem/crmSystem/crmCustomerId %s/%s/%s for consumer %d invalid",
+                    sourceSystem, crmSystem, crmCustomerId, consumerId));
+        }
+
 
         long uploadId = repository.nextUploadId();
         log.info("Generated uploadId={}", uploadId);

@@ -1,9 +1,6 @@
 package com.crm.app.adapter.jdbc.consumer;
 
-import com.crm.app.dto.ConsumerProfileRequest;
-import com.crm.app.dto.ConsumerProfileResponse;
-import com.crm.app.dto.ConsumerUploadHistory;
-import com.crm.app.dto.UpdatePasswordRequest;
+import com.crm.app.dto.*;
 import com.crm.app.port.consumer.Consumer;
 import com.crm.app.port.consumer.ConsumerRepositoryPort;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +13,8 @@ import org.springframework.stereotype.Repository;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Repository
 @Slf4j
@@ -26,6 +25,10 @@ public class JdbcConsumerRepositoryAdapter implements ConsumerRepositoryPort {
     private static final String LITERAL_COUNTRY = "country";
     private static final String LITERAL_EMAIL_ADDRESS = "email_address";
     private static final String LITERAL_CONSUMER_ID = "consumer_id";
+    private static final String LITERAL_CONSUMER_ID_CAMCELCASE = "consumerId";
+    private static final String LITERAL_SOURCE_SYSTEM = "source_system";
+    private static final String LITERAL_CRM_SYSTEM = "crm_system";
+    private static final String LITERAL_CRM_CUSTOMER_ID = "crm_customer-id";
     private static final String LITERAL_NO_CONSUMER_FOR_EMAIL = "No consumer found for email '{}'";
 
     private static final String SQL_FIND_ENABLED_BY_EMAIL =
@@ -71,6 +74,25 @@ public class JdbcConsumerRepositoryAdapter implements ConsumerRepositoryPort {
               ON c.consumer_id = cu.consumer_id
             WHERE c.email_address = :email_address
             ORDER BY cu.created DESC
+            """;
+
+    private static final String SQL_FIND_LATEST_SUCCESSFUL_UPLOAD_BY_CONSUMER_ID = """
+            SELECT source_system, crm_system, crm_customer_id
+            FROM app.consumer_upload
+            WHERE consumer_id = :consumerId
+              AND status = 'done'
+            ORDER BY modified DESC
+            LIMIT 1
+            """;
+
+    private static final String SQL_FIND_LATEST_SUCCESSFUL_UPLOAD_BY_EMAIL = """
+            SELECT cu.source_system, cu.crm_system, cu.crm_customer_id
+            FROM app.consumer_upload cu
+            JOIN app.consumer c ON c.consumer_id = cu.consumer_id
+            WHERE c.email_address = :email
+              AND cu.status = 'done'
+            ORDER BY cu.modified DESC
+            LIMIT 1
             """;
 
     private final NamedParameterJdbcTemplate jdbc;
@@ -119,7 +141,7 @@ public class JdbcConsumerRepositoryAdapter implements ConsumerRepositoryPort {
                 """;
 
         var params = new MapSqlParameterSource()
-                .addValue("consumerId", consumer.consumerId())
+                .addValue(LITERAL_CONSUMER_ID_CAMCELCASE, consumer.consumerId())
                 .addValue("userId", consumer.userId())
                 .addValue(LITERAL_FIRSTNAME, consumer.firstname())
                 .addValue(LITERAL_LASTNAME, consumer.lastname())
@@ -250,7 +272,7 @@ public class JdbcConsumerRepositoryAdapter implements ConsumerRepositoryPort {
     @Override
     public void setEnabled(final long consumerId, final boolean enabled) {
         MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("consumerId", consumerId)
+                .addValue(LITERAL_CONSUMER_ID_CAMCELCASE, consumerId)
                 .addValue("enabled", enabled);
 
         try {
@@ -376,11 +398,42 @@ public class JdbcConsumerRepositoryAdapter implements ConsumerRepositoryPort {
                 params,
                 (rs, rowNum) -> new ConsumerUploadHistory(
                         rs.getTimestamp("ts"),
-                        rs.getString("source_system"),
-                        rs.getString("crm_system"),
+                        rs.getString(LITERAL_SOURCE_SYSTEM),
+                        rs.getString(LITERAL_CRM_SYSTEM),
                         rs.getString("status")
                 )
         );
     }
 
+    public Optional<ConsumerUploadInfo> findLatestByConsumerId(long consumerId) {
+        Map<String, Object> params = Map.of(LITERAL_CONSUMER_ID_CAMCELCASE, consumerId);
+
+        List<ConsumerUploadInfo> list = jdbc.query(
+                SQL_FIND_LATEST_SUCCESSFUL_UPLOAD_BY_CONSUMER_ID,
+                params,
+                (rs, rowNum) -> new ConsumerUploadInfo(
+                        rs.getString(LITERAL_SOURCE_SYSTEM),
+                        rs.getString(LITERAL_CRM_SYSTEM),
+                        rs.getString(LITERAL_CRM_CUSTOMER_ID)
+                )
+        );
+
+        return list.stream().findFirst();
+    }
+
+    public Optional<ConsumerUploadInfo> findLatestByEmail(String email) {
+        Map<String, Object> params = Map.of("email", email);
+
+        List<ConsumerUploadInfo> list = jdbc.query(
+                SQL_FIND_LATEST_SUCCESSFUL_UPLOAD_BY_EMAIL,
+                params,
+                (rs, rowNum) -> new ConsumerUploadInfo(
+                        rs.getString(LITERAL_SOURCE_SYSTEM),
+                        rs.getString(LITERAL_CRM_SYSTEM),
+                        rs.getString(LITERAL_CRM_CUSTOMER_ID)
+                )
+        );
+
+        return list.stream().findFirst();
+    }
 }

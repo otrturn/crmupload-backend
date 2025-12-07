@@ -12,7 +12,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @EnableScheduling
 @SpringBootApplication(scanBasePackages = "com.crm")
-@EnableConfigurationProperties({AppDataSourceProperties.class, ConsumerUploadProperties.class, BexioCtx.class, LexwareCtx.class,MyExcelCtx.class})
+@EnableConfigurationProperties({AppDataSourceProperties.class, ConsumerUploadProperties.class, BexioCtx.class, LexwareCtx.class, MyExcelCtx.class})
 public class AppWorkerApplication {
     public static void main(String[] args) {
         SpringApplication.run(AppWorkerApplication.class, args);

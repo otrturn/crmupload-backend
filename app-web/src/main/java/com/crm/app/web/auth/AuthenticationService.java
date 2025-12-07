@@ -1,5 +1,6 @@
 package com.crm.app.web.auth;
 
+import com.crm.app.dto.ConsumerUploadInfo;
 import com.crm.app.dto.LoginRequest;
 import com.crm.app.dto.LoginResponse;
 import com.crm.app.port.consumer.ConsumerRepositoryPort;
@@ -11,6 +12,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -51,7 +54,8 @@ public class AuthenticationService {
 
         boolean enabled = consumerRepositoryPort.isEnabledByEmail(emailAddress);
         boolean hasOpenUploads = consumerRepositoryPort.isHasOpenUploadsByEmail(emailAddress);
+        Optional<ConsumerUploadInfo> consumerUploadInfo = consumerRepositoryPort.findLatestByEmail(emailAddress);
 
-        return new LoginResponse(token, enabled, hasOpenUploads);
+        return new LoginResponse(token, enabled, hasOpenUploads, consumerUploadInfo.orElse(null));
     }
 }

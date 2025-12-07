@@ -1,7 +1,6 @@
 package com.crm.app.port.consumer;
 
 import com.crm.app.dto.ConsumerUploadContent;
-import com.crm.app.dto.ConsumerUploadHistory;
 
 import java.util.List;
 import java.util.Optional;
