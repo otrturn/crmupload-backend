@@ -20,5 +20,6 @@ update app.consumer_upload
 set status= 'done';
 commit;
 
-select * from app.export_billing();
+select *
+from app.export_billing();
 
