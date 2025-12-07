@@ -28,7 +28,7 @@ public class JdbcConsumerRepositoryAdapter implements ConsumerRepositoryPort {
     private static final String LITERAL_CONSUMER_ID_CAMCELCASE = "consumerId";
     private static final String LITERAL_SOURCE_SYSTEM = "source_system";
     private static final String LITERAL_CRM_SYSTEM = "crm_system";
-    private static final String LITERAL_CRM_CUSTOMER_ID = "crm_customer-id";
+    private static final String LITERAL_CRM_CUSTOMER_ID = "crm_customer_id";
     private static final String LITERAL_NO_CONSUMER_FOR_EMAIL = "No consumer found for email '{}'";
 
     private static final String SQL_FIND_ENABLED_BY_EMAIL =
