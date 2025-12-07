@@ -1,10 +1,11 @@
 package com.crm.app.worker.process;
 
-import com.crm.app.port.consumer.Consumer;
 import com.crm.app.dto.ConsumerUploadContent;
+import com.crm.app.port.consumer.Consumer;
 import com.crm.app.port.consumer.ConsumerUploadRepositoryPort;
 import com.crm.app.worker.config.ConsumerUploadProperties;
 import com.crm.app.worker.util.WorkerUtils;
+import com.crmmacher.bexio_excel.dto.BexioColumn;
 import com.crmmacher.bexio_excel.dto.BexioEntry;
 import com.crmmacher.bexio_excel.reader.ReadBexioExcel;
 import com.crmmacher.error.ErrMsg;
@@ -19,6 +20,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static com.crm.app.worker.util.WorkerUtils.writeExcelToFile;
@@ -44,11 +46,11 @@ public class UploadWorkerProcessForBexio {
             List<ErrMsg> errors = new ArrayList<>();
 
             List<BexioEntry> bexioEntries = new ArrayList<>();
-            new ReadBexioExcel().getEntries(excelSourceFile, bexioEntries, errors);
+            Map<BexioColumn, Integer> indexMap = new ReadBexioExcel().getEntries(excelSourceFile, bexioEntries, errors);
             log.info(String.format("Bexio %d entries read, %d errors", bexioEntries.size(), errors.size()));
 
             EspoEntityPool espoEntityPool = new EspoEntityPool();
-            MyBexioToEspoMapper.toEspoAccounts(bexioCtx, bexioEntries, espoEntityPool, errors);
+            MyBexioToEspoMapper.toEspoAccounts(bexioCtx, bexioEntries, espoEntityPool, errors, indexMap);
             log.info(String.format("Bexio %d entries mapped, %d errors", bexioEntries.size(), errors.size()));
 
             Optional<Consumer> consumer = repository.findConsumerByConsumerId(upload.consumerId());
