@@ -18,11 +18,11 @@ import java.nio.file.Path;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class UploadCustomerFile {
+public class UploadCrmFile {
     private final AppToolsConfig appToolsConfig;
 
     public void process(Path filePath, int n, String sourceSystem, String crmSystem) {
-        String url = appToolsConfig.getBaseUrl() + "/api/customer-upload";
+        String url = appToolsConfig.getBaseUrl() + "/api/crm-upload";
 
         log.info("uploadCustomerFile:baseUrl=" + appToolsConfig.getBaseUrl());
         log.info("uploadCustomerFile:url=" + url);

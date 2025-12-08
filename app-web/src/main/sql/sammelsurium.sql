@@ -10,10 +10,11 @@ select *
 from app.customer;
 
 select *
-from app.customer_upload;
+from app.crm_upload;
 
 select *
-from app.customer_billing;
+from app.customer_billing
+order by customer_id;
 
 update app.customer
 set enabled= true;
@@ -21,10 +22,21 @@ commit;
 
 call app.clearAccounts();
 
-update app.customer_upload
+update app.crm_upload
 set status= 'done';
 commit;
 
 select *
 from app.export_billing();
 
+SELECT
+    cu.created         AS ts,
+    cu.source_system   AS source_system,
+    cu.crm_system      AS crm_system,
+    cu.crm_customer_id AS crm_customer_id,
+    cu.status          AS status
+FROM app.crm_upload cu
+         JOIN app.customer c
+              ON c.customer_id = cu.customer_id
+WHERE c.email_address = 'ralf+0@test.de'
+ORDER BY cu.created DESC

@@ -1,6 +1,6 @@
 package com.crm.app.web.auth;
 
-import com.crm.app.dto.CustomerUploadInfo;
+import com.crm.app.dto.CrmUploadInfo;
 import com.crm.app.dto.LoginRequest;
 import com.crm.app.dto.LoginResponse;
 import com.crm.app.port.customer.CustomerRepositoryPort;
@@ -53,9 +53,9 @@ public class AuthenticationService {
         String token = jwtService.generateToken(userDetails);
 
         boolean enabled = customerRepositoryPort.isEnabledByEmail(emailAddress);
-        boolean hasOpenUploads = customerRepositoryPort.isHasOpenUploadsByEmail(emailAddress);
-        Optional<CustomerUploadInfo> customerUploadInfo = customerRepositoryPort.findLatestByEmail(emailAddress);
+        boolean hasOpenCrmUploads = customerRepositoryPort.isHasOpenCrmUploadsByEmail(emailAddress);
+        Optional<CrmUploadInfo> crmUploadInfo = customerRepositoryPort.findLatestByEmail(emailAddress);
 
-        return new LoginResponse(token, enabled, hasOpenUploads, customerUploadInfo.orElse(null));
+        return new LoginResponse(token, enabled, hasOpenCrmUploads, crmUploadInfo.orElse(null));
     }
 }

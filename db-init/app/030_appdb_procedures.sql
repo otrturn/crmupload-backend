@@ -8,7 +8,7 @@ AS
 $$
 BEGIN
     TRUNCATE TABLE app.customer_activation CASCADE;
-    TRUNCATE TABLE app.customer_upload CASCADE;
+    TRUNCATE TABLE app.crm_upload CASCADE;
     TRUNCATE TABLE app.customer CASCADE;
     TRUNCATE TABLE app.user_account CASCADE;
     COMMIT;
@@ -60,7 +60,7 @@ BEGIN
                                 SELECT cu.source_system,
                                        cu.crm_system,
                                        cu.modified
-                                FROM app.customer_upload cu
+                                FROM app.crm_upload cu
                                 WHERE cu.customer_id = c.customer_id
                                   AND cu.status = 'done'
                                 ORDER BY cu.modified ASC
@@ -69,15 +69,18 @@ BEGIN
                             -- nur Customer ohne Eintrag in customer_billing
                             WHERE NOT EXISTS (SELECT 1
                                               FROM app.customer_billing cb
-                                              WHERE cb.customer_id = c.customer_id)),
+                                              WHERE cb.customer_id = c.customer_id
+                                              AND product='crm-upload')),
              inserted AS (
                  INSERT INTO app.customer_billing (
                                                    customer_id,
+                                                   product,
                                                    status,
                                                    start_of_subscription,
                                                    submitted_to_billing
                      )
                      SELECT customer_id,
+                            'crm-upload',
                             'new',
                             start_of_subscription,
                             now()

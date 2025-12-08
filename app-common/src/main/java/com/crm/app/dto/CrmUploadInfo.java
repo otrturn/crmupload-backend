@@ -1,6 +1,6 @@
 package com.crm.app.dto;
 
-public record CustomerUploadInfo(
+public record CrmUploadInfo(
         String sourceSystem,
         String crmSystem,
         String crmCustomerId

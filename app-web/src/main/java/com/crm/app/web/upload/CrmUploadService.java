@@ -1,10 +1,10 @@
 package com.crm.app.web.upload;
 
-import com.crm.app.dto.CustomerUploadHistory;
-import com.crm.app.dto.CustomerUploadInfo;
+import com.crm.app.dto.CrmUploadHistory;
+import com.crm.app.dto.CrmUploadInfo;
 import com.crm.app.dto.UploadRequest;
 import com.crm.app.port.customer.CustomerRepositoryPort;
-import com.crm.app.port.customer.CustomerUploadRepositoryPort;
+import com.crm.app.port.customer.CrmUploadRepositoryPort;
 import com.crm.app.web.error.CustomerNotFoundException;
 import com.crm.app.web.error.UploadNotAllowedException;
 import lombok.RequiredArgsConstructor;
@@ -18,9 +18,9 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class CustomerUploadService {
+public class CrmUploadService {
 
-    private final CustomerUploadRepositoryPort repository;
+    private final CrmUploadRepositoryPort repository;
     private final CustomerRepositoryPort customerRepositoryPort;
 
     public void processUpload(
@@ -49,17 +49,17 @@ public class CustomerUploadService {
         log.info("Resolved customerId={} for email={}", customerId, emailAddress);
 
         boolean enabled = customerRepositoryPort.isEnabledByCustomerId(customerId);
-        boolean hasOpenUploads = customerRepositoryPort.isHasOpenUploadsByCustomerId(customerId);
-        Optional<CustomerUploadInfo> customerUploadInfo = customerRepositoryPort.findLatestByCustomerId(customerId);
+        boolean hasOpenCrmUploads = customerRepositoryPort.isHasOpenCrmUploadsByCustomerId(customerId);
+        Optional<CrmUploadInfo> crmUploadInfo = customerRepositoryPort.findLatestByCustomerId(customerId);
 
         if (!enabled) {
             throw new UploadNotAllowedException(String.format("processUpload: Customer %s is not enabled", emailAddress));
         }
-        if (hasOpenUploads) {
+        if (hasOpenCrmUploads) {
             throw new UploadNotAllowedException(String.format("processUpload: Customer %s has open uploads", emailAddress));
         }
-        if (customerUploadInfo.isPresent() && (!customerUploadInfo.get().crmSystem().equals(crmSystem)
-                || !customerUploadInfo.get().crmCustomerId().equals(crmCustomerId))) {
+        if (crmUploadInfo.isPresent() && (!crmUploadInfo.get().crmSystem().equals(crmSystem)
+                || !crmUploadInfo.get().crmCustomerId().equals(crmCustomerId))) {
             throw new UploadNotAllowedException(String.format("processUpload: crmSystem/crmCustomerId %s/%s for customer %d invalid",
                     crmSystem, crmCustomerId, customerId));
         }
@@ -69,7 +69,7 @@ public class CustomerUploadService {
         log.info("Generated uploadId={}", uploadId);
 
         try {
-            repository.insertCustomerUpload(
+            repository.insertCrmUpload(
                     uploadId,
                     customerId,
                     sourceSystem,
@@ -84,8 +84,8 @@ public class CustomerUploadService {
         }
     }
 
-    public List<CustomerUploadHistory> getCustomerUploadHistoryByEmail(String emailAddress) {
-        List<CustomerUploadHistory> response = customerRepositoryPort.findUploadHistoryByEmailAddress(emailAddress);
+    public List<CrmUploadHistory> getCrmUploadHistoryByEmail(String emailAddress) {
+        List<CrmUploadHistory> response = customerRepositoryPort.findUploadHistoryByEmailAddress(emailAddress);
         if (response == null) {
             throw new CustomerNotFoundException(emailAddress);
         }

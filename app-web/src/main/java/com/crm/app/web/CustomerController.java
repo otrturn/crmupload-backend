@@ -3,7 +3,7 @@ package com.crm.app.web;
 import com.crm.app.dto.*;
 import com.crm.app.web.customer.CustomerProfileService;
 import com.crm.app.web.error.CustomerNotFoundException;
-import com.crm.app.web.upload.CustomerUploadService;
+import com.crm.app.web.upload.CrmUploadService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +16,7 @@ import java.util.List;
 public class CustomerController {
 
     private final CustomerProfileService customerProfileService;
-    private final CustomerUploadService customerUploadService;
+    private final CrmUploadService crmUploadService;
 
     @GetMapping("/me/{emailAddress:.+}")
     public ResponseEntity<CustomerProfileResponse> getMe(@PathVariable("emailAddress") String emailAddress) {
@@ -43,9 +43,9 @@ public class CustomerController {
     }
 
     @GetMapping("/get-upload-history/{emailAddress:.+}")
-    public ResponseEntity<CustomerUploadHistoryResponse> getCustomerUploadHistory(@PathVariable("emailAddress") String emailAddress) {
-        List<CustomerUploadHistory> response = customerUploadService.getCustomerUploadHistoryByEmail(emailAddress);
-        return ResponseEntity.ok(new CustomerUploadHistoryResponse(response));
+    public ResponseEntity<CrmUploadHistoryResponse> getCrmUploadHistory(@PathVariable("emailAddress") String emailAddress) {
+        List<CrmUploadHistory> response = crmUploadService.getCrmUploadHistoryByEmail(emailAddress);
+        return ResponseEntity.ok(new CrmUploadHistoryResponse(response));
     }
 
     @ExceptionHandler(CustomerNotFoundException.class)

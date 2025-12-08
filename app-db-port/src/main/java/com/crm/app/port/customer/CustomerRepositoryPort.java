@@ -17,9 +17,9 @@ public interface CustomerRepositoryPort {
 
     boolean isEnabledByCustomerId(long customerId);
 
-    boolean isHasOpenUploadsByEmail(String emailAddress);
+    boolean isHasOpenCrmUploadsByEmail(String emailAddress);
 
-    boolean isHasOpenUploadsByCustomerId(long customerId);
+    boolean isHasOpenCrmUploadsByCustomerId(long customerId);
 
     void setEnabled(long customerId, boolean enabled);
 
@@ -29,10 +29,10 @@ public interface CustomerRepositoryPort {
 
     int updateCustomerPassword(String emailAddress, UpdatePasswordRequest request);
 
-    List<CustomerUploadHistory> findUploadHistoryByEmailAddress(String emailAddress);
+    List<CrmUploadHistory> findUploadHistoryByEmailAddress(String emailAddress);
 
-    Optional<CustomerUploadInfo> findLatestByCustomerId(long customerId);
+    Optional<CrmUploadInfo> findLatestByCustomerId(long customerId);
 
-    Optional<CustomerUploadInfo> findLatestByEmail(String email);
+    Optional<CrmUploadInfo> findLatestByEmail(String email);
 
 }

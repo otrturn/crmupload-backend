@@ -37,11 +37,11 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
     private static final String SQL_FIND_ENABLED_BY_CUSTOMER_ID =
             "SELECT enabled FROM app.customer WHERE customer_id = :customer_id";
 
-    private static final String SQL_FIND_HAS_OPEN_UPLOADS_BY_EMAIL =
+    private static final String SQL_FIND_HAS_OPEN_CRM_UPLOADS_BY_EMAIL =
             """
                     SELECT EXISTS (
                         SELECT 1
-                        FROM app.customer_upload cu
+                        FROM app.crm_upload cu
                         JOIN app.customer c ON c.customer_id = cu.customer_id
                         WHERE c.email_address = :email_address
                           AND cu.status IN ('new', 'processing')
@@ -51,7 +51,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
             """
                     SELECT EXISTS (
                         SELECT 1
-                        FROM app.customer_upload cu
+                        FROM app.crm_upload cu
                         WHERE cu.customer_id = :customer_id
                           AND cu.status IN ('new', 'processing')
                     ) AS has_open_uploads;""";
@@ -70,7 +70,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
                 cu.crm_system      AS crm_system,
                 cu.crm_customer_id AS crm_customer_id,
                 cu.status          AS status
-            FROM app.customer_upload cu
+            FROM app.crm_upload cu
             JOIN app.customer c
               ON c.customer_id = cu.customer_id
             WHERE c.email_address = :email_address
@@ -79,7 +79,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
 
     private static final String SQL_FIND_LATEST_SUCCESSFUL_UPLOAD_BY_CUSTOMER_ID = """
             SELECT source_system, crm_system, crm_customer_id
-            FROM app.customer_upload
+            FROM app.crm_upload
             WHERE customer_id = :customerId
               AND status = 'done'
             ORDER BY modified DESC
@@ -88,7 +88,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
 
     private static final String SQL_FIND_LATEST_SUCCESSFUL_UPLOAD_BY_EMAIL = """
             SELECT cu.source_system, cu.crm_system, cu.crm_customer_id
-            FROM app.customer_upload cu
+            FROM app.crm_upload cu
             JOIN app.customer c ON c.customer_id = cu.customer_id
             WHERE c.email_address = :email
               AND cu.status = 'done'
@@ -215,24 +215,24 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
     }
 
     @Override
-    public boolean isHasOpenUploadsByEmail(String emailAddress) {
+    public boolean isHasOpenCrmUploadsByEmail(String emailAddress) {
         MapSqlParameterSource params = new MapSqlParameterSource(LITERAL_EMAIL_ADDRESS, emailAddress);
 
         try {
-            Boolean hasOpenUploads = jdbc.queryForObject(
-                    SQL_FIND_HAS_OPEN_UPLOADS_BY_EMAIL,
+            Boolean hasOpenCrmUploads = jdbc.queryForObject(
+                    SQL_FIND_HAS_OPEN_CRM_UPLOADS_BY_EMAIL,
                     params,
                     Boolean.class
             );
 
-            if (hasOpenUploads == null) {
+            if (hasOpenCrmUploads == null) {
                 throw new IllegalStateException(
-                        "Column hasOpenUploads is null for customer with email '%s'".formatted(emailAddress)
+                        "Column hasOpenCrmUploads is null for customer with email '%s'".formatted(emailAddress)
                 );
             }
 
-            log.debug("Customer '{}' hasOpenUploads={}", emailAddress, hasOpenUploads);
-            return hasOpenUploads;
+            log.debug("Customer '{}' hasOpenCrmUploads={}", emailAddress, hasOpenCrmUploads);
+            return hasOpenCrmUploads;
         } catch (EmptyResultDataAccessException ex) {
             log.warn(LITERAL_NO_CUSTOMER_FOR_EMAIL, emailAddress);
             throw new IllegalStateException("No customer found for email '" + emailAddress + "'", ex);
@@ -243,24 +243,24 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
     }
 
     @Override
-    public boolean isHasOpenUploadsByCustomerId(long customerId) {
+    public boolean isHasOpenCrmUploadsByCustomerId(long customerId) {
         MapSqlParameterSource params = new MapSqlParameterSource(LITERAL_CUSTOMER_ID, customerId);
 
         try {
-            Boolean hasOpenUploads = jdbc.queryForObject(
+            Boolean hasOpenCrmUploads = jdbc.queryForObject(
                     SQL_FIND_HAS_OPEN_UPLOADS_BY_CUSTOMER_ID,
                     params,
                     Boolean.class
             );
 
-            if (hasOpenUploads == null) {
+            if (hasOpenCrmUploads == null) {
                 throw new IllegalStateException(
-                        "Column hasOpenUploads is null for customer with customerId '%d'".formatted(customerId)
+                        "Column hasOpenCrmUploads is null for customer with customerId '%d'".formatted(customerId)
                 );
             }
 
-            log.debug("Customer '{}' hasOpenUploads={}", customerId, hasOpenUploads);
-            return hasOpenUploads;
+            log.debug("Customer '{}' hasOpenCrmUploads={}", customerId, hasOpenCrmUploads);
+            return hasOpenCrmUploads;
         } catch (EmptyResultDataAccessException ex) {
             log.warn(LITERAL_NO_CUSTOMER_FOR_EMAIL, customerId);
             throw new IllegalStateException("No customer found for customerId '" + customerId + "'", ex);
@@ -390,14 +390,14 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
     }
 
     @Override
-    public List<CustomerUploadHistory> findUploadHistoryByEmailAddress(String emailAddress) {
+    public List<CrmUploadHistory> findUploadHistoryByEmailAddress(String emailAddress) {
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue(LITERAL_EMAIL_ADDRESS, emailAddress);
 
         return jdbc.query(
                 SQL_FIND_UPLOAD_HISTORY_BY_EMAIL,
                 params,
-                (rs, rowNum) -> new CustomerUploadHistory(
+                (rs, rowNum) -> new CrmUploadHistory(
                         rs.getTimestamp("ts"),
                         rs.getString(LITERAL_SOURCE_SYSTEM),
                         rs.getString(LITERAL_CRM_SYSTEM),
@@ -407,13 +407,13 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
         );
     }
 
-    public Optional<CustomerUploadInfo> findLatestByCustomerId(long customerId) {
+    public Optional<CrmUploadInfo> findLatestByCustomerId(long customerId) {
         Map<String, Object> params = Map.of(LITERAL_CUSTOMER_ID_CAMCELCASE, customerId);
 
-        List<CustomerUploadInfo> list = jdbc.query(
+        List<CrmUploadInfo> list = jdbc.query(
                 SQL_FIND_LATEST_SUCCESSFUL_UPLOAD_BY_CUSTOMER_ID,
                 params,
-                (rs, rowNum) -> new CustomerUploadInfo(
+                (rs, rowNum) -> new CrmUploadInfo(
                         rs.getString(LITERAL_SOURCE_SYSTEM),
                         rs.getString(LITERAL_CRM_SYSTEM),
                         rs.getString(LITERAL_CRM_CUSTOMER_ID)
@@ -423,13 +423,13 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
         return list.stream().findFirst();
     }
 
-    public Optional<CustomerUploadInfo> findLatestByEmail(String email) {
+    public Optional<CrmUploadInfo> findLatestByEmail(String email) {
         Map<String, Object> params = Map.of("email", email);
 
-        List<CustomerUploadInfo> list = jdbc.query(
+        List<CrmUploadInfo> list = jdbc.query(
                 SQL_FIND_LATEST_SUCCESSFUL_UPLOAD_BY_EMAIL,
                 params,
-                (rs, rowNum) -> new CustomerUploadInfo(
+                (rs, rowNum) -> new CrmUploadInfo(
                         rs.getString(LITERAL_SOURCE_SYSTEM),
                         rs.getString(LITERAL_CRM_SYSTEM),
                         rs.getString(LITERAL_CRM_CUSTOMER_ID)

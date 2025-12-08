@@ -1,6 +1,6 @@
 package com.crm.app.worker.mail;
 
-import com.crm.app.dto.CustomerUploadContent;
+import com.crm.app.dto.CrmUploadContent;
 import com.crm.app.port.customer.Customer;
 import com.crm.app.worker.util.WorkerUtils;
 import com.crmmacher.error.ErrMsg;
@@ -24,7 +24,7 @@ public class UploadMailService {
 
     private final JavaMailSender mailSender;
 
-    public void sendSuccessMailForEspo(Customer customer, CustomerUploadContent upload, EspoEntityPool espoEntityPool) {
+    public void sendSuccessMailForEspo(Customer customer, CrmUploadContent upload, EspoEntityPool espoEntityPool) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, "UTF-8");
@@ -56,7 +56,7 @@ public class UploadMailService {
                 espoEntityPool.getAccounts().size(), espoEntityPool.getContacts().size());
     }
 
-    public void sendErrorMailForEspo(Customer customer, CustomerUploadContent upload, List<ErrMsg> errors, Path excelTargetfile) {
+    public void sendErrorMailForEspo(Customer customer, CrmUploadContent upload, List<ErrMsg> errors, Path excelTargetfile) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");

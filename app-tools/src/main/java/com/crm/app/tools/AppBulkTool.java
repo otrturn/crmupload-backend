@@ -3,7 +3,7 @@ package com.crm.app.tools;
 import com.crm.app.dto.RegisterRequest;
 import com.crm.app.tools.config.AppToolsConfig;
 import com.crm.app.tools.process.RegisterCustomers;
-import com.crm.app.tools.process.UploadCustomerFile;
+import com.crm.app.tools.process.UploadCrmFile;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
@@ -20,7 +20,7 @@ import java.nio.file.Paths;
 public class AppBulkTool implements CommandLineRunner, ExitCodeGenerator {
     private final AppToolsConfig appToolsConfig;
     private final RegisterCustomers registerCustomers;
-    private final UploadCustomerFile uploadCustomerFile;
+    private final UploadCrmFile uploadCrmFile;
 
     public static void main(String[] args) {
         SpringApplication app = new SpringApplication(AppBulkTool.class);
@@ -42,9 +42,9 @@ public class AppBulkTool implements CommandLineRunner, ExitCodeGenerator {
                 registerCustomers.process(10, request);
             }
             case "--BexioToEspo" ->
-                    uploadCustomerFile.process(Paths.get("/home/ralf/espocrm-demo/Bexio_Generated.xlsx"), 10, "Bexio", "EspoCRM");
+                    uploadCrmFile.process(Paths.get("/home/ralf/espocrm-demo/Bexio_Generated.xlsx"), 10, "Bexio", "EspoCRM");
             case "--MyExcelToEspo" ->
-                    uploadCustomerFile.process(Paths.get("/home/ralf/espocrm-demo/MyExcelKunden_V001.xlsx"), 10, "MyExcel", "EspoCRM");
+                    uploadCrmFile.process(Paths.get("/home/ralf/espocrm-demo/MyExcelKunden_V001.xlsx"), 10, "MyExcel", "EspoCRM");
             default -> log.error("Unknown command {}", args[0]);
         }
         log.info("Batch-Prozess beendet.");

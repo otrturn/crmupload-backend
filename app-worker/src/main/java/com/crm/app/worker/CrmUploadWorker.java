@@ -1,10 +1,10 @@
 package com.crm.app.worker;
 
 import com.crm.app.dto.CrmSystem;
-import com.crm.app.dto.CustomerUploadContent;
+import com.crm.app.dto.CrmUploadContent;
 import com.crm.app.dto.SourceSystem;
-import com.crm.app.port.customer.CustomerUploadRepositoryPort;
-import com.crm.app.worker.config.CustomerUploadProperties;
+import com.crm.app.port.customer.CrmUploadRepositoryPort;
+import com.crm.app.worker.config.CrmUploadProperties;
 import com.crm.app.worker.process.UploadWorkerProcessForBexio;
 import com.crm.app.worker.process.UploadWorkerProcessForLexware;
 import com.crm.app.worker.process.UploadWorkerProcessForMyExcel;
@@ -19,15 +19,15 @@ import java.util.List;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class CustomerUploadWorker {
+public class CrmUploadWorker {
 
-    private final CustomerUploadRepositoryPort repository;
-    private final CustomerUploadProperties properties;
+    private final CrmUploadRepositoryPort repository;
+    private final CrmUploadProperties properties;
     private final UploadWorkerProcessForBexio uploadWorkerProcessForBexio;
     private final UploadWorkerProcessForLexware uploadWorkerProcessForLexware;
     private final UploadWorkerProcessForMyExcel uploadWorkerProcessForMyExcel;
 
-    @Scheduled(fixedDelayString = "${app.customer-upload.poll-interval-ms:10000}")
+    @Scheduled(fixedDelayString = "${app.crm-upload.poll-interval-ms:10000}")
     @Transactional
     public void pollAndProcess() {
         final String UNKNOWN_CRM_SYSTEM = "Unknown crmSystem";
@@ -39,11 +39,11 @@ public class CustomerUploadWorker {
             return;
         }
 
-        log.info("Claimed {} customer_upload job(s): {}", uploadIds.size(), uploadIds);
+        log.info("Claimed {} crm_upload job(s): {}", uploadIds.size(), uploadIds);
 
-        List<CustomerUploadContent> uploads = repository.findUploadsByIds(uploadIds);
+        List<CrmUploadContent> uploads = repository.findUploadsByIds(uploadIds);
 
-        for (CustomerUploadContent upload : uploads) {
+        for (CrmUploadContent upload : uploads) {
             try {
                 SourceSystem sourceSystem = SourceSystem.fromString(upload.sourceSystem());
                 CrmSystem crmSystem = CrmSystem.fromString(upload.crmSystem());
@@ -101,7 +101,7 @@ public class CustomerUploadWorker {
                     }
                 }
             } catch (Exception ex) {
-                log.error("Error processing customer_upload with uploadId={}", upload.uploadId(), ex);
+                log.error("Error processing crm_upload with uploadId={}", upload.uploadId(), ex);
                 repository.markUploadFailed(upload.uploadId(), ex.getMessage());
             }
         }

@@ -1,9 +1,9 @@
 package com.crm.app.worker.process;
 
-import com.crm.app.dto.CustomerUploadContent;
+import com.crm.app.dto.CrmUploadContent;
 import com.crm.app.port.customer.Customer;
-import com.crm.app.port.customer.CustomerUploadRepositoryPort;
-import com.crm.app.worker.config.CustomerUploadProperties;
+import com.crm.app.port.customer.CrmUploadRepositoryPort;
+import com.crm.app.worker.config.CrmUploadProperties;
 import com.crm.app.worker.util.WorkerUtils;
 import com.crmmacher.error.ErrMsg;
 import com.crmmacher.espo.dto.EspoEntityPool;
@@ -30,16 +30,16 @@ import static com.crm.app.worker.util.WorkerUtils.writeExcelToFile;
 @RequiredArgsConstructor
 public class UploadWorkerProcessForLexware {
 
-    private final CustomerUploadRepositoryPort repository;
-    private final CustomerUploadProperties properties;
+    private final CrmUploadRepositoryPort repository;
+    private final CrmUploadProperties properties;
     private final UploadHandlingForEspo uploadHandlingForEspo;
 
     private final LexwareCtx lexwareCtx;
 
-    public void processUploadForEspo(CustomerUploadContent upload) {
+    public void processUploadForEspo(CrmUploadContent upload) {
         Path excelSourceFile = Paths.get(String.format("%s/Upload_Lexware_%06d.xlsx", properties.getWorkdir(), upload.uploadId()));
         Path excelTargetFile = Paths.get(String.format("%s/Upload_Lexware_Korrektur_%06d.xlsx", properties.getWorkdir(), upload.uploadId()));
-        log.info("Processing customer_upload for Lexware uploadId={} sourceSysten={} crmSystem={}", upload.uploadId(), upload.sourceSystem(), upload.crmSystem());
+        log.info("Processing crm_upload for Lexware uploadId={} sourceSysten={} crmSystem={}", upload.uploadId(), upload.sourceSystem(), upload.crmSystem());
         try {
             writeExcelToFile(upload.content(), excelSourceFile);
             List<ErrMsg> errors = new ArrayList<>();

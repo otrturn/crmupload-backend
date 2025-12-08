@@ -1,8 +1,8 @@
 package com.crm.app.adapter.jdbc.customer;
 
-import com.crm.app.dto.CustomerUploadContent;
+import com.crm.app.dto.CrmUploadContent;
 import com.crm.app.port.customer.Customer;
-import com.crm.app.port.customer.CustomerUploadRepositoryPort;
+import com.crm.app.port.customer.CrmUploadRepositoryPort;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -16,12 +16,12 @@ import java.util.Optional;
 
 @Slf4j
 @Repository
-public class JdbcCustomerUploadRepositoryAdapter implements CustomerUploadRepositoryPort {
+public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
 
-    private static final String SEQUENCE_CUSTOMER_UPLOAD_UPLOAD_ID = "app.sequence_customer_upload";
+    private static final String SEQUENCE_CRM_UPLOAD_UPLOAD_ID = "app.sequence_crm_upload";
 
     private static final String SQL_NEXT_UPLOAD_ID =
-            "SELECT nextval('" + SEQUENCE_CUSTOMER_UPLOAD_UPLOAD_ID + "')";
+            "SELECT nextval('" + SEQUENCE_CRM_UPLOAD_UPLOAD_ID + "')";
 
     private static final String SQL_FIND_CUSTOMER_ID_BY_EMAIL =
             "SELECT c.customer_id FROM app.customer c WHERE c.email_address = :email_address";
@@ -43,17 +43,17 @@ public class JdbcCustomerUploadRepositoryAdapter implements CustomerUploadReposi
              WHERE customer_id = :customerId
             """;
 
-    private static final String SQL_INSERT_CUSTOMER_UPLOAD =
-            "INSERT INTO app.customer_upload " +
+    private static final String SQL_INSERT_RM_UPLOAD =
+            "INSERT INTO app.crm_upload " +
                     "(upload_id, customer_id, source_system, crm_system, crm_customer_id, api_key, content, status) " +
                     "VALUES (:uploadId, :customerId, :sourceSystem, :crmSystem, :crmCustomerId, :apiKey, :content, :status)";
 
     private static final String SQL_CLAIM_NEXT_UPLOADS = """
-            UPDATE app.customer_upload cu
+            UPDATE app.crm_upload cu
                SET status = 'processing'
              WHERE cu.upload_id IN (
                    SELECT upload_id
-                     FROM app.customer_upload
+                     FROM app.crm_upload
                     WHERE status = 'new'
                     ORDER BY upload_id
                     FOR UPDATE SKIP LOCKED
@@ -63,7 +63,7 @@ public class JdbcCustomerUploadRepositoryAdapter implements CustomerUploadReposi
             """;
 
     private static final String SQL_MARK_DONE = """
-            UPDATE app.customer_upload
+            UPDATE app.crm_upload
                SET status = 'done',
                    last_error = NULL,
                    modified = now()
@@ -71,7 +71,7 @@ public class JdbcCustomerUploadRepositoryAdapter implements CustomerUploadReposi
             """;
 
     private static final String SQL_MARK_FAILED = """
-            UPDATE app.customer_upload
+            UPDATE app.crm_upload
                SET status = 'failed',
                    last_error = :error,
                    modified = now()
@@ -86,7 +86,7 @@ public class JdbcCustomerUploadRepositoryAdapter implements CustomerUploadReposi
                    crm_customer_id,
                    api_key,
                    content
-              FROM app.customer_upload
+              FROM app.crm_upload
              WHERE upload_id = ANY(ARRAY[:uploadIds])
             """;
 
@@ -95,7 +95,7 @@ public class JdbcCustomerUploadRepositoryAdapter implements CustomerUploadReposi
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
 
-    public JdbcCustomerUploadRepositoryAdapter(final NamedParameterJdbcTemplate jdbcTemplate) {
+    public JdbcCrmUploadRepositoryAdapter(final NamedParameterJdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = Objects.requireNonNull(jdbcTemplate, "jdbcTemplate must not be null");
     }
 
@@ -110,7 +110,7 @@ public class JdbcCustomerUploadRepositoryAdapter implements CustomerUploadReposi
 
             final Long nonNullNextId = Objects.requireNonNull(
                     nextId,
-                    "Sequence " + SEQUENCE_CUSTOMER_UPLOAD_UPLOAD_ID + " returned null"
+                    "Sequence " + SEQUENCE_CRM_UPLOAD_UPLOAD_ID + " returned null"
             );
 
             if (log.isDebugEnabled()) {
@@ -119,7 +119,7 @@ public class JdbcCustomerUploadRepositoryAdapter implements CustomerUploadReposi
 
             return nonNullNextId;
         } catch (DataAccessException ex) {
-            log.error("Failed to obtain next upload id from sequence {}", SEQUENCE_CUSTOMER_UPLOAD_UPLOAD_ID, ex);
+            log.error("Failed to obtain next upload id from sequence {}", SEQUENCE_CRM_UPLOAD_UPLOAD_ID, ex);
             throw new IllegalStateException("Could not retrieve next upload id", ex);
         }
     }
@@ -158,7 +158,7 @@ public class JdbcCustomerUploadRepositoryAdapter implements CustomerUploadReposi
     }
 
     @Override
-    public void insertCustomerUpload(
+    public void insertCrmUpload(
             final long uploadId,
             final long customerId,
             final String sourceSystem,
@@ -188,12 +188,12 @@ public class JdbcCustomerUploadRepositoryAdapter implements CustomerUploadReposi
                 .addValue("status", STATUS_NEW);
 
         try {
-            final int affectedRows = jdbcTemplate.update(SQL_INSERT_CUSTOMER_UPLOAD, params);
+            final int affectedRows = jdbcTemplate.update(SQL_INSERT_RM_UPLOAD, params);
 
             if (affectedRows != 1) {
-                log.error("Insert into app.customer_upload affected {} rows for uploadId={}", affectedRows, uploadId);
+                log.error("Insert into app.crm_upload affected {} rows for uploadId={}", affectedRows, uploadId);
                 throw new IllegalStateException(
-                        "Insert into app.customer_upload did not affect exactly one row (affected=" + affectedRows + ")"
+                        "Insert into app.crm_upload did not affect exactly one row (affected=" + affectedRows + ")"
                 );
             }
 
@@ -252,7 +252,7 @@ public class JdbcCustomerUploadRepositoryAdapter implements CustomerUploadReposi
     }
 
     @Override
-    public List<CustomerUploadContent> findUploadsByIds(List<Long> uploadIds) {
+    public List<CrmUploadContent> findUploadsByIds(List<Long> uploadIds) {
         if (uploadIds == null || uploadIds.isEmpty()) {
             return List.of();
         }
@@ -263,7 +263,7 @@ public class JdbcCustomerUploadRepositoryAdapter implements CustomerUploadReposi
             return jdbcTemplate.query(
                     SQL_FIND_UPLOADS_BY_IDS,
                     params,
-                    (rs, rowNum) -> new CustomerUploadContent(
+                    (rs, rowNum) -> new CrmUploadContent(
                             rs.getLong("upload_id"),
                             rs.getLong("customer_id"),
                             rs.getString("source_system"),
@@ -274,7 +274,7 @@ public class JdbcCustomerUploadRepositoryAdapter implements CustomerUploadReposi
                     )
             );
         } catch (DataAccessException ex) {
-            log.error("Failed to load customer_uploads for ids={}", uploadIds, ex);
+            log.error("Failed to load crm_upload for ids={}", uploadIds, ex);
             throw new IllegalStateException("Could not load customer uploads", ex);
         }
     }

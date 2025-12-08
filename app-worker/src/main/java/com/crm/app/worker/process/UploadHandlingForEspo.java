@@ -1,8 +1,8 @@
 package com.crm.app.worker.process;
 
-import com.crm.app.dto.CustomerUploadContent;
+import com.crm.app.dto.CrmUploadContent;
 import com.crm.app.port.customer.Customer;
-import com.crm.app.port.customer.CustomerUploadRepositoryPort;
+import com.crm.app.port.customer.CrmUploadRepositoryPort;
 import com.crm.app.worker.mail.UploadMailService;
 import com.crmmacher.bexio_excel.error.BexioReaderException;
 import com.crmmacher.error.ErrMsg;
@@ -26,10 +26,10 @@ import java.util.List;
 @Slf4j
 public class UploadHandlingForEspo {
 
-    private final CustomerUploadRepositoryPort repository;
+    private final CrmUploadRepositoryPort repository;
     private final UploadMailService uploadMailService;
 
-    public void processForEspo(CustomerUploadContent upload, Path excelSourcefile, Path excelTargetfile, List<ErrMsg> errors, Customer customer, EspoEntityPool espoEntityPool) {
+    public void processForEspo(CrmUploadContent upload, Path excelSourcefile, Path excelTargetfile, List<ErrMsg> errors, Customer customer, EspoEntityPool espoEntityPool) {
         if (!ErrMsg.containsErrors(errors)) {
             repository.markUploadDone(upload.uploadId());
             uploadMailService.sendSuccessMailForEspo(customer, upload, espoEntityPool);
