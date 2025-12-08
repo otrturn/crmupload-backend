@@ -22,7 +22,7 @@ public final class RegisterRequestValidator {
         if (invalid) {
             throw new ReqgisterRequestInvalidDataException(
                     String.format(
-                            "registration: Consumer %s firstName/lastName/company_name invalid",
+                            "registration: Customer %s firstName/lastName/company_name invalid",
                             emailAddress
                     )
             );

@@ -1,9 +1,9 @@
 package com.crm.app.process;
 
 import com.crm.app.config.AppMaintenanceConfig;
-import com.crm.app.dto.ConsumerUploadContent;
+import com.crm.app.dto.CustomerUploadContent;
 import com.crm.app.error.MaintenanceException;
-import com.crm.app.port.consumer.ConsumerUploadRepositoryPort;
+import com.crm.app.port.customer.CustomerUploadRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -19,16 +19,16 @@ import java.util.List;
 @Slf4j
 public class GetUploadFile {
 
-    private final ConsumerUploadRepositoryPort repository;
+    private final CustomerUploadRepositoryPort repository;
     private final AppMaintenanceConfig appMaintenanceConfig;
 
     public void get(long uploadId) {
         log.info("Get Upload File for {}.", uploadId);
-        List<ConsumerUploadContent> uploads = repository.findUploadsByIds(List.of(uploadId));
+        List<CustomerUploadContent> uploads = repository.findUploadsByIds(List.of(uploadId));
         if (uploads.isEmpty()) {
             throw new MaintenanceException("no upload found for id " + uploadId);
         }
-        ConsumerUploadContent upload = uploads.get(0);
+        CustomerUploadContent upload = uploads.get(0);
         Path excelSourceFile = Paths.get(String.format("%s/Maintenance_%s_%s_%06d.xlsx", appMaintenanceConfig.getWorkdir(), upload.sourceSystem(), upload.crmSystem(), upload.uploadId()));
         writeExcelToFile(upload.content(), excelSourceFile);
     }

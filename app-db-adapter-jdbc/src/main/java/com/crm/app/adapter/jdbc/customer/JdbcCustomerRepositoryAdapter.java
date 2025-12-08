@@ -1,8 +1,8 @@
-package com.crm.app.adapter.jdbc.consumer;
+package com.crm.app.adapter.jdbc.customer;
 
 import com.crm.app.dto.*;
-import com.crm.app.port.consumer.Consumer;
-import com.crm.app.port.consumer.ConsumerRepositoryPort;
+import com.crm.app.port.customer.Customer;
+import com.crm.app.port.customer.CustomerRepositoryPort;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -18,49 +18,49 @@ import java.util.Optional;
 
 @Repository
 @Slf4j
-public class JdbcConsumerRepositoryAdapter implements ConsumerRepositoryPort {
+public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
 
     private static final String LITERAL_FIRSTNAME = "firstname";
     private static final String LITERAL_LASTNAME = "lastname";
     private static final String LITERAL_COUNTRY = "country";
     private static final String LITERAL_EMAIL_ADDRESS = "email_address";
-    private static final String LITERAL_CONSUMER_ID = "consumer_id";
-    private static final String LITERAL_CONSUMER_ID_CAMCELCASE = "consumerId";
+    private static final String LITERAL_CUSTOMER_ID = "customer_id";
+    private static final String LITERAL_CUSTOMER_ID_CAMCELCASE = "customerId";
     private static final String LITERAL_SOURCE_SYSTEM = "source_system";
     private static final String LITERAL_CRM_SYSTEM = "crm_system";
     private static final String LITERAL_CRM_CUSTOMER_ID = "crm_customer_id";
-    private static final String LITERAL_NO_CONSUMER_FOR_EMAIL = "No consumer found for email '{}'";
+    private static final String LITERAL_NO_CUSTOMER_FOR_EMAIL = "No customer found for email '{}'";
 
     private static final String SQL_FIND_ENABLED_BY_EMAIL =
-            "SELECT enabled FROM app.consumer WHERE email_address = :email_address";
+            "SELECT enabled FROM app.customer WHERE email_address = :email_address";
 
-    private static final String SQL_FIND_ENABLED_BY_CONSUMER_ID =
-            "SELECT enabled FROM app.consumer WHERE consumer_id = :consumer_id";
+    private static final String SQL_FIND_ENABLED_BY_CUSTOMER_ID =
+            "SELECT enabled FROM app.customer WHERE customer_id = :customer_id";
 
     private static final String SQL_FIND_HAS_OPEN_UPLOADS_BY_EMAIL =
             """
                     SELECT EXISTS (
                         SELECT 1
-                        FROM app.consumer_upload cu
-                        JOIN app.consumer c ON c.consumer_id = cu.consumer_id
+                        FROM app.customer_upload cu
+                        JOIN app.customer c ON c.customer_id = cu.customer_id
                         WHERE c.email_address = :email_address
                           AND cu.status IN ('new', 'processing')
                     ) AS has_open_uploads;""";
 
-    private static final String SQL_FIND_HAS_OPEN_UPLOADS_BY_CONSUMER_ID =
+    private static final String SQL_FIND_HAS_OPEN_UPLOADS_BY_CUSTOMER_ID =
             """
                     SELECT EXISTS (
                         SELECT 1
-                        FROM app.consumer_upload cu
-                        WHERE cu.consumer_id = :consumer_id
+                        FROM app.customer_upload cu
+                        WHERE cu.customer_id = :customer_id
                           AND cu.status IN ('new', 'processing')
                     ) AS has_open_uploads;""";
 
     private static final String SQL_UPDATE_ENABLED = """
-            UPDATE app.consumer
+            UPDATE app.customer
                SET enabled = :enabled,
                    modified = now()
-             WHERE consumer_id = :consumerId
+             WHERE customer_id = :customerId
             """;
 
     private static final String SQL_FIND_UPLOAD_HISTORY_BY_EMAIL = """
@@ -70,17 +70,17 @@ public class JdbcConsumerRepositoryAdapter implements ConsumerRepositoryPort {
                 cu.crm_system      AS crm_system,
                 cu.crm_customer_id AS crm_customer_id,
                 cu.status          AS status
-            FROM app.consumer_upload cu
-            JOIN app.consumer c
-              ON c.consumer_id = cu.consumer_id
+            FROM app.customer_upload cu
+            JOIN app.customer c
+              ON c.customer_id = cu.customer_id
             WHERE c.email_address = :email_address
             ORDER BY cu.created DESC
             """;
 
-    private static final String SQL_FIND_LATEST_SUCCESSFUL_UPLOAD_BY_CONSUMER_ID = """
+    private static final String SQL_FIND_LATEST_SUCCESSFUL_UPLOAD_BY_CUSTOMER_ID = """
             SELECT source_system, crm_system, crm_customer_id
-            FROM app.consumer_upload
-            WHERE consumer_id = :consumerId
+            FROM app.customer_upload
+            WHERE customer_id = :customerId
               AND status = 'done'
             ORDER BY modified DESC
             LIMIT 1
@@ -88,8 +88,8 @@ public class JdbcConsumerRepositoryAdapter implements ConsumerRepositoryPort {
 
     private static final String SQL_FIND_LATEST_SUCCESSFUL_UPLOAD_BY_EMAIL = """
             SELECT cu.source_system, cu.crm_system, cu.crm_customer_id
-            FROM app.consumer_upload cu
-            JOIN app.consumer c ON c.consumer_id = cu.consumer_id
+            FROM app.customer_upload cu
+            JOIN app.customer c ON c.customer_id = cu.customer_id
             WHERE c.email_address = :email
               AND cu.status = 'done'
             ORDER BY cu.modified DESC
@@ -98,7 +98,7 @@ public class JdbcConsumerRepositoryAdapter implements ConsumerRepositoryPort {
 
     private final NamedParameterJdbcTemplate jdbc;
 
-    public JdbcConsumerRepositoryAdapter(NamedParameterJdbcTemplate jdbc) {
+    public JdbcCustomerRepositoryAdapter(NamedParameterJdbcTemplate jdbc) {
         this.jdbc = jdbc;
     }
 
@@ -106,7 +106,7 @@ public class JdbcConsumerRepositoryAdapter implements ConsumerRepositoryPort {
     public boolean emailExists(String emailAddress) {
         String sql = """
                 SELECT COUNT(*)
-                FROM app.consumer
+                FROM app.customer
                 WHERE email_address = :email_address
                 """;
 
@@ -117,43 +117,43 @@ public class JdbcConsumerRepositoryAdapter implements ConsumerRepositoryPort {
     }
 
     @Override
-    public long nextConsumerId() {
-        String sql = "SELECT nextval('app.sequence_consumer')";
+    public long nextCustomerId() {
+        String sql = "SELECT nextval('app.sequence_customer')";
         Long next = jdbc.getJdbcOperations().queryForObject(sql, Long.class);
         if (next == null) {
-            throw new IllegalStateException("Could not obtain next consumer_id");
+            throw new IllegalStateException("Could not obtain next customer_id");
         }
         return next;
     }
 
     @Override
-    public void insertConsumer(Consumer consumer) {
+    public void insertCustomer(Customer customer) {
         String sql = """
-                INSERT INTO app.consumer (
-                    consumer_id, user_id, firstname, lastname, company_name,
+                INSERT INTO app.customer (
+                    customer_id, user_id, firstname, lastname, company_name,
                     email_address, phone_number,
                     adrline1, adrline2, postalcode, city, country
                 )
                 VALUES (
-                    :consumerId, :userId, :firstname, :lastname, :companyName,
+                    :customerId, :userId, :firstname, :lastname, :companyName,
                     :email_address, :phone,
                     :adr1, :adr2, :postal, :city, :country
                 )
                 """;
 
         var params = new MapSqlParameterSource()
-                .addValue(LITERAL_CONSUMER_ID_CAMCELCASE, consumer.consumerId())
-                .addValue("userId", consumer.userId())
-                .addValue(LITERAL_FIRSTNAME, consumer.firstname())
-                .addValue(LITERAL_LASTNAME, consumer.lastname())
-                .addValue("companyName", consumer.companyName())
-                .addValue(LITERAL_EMAIL_ADDRESS, consumer.emailAddress())
-                .addValue("phone", consumer.phoneNumber())
-                .addValue("adr1", consumer.adrline1())
-                .addValue("adr2", consumer.adrline2())
-                .addValue("postal", consumer.postalcode())
-                .addValue("city", consumer.city())
-                .addValue(LITERAL_COUNTRY, consumer.country());
+                .addValue(LITERAL_CUSTOMER_ID_CAMCELCASE, customer.customerId())
+                .addValue("userId", customer.userId())
+                .addValue(LITERAL_FIRSTNAME, customer.firstname())
+                .addValue(LITERAL_LASTNAME, customer.lastname())
+                .addValue("companyName", customer.companyName())
+                .addValue(LITERAL_EMAIL_ADDRESS, customer.emailAddress())
+                .addValue("phone", customer.phoneNumber())
+                .addValue("adr1", customer.adrline1())
+                .addValue("adr2", customer.adrline2())
+                .addValue("postal", customer.postalcode())
+                .addValue("city", customer.city())
+                .addValue(LITERAL_COUNTRY, customer.country());
 
         jdbc.update(sql, params);
     }
@@ -171,46 +171,46 @@ public class JdbcConsumerRepositoryAdapter implements ConsumerRepositoryPort {
 
             if (enabled == null) {
                 throw new IllegalStateException(
-                        "Column enabled is null for consumer with email '%s'".formatted(emailAddress)
+                        "Column enabled is null for customer with email '%s'".formatted(emailAddress)
                 );
             }
 
-            log.debug("Consumer '{}' enabled={}", emailAddress, enabled);
+            log.debug("Customer '{}' enabled={}", emailAddress, enabled);
             return enabled;
         } catch (EmptyResultDataAccessException ex) {
-            log.warn(LITERAL_NO_CONSUMER_FOR_EMAIL, emailAddress);
-            throw new IllegalStateException("No consumer found for email '" + emailAddress + "'", ex);
+            log.warn(LITERAL_NO_CUSTOMER_FOR_EMAIL, emailAddress);
+            throw new IllegalStateException("No customer found for email '" + emailAddress + "'", ex);
         } catch (DataAccessException ex) {
-            log.error("Failed to read enabled flag for consumer '{}'", emailAddress, ex);
-            throw new IllegalStateException("Could not read enabled flag for consumer '" + emailAddress + "'", ex);
+            log.error("Failed to read enabled flag for customer '{}'", emailAddress, ex);
+            throw new IllegalStateException("Could not read enabled flag for customer '" + emailAddress + "'", ex);
         }
     }
 
     @Override
-    public boolean isEnabledByConsumerId(long consumerId) {
-        MapSqlParameterSource params = new MapSqlParameterSource(LITERAL_CONSUMER_ID, consumerId);
+    public boolean isEnabledByCustomerId(long customerId) {
+        MapSqlParameterSource params = new MapSqlParameterSource(LITERAL_CUSTOMER_ID, customerId);
 
         try {
             Boolean enabled = jdbc.queryForObject(
-                    SQL_FIND_ENABLED_BY_CONSUMER_ID,
+                    SQL_FIND_ENABLED_BY_CUSTOMER_ID,
                     params,
                     Boolean.class
             );
 
             if (enabled == null) {
                 throw new IllegalStateException(
-                        "Column enabled is null for consumer with email '%d'".formatted(consumerId)
+                        "Column enabled is null for customer with email '%d'".formatted(customerId)
                 );
             }
 
-            log.debug("Consumer '{}' enabled={}", consumerId, enabled);
+            log.debug("Customer '{}' enabled={}", customerId, enabled);
             return enabled;
         } catch (EmptyResultDataAccessException ex) {
-            log.warn("No consumer found for consumerId '{}'", consumerId);
-            throw new IllegalStateException("No consumer found for consumerId '" + consumerId + "'", ex);
+            log.warn("No customer found for customerId '{}'", customerId);
+            throw new IllegalStateException("No customer found for customerId '" + customerId + "'", ex);
         } catch (DataAccessException ex) {
-            log.error("Failed to read enabled flag for consumer '{}'", consumerId, ex);
-            throw new IllegalStateException("Could not read enabled flag for consumerId '" + consumerId + "'", ex);
+            log.error("Failed to read enabled flag for customer '{}'", customerId, ex);
+            throw new IllegalStateException("Could not read enabled flag for customerId '" + customerId + "'", ex);
         }
     }
 
@@ -227,68 +227,68 @@ public class JdbcConsumerRepositoryAdapter implements ConsumerRepositoryPort {
 
             if (hasOpenUploads == null) {
                 throw new IllegalStateException(
-                        "Column hasOpenUploads is null for consumer with email '%s'".formatted(emailAddress)
+                        "Column hasOpenUploads is null for customer with email '%s'".formatted(emailAddress)
                 );
             }
 
-            log.debug("Consumer '{}' hasOpenUploads={}", emailAddress, hasOpenUploads);
+            log.debug("Customer '{}' hasOpenUploads={}", emailAddress, hasOpenUploads);
             return hasOpenUploads;
         } catch (EmptyResultDataAccessException ex) {
-            log.warn(LITERAL_NO_CONSUMER_FOR_EMAIL, emailAddress);
-            throw new IllegalStateException("No consumer found for email '" + emailAddress + "'", ex);
+            log.warn(LITERAL_NO_CUSTOMER_FOR_EMAIL, emailAddress);
+            throw new IllegalStateException("No customer found for email '" + emailAddress + "'", ex);
         } catch (DataAccessException ex) {
-            log.error("Failed to read file pending for consumer '{}'", emailAddress, ex);
-            throw new IllegalStateException("Could not read file pending for consumer '" + emailAddress + "'", ex);
+            log.error("Failed to read file pending for customer '{}'", emailAddress, ex);
+            throw new IllegalStateException("Could not read file pending for customer '" + emailAddress + "'", ex);
         }
     }
 
     @Override
-    public boolean isHasOpenUploadsByConsumerId(long consumerId) {
-        MapSqlParameterSource params = new MapSqlParameterSource(LITERAL_CONSUMER_ID, consumerId);
+    public boolean isHasOpenUploadsByCustomerId(long customerId) {
+        MapSqlParameterSource params = new MapSqlParameterSource(LITERAL_CUSTOMER_ID, customerId);
 
         try {
             Boolean hasOpenUploads = jdbc.queryForObject(
-                    SQL_FIND_HAS_OPEN_UPLOADS_BY_CONSUMER_ID,
+                    SQL_FIND_HAS_OPEN_UPLOADS_BY_CUSTOMER_ID,
                     params,
                     Boolean.class
             );
 
             if (hasOpenUploads == null) {
                 throw new IllegalStateException(
-                        "Column hasOpenUploads is null for consumer with consumerId '%d'".formatted(consumerId)
+                        "Column hasOpenUploads is null for customer with customerId '%d'".formatted(customerId)
                 );
             }
 
-            log.debug("Consumer '{}' hasOpenUploads={}", consumerId, hasOpenUploads);
+            log.debug("Customer '{}' hasOpenUploads={}", customerId, hasOpenUploads);
             return hasOpenUploads;
         } catch (EmptyResultDataAccessException ex) {
-            log.warn(LITERAL_NO_CONSUMER_FOR_EMAIL, consumerId);
-            throw new IllegalStateException("No consumer found for consumerId '" + consumerId + "'", ex);
+            log.warn(LITERAL_NO_CUSTOMER_FOR_EMAIL, customerId);
+            throw new IllegalStateException("No customer found for customerId '" + customerId + "'", ex);
         } catch (DataAccessException ex) {
-            log.error("Failed to read file pending for consumer '{}'", consumerId, ex);
-            throw new IllegalStateException("Could not read file pending for consumer '" + consumerId + "'", ex);
+            log.error("Failed to read file pending for customer '{}'", customerId, ex);
+            throw new IllegalStateException("Could not read file pending for customer '" + customerId + "'", ex);
         }
     }
 
     @Override
-    public void setEnabled(final long consumerId, final boolean enabled) {
+    public void setEnabled(final long customerId, final boolean enabled) {
         MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue(LITERAL_CONSUMER_ID_CAMCELCASE, consumerId)
+                .addValue(LITERAL_CUSTOMER_ID_CAMCELCASE, customerId)
                 .addValue("enabled", enabled);
 
         try {
             int updated = jdbc.update(SQL_UPDATE_ENABLED, params);
             if (updated == 0) {
-                throw new IllegalStateException("No consumer found for consumerId=" + consumerId);
+                throw new IllegalStateException("No customer found for customerId=" + customerId);
             }
         } catch (DataAccessException ex) {
-            log.error("Failed to update enabled flag for consumerId={}", consumerId, ex);
-            throw new IllegalStateException("Could not update enabled flag for consumer " + consumerId, ex);
+            log.error("Failed to update enabled flag for customerId={}", customerId, ex);
+            throw new IllegalStateException("Could not update enabled flag for customer " + customerId, ex);
         }
     }
 
     @Override
-    public ConsumerProfileResponse getConsumer(String emailAddress) {
+    public CustomerProfileResponse getCustomer(String emailAddress) {
         String sql = """
                 SELECT firstname,
                        lastname,
@@ -299,14 +299,14 @@ public class JdbcConsumerRepositoryAdapter implements ConsumerRepositoryPort {
                        postalcode,
                        city,
                        country
-                FROM app.consumer
+                FROM app.customer
                 WHERE email_address = :email
                 """;
 
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("email", emailAddress);
 
-        List<ConsumerProfileResponse> result = jdbc.query(
+        List<CustomerProfileResponse> result = jdbc.query(
                 sql,
                 params,
                 (rs, rowNum) -> mapToCustomerProfileResponse(rs, emailAddress)
@@ -315,8 +315,8 @@ public class JdbcConsumerRepositoryAdapter implements ConsumerRepositoryPort {
         return result.isEmpty() ? null : result.get(0);
     }
 
-    private ConsumerProfileResponse mapToCustomerProfileResponse(ResultSet rs, String emailAddress) throws SQLException {
-        return new ConsumerProfileResponse(
+    private CustomerProfileResponse mapToCustomerProfileResponse(ResultSet rs, String emailAddress) throws SQLException {
+        return new CustomerProfileResponse(
                 rs.getString(LITERAL_FIRSTNAME),
                 rs.getString(LITERAL_LASTNAME),
                 rs.getString("company_name"),
@@ -331,9 +331,9 @@ public class JdbcConsumerRepositoryAdapter implements ConsumerRepositoryPort {
     }
 
     @Override
-    public int updateConsumerProfile(String emailAddress, ConsumerProfileRequest request) {
+    public int updateCustomerProfile(String emailAddress, CustomerProfileRequest request) {
         String sql = """
-                UPDATE app.consumer
+                UPDATE app.customer
                 SET firstname   = :firstname,
                     lastname    = :lastname,
                     company_name = :company_name,
@@ -363,12 +363,12 @@ public class JdbcConsumerRepositoryAdapter implements ConsumerRepositoryPort {
     }
 
     @Override
-    public int updateConsumerPassword(String emailAddress, UpdatePasswordRequest request) {
+    public int updateCustomerPassword(String emailAddress, UpdatePasswordRequest request) {
         String sql = """
                 UPDATE app.user_account ua
                    SET password = :password,
                        lastlogin = lastlogin -- unverändert lassen, nur damit es syntaktisch klar ist
-                FROM app.consumer c
+                FROM app.customer c
                 WHERE c.user_id = ua.id
                   AND c.email_address = :email_address
                 """;
@@ -380,24 +380,24 @@ public class JdbcConsumerRepositoryAdapter implements ConsumerRepositoryPort {
         try {
             int updated = jdbc.update(sql, params);
             if (updated == 0) {
-                log.warn("No user_account/consumer found for email '{}'", emailAddress);
+                log.warn("No user_account/customer found for email '{}'", emailAddress);
             }
             return updated;
         } catch (DataAccessException ex) {
-            log.error("Failed to update password for consumer/user with email '{}'", emailAddress, ex);
+            log.error("Failed to update password for customer/user with email '{}'", emailAddress, ex);
             throw new IllegalStateException("Could not update password for email '" + emailAddress + "'", ex);
         }
     }
 
     @Override
-    public List<ConsumerUploadHistory> findUploadHistoryByEmailAddress(String emailAddress) {
+    public List<CustomerUploadHistory> findUploadHistoryByEmailAddress(String emailAddress) {
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue(LITERAL_EMAIL_ADDRESS, emailAddress);
 
         return jdbc.query(
                 SQL_FIND_UPLOAD_HISTORY_BY_EMAIL,
                 params,
-                (rs, rowNum) -> new ConsumerUploadHistory(
+                (rs, rowNum) -> new CustomerUploadHistory(
                         rs.getTimestamp("ts"),
                         rs.getString(LITERAL_SOURCE_SYSTEM),
                         rs.getString(LITERAL_CRM_SYSTEM),
@@ -407,13 +407,13 @@ public class JdbcConsumerRepositoryAdapter implements ConsumerRepositoryPort {
         );
     }
 
-    public Optional<ConsumerUploadInfo> findLatestByConsumerId(long consumerId) {
-        Map<String, Object> params = Map.of(LITERAL_CONSUMER_ID_CAMCELCASE, consumerId);
+    public Optional<CustomerUploadInfo> findLatestByCustomerId(long customerId) {
+        Map<String, Object> params = Map.of(LITERAL_CUSTOMER_ID_CAMCELCASE, customerId);
 
-        List<ConsumerUploadInfo> list = jdbc.query(
-                SQL_FIND_LATEST_SUCCESSFUL_UPLOAD_BY_CONSUMER_ID,
+        List<CustomerUploadInfo> list = jdbc.query(
+                SQL_FIND_LATEST_SUCCESSFUL_UPLOAD_BY_CUSTOMER_ID,
                 params,
-                (rs, rowNum) -> new ConsumerUploadInfo(
+                (rs, rowNum) -> new CustomerUploadInfo(
                         rs.getString(LITERAL_SOURCE_SYSTEM),
                         rs.getString(LITERAL_CRM_SYSTEM),
                         rs.getString(LITERAL_CRM_CUSTOMER_ID)
@@ -423,13 +423,13 @@ public class JdbcConsumerRepositoryAdapter implements ConsumerRepositoryPort {
         return list.stream().findFirst();
     }
 
-    public Optional<ConsumerUploadInfo> findLatestByEmail(String email) {
+    public Optional<CustomerUploadInfo> findLatestByEmail(String email) {
         Map<String, Object> params = Map.of("email", email);
 
-        List<ConsumerUploadInfo> list = jdbc.query(
+        List<CustomerUploadInfo> list = jdbc.query(
                 SQL_FIND_LATEST_SUCCESSFUL_UPLOAD_BY_EMAIL,
                 params,
-                (rs, rowNum) -> new ConsumerUploadInfo(
+                (rs, rowNum) -> new CustomerUploadInfo(
                         rs.getString(LITERAL_SOURCE_SYSTEM),
                         rs.getString(LITERAL_CRM_SYSTEM),
                         rs.getString(LITERAL_CRM_CUSTOMER_ID)

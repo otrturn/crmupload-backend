@@ -1,8 +1,8 @@
-package com.crm.app.adapter.jdbc.consumer;
+package com.crm.app.adapter.jdbc.customer;
 
-import com.crm.app.dto.ConsumerUploadContent;
-import com.crm.app.port.consumer.Consumer;
-import com.crm.app.port.consumer.ConsumerUploadRepositoryPort;
+import com.crm.app.dto.CustomerUploadContent;
+import com.crm.app.port.customer.Customer;
+import com.crm.app.port.customer.CustomerUploadRepositoryPort;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -16,18 +16,18 @@ import java.util.Optional;
 
 @Slf4j
 @Repository
-public class JdbcConsumerUploadRepositoryAdapter implements ConsumerUploadRepositoryPort {
+public class JdbcCustomerUploadRepositoryAdapter implements CustomerUploadRepositoryPort {
 
-    private static final String SEQUENCE_CONSUMER_UPLOAD_UPLOAD_ID = "app.sequence_consumer_upload";
+    private static final String SEQUENCE_CUSTOMER_UPLOAD_UPLOAD_ID = "app.sequence_customer_upload";
 
     private static final String SQL_NEXT_UPLOAD_ID =
-            "SELECT nextval('" + SEQUENCE_CONSUMER_UPLOAD_UPLOAD_ID + "')";
+            "SELECT nextval('" + SEQUENCE_CUSTOMER_UPLOAD_UPLOAD_ID + "')";
 
-    private static final String SQL_FIND_CONSUMER_ID_BY_EMAIL =
-            "SELECT c.consumer_id FROM app.consumer c WHERE c.email_address = :email_address";
+    private static final String SQL_FIND_CUSTOMER_ID_BY_EMAIL =
+            "SELECT c.customer_id FROM app.customer c WHERE c.email_address = :email_address";
 
-    private static final String SQL_FIND_BY_CONSUMER_ID = """
-            SELECT consumer_id,
+    private static final String SQL_FIND_BY_CUSTOMER_ID = """
+            SELECT customer_id,
                    user_id,
                    firstname,
                    lastname,
@@ -39,21 +39,21 @@ public class JdbcConsumerUploadRepositoryAdapter implements ConsumerUploadReposi
                    postalcode,
                    city,
                    country
-              FROM app.consumer
-             WHERE consumer_id = :consumerId
+              FROM app.customer
+             WHERE customer_id = :customerId
             """;
 
-    private static final String SQL_INSERT_CONSUMER_UPLOAD =
-            "INSERT INTO app.consumer_upload " +
-                    "(upload_id, consumer_id, source_system, crm_system, crm_customer_id, api_key, content, status) " +
-                    "VALUES (:uploadId, :consumerId, :sourceSystem, :crmSystem, :crmCustomerId, :apiKey, :content, :status)";
+    private static final String SQL_INSERT_CUSTOMER_UPLOAD =
+            "INSERT INTO app.customer_upload " +
+                    "(upload_id, customer_id, source_system, crm_system, crm_customer_id, api_key, content, status) " +
+                    "VALUES (:uploadId, :customerId, :sourceSystem, :crmSystem, :crmCustomerId, :apiKey, :content, :status)";
 
     private static final String SQL_CLAIM_NEXT_UPLOADS = """
-            UPDATE app.consumer_upload cu
+            UPDATE app.customer_upload cu
                SET status = 'processing'
              WHERE cu.upload_id IN (
                    SELECT upload_id
-                     FROM app.consumer_upload
+                     FROM app.customer_upload
                     WHERE status = 'new'
                     ORDER BY upload_id
                     FOR UPDATE SKIP LOCKED
@@ -63,7 +63,7 @@ public class JdbcConsumerUploadRepositoryAdapter implements ConsumerUploadReposi
             """;
 
     private static final String SQL_MARK_DONE = """
-            UPDATE app.consumer_upload
+            UPDATE app.customer_upload
                SET status = 'done',
                    last_error = NULL,
                    modified = now()
@@ -71,7 +71,7 @@ public class JdbcConsumerUploadRepositoryAdapter implements ConsumerUploadReposi
             """;
 
     private static final String SQL_MARK_FAILED = """
-            UPDATE app.consumer_upload
+            UPDATE app.customer_upload
                SET status = 'failed',
                    last_error = :error,
                    modified = now()
@@ -80,13 +80,13 @@ public class JdbcConsumerUploadRepositoryAdapter implements ConsumerUploadReposi
 
     private static final String SQL_FIND_UPLOADS_BY_IDS = """
             SELECT upload_id,
-                   consumer_id,
+                   customer_id,
                    source_system,
                    crm_system,
                    crm_customer_id,
                    api_key,
                    content
-              FROM app.consumer_upload
+              FROM app.customer_upload
              WHERE upload_id = ANY(ARRAY[:uploadIds])
             """;
 
@@ -95,7 +95,7 @@ public class JdbcConsumerUploadRepositoryAdapter implements ConsumerUploadReposi
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
 
-    public JdbcConsumerUploadRepositoryAdapter(final NamedParameterJdbcTemplate jdbcTemplate) {
+    public JdbcCustomerUploadRepositoryAdapter(final NamedParameterJdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = Objects.requireNonNull(jdbcTemplate, "jdbcTemplate must not be null");
     }
 
@@ -110,7 +110,7 @@ public class JdbcConsumerUploadRepositoryAdapter implements ConsumerUploadReposi
 
             final Long nonNullNextId = Objects.requireNonNull(
                     nextId,
-                    "Sequence " + SEQUENCE_CONSUMER_UPLOAD_UPLOAD_ID + " returned null"
+                    "Sequence " + SEQUENCE_CUSTOMER_UPLOAD_UPLOAD_ID + " returned null"
             );
 
             if (log.isDebugEnabled()) {
@@ -119,13 +119,13 @@ public class JdbcConsumerUploadRepositoryAdapter implements ConsumerUploadReposi
 
             return nonNullNextId;
         } catch (DataAccessException ex) {
-            log.error("Failed to obtain next upload id from sequence {}", SEQUENCE_CONSUMER_UPLOAD_UPLOAD_ID, ex);
+            log.error("Failed to obtain next upload id from sequence {}", SEQUENCE_CUSTOMER_UPLOAD_UPLOAD_ID, ex);
             throw new IllegalStateException("Could not retrieve next upload id", ex);
         }
     }
 
     @Override
-    public long findConsumerIdByEmail(final String emailAddress) {
+    public long findCustomerIdByEmail(final String emailAddress) {
         if (emailAddress == null || emailAddress.isBlank()) {
             throw new IllegalArgumentException("emailAddress must not be null or blank");
         }
@@ -133,34 +133,34 @@ public class JdbcConsumerUploadRepositoryAdapter implements ConsumerUploadReposi
         final MapSqlParameterSource params = new MapSqlParameterSource("email_address", emailAddress);
 
         try {
-            final Long consumerId = jdbcTemplate.queryForObject(
-                    SQL_FIND_CONSUMER_ID_BY_EMAIL,
+            final Long customerId = jdbcTemplate.queryForObject(
+                    SQL_FIND_CUSTOMER_ID_BY_EMAIL,
                     params,
                     Long.class
             );
 
-            if (consumerId == null) {
-                throw new IllegalStateException("Consumer ID for emailAddress '" + emailAddress + "' is null");
+            if (customerId == null) {
+                throw new IllegalStateException("Customer ID for emailAddress '" + emailAddress + "' is null");
             }
 
             if (log.isDebugEnabled()) {
-                log.debug("Found consumer id {} for emailAddress {}", consumerId, emailAddress);
+                log.debug("Found customer id {} for emailAddress {}", customerId, emailAddress);
             }
 
-            return consumerId;
+            return customerId;
         } catch (EmptyResultDataAccessException ex) {
-            log.warn("No consumer found for emailAddress {}", emailAddress);
-            throw new IllegalStateException("No consumer found for emailAddress '" + emailAddress + "'", ex);
+            log.warn("No customer found for emailAddress {}", emailAddress);
+            throw new IllegalStateException("No customer found for emailAddress '" + emailAddress + "'", ex);
         } catch (DataAccessException ex) {
-            log.error("Failed to find consumer id for emailAddress {}", emailAddress, ex);
-            throw new IllegalStateException("Could not retrieve consumer id for emailAddress '" + emailAddress + "'", ex);
+            log.error("Failed to find customer id for emailAddress {}", emailAddress, ex);
+            throw new IllegalStateException("Could not retrieve customer id for emailAddress '" + emailAddress + "'", ex);
         }
     }
 
     @Override
-    public void insertConsumerUpload(
+    public void insertCustomerUpload(
             final long uploadId,
-            final long consumerId,
+            final long customerId,
             final String sourceSystem,
             final String crmSystem,
             final String crmCustomerId,
@@ -179,7 +179,7 @@ public class JdbcConsumerUploadRepositoryAdapter implements ConsumerUploadReposi
 
         final MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue(LITERAL_UPLOADID, uploadId)
-                .addValue("consumerId", consumerId)
+                .addValue("customerId", customerId)
                 .addValue("crmCustomerId", crmCustomerId)
                 .addValue("sourceSystem", sourceSystem)
                 .addValue("crmSystem", crmSystem)
@@ -188,27 +188,27 @@ public class JdbcConsumerUploadRepositoryAdapter implements ConsumerUploadReposi
                 .addValue("status", STATUS_NEW);
 
         try {
-            final int affectedRows = jdbcTemplate.update(SQL_INSERT_CONSUMER_UPLOAD, params);
+            final int affectedRows = jdbcTemplate.update(SQL_INSERT_CUSTOMER_UPLOAD, params);
 
             if (affectedRows != 1) {
-                log.error("Insert into app.consumer_upload affected {} rows for uploadId={}", affectedRows, uploadId);
+                log.error("Insert into app.customer_upload affected {} rows for uploadId={}", affectedRows, uploadId);
                 throw new IllegalStateException(
-                        "Insert into app.consumer_upload did not affect exactly one row (affected=" + affectedRows + ")"
+                        "Insert into app.customer_upload did not affect exactly one row (affected=" + affectedRows + ")"
                 );
             }
 
             if (log.isDebugEnabled()) {
                 log.debug(
-                        "Inserted consumer upload: uploadId={}, consumerId={}, crmCustomerId={}, status={}",
-                        uploadId, consumerId, crmCustomerId, STATUS_NEW
+                        "Inserted customer upload: uploadId={}, customerId={}, crmCustomerId={}, status={}",
+                        uploadId, customerId, crmCustomerId, STATUS_NEW
                 );
             }
         } catch (DataAccessException ex) {
             log.error(
-                    "Failed to insert consumer upload for uploadId={}, consumerId={}, crmCustomerId={}",
-                    uploadId, consumerId, crmCustomerId, ex
+                    "Failed to insert customer upload for uploadId={}, customerId={}, crmCustomerId={}",
+                    uploadId, customerId, crmCustomerId, ex
             );
-            throw new IllegalStateException("Could not insert consumer upload", ex);
+            throw new IllegalStateException("Could not insert customer upload", ex);
         }
     }
 
@@ -252,7 +252,7 @@ public class JdbcConsumerUploadRepositoryAdapter implements ConsumerUploadReposi
     }
 
     @Override
-    public List<ConsumerUploadContent> findUploadsByIds(List<Long> uploadIds) {
+    public List<CustomerUploadContent> findUploadsByIds(List<Long> uploadIds) {
         if (uploadIds == null || uploadIds.isEmpty()) {
             return List.of();
         }
@@ -263,9 +263,9 @@ public class JdbcConsumerUploadRepositoryAdapter implements ConsumerUploadReposi
             return jdbcTemplate.query(
                     SQL_FIND_UPLOADS_BY_IDS,
                     params,
-                    (rs, rowNum) -> new ConsumerUploadContent(
+                    (rs, rowNum) -> new CustomerUploadContent(
                             rs.getLong("upload_id"),
-                            rs.getLong("consumer_id"),
+                            rs.getLong("customer_id"),
                             rs.getString("source_system"),
                             rs.getString("crm_system"),
                             rs.getString("crm_customer_id"),
@@ -274,23 +274,23 @@ public class JdbcConsumerUploadRepositoryAdapter implements ConsumerUploadReposi
                     )
             );
         } catch (DataAccessException ex) {
-            log.error("Failed to load consumer_uploads for ids={}", uploadIds, ex);
-            throw new IllegalStateException("Could not load consumer uploads", ex);
+            log.error("Failed to load customer_uploads for ids={}", uploadIds, ex);
+            throw new IllegalStateException("Could not load customer uploads", ex);
         }
     }
 
     @Override
-    public Optional<Consumer> findConsumerByConsumerId(long consumerId) {
+    public Optional<Customer> findCustomerByCustomerId(long customerId) {
 
         MapSqlParameterSource params =
-                new MapSqlParameterSource("consumerId", consumerId);
+                new MapSqlParameterSource("customerId", customerId);
 
         try {
-            List<Consumer> rows = jdbcTemplate.query(
-                    SQL_FIND_BY_CONSUMER_ID,
+            List<Customer> rows = jdbcTemplate.query(
+                    SQL_FIND_BY_CUSTOMER_ID,
                     params,
-                    (rs, rowNum) -> new Consumer(
-                            rs.getLong("consumer_id"),
+                    (rs, rowNum) -> new Customer(
+                            rs.getLong("customer_id"),
                             rs.getLong("user_id"),
                             rs.getString("firstname"),
                             rs.getString("lastname"),
@@ -311,16 +311,16 @@ public class JdbcConsumerUploadRepositoryAdapter implements ConsumerUploadReposi
 
             if (rows.size() > 1) {
                 throw new IllegalStateException(
-                        "Mehrere Consumers mit consumer_id=" + consumerId + " gefunden"
+                        "Mehrere Customers mit customer_id=" + customerId + " gefunden"
                 );
             }
 
             return Optional.of(rows.get(0));
 
         } catch (DataAccessException ex) {
-            log.error("Fehler beim Lesen von Consumer consumer_id={}", consumerId, ex);
+            log.error("Fehler beim Lesen von Customer customer_id={}", customerId, ex);
             throw new IllegalStateException(
-                    "Fehler beim Lesen von Consumer consumer_id=" + consumerId, ex
+                    "Fehler beim Lesen von Customer customer_id=" + customerId, ex
             );
         }
     }

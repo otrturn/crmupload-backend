@@ -7,9 +7,9 @@ CREATE OR REPLACE PROCEDURE app.clearAccounts()
 AS
 $$
 BEGIN
-    TRUNCATE TABLE app.consumer_activation CASCADE;
-    TRUNCATE TABLE app.consumer_upload CASCADE;
-    TRUNCATE TABLE app.consumer CASCADE;
+    TRUNCATE TABLE app.customer_activation CASCADE;
+    TRUNCATE TABLE app.customer_upload CASCADE;
+    TRUNCATE TABLE app.customer CASCADE;
     TRUNCATE TABLE app.user_account CASCADE;
     COMMIT;
 END;
@@ -40,7 +40,7 @@ AS
 $$
 BEGIN
     RETURN QUERY
-        WITH candidates AS (SELECT c.consumer_id,
+        WITH candidates AS (SELECT c.customer_id,
                                    c.firstname,
                                    c.lastname,
                                    c.company_name,
@@ -54,35 +54,35 @@ BEGIN
                                    cu_first.source_system,
                                    cu_first.crm_system,
                                    cu_first.modified AS start_of_subscription
-                            FROM app.consumer c
-                                     -- ältester "done"-Upload je Consumer
+                            FROM app.customer c
+                                     -- ältester "done"-Upload je Customer
                                      JOIN LATERAL (
                                 SELECT cu.source_system,
                                        cu.crm_system,
                                        cu.modified
-                                FROM app.consumer_upload cu
-                                WHERE cu.consumer_id = c.consumer_id
+                                FROM app.customer_upload cu
+                                WHERE cu.customer_id = c.customer_id
                                   AND cu.status = 'done'
                                 ORDER BY cu.modified ASC
                                 LIMIT 1
                                 ) cu_first ON TRUE
-                            -- nur Consumer ohne Eintrag in consumer_billing
+                            -- nur Customer ohne Eintrag in customer_billing
                             WHERE NOT EXISTS (SELECT 1
-                                              FROM app.consumer_billing cb
-                                              WHERE cb.consumer_id = c.consumer_id)),
+                                              FROM app.customer_billing cb
+                                              WHERE cb.customer_id = c.customer_id)),
              inserted AS (
-                 INSERT INTO app.consumer_billing (
-                                                   consumer_id,
+                 INSERT INTO app.customer_billing (
+                                                   customer_id,
                                                    status,
                                                    start_of_subscription,
                                                    submitted_to_billing
                      )
-                     SELECT consumer_id,
+                     SELECT customer_id,
                             'new',
                             start_of_subscription,
                             now()
                      FROM candidates
-                     RETURNING consumer_id)
+                     RETURNING customer_id)
         SELECT c.firstname,
                c.lastname,
                c.company_name,
@@ -97,6 +97,6 @@ BEGIN
                c.crm_system
         FROM candidates c
                  JOIN inserted i
-                      ON i.consumer_id = c.consumer_id;
+                      ON i.customer_id = c.customer_id;
 END;
 $$;

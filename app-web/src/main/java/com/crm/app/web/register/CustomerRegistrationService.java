@@ -2,9 +2,9 @@ package com.crm.app.web.register;
 
 import com.crm.app.dto.RegisterRequest;
 import com.crm.app.dto.RegisterResponse;
-import com.crm.app.port.consumer.Consumer;
-import com.crm.app.port.consumer.ConsumerRepositoryPort;
-import com.crm.app.web.activation.ConsumerActivationService;
+import com.crm.app.port.customer.Customer;
+import com.crm.app.port.customer.CustomerRepositoryPort;
+import com.crm.app.web.activation.CustomerActivationService;
 import com.crm.app.web.validation.RegisterRequestValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -13,29 +13,29 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class ConsumerRegistrationService {
+public class CustomerRegistrationService {
 
     private final UserAccountRegistrationService userAccountRegistrationService;
-    private final ConsumerRepositoryPort consumerRepository;
-    private final ConsumerActivationService consumerActivationService;
+    private final CustomerRepositoryPort customerRepository;
+    private final CustomerActivationService customerActivationService;
 
     @Transactional
-    public ResponseEntity<RegisterResponse> registerConsumer(RegisterRequest request) {
+    public ResponseEntity<RegisterResponse> registerCustomer(RegisterRequest request) {
         String emailAddress = request.email_address();
 
         RegisterRequestValidator.assertValid(request);
 
-        if (consumerRepository.emailExists(emailAddress)) {
-            throw new IllegalStateException("Consumer with email already exists: " + emailAddress);
+        if (customerRepository.emailExists(emailAddress)) {
+            throw new IllegalStateException("Customer with email already exists: " + emailAddress);
         }
 
         UserAccountRegistrationResult accountResult =
                 userAccountRegistrationService.registerUserAccount(emailAddress, request.password());
 
-        long consumerId = consumerRepository.nextConsumerId();
+        long customerId = customerRepository.nextCustomerId();
 
-        Consumer consumer = new Consumer(
-                consumerId,
+        Customer customer = new Customer(
+                customerId,
                 accountResult.userId(),
                 request.firstname(),
                 request.lastname(),
@@ -49,12 +49,12 @@ public class ConsumerRegistrationService {
                 request.country()
         );
 
-        consumerRepository.insertConsumer(consumer);
+        customerRepository.insertCustomer(customer);
 
-        consumerActivationService.sendActivationEmail(
+        customerActivationService.sendActivationEmail(
                 emailAddress,
                 request.firstname() + " " + request.lastname(),
-                consumerId
+                customerId
         );
 
         return ResponseEntity

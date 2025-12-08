@@ -1,9 +1,9 @@
 package com.crm.app.dto;
 
 @SuppressWarnings("squid:S6218")
-public record ConsumerUploadContent(
+public record CustomerUploadContent(
         long uploadId,
-        long consumerId,
+        long customerId,
         String sourceSystem,
         String crmSystem,
         String crmCustomerId,

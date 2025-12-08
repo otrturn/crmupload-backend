@@ -1,4 +1,4 @@
-curl -v -X POST https://www.crmupload.de/auth/register-consumer \
+curl -v -X POST https://www.crmupload.de/auth/register-customer \
 -H "Content-Type: application/json" \
 -d '{
 "firstname": "Ralf",

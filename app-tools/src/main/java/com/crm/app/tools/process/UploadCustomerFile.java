@@ -18,14 +18,14 @@ import java.nio.file.Path;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class UploadConsumerFile {
+public class UploadCustomerFile {
     private final AppToolsConfig appToolsConfig;
 
     public void process(Path filePath, int n, String sourceSystem, String crmSystem) {
-        String url = appToolsConfig.getBaseUrl() + "/api/consumer-upload";
+        String url = appToolsConfig.getBaseUrl() + "/api/customer-upload";
 
-        log.info("uploadConsumerFile:baseUrl=" + appToolsConfig.getBaseUrl());
-        log.info("uploadConsumerFile:url=" + url);
+        log.info("uploadCustomerFile:baseUrl=" + appToolsConfig.getBaseUrl());
+        log.info("uploadCustomerFile:url=" + url);
 
         RestTemplate restTemplate = new RestTemplate();
 

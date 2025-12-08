@@ -4,7 +4,7 @@ app:
     username: appuser
     password: apppass
     driver-class-name: org.postgresql.Driver
-  consumer-upload:
+  customer-upload:
     poll-interval-ms: 10000
     batch-size: 5
     workdir: /data/tmp

@@ -1,9 +1,9 @@
 package com.crm.app.web.auth;
 
-import com.crm.app.dto.ConsumerUploadInfo;
+import com.crm.app.dto.CustomerUploadInfo;
 import com.crm.app.dto.LoginRequest;
 import com.crm.app.dto.LoginResponse;
-import com.crm.app.port.consumer.ConsumerRepositoryPort;
+import com.crm.app.port.customer.CustomerRepositoryPort;
 import com.crm.app.web.security.JwtService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,15 +22,15 @@ public class AuthenticationService {
     private final AuthenticationManager authManager;
     private final UserDetailsService userDetailsService;
     private final JwtService jwtService;
-    private final ConsumerRepositoryPort consumerRepositoryPort;
+    private final CustomerRepositoryPort customerRepositoryPort;
 
     public AuthenticationService(AuthenticationManager authManager,
                                  UserDetailsService userDetailsService,
-                                 JwtService jwtService, ConsumerRepositoryPort consumerRepositoryPort) {
+                                 JwtService jwtService, CustomerRepositoryPort customerRepositoryPort) {
         this.authManager = authManager;
         this.userDetailsService = userDetailsService;
         this.jwtService = jwtService;
-        this.consumerRepositoryPort = consumerRepositoryPort;
+        this.customerRepositoryPort = customerRepositoryPort;
     }
 
     public LoginResponse login(LoginRequest request) {
@@ -52,10 +52,10 @@ public class AuthenticationService {
         String emailAddress = request.username();
         String token = jwtService.generateToken(userDetails);
 
-        boolean enabled = consumerRepositoryPort.isEnabledByEmail(emailAddress);
-        boolean hasOpenUploads = consumerRepositoryPort.isHasOpenUploadsByEmail(emailAddress);
-        Optional<ConsumerUploadInfo> consumerUploadInfo = consumerRepositoryPort.findLatestByEmail(emailAddress);
+        boolean enabled = customerRepositoryPort.isEnabledByEmail(emailAddress);
+        boolean hasOpenUploads = customerRepositoryPort.isHasOpenUploadsByEmail(emailAddress);
+        Optional<CustomerUploadInfo> customerUploadInfo = customerRepositoryPort.findLatestByEmail(emailAddress);
 
-        return new LoginResponse(token, enabled, hasOpenUploads, consumerUploadInfo.orElse(null));
+        return new LoginResponse(token, enabled, hasOpenUploads, customerUploadInfo.orElse(null));
     }
 }

@@ -1,9 +1,9 @@
 package com.crm.app.worker.process;
 
-import com.crm.app.dto.ConsumerUploadContent;
-import com.crm.app.port.consumer.Consumer;
-import com.crm.app.port.consumer.ConsumerUploadRepositoryPort;
-import com.crm.app.worker.config.ConsumerUploadProperties;
+import com.crm.app.dto.CustomerUploadContent;
+import com.crm.app.port.customer.Customer;
+import com.crm.app.port.customer.CustomerUploadRepositoryPort;
+import com.crm.app.worker.config.CustomerUploadProperties;
 import com.crm.app.worker.util.WorkerUtils;
 import com.crmmacher.error.ErrMsg;
 import com.crmmacher.espo.dto.EspoAccount;
@@ -38,16 +38,16 @@ import static com.crm.app.worker.util.WorkerUtils.writeExcelToFile;
 @RequiredArgsConstructor
 public class UploadWorkerProcessForMyExcel {
 
-    private final ConsumerUploadRepositoryPort repository;
-    private final ConsumerUploadProperties properties;
+    private final CustomerUploadRepositoryPort repository;
+    private final CustomerUploadProperties properties;
     private final UploadHandlingForEspo uploadHandlingForEspo;
 
     private final MyExcelCtx myExcelCtx;
 
-    public void processUploadForEspo(ConsumerUploadContent upload) {
+    public void processUploadForEspo(CustomerUploadContent upload) {
         Path excelSourcefile = Paths.get(String.format("%s/Upload_MyExcel_%06d.xlsx", properties.getWorkdir(), upload.uploadId()));
         Path excelTargetFile = Paths.get(String.format("%s/Upload_MyExcel_Korrektur_%06d.xlsx", properties.getWorkdir(), upload.uploadId()));
-        log.info("Processing consumer_upload for MyExcel uploadId={} sourceSysten={} crmSystem={}", upload.uploadId(), upload.sourceSystem(), upload.crmSystem());
+        log.info("Processing customer_upload for MyExcel uploadId={} sourceSysten={} crmSystem={}", upload.uploadId(), upload.sourceSystem(), upload.crmSystem());
         try {
             writeExcelToFile(upload.content(), excelSourcefile);
 
@@ -78,11 +78,11 @@ public class UploadWorkerProcessForMyExcel {
             log.info(String.format("MyExcel %d leads read, %d errors", espoLeads.size(), errors.size()));
             log.info(String.format("MyExcel %d leads mapped, %d errors", espoLeads.size(), errors.size()));
 
-            Optional<Consumer> consumer = repository.findConsumerByConsumerId(upload.consumerId());
-            if (consumer.isPresent()) {
-                uploadHandlingForEspo.processForEspo(upload, excelSourcefile, excelTargetFile, errors, consumer.get(), espoEntityPool);
+            Optional<Customer> customer = repository.findCustomerByCustomerId(upload.customerId());
+            if (customer.isPresent()) {
+                uploadHandlingForEspo.processForEspo(upload, excelSourcefile, excelTargetFile, errors, customer.get(), espoEntityPool);
             } else {
-                log.error("Consumer not found for consumer id={}", upload.consumerId());
+                log.error("Customer not found for customer id={}", upload.customerId());
             }
         } catch (Exception ex) {
             repository.markUploadFailed(upload.uploadId(), ex.getMessage());

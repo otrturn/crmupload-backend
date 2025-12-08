@@ -1,6 +1,6 @@
 package com.crm.app.worker.util;
 
-import com.crm.app.port.consumer.Consumer;
+import com.crm.app.port.customer.Customer;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -29,17 +29,17 @@ public class WorkerUtils {
         }
     }
 
-    public static String getFullname(Consumer consumer) {
-        if (consumer == null) {
+    public static String getFullname(Customer customer) {
+        if (customer == null) {
             return "(Kein Name)";
         }
         String firstName = "";
-        if (consumer.firstname() != null && !consumer.firstname().isEmpty()) {
-            firstName = consumer.firstname();
+        if (customer.firstname() != null && !customer.firstname().isEmpty()) {
+            firstName = customer.firstname();
         }
         String lastName = "";
-        if (consumer.lastname() != null && !consumer.lastname().isEmpty()) {
-            lastName = consumer.lastname();
+        if (customer.lastname() != null && !customer.lastname().isEmpty()) {
+            lastName = customer.lastname();
         }
         return (!firstName.isEmpty() ? firstName + " " : "") + lastName;
     }

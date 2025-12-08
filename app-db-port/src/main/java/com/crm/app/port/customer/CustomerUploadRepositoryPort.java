@@ -1,20 +1,20 @@
-package com.crm.app.port.consumer;
+package com.crm.app.port.customer;
 
-import com.crm.app.dto.ConsumerUploadContent;
+import com.crm.app.dto.CustomerUploadContent;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface ConsumerUploadRepositoryPort {
+public interface CustomerUploadRepositoryPort {
     long nextUploadId();
 
-    long findConsumerIdByEmail(String email);
+    long findCustomerIdByEmail(String email);
 
-    Optional<Consumer> findConsumerByConsumerId(long consumerId);
+    Optional<Customer> findCustomerByCustomerId(long customerId);
 
-    void insertConsumerUpload(
+    void insertCustomerUpload(
             long uploadId,
-            long consumerId,
+            long customerId,
             String sourceSystem,
             String crmSystem,
             String crmCustomerId,
@@ -28,6 +28,6 @@ public interface ConsumerUploadRepositoryPort {
 
     void markUploadFailed(long uploadId, String errorMessage);
 
-    List<ConsumerUploadContent> findUploadsByIds(List<Long> uploadIds);
+    List<CustomerUploadContent> findUploadsByIds(List<Long> uploadIds);
 
 }

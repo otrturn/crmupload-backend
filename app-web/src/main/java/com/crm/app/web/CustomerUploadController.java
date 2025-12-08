@@ -3,7 +3,7 @@ package com.crm.app.web;
 import com.crm.app.dto.UploadResponse;
 import com.crm.app.web.error.UploadAlreadyInProgressException;
 import com.crm.app.web.error.UploadNotAllowedException;
-import com.crm.app.web.upload.ConsumerUploadService;
+import com.crm.app.web.upload.CustomerUploadService;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,26 +15,26 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
- * REST-Controller zum Entgegennehmen und Persistieren von Consumer-Uploads.
+ * REST-Controller zum Entgegennehmen und Persistieren von Customer-Uploads.
  * Hexagonale Architektur: Dieser Controller spricht ausschließlich mit dem
- * ConsumerUploadRepositoryPort (Adapter implementiert: JdbcConsumerUploadRepositoryAdapter).
+ * CustomerUploadRepositoryPort (Adapter implementiert: JdbcCustomerUploadRepositoryAdapter).
  */
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
 @Validated
 @Slf4j
-public class ConsumerUploadController {
+public class CustomerUploadController {
 
-    private final ConsumerUploadService uploadService;
+    private final CustomerUploadService uploadService;
 
     private static final String LITERAL_ERROR = "error: ";
 
     /**
-     * Empfängt einen Upload, ermittelt die Consumer-ID, erzeugt eine Upload-ID
-     * und schreibt alles in die Tabelle app.consumer_upload.
+     * Empfängt einen Upload, ermittelt die Customer-ID, erzeugt eine Upload-ID
+     * und schreibt alles in die Tabelle app.customer_upload.
      */
-    @PostMapping(path = "/consumer-upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(path = "/customer-upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<UploadResponse> upload(
             @RequestParam("emailAddress") @NotBlank String emailAddress,
             @RequestParam("sourceSystem") @NotBlank String sourceSystem,

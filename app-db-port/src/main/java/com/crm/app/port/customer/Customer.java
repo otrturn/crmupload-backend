@@ -1,7 +1,7 @@
-package com.crm.app.port.consumer;
+package com.crm.app.port.customer;
 
-public record Consumer(
-        Long consumerId,
+public record Customer(
+        Long customerId,
         Long userId,
         String firstname,
         String lastname,

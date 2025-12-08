@@ -10,11 +10,11 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class RegisterConsumers {
+public class RegisterCustomers {
     private final AppToolsConfig appToolsConfig;
 
     public void process(int n, RegisterRequest requestTemplate) {
-        log.info("registerConsumers:baseUrl=" + appToolsConfig.getBaseUrl());
+        log.info("registerCustomers:baseUrl=" + appToolsConfig.getBaseUrl());
 
         WebClient client = WebClient.builder()
                 .baseUrl(appToolsConfig.getBaseUrl())
@@ -25,7 +25,7 @@ public class RegisterConsumers {
 
             try {
                 String response = client.post()
-                        .uri("/auth/register-consumer")
+                        .uri("/auth/register-customer")
                         .bodyValue(req)
                         .retrieve()
                         .bodyToMono(String.class)

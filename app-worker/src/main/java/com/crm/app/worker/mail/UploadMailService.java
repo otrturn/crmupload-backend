@@ -1,7 +1,7 @@
 package com.crm.app.worker.mail;
 
-import com.crm.app.dto.ConsumerUploadContent;
-import com.crm.app.port.consumer.Consumer;
+import com.crm.app.dto.CustomerUploadContent;
+import com.crm.app.port.customer.Customer;
 import com.crm.app.worker.util.WorkerUtils;
 import com.crmmacher.error.ErrMsg;
 import com.crmmacher.espo.dto.EspoEntityPool;
@@ -24,25 +24,25 @@ public class UploadMailService {
 
     private final JavaMailSender mailSender;
 
-    public void sendSuccessMailForEspo(Consumer consumer, ConsumerUploadContent upload, EspoEntityPool espoEntityPool) {
+    public void sendSuccessMailForEspo(Customer customer, CustomerUploadContent upload, EspoEntityPool espoEntityPool) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, "UTF-8");
 
-            helper.setTo(consumer.emailAddress());
+            helper.setTo(customer.emailAddress());
             helper.setSubject(String.format("Ihre %s Daten wurden in das CRM %s übertragen", upload.sourceSystem(), upload.crmSystem()));
-            helper.setText(bodySuccessForEspo(consumer, upload.sourceSystem(), upload.crmSystem(), espoEntityPool), false);
+            helper.setText(bodySuccessForEspo(customer, upload.sourceSystem(), upload.crmSystem(), espoEntityPool), false);
 
             helper.setFrom("noreply@crmupload.de");
 
             mailSender.send(message);
-            log.info("Activation mail sent to {}", consumer.emailAddress());
+            log.info("Activation mail sent to {}", customer.emailAddress());
         } catch (MessagingException e) {
-            log.error("Failed to send activation mail to {}", consumer.emailAddress(), e);
+            log.error("Failed to send activation mail to {}", customer.emailAddress(), e);
         }
     }
 
-    private String bodySuccessForEspo(Consumer consumer, String sourceSystem, String crmSystem, EspoEntityPool espoEntityPool) {
+    private String bodySuccessForEspo(Customer customer, String sourceSystem, String crmSystem, EspoEntityPool espoEntityPool) {
         return """
                 Hallo %s,
                 
@@ -52,18 +52,18 @@ public class UploadMailService {
                 
                 Viele Grüße
                 Ihr CRM-Upload-Team
-                """.formatted(WorkerUtils.getFullname(consumer), sourceSystem, crmSystem,
+                """.formatted(WorkerUtils.getFullname(customer), sourceSystem, crmSystem,
                 espoEntityPool.getAccounts().size(), espoEntityPool.getContacts().size());
     }
 
-    public void sendErrorMailForEspo(Consumer consumer, ConsumerUploadContent upload, List<ErrMsg> errors, Path excelTargetfile) {
+    public void sendErrorMailForEspo(Customer customer, CustomerUploadContent upload, List<ErrMsg> errors, Path excelTargetfile) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-            helper.setTo(consumer.emailAddress());
+            helper.setTo(customer.emailAddress());
             helper.setSubject(String.format("Ihre %s Daten müssen noch korrigiert werden", upload.sourceSystem()));
-            helper.setText(bodyFailedForEspo(consumer, upload.sourceSystem(), upload.crmSystem(), errors), false);
+            helper.setText(bodyFailedForEspo(customer, upload.sourceSystem(), upload.crmSystem(), errors), false);
 
             helper.setFrom("noreply@crmupload.de");
 
@@ -71,17 +71,17 @@ public class UploadMailService {
             helper.addAttachment(file.getFilename(), file);
 
             mailSender.send(message);
-            log.info("Activation mail sent to {}", consumer.emailAddress());
+            log.info("Activation mail sent to {}", customer.emailAddress());
         } catch (MessagingException e) {
-            log.error("Failed to send activation mail to {}", consumer.emailAddress(), e);
+            log.error("Failed to send activation mail to {}", customer.emailAddress(), e);
         }
     }
 
-    private String bodyFailedForEspo(Consumer consumer, String sourceSystem, String crmSystem, List<ErrMsg> errors) {
+    private String bodyFailedForEspo(Customer customer, String sourceSystem, String crmSystem, List<ErrMsg> errors) {
         StringBuilder sb = new StringBuilder();
 
         sb.append("Hallo ")
-                .append(WorkerUtils.getFullname(consumer))
+                .append(WorkerUtils.getFullname(customer))
                 .append(",\n\n")
                 .append("Ihre ")
                 .append(sourceSystem)

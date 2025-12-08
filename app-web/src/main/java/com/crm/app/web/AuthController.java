@@ -6,7 +6,7 @@ import com.crm.app.dto.RegisterRequest;
 import com.crm.app.dto.RegisterResponse;
 import com.crm.app.web.auth.AuthenticationService;
 import com.crm.app.web.error.ReqgisterRequestInvalidDataException;
-import com.crm.app.web.register.ConsumerRegistrationService;
+import com.crm.app.web.register.CustomerRegistrationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,12 +18,12 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthenticationService authenticationService;
-    private final ConsumerRegistrationService consumerRegistrationService;
+    private final CustomerRegistrationService customerRegistrationService;
 
     public AuthController(AuthenticationService authenticationService,
-                          ConsumerRegistrationService consumerRegistrationService) {
+                          CustomerRegistrationService customerRegistrationService) {
         this.authenticationService = authenticationService;
-        this.consumerRegistrationService = consumerRegistrationService;
+        this.customerRegistrationService = customerRegistrationService;
     }
 
     @PostMapping("/login")
@@ -32,9 +32,9 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/register-consumer")
-    public ResponseEntity<RegisterResponse> registerConsumer(@RequestBody RegisterRequest request) {
-        return consumerRegistrationService.registerConsumer(request);
+    @PostMapping("/register-customer")
+    public ResponseEntity<RegisterResponse> registerCustomer(@RequestBody RegisterRequest request) {
+        return customerRegistrationService.registerCustomer(request);
     }
 
     @GetMapping("/test")

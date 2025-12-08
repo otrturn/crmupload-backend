@@ -1,12 +1,12 @@
-DROP TABLE IF EXISTS app.consumer_activation CASCADE;
+DROP TABLE IF EXISTS app.customer_activation CASCADE;
 
-DROP TABLE IF EXISTS app.consumer_billing CASCADE;
+DROP TABLE IF EXISTS app.customer_billing CASCADE;
 
-DROP TABLE IF EXISTS app.consumer_upload CASCADE;
-DROP SEQUENCE IF EXISTS app.sequence_consumer_upload;
+DROP TABLE IF EXISTS app.customer_upload CASCADE;
+DROP SEQUENCE IF EXISTS app.sequence_customer_upload;
 
-DROP TABLE IF EXISTS app.consumer CASCADE;
-DROP SEQUENCE IF EXISTS app.sequence_consumer;
+DROP TABLE IF EXISTS app.customer CASCADE;
+DROP SEQUENCE IF EXISTS app.sequence_customer;
 
 DROP TABLE IF EXISTS app.user_account CASCADE;
 DROP SEQUENCE IF EXISTS app.sequence_user_account;
@@ -37,18 +37,18 @@ CREATE UNIQUE INDEX idx_user_account_username
     ON app.user_account (username);
 
 -- ****************************************************************************************************
--- consumer
+-- customer
 -- ****************************************************************************************************
-CREATE SEQUENCE app.sequence_consumer
+CREATE SEQUENCE app.sequence_customer
     START WITH 1
     INCREMENT BY 1
     MINVALUE 1
     NO MAXVALUE
     CACHE 1;
 
-CREATE TABLE IF NOT EXISTS app.consumer
+CREATE TABLE IF NOT EXISTS app.customer
 (
-    consumer_id   INT         NOT NULL,
+    customer_id   INT         NOT NULL,
     user_id       INT         NOT NULL,
     firstname     TEXT,
     lastname      TEXT,
@@ -65,8 +65,8 @@ CREATE TABLE IF NOT EXISTS app.consumer
     modified      TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-ALTER TABLE app.consumer
-    ADD CONSTRAINT consumer_person_or_company_chk
+ALTER TABLE app.customer
+    ADD CONSTRAINT customer_person_or_company_chk
         CHECK (
             (
                 firstname IS NOT NULL
@@ -76,35 +76,35 @@ ALTER TABLE app.consumer
             company_name IS NOT NULL
             );
 
-ALTER TABLE app.consumer
-    ADD CONSTRAINT uq_consumer_consumer_id UNIQUE (consumer_id);
+ALTER TABLE app.customer
+    ADD CONSTRAINT uq_customer_customer_id UNIQUE (customer_id);
 
-CREATE UNIQUE INDEX idx_consumer_email_address
-    ON app.consumer (email_address);
+CREATE UNIQUE INDEX idx_customer_email_address
+    ON app.customer (email_address);
 
-CREATE UNIQUE INDEX idx_consumer_user_id
-    ON app.consumer (user_id);
+CREATE UNIQUE INDEX idx_customer_user_id
+    ON app.customer (user_id);
 
-ALTER TABLE app.consumer
-    ADD CONSTRAINT fk_consumer_user_id
+ALTER TABLE app.customer
+    ADD CONSTRAINT fk_customer_user_id
         FOREIGN KEY (user_id)
             REFERENCES app.user_account (id)
             ON DELETE RESTRICT;
 
 -- ****************************************************************************************************
--- consumer_upload
+-- customer_upload
 -- ****************************************************************************************************
-CREATE SEQUENCE app.sequence_consumer_upload
+CREATE SEQUENCE app.sequence_customer_upload
     START WITH 1
     INCREMENT BY 1
     MINVALUE 1
     NO MAXVALUE
     CACHE 1;
 
-CREATE TABLE IF NOT EXISTS app.consumer_upload
+CREATE TABLE IF NOT EXISTS app.customer_upload
 (
     upload_id       INT         NOT NULL,
-    consumer_id     INT         NOT NULL,
+    customer_id     INT         NOT NULL,
     crm_customer_id TEXT,
     source_system   TEXT,
     crm_system      TEXT,
@@ -114,57 +114,57 @@ CREATE TABLE IF NOT EXISTS app.consumer_upload
     last_error      TEXT,
     created         TIMESTAMPTZ NOT NULL DEFAULT now(),
     modified        TIMESTAMPTZ NOT NULL DEFAULT now(),
-    CONSTRAINT chk_consumer_upload_source_system CHECK (source_system IN ('Lexware', 'Bexio', 'MyExcel')),
-    CONSTRAINT chk_consumer_upload_crm_system CHECK (crm_system IN ('EspoCRM', 'Pipedrive')),
-    CONSTRAINT chk_consumer_upload_status CHECK (status IN ('new', 'processing', 'done', 'failed'))
+    CONSTRAINT chk_customer_upload_source_system CHECK (source_system IN ('Lexware', 'Bexio', 'MyExcel')),
+    CONSTRAINT chk_customer_upload_crm_system CHECK (crm_system IN ('EspoCRM', 'Pipedrive')),
+    CONSTRAINT chk_customer_upload_status CHECK (status IN ('new', 'processing', 'done', 'failed'))
 );
 
-ALTER TABLE app.consumer_upload
-    ADD CONSTRAINT uq_consumer_upload_upload_id UNIQUE (upload_id);
+ALTER TABLE app.customer_upload
+    ADD CONSTRAINT uq_customer_upload_upload_id UNIQUE (upload_id);
 
-CREATE INDEX idx_consumer_upload_consumer_id
-    ON app.consumer_upload (consumer_id);
+CREATE INDEX idx_customer_upload_customer_id
+    ON app.customer_upload (customer_id);
 
-ALTER TABLE app.consumer_upload
-    ADD CONSTRAINT fk_consumer_upload_consumer_id
-        FOREIGN KEY (consumer_id)
-            REFERENCES app.consumer (consumer_id)
+ALTER TABLE app.customer_upload
+    ADD CONSTRAINT fk_customer_upload_customer_id
+        FOREIGN KEY (customer_id)
+            REFERENCES app.customer (customer_id)
             ON DELETE RESTRICT;
 
 -- ****************************************************************************************************
--- consumer_activation
+-- customer_activation
 -- ****************************************************************************************************
 
-CREATE TABLE IF NOT EXISTS app.consumer_activation
+CREATE TABLE IF NOT EXISTS app.customer_activation
 (
     token       UUID        NOT NULL PRIMARY KEY,
-    consumer_id INT         NOT NULL REFERENCES app.consumer (consumer_id),
+    customer_id INT         NOT NULL REFERENCES app.customer (customer_id),
     created     TIMESTAMPTZ NOT NULL DEFAULT now(),
     expires_at  TIMESTAMPTZ NOT NULL, -- z. B. now() + interval '24 hours'
     used        BOOLEAN     NOT NULL DEFAULT FALSE,
     used_at     TIMESTAMPTZ
 );
 
-CREATE INDEX IF NOT EXISTS idx_consumer_activation_consumer
-    ON app.consumer_activation (consumer_id);
+CREATE INDEX IF NOT EXISTS idx_customer_activation_customer
+    ON app.customer_activation (customer_id);
 
 -- ****************************************************************************************************
--- consumer_billing
+-- customer_billing
 -- ****************************************************************************************************
 
-CREATE TABLE IF NOT EXISTS app.consumer_billing
+CREATE TABLE IF NOT EXISTS app.customer_billing
 (
-    consumer_id           INT         NOT NULL,
+    customer_id           INT         NOT NULL,
     status                TEXT        NOT NULL DEFAULT 'new',
     start_of_subscription TIMESTAMPTZ,
     submitted_to_billing  TIMESTAMPTZ,
     created               TIMESTAMPTZ NOT NULL DEFAULT now(),
     modified              TIMESTAMPTZ NOT NULL DEFAULT now(),
-    CONSTRAINT chk_consumer_billing_status CHECK (status IN ('new', 'renewal'))
+    CONSTRAINT chk_customer_billing_status CHECK (status IN ('new', 'renewal'))
 );
 
-ALTER TABLE app.consumer_billing
-    ADD CONSTRAINT fk_consumer_billing_consumer_id
-        FOREIGN KEY (consumer_id)
-            REFERENCES app.consumer (consumer_id)
+ALTER TABLE app.customer_billing
+    ADD CONSTRAINT fk_customer_billing_customer_id
+        FOREIGN KEY (customer_id)
+            REFERENCES app.customer (customer_id)
             ON DELETE RESTRICT;

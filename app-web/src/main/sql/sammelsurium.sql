@@ -2,21 +2,21 @@ select *
 from app.user_account;
 
 select *
-from app.consumer;
+from app.customer;
 
 select *
-from app.consumer_upload;
+from app.customer_upload;
 
 select *
-from app.consumer_billing;
+from app.customer_billing;
 
-update app.consumer
+update app.customer
 set enabled= true;
 commit;
 
 call app.clearAccounts();
 
-update app.consumer_upload
+update app.customer_upload
 set status= 'done';
 commit;
 

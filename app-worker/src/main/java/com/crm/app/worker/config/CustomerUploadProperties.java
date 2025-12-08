@@ -6,8 +6,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @Setter
 @Getter
-@ConfigurationProperties(prefix = "app.consumer-upload")
-public class ConsumerUploadProperties {
+@ConfigurationProperties(prefix = "app.customer-upload")
+public class CustomerUploadProperties {
 
     private int pollIntervalMs = 10000;
     private int batchSize = 5;
