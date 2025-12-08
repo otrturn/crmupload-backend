@@ -1,5 +1,8 @@
 select * from app.page_visits;
 
+delete from app.page_visits;
+commit;
+
 select *
 from app.user_account;
 
