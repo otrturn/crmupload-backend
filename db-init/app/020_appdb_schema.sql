@@ -1,6 +1,7 @@
-DROP TABLE IF EXISTS app.customer_activation CASCADE;
+DROP TABLE IF EXISTS app.page_visits CASCADE;
 
 DROP TABLE IF EXISTS app.customer_billing CASCADE;
+DROP TABLE IF EXISTS app.customer_activation CASCADE;
 
 DROP TABLE IF EXISTS app.customer_upload CASCADE;
 DROP SEQUENCE IF EXISTS app.sequence_customer_upload;
@@ -168,3 +169,13 @@ ALTER TABLE app.customer_billing
         FOREIGN KEY (customer_id)
             REFERENCES app.customer (customer_id)
             ON DELETE RESTRICT;
+
+-- ****************************************************************************************************
+-- page_visits
+-- ****************************************************************************************************
+
+CREATE TABLE IF NOT EXISTS app.page_visits
+(
+    page_id TEXT        NOT NULL,
+    visited TIMESTAMPTZ NOT NULL DEFAULT now()
+);

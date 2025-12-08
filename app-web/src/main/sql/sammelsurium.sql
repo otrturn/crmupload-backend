@@ -1,3 +1,5 @@
+select * from app.page_visits;
+
 select *
 from app.user_account;
 
