@@ -37,6 +37,7 @@ SELECT
     updated.billing_meta->>'crm_customer_id' AS crm_customer_id,
     updated.billing_meta->>'source_system'   AS source_system,
     updated.billing_meta->>'crm_system'      AS crm_system,
+    updated.billing_meta->>'crm_url'         AS crm_url,
     to_char(updated.start_of_subscription, 'DD.MM.YYYY') AS start_of_subscription
 FROM updated
 JOIN app.customer c ON c.customer_id = updated.customer_id

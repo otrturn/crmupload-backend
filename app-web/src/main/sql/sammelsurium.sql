@@ -1,4 +1,4 @@
-select * from app.page_visits;
+select * from app.page_visits order by visited desc;
 
 delete from app.page_visits;
 commit;
