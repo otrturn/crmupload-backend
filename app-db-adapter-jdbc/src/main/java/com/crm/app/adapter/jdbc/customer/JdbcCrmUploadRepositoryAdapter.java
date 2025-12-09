@@ -43,10 +43,10 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
              WHERE customer_id = :customerId
             """;
 
-    private static final String SQL_INSERT_RM_UPLOAD =
+    private static final String SQL_INSERT_CRM_UPLOAD =
             "INSERT INTO app.crm_upload " +
-                    "(upload_id, customer_id, source_system, crm_system, crm_customer_id, api_key, content, status) " +
-                    "VALUES (:uploadId, :customerId, :sourceSystem, :crmSystem, :crmCustomerId, :apiKey, :content, :status)";
+                    "(upload_id, customer_id, source_system, crm_system, crm_url, crm_customer_id, api_key, content, status) " +
+                    "VALUES (:uploadId, :customerId, :sourceSystem, :crmSystem, :crmUrl, :crmCustomerId, :apiKey, :content, :status)";
 
     private static final String SQL_CLAIM_NEXT_UPLOADS = """
             UPDATE app.crm_upload cu
@@ -83,6 +83,7 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
                    customer_id,
                    source_system,
                    crm_system,
+                   crm_url,
                    crm_customer_id,
                    api_key,
                    content
@@ -163,6 +164,7 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
             final long customerId,
             final String sourceSystem,
             final String crmSystem,
+            final String crmUrl,
             final String crmCustomerId,
             final String apiKey,
             final byte[] content
@@ -183,12 +185,13 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
                 .addValue("crmCustomerId", crmCustomerId)
                 .addValue("sourceSystem", sourceSystem)
                 .addValue("crmSystem", crmSystem)
+                .addValue("crmUrl", crmUrl)
                 .addValue("apiKey", apiKey)
                 .addValue("content", content)
                 .addValue("status", STATUS_NEW);
 
         try {
-            final int affectedRows = jdbcTemplate.update(SQL_INSERT_RM_UPLOAD, params);
+            final int affectedRows = jdbcTemplate.update(SQL_INSERT_CRM_UPLOAD, params);
 
             if (affectedRows != 1) {
                 log.error("Insert into app.crm_upload affected {} rows for uploadId={}", affectedRows, uploadId);
@@ -268,6 +271,7 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
                             rs.getLong("customer_id"),
                             rs.getString("source_system"),
                             rs.getString("crm_system"),
+                            rs.getString("crm_url"),
                             rs.getString("crm_customer_id"),
                             rs.getString("api_key"),
                             rs.getBytes("content")

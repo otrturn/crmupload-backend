@@ -27,6 +27,7 @@ public class CrmUploadService {
             String emailAddress,
             String sourceSystem,
             String crmSystem,
+            String crmUrl,
             String crmCustomerId,
             String crmApiKey,
             MultipartFile file
@@ -41,6 +42,7 @@ public class CrmUploadService {
                 emailAddress,
                 sourceSystem,
                 crmSystem,
+                crmUrl,
                 crmCustomerId,
                 crmApiKey
         );
@@ -74,6 +76,7 @@ public class CrmUploadService {
                     customerId,
                     sourceSystem,
                     crmSystem,
+                    crmUrl,
                     crmCustomerId,
                     crmApiKey,
                     file.getBytes()

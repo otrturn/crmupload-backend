@@ -34,6 +34,7 @@ public class CrmUploadController {
             @RequestParam("emailAddress") @NotBlank String emailAddress,
             @RequestParam("sourceSystem") @NotBlank String sourceSystem,
             @RequestParam("crmSystem") @NotBlank String crmSystem,
+            @RequestParam("crmUrl") @NotBlank String crmUrl,
             @RequestParam("crmCustomerId") @NotBlank String crmCustomerId,
             @RequestParam("crmApiKey") @NotBlank String crmApiKey,
             @RequestPart("file") MultipartFile file
@@ -42,6 +43,7 @@ public class CrmUploadController {
                 emailAddress,
                 sourceSystem,
                 crmSystem,
+                crmUrl,
                 crmCustomerId,
                 crmApiKey,
                 file

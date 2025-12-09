@@ -28,6 +28,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
     private static final String LITERAL_CUSTOMER_ID_CAMCELCASE = "customerId";
     private static final String LITERAL_SOURCE_SYSTEM = "source_system";
     private static final String LITERAL_CRM_SYSTEM = "crm_system";
+    private static final String LITERAL_CRM_URL = "crm_url";
     private static final String LITERAL_CRM_CUSTOMER_ID = "crm_customer_id";
     private static final String LITERAL_NO_CUSTOMER_FOR_EMAIL = "No customer found for email '{}'";
 
@@ -401,6 +402,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
                         rs.getTimestamp("ts"),
                         rs.getString(LITERAL_SOURCE_SYSTEM),
                         rs.getString(LITERAL_CRM_SYSTEM),
+                        rs.getString(LITERAL_CRM_URL),
                         rs.getString(LITERAL_CRM_CUSTOMER_ID),
                         rs.getString("status")
                 )
@@ -416,6 +418,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
                 (rs, rowNum) -> new CrmUploadInfo(
                         rs.getString(LITERAL_SOURCE_SYSTEM),
                         rs.getString(LITERAL_CRM_SYSTEM),
+                        rs.getString(LITERAL_CRM_URL),
                         rs.getString(LITERAL_CRM_CUSTOMER_ID)
                 )
         );
@@ -432,6 +435,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
                 (rs, rowNum) -> new CrmUploadInfo(
                         rs.getString(LITERAL_SOURCE_SYSTEM),
                         rs.getString(LITERAL_CRM_SYSTEM),
+                        rs.getString(LITERAL_CRM_URL),
                         rs.getString(LITERAL_CRM_CUSTOMER_ID)
                 )
         );

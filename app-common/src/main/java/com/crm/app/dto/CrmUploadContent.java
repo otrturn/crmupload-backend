@@ -6,6 +6,7 @@ public record CrmUploadContent(
         long customerId,
         String sourceSystem,
         String crmSystem,
+        String crmUrl,
         String crmCustomerId,
         String apiKey,
         byte[] content

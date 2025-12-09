@@ -109,6 +109,7 @@ CREATE TABLE IF NOT EXISTS app.crm_upload
     crm_customer_id TEXT,
     source_system   TEXT,
     crm_system      TEXT,
+    crm_url         TEXT,
     api_key         TEXT,
     content         BYTEA,
     status          TEXT        NOT NULL DEFAULT 'new',

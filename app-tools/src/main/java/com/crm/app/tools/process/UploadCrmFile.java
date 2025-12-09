@@ -43,6 +43,7 @@ public class UploadCrmFile {
                 body.add("emailAddress", email);
                 body.add("sourceSystem", sourceSystem);
                 body.add("crmSystem", crmSystem);
+                body.add("crmUrl", "https://crmupload.de:8180/");
                 body.add("crmCustomerId", "CUST-" + i);
                 body.add("crmApiKey", "API-KEY-TEST-" + i);
                 body.add("file", fileResource);
