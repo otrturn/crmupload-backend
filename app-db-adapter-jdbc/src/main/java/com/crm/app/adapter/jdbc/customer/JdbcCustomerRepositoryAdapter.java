@@ -410,13 +410,13 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
         );
     }
 
-    public Optional<CrmUploadInfo> findLatestByCustomerId(long customerId) {
+    public Optional<CrmInfo> findLatestUploadByCustomerId(long customerId) {
         Map<String, Object> params = Map.of(LITERAL_CUSTOMER_ID_CAMCELCASE, customerId);
 
-        List<CrmUploadInfo> list = jdbc.query(
+        List<CrmInfo> list = jdbc.query(
                 SQL_FIND_LATEST_SUCCESSFUL_UPLOAD_BY_CUSTOMER_ID,
                 params,
-                (rs, rowNum) -> new CrmUploadInfo(
+                (rs, rowNum) -> new CrmInfo(
                         rs.getString(LITERAL_SOURCE_SYSTEM),
                         rs.getString(LITERAL_CRM_SYSTEM),
                         rs.getString(LITERAL_CRM_URL),
@@ -427,13 +427,13 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
         return list.stream().findFirst();
     }
 
-    public Optional<CrmUploadInfo> findLatestByEmail(String email) {
+    public Optional<CrmInfo> findLatestUploadByEmail(String email) {
         Map<String, Object> params = Map.of("email", email);
 
-        List<CrmUploadInfo> list = jdbc.query(
+        List<CrmInfo> list = jdbc.query(
                 SQL_FIND_LATEST_SUCCESSFUL_UPLOAD_BY_EMAIL,
                 params,
-                (rs, rowNum) -> new CrmUploadInfo(
+                (rs, rowNum) -> new CrmInfo(
                         rs.getString(LITERAL_SOURCE_SYSTEM),
                         rs.getString(LITERAL_CRM_SYSTEM),
                         rs.getString(LITERAL_CRM_URL),

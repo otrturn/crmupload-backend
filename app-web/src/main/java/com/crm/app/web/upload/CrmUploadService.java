@@ -1,7 +1,7 @@
 package com.crm.app.web.upload;
 
 import com.crm.app.dto.CrmUploadHistory;
-import com.crm.app.dto.CrmUploadInfo;
+import com.crm.app.dto.CrmInfo;
 import com.crm.app.dto.CrmUploadRequest;
 import com.crm.app.dto.UploadRequest;
 import com.crm.app.port.customer.CrmUploadRepositoryPort;
@@ -53,7 +53,7 @@ public class CrmUploadService {
 
         boolean enabled = customerRepositoryPort.isEnabledByCustomerId(customerId);
         boolean hasOpenCrmUploads = customerRepositoryPort.isHasOpenCrmUploadsByCustomerId(customerId);
-        Optional<CrmUploadInfo> crmUploadInfo = customerRepositoryPort.findLatestByCustomerId(customerId);
+        Optional<CrmInfo> crmUploadInfo = customerRepositoryPort.findLatestUploadByCustomerId(customerId);
 
         if (!enabled) {
             throw new UploadNotAllowedException(String.format("processUpload: Customer %s is not enabled", emailAddress));
