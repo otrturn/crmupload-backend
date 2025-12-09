@@ -26,7 +26,7 @@ set enabled= true;
 commit;
 
 update app.crm_upload
-set status= 'done';
+set status= 'new';
 commit;
 
 SELECT
