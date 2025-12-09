@@ -43,9 +43,9 @@ public class UploadCrmFile {
                 body.add("emailAddress", email);
                 body.add("sourceSystem", sourceSystem);
                 body.add("crmSystem", crmSystem);
-                body.add("crmUrl", "EspoCRM".equalsIgnoreCase(crmSystem) ? "https://crmupload.de:8180/" : null);
+                body.add("crmUrl", "EspoCRM".equalsIgnoreCase(crmSystem) ? "http://host.docker.internal:8080" : null);
                 body.add("crmCustomerId", "Pipedrive".equalsIgnoreCase(crmSystem) ? "CUST-" + i : null);
-                body.add("crmApiKey", "API-KEY-TEST-" + i);
+                body.add("crmApiKey", "7a124718fbcde7a4a096396cb61fa80e");
                 body.add("file", fileResource);
 
                 HttpHeaders headers = new HttpHeaders();

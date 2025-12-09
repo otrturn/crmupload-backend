@@ -9,7 +9,8 @@ services:
     networks: [ crmuploadnet ]
     volumes:
       - /home/ralf/tmp:/data/tmp
-
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 networks:
   crmuploadnet:
     external: true
