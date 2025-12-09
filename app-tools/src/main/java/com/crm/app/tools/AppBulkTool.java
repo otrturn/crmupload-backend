@@ -44,7 +44,7 @@ public class AppBulkTool implements CommandLineRunner, ExitCodeGenerator {
                 registerCustomers.process(10, request);
             }
             case "--BexioToEspo" ->
-                    uploadCrmFile.process(Paths.get("/home/ralf/espocrm-demo/Bexio_Generated.xlsx"), 1, "Bexio", "EspoCRM");
+                    uploadCrmFile.process(Paths.get("/home/ralf/espocrm-demo/Bexio.xlsx"), 1, "Bexio", "EspoCRM");
             case "--MyExcelToEspo" ->
                     uploadCrmFile.process(Paths.get("/home/ralf/espocrm-demo/MyExcelKunden_V001.xlsx"), 1, "MyExcel", "EspoCRM");
             default -> log.error("Unknown command {}", args[0]);
