@@ -6,6 +6,8 @@ DROP TABLE IF EXISTS app.customer_activation CASCADE;
 DROP TABLE IF EXISTS app.crm_upload CASCADE;
 DROP SEQUENCE IF EXISTS app.sequence_crm_upload;
 
+DROP TABLE IF EXISTS app.customer_product CASCADE;
+
 DROP TABLE IF EXISTS app.customer CASCADE;
 DROP SEQUENCE IF EXISTS app.sequence_customer;
 
@@ -90,6 +92,27 @@ ALTER TABLE app.customer
     ADD CONSTRAINT fk_customer_user_id
         FOREIGN KEY (user_id)
             REFERENCES app.user_account (id)
+            ON DELETE RESTRICT;
+
+-- ****************************************************************************************************
+-- customer_product
+-- ****************************************************************************************************
+CREATE TABLE IF NOT EXISTS app.customer_product
+(
+    customer_id INT  NOT NULL,
+    product     TEXT NOT NULL,
+    CONSTRAINT chk_customer_product_produc CHECK (product IN ('crm-upload', 'duplicate-check')),
+    CONSTRAINT pk_customer_product
+        PRIMARY KEY (customer_id, product)
+);
+
+CREATE INDEX idx_customer_product_customer_id
+    ON app.customer_product (customer_id);
+
+ALTER TABLE app.customer_product
+    ADD CONSTRAINT fk_customer_product_customer_id
+        FOREIGN KEY (customer_id)
+            REFERENCES app.customer (customer_id)
             ON DELETE RESTRICT;
 
 -- ****************************************************************************************************
