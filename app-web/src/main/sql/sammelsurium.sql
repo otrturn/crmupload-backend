@@ -19,6 +19,9 @@ order by customer_id;
 delete from app.customer_billing;
 commit;
 
+delete from app.crm_upload;
+commit;
+
 call app.export_billing();
 
 update app.customer
