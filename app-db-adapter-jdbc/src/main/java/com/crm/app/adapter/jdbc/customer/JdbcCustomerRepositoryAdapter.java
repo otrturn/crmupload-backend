@@ -69,6 +69,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
                 cu.created         AS ts,
                 cu.source_system   AS source_system,
                 cu.crm_system      AS crm_system,
+                cu.crm_url         AS crm_url,
                 cu.crm_customer_id AS crm_customer_id,
                 cu.status          AS status
             FROM app.crm_upload cu
@@ -88,7 +89,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
             """;
 
     private static final String SQL_FIND_LATEST_SUCCESSFUL_UPLOAD_BY_EMAIL = """
-            SELECT cu.source_system, cu.crm_system, cu.crm_customer_id
+            SELECT cu.source_system, cu.crm_system, cu.crm_url, cu.crm_customer_id
             FROM app.crm_upload cu
             JOIN app.customer c ON c.customer_id = cu.customer_id
             WHERE c.email_address = :email

@@ -25,8 +25,6 @@ update app.customer
 set enabled= true;
 commit;
 
-call app.clearAccounts();
-
 update app.crm_upload
 set status= 'done';
 commit;
