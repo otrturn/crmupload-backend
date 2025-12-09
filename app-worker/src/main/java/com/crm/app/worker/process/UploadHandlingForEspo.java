@@ -31,10 +31,10 @@ public class UploadHandlingForEspo {
 
     public void processForEspo(CrmUploadContent upload, Path excelSourcefile, Path excelTargetfile, List<ErrMsg> errors, Customer customer, EspoEntityPool espoEntityPool) {
         if (!ErrMsg.containsErrors(errors)) {
-            repository.markUploadDone(upload.uploadId());
+            repository.markUploadDone(upload.getUploadId());
             uploadMailService.sendSuccessMailForEspo(customer, upload, espoEntityPool);
         } else {
-            repository.markUploadFailed(upload.uploadId(), "Validation failed");
+            repository.markUploadFailed(upload.getUploadId(), "Validation failed");
             markExcelFile(excelSourcefile, excelTargetfile, errors);
             uploadMailService.sendErrorMailForEspo(customer, upload, errors, excelTargetfile);
         }

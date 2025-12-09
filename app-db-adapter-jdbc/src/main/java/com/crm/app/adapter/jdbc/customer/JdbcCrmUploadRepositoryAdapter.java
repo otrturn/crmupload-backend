@@ -161,32 +161,29 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
 
     @Override
     public void insertCrmUpload(CrmUploadRequest crmUploadRequest) {
-        if (crmUploadRequest.crmCustomerId() == null || crmUploadRequest.crmCustomerId().isBlank()) {
-            throw new IllegalArgumentException("crmCustomerId must not be null or blank");
-        }
-        if (crmUploadRequest.apiKey() == null || crmUploadRequest.apiKey().isBlank()) {
+        if (crmUploadRequest.getApiKey() == null || crmUploadRequest.getApiKey().isBlank()) {
             throw new IllegalArgumentException("apiKey must not be null or blank");
         }
-        if (crmUploadRequest.content() == null) {
+        if (crmUploadRequest.getContent() == null) {
             throw new IllegalArgumentException("content must not be null");
         }
 
         final MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue(LITERAL_UPLOADID, crmUploadRequest.uploadId())
-                .addValue("customerId", crmUploadRequest.customerId())
-                .addValue("crmCustomerId", crmUploadRequest.crmCustomerId())
-                .addValue("sourceSystem", crmUploadRequest.sourceSystem())
-                .addValue("crmSystem", crmUploadRequest.crmSystem())
-                .addValue("crmUrl", crmUploadRequest.crmUrl())
-                .addValue("apiKey", crmUploadRequest.apiKey())
-                .addValue("content", crmUploadRequest.content())
+                .addValue(LITERAL_UPLOADID, crmUploadRequest.getUploadId())
+                .addValue("customerId", crmUploadRequest.getCustomerId())
+                .addValue("crmCustomerId", crmUploadRequest.getCrmCustomerId())
+                .addValue("sourceSystem", crmUploadRequest.getSourceSystem())
+                .addValue("crmSystem", crmUploadRequest.getCrmSystem())
+                .addValue("crmUrl", crmUploadRequest.getCrmUrl())
+                .addValue("apiKey", crmUploadRequest.getApiKey())
+                .addValue("content", crmUploadRequest.getContent())
                 .addValue("status", STATUS_NEW);
 
         try {
             final int affectedRows = jdbcTemplate.update(SQL_INSERT_CRM_UPLOAD, params);
 
             if (affectedRows != 1) {
-                log.error("Insert into app.crm_upload affected {} rows for uploadId={}", affectedRows, crmUploadRequest.uploadId());
+                log.error("Insert into app.crm_upload affected {} rows for uploadId={}", affectedRows, crmUploadRequest.getUploadId());
                 throw new IllegalStateException(
                         "Insert into app.crm_upload did not affect exactly one row (affected=" + affectedRows + ")"
                 );
@@ -195,13 +192,13 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
             if (log.isDebugEnabled()) {
                 log.debug(
                         "Inserted customer upload: uploadId={}, customerId={}, crmCustomerId={}, status={}",
-                        crmUploadRequest.uploadId(), crmUploadRequest.customerId(), crmUploadRequest.crmCustomerId(), STATUS_NEW
+                        crmUploadRequest.getUploadId(), crmUploadRequest.getCustomerId(), crmUploadRequest.getCrmCustomerId(), STATUS_NEW
                 );
             }
         } catch (DataAccessException ex) {
             log.error(
                     "Failed to insert customer upload for uploadId={}, customerId={}, crmCustomerId={}",
-                    crmUploadRequest.uploadId(), crmUploadRequest.customerId(), crmUploadRequest.crmCustomerId(), ex
+                    crmUploadRequest.getUploadId(), crmUploadRequest.getCustomerId(), crmUploadRequest.getCustomerId(), ex
             );
             throw new IllegalStateException("Could not insert customer upload", ex);
         }

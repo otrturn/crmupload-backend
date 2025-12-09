@@ -30,8 +30,8 @@ public class UploadMailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, "UTF-8");
 
             helper.setTo(customer.emailAddress());
-            helper.setSubject(String.format("Ihre %s Daten wurden in das CRM %s übertragen", upload.sourceSystem(), upload.crmSystem()));
-            helper.setText(bodySuccessForEspo(customer, upload.sourceSystem(), upload.crmSystem(), espoEntityPool), false);
+            helper.setSubject(String.format("Ihre %s Daten wurden in das CRM %s übertragen", upload.getSourceSystem(), upload.getCrmSystem()));
+            helper.setText(bodySuccessForEspo(customer, upload.getSourceSystem(), upload.getCrmSystem(), espoEntityPool), false);
 
             helper.setFrom("noreply@crmupload.de");
 
@@ -62,8 +62,8 @@ public class UploadMailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(customer.emailAddress());
-            helper.setSubject(String.format("Ihre %s Daten müssen noch korrigiert werden", upload.sourceSystem()));
-            helper.setText(bodyFailedForEspo(customer, upload.sourceSystem(), upload.crmSystem(), errors), false);
+            helper.setSubject(String.format("Ihre %s Daten müssen noch korrigiert werden", upload.getSourceSystem()));
+            helper.setText(bodyFailedForEspo(customer, upload.getSourceSystem(), upload.getCrmSystem(), errors), false);
 
             helper.setFrom("noreply@crmupload.de");
 

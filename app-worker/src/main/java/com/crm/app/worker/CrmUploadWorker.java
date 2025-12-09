@@ -45,8 +45,8 @@ public class CrmUploadWorker {
 
         for (CrmUploadContent upload : uploads) {
             try {
-                SourceSystem sourceSystem = SourceSystem.fromString(upload.sourceSystem());
-                CrmSystem crmSystem = CrmSystem.fromString(upload.crmSystem());
+                SourceSystem sourceSystem = SourceSystem.fromString(upload.getSourceSystem());
+                CrmSystem crmSystem = CrmSystem.fromString(upload.getCrmSystem());
                 switch (sourceSystem) {
                     case BEXIO: {
                         switch (crmSystem) {
@@ -59,7 +59,7 @@ public class CrmUploadWorker {
                                 break;
                             }
                             default: {
-                                repository.markUploadFailed(upload.uploadId(), UNKNOWN_CRM_SYSTEM + upload.crmSystem());
+                                repository.markUploadFailed(upload.getUploadId(), UNKNOWN_CRM_SYSTEM + upload.getCrmSystem());
                             }
                         }
                         break;
@@ -75,7 +75,7 @@ public class CrmUploadWorker {
                                 break;
                             }
                             default: {
-                                repository.markUploadFailed(upload.uploadId(), UNKNOWN_CRM_SYSTEM + upload.crmSystem());
+                                repository.markUploadFailed(upload.getUploadId(), UNKNOWN_CRM_SYSTEM + upload.getCrmSystem());
                             }
                         }
                         break;
@@ -91,18 +91,18 @@ public class CrmUploadWorker {
                                 break;
                             }
                             default: {
-                                repository.markUploadFailed(upload.uploadId(), UNKNOWN_CRM_SYSTEM + upload.crmSystem());
+                                repository.markUploadFailed(upload.getUploadId(), UNKNOWN_CRM_SYSTEM + upload.getCrmSystem());
                             }
                         }
                         break;
                     }
                     default: {
-                        repository.markUploadFailed(upload.uploadId(), UNKNOWN_SOURCE_SYSTEM + upload.sourceSystem());
+                        repository.markUploadFailed(upload.getUploadId(), UNKNOWN_SOURCE_SYSTEM + upload.getSourceSystem());
                     }
                 }
             } catch (Exception ex) {
-                log.error("Error processing crm_upload with uploadId={}", upload.uploadId(), ex);
-                repository.markUploadFailed(upload.uploadId(), ex.getMessage());
+                log.error("Error processing crm_upload with uploadId={}", upload.getUploadId(), ex);
+                repository.markUploadFailed(upload.getUploadId(), ex.getMessage());
             }
         }
     }

@@ -45,11 +45,11 @@ public class UploadWorkerProcessForMyExcel {
     private final MyExcelCtx myExcelCtx;
 
     public void processUploadForEspo(CrmUploadContent upload) {
-        Path excelSourcefile = Paths.get(String.format("%s/Upload_MyExcel_%06d.xlsx", properties.getWorkdir(), upload.uploadId()));
-        Path excelTargetFile = Paths.get(String.format("%s/Upload_MyExcel_Korrektur_%06d.xlsx", properties.getWorkdir(), upload.uploadId()));
-        log.info("Processing crm_upload for MyExcel uploadId={} sourceSysten={} crmSystem={}", upload.uploadId(), upload.sourceSystem(), upload.crmSystem());
+        Path excelSourcefile = Paths.get(String.format("%s/Upload_MyExcel_%06d.xlsx", properties.getWorkdir(), upload.getUploadId()));
+        Path excelTargetFile = Paths.get(String.format("%s/Upload_MyExcel_Korrektur_%06d.xlsx", properties.getWorkdir(), upload.getUploadId()));
+        log.info("Processing crm_upload for MyExcel uploadId={} sourceSysten={} crmSystem={}", upload.getUploadId(), upload.getSourceSystem(), upload.getCrmSystem());
         try {
-            writeExcelToFile(upload.content(), excelSourcefile);
+            writeExcelToFile(upload.getContent(), excelSourcefile);
 
             List<ErrMsg> errors = new ArrayList<>();
 
@@ -78,14 +78,14 @@ public class UploadWorkerProcessForMyExcel {
             log.info(String.format("MyExcel %d leads read, %d errors", espoLeads.size(), errors.size()));
             log.info(String.format("MyExcel %d leads mapped, %d errors", espoLeads.size(), errors.size()));
 
-            Optional<Customer> customer = repository.findCustomerByCustomerId(upload.customerId());
+            Optional<Customer> customer = repository.findCustomerByCustomerId(upload.getCustomerId());
             if (customer.isPresent()) {
                 uploadHandlingForEspo.processForEspo(upload, excelSourcefile, excelTargetFile, errors, customer.get(), espoEntityPool);
             } else {
-                log.error("Customer not found for customer id={}", upload.customerId());
+                log.error("Customer not found for customer id={}", upload.getCustomerId());
             }
         } catch (Exception ex) {
-            repository.markUploadFailed(upload.uploadId(), ex.getMessage());
+            repository.markUploadFailed(upload.getUploadId(), ex.getMessage());
         }
         WorkerUtils.removeFile(excelSourcefile);
     }

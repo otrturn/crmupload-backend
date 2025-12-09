@@ -31,8 +31,8 @@ public interface CustomerRepositoryPort {
 
     List<CrmUploadHistory> findUploadHistoryByEmailAddress(String emailAddress);
 
-    Optional<CrmInfo> findLatestUploadByCustomerId(long customerId);
+    Optional<CrmUploadCoreInfo> findLatestUploadByCustomerId(long customerId);
 
-    Optional<CrmInfo> findLatestUploadByEmail(String email);
+    Optional<CrmUploadCoreInfo> findLatestUploadByEmail(String email);
 
 }

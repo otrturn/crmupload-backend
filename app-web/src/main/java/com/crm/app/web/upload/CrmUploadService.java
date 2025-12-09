@@ -1,7 +1,7 @@
 package com.crm.app.web.upload;
 
 import com.crm.app.dto.CrmUploadHistory;
-import com.crm.app.dto.CrmInfo;
+import com.crm.app.dto.CrmUploadCoreInfo;
 import com.crm.app.dto.CrmUploadRequest;
 import com.crm.app.dto.UploadRequest;
 import com.crm.app.port.customer.CrmUploadRepositoryPort;
@@ -48,12 +48,12 @@ public class CrmUploadService {
                 crmApiKey
         );
 
-        long customerId = repository.findCustomerIdByEmail(request.emailAddress());
+        long customerId = repository.findCustomerIdByEmail(request.getEmailAddress());
         log.info("Resolved customerId={} for email={}", customerId, emailAddress);
 
         boolean enabled = customerRepositoryPort.isEnabledByCustomerId(customerId);
         boolean hasOpenCrmUploads = customerRepositoryPort.isHasOpenCrmUploadsByCustomerId(customerId);
-        Optional<CrmInfo> crmUploadInfo = customerRepositoryPort.findLatestUploadByCustomerId(customerId);
+        Optional<CrmUploadCoreInfo> crmUploadInfo = customerRepositoryPort.findLatestUploadByCustomerId(customerId);
 
         if (!enabled) {
             throw new UploadNotAllowedException(String.format("processUpload: Customer %s is not enabled", emailAddress));
@@ -61,8 +61,8 @@ public class CrmUploadService {
         if (hasOpenCrmUploads) {
             throw new UploadNotAllowedException(String.format("processUpload: Customer %s has open uploads", emailAddress));
         }
-        if (crmUploadInfo.isPresent() && (!crmUploadInfo.get().crmSystem().equals(crmSystem)
-                || !crmUploadInfo.get().crmCustomerId().equals(crmCustomerId))) {
+        if (crmUploadInfo.isPresent() && (!crmUploadInfo.get().getCrmSystem().equals(crmSystem)
+                || !crmUploadInfo.get().getCrmCustomerId().equals(crmCustomerId))) {
             throw new UploadNotAllowedException(String.format("processUpload: crmSystem/crmCustomerId %s/%s for customer %d invalid",
                     crmSystem, crmCustomerId, customerId));
         }
