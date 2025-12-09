@@ -101,7 +101,43 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
             """;
 
     private static final String STATUS_NEW = "new";
-    private static final String LITERAL_UPLOADID = "uploadId";
+
+    // Parameter- und Spalten-LITERALS
+
+    // Snake/lower-case
+    private static final String LITERAL_EMAIL_ADDRESS = "email_address";
+    private static final String LITERAL_UPLOAD_ID = "upload_id";
+    private static final String LITERAL_CUSTOMER_ID = "customer_id";
+    private static final String LITERAL_USER_ID = "user_id";
+    private static final String LITERAL_FIRSTNAME = "firstname";
+    private static final String LITERAL_LASTNAME = "lastname";
+    private static final String LITERAL_COMPANY_NAME = "company_name";
+    private static final String LITERAL_PHONE_NUMBER = "phone_number";
+    private static final String LITERAL_ADRLINE1 = "adrline1";
+    private static final String LITERAL_ADRLINE2 = "adrline2";
+    private static final String LITERAL_POSTALCODE = "postalcode";
+    private static final String LITERAL_CITY = "city";
+    private static final String LITERAL_COUNTRY = "country";
+    private static final String LITERAL_SOURCE_SYSTEM = "source_system";
+    private static final String LITERAL_CRM_SYSTEM = "crm_system";
+    private static final String LITERAL_CRM_URL = "crm_url";
+    private static final String LITERAL_CRM_CUSTOMER_ID = "crm_customer_id";
+    private static final String LITERAL_API_KEY = "api_key";
+    private static final String LITERAL_CONTENT = "content";
+    private static final String LITERAL_PRODUCT = "product";
+    private static final String LITERAL_STATUS = "status";
+    private static final String LITERAL_ERROR = "error";
+
+    // camelCase-Parameter → *_CAMELCASE
+    private static final String LITERAL_UPLOAD_ID_CAMELCASE = "uploadId";
+    private static final String LITERAL_CUSTOMER_ID_CAMELCASE = "customerId";
+    private static final String LITERAL_SOURCE_SYSTEM_CAMELCASE = "sourceSystem";
+    private static final String LITERAL_CRM_SYSTEM_CAMELCASE = "crmSystem";
+    private static final String LITERAL_CRM_URL_CAMELCASE = "crmUrl";
+    private static final String LITERAL_CRM_CUSTOMER_ID_CAMELCASE = "crmCustomerId";
+    private static final String LITERAL_API_KEY_CAMELCASE = "apiKey";
+    private static final String LITERAL_LIMIT = "limit";
+    private static final String LITERAL_UPLOAD_IDS_CAMELCASE = "uploadIds";
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
 
@@ -140,7 +176,8 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
             throw new IllegalArgumentException("emailAddress must not be null or blank");
         }
 
-        final MapSqlParameterSource params = new MapSqlParameterSource("email_address", emailAddress);
+        final MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue(LITERAL_EMAIL_ADDRESS, emailAddress);
 
         try {
             final Long customerId = jdbcTemplate.queryForObject(
@@ -177,15 +214,15 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
         }
 
         final MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue(LITERAL_UPLOADID, crmUploadRequest.getUploadId())
-                .addValue("customerId", crmUploadRequest.getCustomerId())
-                .addValue("crmCustomerId", crmUploadRequest.getCrmCustomerId())
-                .addValue("sourceSystem", crmUploadRequest.getSourceSystem())
-                .addValue("crmSystem", crmUploadRequest.getCrmSystem())
-                .addValue("crmUrl", crmUploadRequest.getCrmUrl())
-                .addValue("apiKey", crmUploadRequest.getApiKey())
-                .addValue("content", crmUploadRequest.getContent())
-                .addValue("status", STATUS_NEW);
+                .addValue(LITERAL_UPLOAD_ID_CAMELCASE, crmUploadRequest.getUploadId())
+                .addValue(LITERAL_CUSTOMER_ID_CAMELCASE, crmUploadRequest.getCustomerId())
+                .addValue(LITERAL_CRM_CUSTOMER_ID_CAMELCASE, crmUploadRequest.getCrmCustomerId())
+                .addValue(LITERAL_SOURCE_SYSTEM_CAMELCASE, crmUploadRequest.getSourceSystem())
+                .addValue(LITERAL_CRM_SYSTEM_CAMELCASE, crmUploadRequest.getCrmSystem())
+                .addValue(LITERAL_CRM_URL_CAMELCASE, crmUploadRequest.getCrmUrl())
+                .addValue(LITERAL_API_KEY_CAMELCASE, crmUploadRequest.getApiKey())
+                .addValue(LITERAL_CONTENT, crmUploadRequest.getContent())
+                .addValue(LITERAL_STATUS, STATUS_NEW);
 
         try {
             final int affectedRows = jdbcTemplate.update(SQL_INSERT_CRM_UPLOAD, params);
@@ -200,13 +237,19 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
             if (log.isDebugEnabled()) {
                 log.debug(
                         "Inserted customer upload: uploadId={}, customerId={}, crmCustomerId={}, status={}",
-                        crmUploadRequest.getUploadId(), crmUploadRequest.getCustomerId(), crmUploadRequest.getCrmCustomerId(), STATUS_NEW
+                        crmUploadRequest.getUploadId(),
+                        crmUploadRequest.getCustomerId(),
+                        crmUploadRequest.getCrmCustomerId(),
+                        STATUS_NEW
                 );
             }
         } catch (DataAccessException ex) {
             log.error(
                     "Failed to insert customer upload for uploadId={}, customerId={}, crmCustomerId={}",
-                    crmUploadRequest.getUploadId(), crmUploadRequest.getCustomerId(), crmUploadRequest.getCustomerId(), ex
+                    crmUploadRequest.getUploadId(),
+                    crmUploadRequest.getCustomerId(),
+                    crmUploadRequest.getCrmCustomerId(),
+                    ex
             );
             throw new IllegalStateException("Could not insert customer upload", ex);
         }
@@ -214,12 +257,13 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
 
     @Override
     public List<Long> claimNextUploads(final int limit) {
-        final MapSqlParameterSource params = new MapSqlParameterSource("limit", limit);
+        final MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue(LITERAL_LIMIT, limit);
         try {
             return jdbcTemplate.query(
                     SQL_CLAIM_NEXT_UPLOADS,
                     params,
-                    (rs, rowNum) -> rs.getLong("upload_id")
+                    (rs, rowNum) -> rs.getLong(LITERAL_UPLOAD_ID)
             );
         } catch (DataAccessException ex) {
             log.error("Failed to claim next uploads", ex);
@@ -229,7 +273,8 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
 
     @Override
     public void markUploadDone(final long uploadId) {
-        final MapSqlParameterSource params = new MapSqlParameterSource(LITERAL_UPLOADID, uploadId);
+        final MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue(LITERAL_UPLOAD_ID_CAMELCASE, uploadId);
         try {
             jdbcTemplate.update(SQL_MARK_DONE, params);
         } catch (DataAccessException ex) {
@@ -241,8 +286,8 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
     @Override
     public void markUploadFailed(final long uploadId, final String errorMessage) {
         final MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue(LITERAL_UPLOADID, uploadId)
-                .addValue("error", errorMessage);
+                .addValue(LITERAL_UPLOAD_ID_CAMELCASE, uploadId)
+                .addValue(LITERAL_ERROR, errorMessage);
         try {
             jdbcTemplate.update(SQL_MARK_FAILED, params);
         } catch (DataAccessException ex) {
@@ -257,21 +302,22 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
             return List.of();
         }
 
-        MapSqlParameterSource params = new MapSqlParameterSource("uploadIds", uploadIds);
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue(LITERAL_UPLOAD_IDS_CAMELCASE, uploadIds);
 
         try {
             return jdbcTemplate.query(
                     SQL_FIND_UPLOADS_BY_IDS,
                     params,
                     (rs, rowNum) -> new CrmUploadContent(
-                            rs.getLong("upload_id"),
-                            rs.getLong("customer_id"),
-                            rs.getString("source_system"),
-                            rs.getString("crm_system"),
-                            rs.getString("crm_url"),
-                            rs.getString("crm_customer_id"),
-                            rs.getString("api_key"),
-                            rs.getBytes("content")
+                            rs.getLong(LITERAL_UPLOAD_ID),
+                            rs.getLong(LITERAL_CUSTOMER_ID),
+                            rs.getString(LITERAL_SOURCE_SYSTEM),
+                            rs.getString(LITERAL_CRM_SYSTEM),
+                            rs.getString(LITERAL_CRM_URL),
+                            rs.getString(LITERAL_CRM_CUSTOMER_ID),
+                            rs.getString(LITERAL_API_KEY),
+                            rs.getBytes(LITERAL_CONTENT)
                     )
             );
         } catch (DataAccessException ex) {
@@ -284,25 +330,26 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
     public Optional<Customer> findCustomerByCustomerId(long customerId) {
 
         MapSqlParameterSource params =
-                new MapSqlParameterSource("customerId", customerId);
+                new MapSqlParameterSource()
+                        .addValue(LITERAL_CUSTOMER_ID_CAMELCASE, customerId);
 
         try {
             List<Customer> rows = jdbcTemplate.query(
                     SQL_FIND_BY_CUSTOMER_ID,
                     params,
                     (rs, rowNum) -> new Customer(
-                            rs.getLong("customer_id"),
-                            rs.getLong("user_id"),
-                            rs.getString("firstname"),
-                            rs.getString("lastname"),
-                            rs.getString("company_name"),
-                            rs.getString("email_address"),
-                            rs.getString("phone_number"),
-                            rs.getString("adrline1"),
-                            rs.getString("adrline2"),
-                            rs.getString("postalcode"),
-                            rs.getString("city"),
-                            rs.getString("country"),
+                            rs.getLong(LITERAL_CUSTOMER_ID),
+                            rs.getLong(LITERAL_USER_ID),
+                            rs.getString(LITERAL_FIRSTNAME),
+                            rs.getString(LITERAL_LASTNAME),
+                            rs.getString(LITERAL_COMPANY_NAME),
+                            rs.getString(LITERAL_EMAIL_ADDRESS),
+                            rs.getString(LITERAL_PHONE_NUMBER),
+                            rs.getString(LITERAL_ADRLINE1),
+                            rs.getString(LITERAL_ADRLINE2),
+                            rs.getString(LITERAL_POSTALCODE),
+                            rs.getString(LITERAL_CITY),
+                            rs.getString(LITERAL_COUNTRY),
                             null
                     )
             );
@@ -319,10 +366,8 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
 
             Customer customer = rows.get(0);
 
-            // 🔥 Produkte laden
             List<String> products = loadProductsForCustomer(customerId);
 
-            // 🔥 Customer mit Produkten zurückgeben (Record = immutable → neuer Record nötig)
             Customer enrichedCustomer = new Customer(
                     customer.customerId(),
                     customer.userId(),
@@ -351,11 +396,12 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
 
     private List<String> loadProductsForCustomer(long customerId) {
         try {
-            MapSqlParameterSource params = new MapSqlParameterSource("customerId", customerId);
+            MapSqlParameterSource params = new MapSqlParameterSource()
+                    .addValue(LITERAL_CUSTOMER_ID_CAMELCASE, customerId);
             return jdbcTemplate.query(
                     SQL_FIND_PRODUCTS_BY_CUSTOMER_ID,
                     params,
-                    (rs, rowNum) -> rs.getString("product")
+                    (rs, rowNum) -> rs.getString(LITERAL_PRODUCT)
             );
         } catch (DataAccessException ex) {
             log.error("Fehler beim Lesen der Produkte für customer_id={}", customerId, ex);

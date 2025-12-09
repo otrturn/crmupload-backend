@@ -12,6 +12,8 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class JdbcMaintenanceAdapter implements MaintenancePort {
 
+    private static final String LITERAL_PAGE_ID = "pageId";
+
     private final NamedParameterJdbcTemplate jdbc;
 
     @Override
@@ -22,9 +24,8 @@ public class JdbcMaintenanceAdapter implements MaintenancePort {
                 """;
 
         MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("pageId", pageId);
+                .addValue(LITERAL_PAGE_ID, pageId);
 
         jdbc.update(sql, params);
     }
-
 }

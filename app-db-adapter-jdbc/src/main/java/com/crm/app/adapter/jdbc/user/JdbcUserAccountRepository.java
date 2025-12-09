@@ -13,7 +13,11 @@ import java.util.Optional;
 @Repository
 public class JdbcUserAccountRepository implements UserAccountRepositoryPort {
 
+    private static final String LITERAL_ID = "id";
     private static final String LITERAL_USERNAME = "username";
+    private static final String LITERAL_PASSWORD = "password";
+    private static final String LITERAL_ROLES = "roles";
+    private static final String LITERAL_LASTLOGIN = "lastlogin";
 
     private final NamedParameterJdbcTemplate jdbc;
 
@@ -32,10 +36,10 @@ public class JdbcUserAccountRepository implements UserAccountRepositoryPort {
         var params = new MapSqlParameterSource(LITERAL_USERNAME, username);
 
         List<UserAccount> users = jdbc.query(sql, params, (rs, rowNum) -> {
-            Long id = rs.getLong("id");
+            Long id = rs.getLong(LITERAL_ID);
             String u = rs.getString(LITERAL_USERNAME);
-            String pw = rs.getString("password");
-            String rolesStr = rs.getString("roles");
+            String pw = rs.getString(LITERAL_PASSWORD);
+            String rolesStr = rs.getString(LITERAL_ROLES);
             List<String> roles = Arrays.stream(rolesStr.split(","))
                     .map(String::trim)
                     .filter(s -> !s.isEmpty())
@@ -55,9 +59,12 @@ public class JdbcUserAccountRepository implements UserAccountRepositoryPort {
                 WHERE username = :username
                 """;
 
-        Long count = jdbc.queryForObject(sql,
+        Long count = jdbc.queryForObject(
+                sql,
                 new MapSqlParameterSource(LITERAL_USERNAME, username),
-                Long.class);
+                Long.class
+        );
+
         return count != null && count > 0;
     }
 
@@ -81,10 +88,10 @@ public class JdbcUserAccountRepository implements UserAccountRepositoryPort {
         String rolesStr = String.join(",", userAccount.roles());
 
         var params = new MapSqlParameterSource()
-                .addValue("id", userAccount.id())
+                .addValue(LITERAL_ID, userAccount.id())
                 .addValue(LITERAL_USERNAME, userAccount.username())
-                .addValue("password", userAccount.passwordHash())
-                .addValue("roles", rolesStr);
+                .addValue(LITERAL_PASSWORD, userAccount.passwordHash())
+                .addValue(LITERAL_ROLES, rolesStr);
 
         jdbc.update(sql, params);
     }

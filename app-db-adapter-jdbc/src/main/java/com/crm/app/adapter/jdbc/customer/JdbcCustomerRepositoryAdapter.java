@@ -1,6 +1,10 @@
 package com.crm.app.adapter.jdbc.customer;
 
-import com.crm.app.dto.*;
+import com.crm.app.dto.CrmUploadCoreInfo;
+import com.crm.app.dto.CrmUploadHistory;
+import com.crm.app.dto.CustomerProfileRequest;
+import com.crm.app.dto.CustomerProfileResponse;
+import com.crm.app.dto.UpdatePasswordRequest;
 import com.crm.app.port.customer.Customer;
 import com.crm.app.port.customer.CustomerRepositoryPort;
 import lombok.extern.slf4j.Slf4j;
@@ -26,13 +30,31 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
     private static final String LITERAL_EMAIL_ADDRESS = "email_address";
     private static final String LITERAL_EMAIL = "email";
     private static final String LITERAL_CUSTOMER_ID = "customer_id";
-    private static final String LITERAL_CUSTOMER_ID_CAMCELCASE = "customerId";
+    private static final String LITERAL_CUSTOMER_ID_CAMELCASE = "customerId";
+    private static final String LITERAL_USER_ID_CAMELCASE = "userId";
+    private static final String LITERAL_COMPANY_NAME = "company_name";
+    private static final String LITERAL_COMPANY_NAME_CAMELCASE = "companyName";
+    private static final String LITERAL_PHONE_NUMBER = "phone_number";
+    private static final String LITERAL_PHONE = "phone";
+    private static final String LITERAL_ADRLINE1 = "adrline1";
+    private static final String LITERAL_ADRLINE2 = "adrline2";
+    private static final String LITERAL_POSTALCODE = "postalcode";
+    private static final String LITERAL_ADR1 = "adr1";
+    private static final String LITERAL_ADR2 = "adr2";
+    private static final String LITERAL_POSTAL = "postal";
+    private static final String LITERAL_CITY = "city";
     private static final String LITERAL_SOURCE_SYSTEM = "source_system";
     private static final String LITERAL_CRM_SYSTEM = "crm_system";
     private static final String LITERAL_CRM_URL = "crm_url";
     private static final String LITERAL_CRM_CUSTOMER_ID = "crm_customer_id";
-    private static final String LITERAL_NO_CUSTOMER_FOR_EMAIL = "No customer found for email '{}'";
     private static final String LITERAL_PRODUCT = "product";
+    private static final String LITERAL_ENABLED = "enabled";
+    private static final String LITERAL_PASSWORD = "password";
+    private static final String LITERAL_TS = "ts";
+    private static final String LITERAL_STATUS = "status";
+
+    private static final String LITERAL_NO_CUSTOMER_FOR_EMAIL = "No customer found for email '{}'";
+    private static final String LITERAL_NO_CUSTOMER_FOR_CUSTOMER_ID = "No customer found for customerId '{}'";
 
     private static final String SQL_FIND_ENABLED_BY_EMAIL =
             "SELECT enabled FROM app.customer WHERE email_address = :email_address";
@@ -120,9 +142,11 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
                 WHERE email_address = :email_address
                 """;
 
-        Long count = jdbc.queryForObject(sql,
+        Long count = jdbc.queryForObject(
+                sql,
                 new MapSqlParameterSource(LITERAL_EMAIL_ADDRESS, emailAddress),
-                Long.class);
+                Long.class
+        );
         return count != null && count > 0;
     }
 
@@ -152,26 +176,25 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
                 """;
 
         var params = new MapSqlParameterSource()
-                .addValue(LITERAL_CUSTOMER_ID_CAMCELCASE, customer.customerId())
-                .addValue("userId", customer.userId())
+                .addValue(LITERAL_CUSTOMER_ID_CAMELCASE, customer.customerId())
+                .addValue(LITERAL_USER_ID_CAMELCASE, customer.userId())
                 .addValue(LITERAL_FIRSTNAME, customer.firstname())
                 .addValue(LITERAL_LASTNAME, customer.lastname())
-                .addValue("companyName", customer.companyName())
+                .addValue(LITERAL_COMPANY_NAME_CAMELCASE, customer.companyName())
                 .addValue(LITERAL_EMAIL_ADDRESS, customer.emailAddress())
-                .addValue("phone", customer.phoneNumber())
-                .addValue("adr1", customer.adrline1())
-                .addValue("adr2", customer.adrline2())
-                .addValue("postal", customer.postalcode())
-                .addValue("city", customer.city())
+                .addValue(LITERAL_PHONE, customer.phoneNumber())
+                .addValue(LITERAL_ADR1, customer.adrline1())
+                .addValue(LITERAL_ADR2, customer.adrline2())
+                .addValue(LITERAL_POSTAL, customer.postalcode())
+                .addValue(LITERAL_CITY, customer.city())
                 .addValue(LITERAL_COUNTRY, customer.country());
 
         jdbc.update(sql, params);
 
         if (customer.products() != null && !customer.products().isEmpty()) {
             for (String product : customer.products()) {
-
                 var productParams = new MapSqlParameterSource()
-                        .addValue(LITERAL_CUSTOMER_ID_CAMCELCASE, customer.customerId())
+                        .addValue(LITERAL_CUSTOMER_ID_CAMELCASE, customer.customerId())
                         .addValue(LITERAL_PRODUCT, product);
 
                 jdbc.update(SQL_INSERT_CUSTOMER_PRODUCT, productParams);
@@ -220,14 +243,14 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
 
             if (enabled == null) {
                 throw new IllegalStateException(
-                        "Column enabled is null for customer with email '%d'".formatted(customerId)
+                        "Column enabled is null for customer with customerId '%d'".formatted(customerId)
                 );
             }
 
             log.debug("Customer '{}' enabled={}", customerId, enabled);
             return enabled;
         } catch (EmptyResultDataAccessException ex) {
-            log.warn("No customer found for customerId '{}'", customerId);
+            log.warn(LITERAL_NO_CUSTOMER_FOR_CUSTOMER_ID, customerId);
             throw new IllegalStateException("No customer found for customerId '" + customerId + "'", ex);
         } catch (DataAccessException ex) {
             log.error("Failed to read enabled flag for customer '{}'", customerId, ex);
@@ -283,7 +306,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
             log.debug("Customer '{}' hasOpenCrmUploads={}", customerId, hasOpenCrmUploads);
             return hasOpenCrmUploads;
         } catch (EmptyResultDataAccessException ex) {
-            log.warn(LITERAL_NO_CUSTOMER_FOR_EMAIL, customerId);
+            log.warn(LITERAL_NO_CUSTOMER_FOR_CUSTOMER_ID, customerId);
             throw new IllegalStateException("No customer found for customerId '" + customerId + "'", ex);
         } catch (DataAccessException ex) {
             log.error("Failed to read file pending for customer '{}'", customerId, ex);
@@ -294,8 +317,8 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
     @Override
     public void setEnabled(final long customerId, final boolean enabled) {
         MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue(LITERAL_CUSTOMER_ID_CAMCELCASE, customerId)
-                .addValue("enabled", enabled);
+                .addValue(LITERAL_CUSTOMER_ID_CAMELCASE, customerId)
+                .addValue(LITERAL_ENABLED, enabled);
 
         try {
             int updated = jdbc.update(SQL_UPDATE_ENABLED, params);
@@ -340,13 +363,13 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
         return new CustomerProfileResponse(
                 rs.getString(LITERAL_FIRSTNAME),
                 rs.getString(LITERAL_LASTNAME),
-                rs.getString("company_name"),
+                rs.getString(LITERAL_COMPANY_NAME),
                 emailAddress,
-                rs.getString("phone_number"),
-                rs.getString("adrline1"),
-                rs.getString("adrline2"),
-                rs.getString("postalcode"),
-                rs.getString("city"),
+                rs.getString(LITERAL_PHONE_NUMBER),
+                rs.getString(LITERAL_ADRLINE1),
+                rs.getString(LITERAL_ADRLINE2),
+                rs.getString(LITERAL_POSTALCODE),
+                rs.getString(LITERAL_CITY),
                 rs.getString(LITERAL_COUNTRY)
         );
     }
@@ -355,28 +378,28 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
     public int updateCustomerProfile(String emailAddress, CustomerProfileRequest request) {
         String sql = """
                 UPDATE app.customer
-                SET firstname   = :firstname,
-                    lastname    = :lastname,
+                SET firstname    = :firstname,
+                    lastname     = :lastname,
                     company_name = :company_name,
                     phone_number = :phone_number,
-                    adrline1    = :adrline1,
-                    adrline2    = :adrline2,
-                    postalcode  = :postalcode,
-                    city        = :city,
-                    country     = :country,
-                    modified    = now()
+                    adrline1     = :adrline1,
+                    adrline2     = :adrline2,
+                    postalcode   = :postalcode,
+                    city         = :city,
+                    country      = :country,
+                    modified     = now()
                 WHERE email_address = :email_address
                 """;
 
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue(LITERAL_FIRSTNAME, request.firstname())
                 .addValue(LITERAL_LASTNAME, request.lastname())
-                .addValue("company_name", request.company_name())
-                .addValue("phone_number", request.phone_number())
-                .addValue("adrline1", request.adrline1())
-                .addValue("adrline2", request.adrline2())
-                .addValue("postalcode", request.postalcode())
-                .addValue("city", request.city())
+                .addValue(LITERAL_COMPANY_NAME, request.company_name())
+                .addValue(LITERAL_PHONE_NUMBER, request.phone_number())
+                .addValue(LITERAL_ADRLINE1, request.adrline1())
+                .addValue(LITERAL_ADRLINE2, request.adrline2())
+                .addValue(LITERAL_POSTALCODE, request.postalcode())
+                .addValue(LITERAL_CITY, request.city())
                 .addValue(LITERAL_COUNTRY, request.country())
                 .addValue(LITERAL_EMAIL_ADDRESS, emailAddress);
 
@@ -395,7 +418,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
                 """;
 
         MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("password", request.password())
+                .addValue(LITERAL_PASSWORD, request.password())
                 .addValue(LITERAL_EMAIL_ADDRESS, emailAddress);
 
         try {
@@ -419,18 +442,18 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
                 SQL_FIND_UPLOAD_HISTORY_BY_EMAIL,
                 params,
                 (rs, rowNum) -> new CrmUploadHistory(
-                        rs.getTimestamp("ts"),
+                        rs.getTimestamp(LITERAL_TS),
                         rs.getString(LITERAL_SOURCE_SYSTEM),
                         rs.getString(LITERAL_CRM_SYSTEM),
                         rs.getString(LITERAL_CRM_URL),
                         rs.getString(LITERAL_CRM_CUSTOMER_ID),
-                        rs.getString("status")
+                        rs.getString(LITERAL_STATUS)
                 )
         );
     }
 
     public Optional<CrmUploadCoreInfo> findLatestUploadByCustomerId(long customerId) {
-        Map<String, Object> params = Map.of(LITERAL_CUSTOMER_ID_CAMCELCASE, customerId);
+        Map<String, Object> params = Map.of(LITERAL_CUSTOMER_ID_CAMELCASE, customerId);
 
         List<CrmUploadCoreInfo> list = jdbc.query(
                 SQL_FIND_LATEST_SUCCESSFUL_UPLOAD_BY_CUSTOMER_ID,
@@ -473,7 +496,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
                 """;
 
         MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue(LITERAL_CUSTOMER_ID_CAMCELCASE, customerId);
+                .addValue(LITERAL_CUSTOMER_ID_CAMELCASE, customerId);
 
         return jdbc.query(sql, params, (rs, rowNum) -> rs.getString(LITERAL_PRODUCT));
     }

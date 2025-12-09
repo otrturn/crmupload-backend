@@ -36,6 +36,8 @@ public class JdbcCustomerActivationRepositoryAdapter implements CustomerActivati
             """;
 
     private static final String LITERAL_TOKEN = "token";
+    private static final String LITERAL_CUSTOMER_ID_CAMELCASE = "customerId";
+    private static final String LITERAL_CUSTOMER_ID = "customer_id";
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
 
@@ -49,7 +51,7 @@ public class JdbcCustomerActivationRepositoryAdapter implements CustomerActivati
 
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue(LITERAL_TOKEN, token)
-                .addValue("customerId", customerId);
+                .addValue(LITERAL_CUSTOMER_ID_CAMELCASE, customerId);
 
         try {
             jdbcTemplate.update(SQL_INSERT_TOKEN, params);
@@ -70,7 +72,7 @@ public class JdbcCustomerActivationRepositoryAdapter implements CustomerActivati
                 if (!rs.next()) {
                     return Optional.empty();
                 }
-                return Optional.of(rs.getLong("customer_id"));
+                return Optional.of(rs.getLong(LITERAL_CUSTOMER_ID));
             });
         } catch (DataAccessException ex) {
             log.error("Failed to load activation token {}", token, ex);
