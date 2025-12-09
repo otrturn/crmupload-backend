@@ -17,6 +17,7 @@ import java.util.Optional;
 
 @Slf4j
 @Repository
+@SuppressWarnings("squid:S1192")
 public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
 
     private static final String SEQUENCE_CRM_UPLOAD_UPLOAD_ID = "app.sequence_crm_upload";
@@ -90,6 +91,13 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
                    content
               FROM app.crm_upload
              WHERE upload_id = ANY(ARRAY[:uploadIds])
+            """;
+
+    private static final String SQL_FIND_PRODUCTS_BY_CUSTOMER_ID = """
+            SELECT product
+              FROM app.customer_product
+             WHERE customer_id = :customerId
+             ORDER BY product
             """;
 
     private static final String STATUS_NEW = "new";
@@ -294,7 +302,8 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
                             rs.getString("adrline2"),
                             rs.getString("postalcode"),
                             rs.getString("city"),
-                            rs.getString("country")
+                            rs.getString("country"),
+                            null
                     )
             );
 
@@ -308,13 +317,49 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
                 );
             }
 
-            return Optional.of(rows.get(0));
+            Customer customer = rows.get(0);
+
+            // 🔥 Produkte laden
+            List<String> products = loadProductsForCustomer(customerId);
+
+            // 🔥 Customer mit Produkten zurückgeben (Record = immutable → neuer Record nötig)
+            Customer enrichedCustomer = new Customer(
+                    customer.customerId(),
+                    customer.userId(),
+                    customer.firstname(),
+                    customer.lastname(),
+                    customer.companyName(),
+                    customer.emailAddress(),
+                    customer.phoneNumber(),
+                    customer.adrline1(),
+                    customer.adrline2(),
+                    customer.postalcode(),
+                    customer.city(),
+                    customer.country(),
+                    products
+            );
+
+            return Optional.of(enrichedCustomer);
 
         } catch (DataAccessException ex) {
             log.error("Fehler beim Lesen von Customer customer_id={}", customerId, ex);
             throw new IllegalStateException(
                     "Fehler beim Lesen von Customer customer_id=" + customerId, ex
             );
+        }
+    }
+
+    private List<String> loadProductsForCustomer(long customerId) {
+        try {
+            MapSqlParameterSource params = new MapSqlParameterSource("customerId", customerId);
+            return jdbcTemplate.query(
+                    SQL_FIND_PRODUCTS_BY_CUSTOMER_ID,
+                    params,
+                    (rs, rowNum) -> rs.getString("product")
+            );
+        } catch (DataAccessException ex) {
+            log.error("Fehler beim Lesen der Produkte für customer_id={}", customerId, ex);
+            throw new IllegalStateException("Konnte Produkte für Customer nicht laden", ex);
         }
     }
 }

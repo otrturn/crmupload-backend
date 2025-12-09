@@ -11,7 +11,7 @@ import java.util.Objects;
 @Getter
 @Setter
 @NoArgsConstructor
-@SuppressWarnings({"squid:S6218","squid:S107"})
+@SuppressWarnings({"squid:S6218", "squid:S107"})
 public class CrmUploadRequest extends CrmUploadCoreInfo {
 
     private long uploadId;

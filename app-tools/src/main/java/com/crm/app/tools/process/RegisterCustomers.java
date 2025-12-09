@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -54,7 +56,8 @@ public class RegisterCustomers {
                 base.postalcode(),
                 base.city(),
                 base.country(),
-                base.password()
+                base.password(),
+                List.of("crm-upload", "duplicate-check")
         );
     }
 

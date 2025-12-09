@@ -51,6 +51,18 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleGeneric(Exception ex,
                                                   HttpServletRequest request) {
+        // Ursprungsort der Exception
+        StackTraceElement origin = ex.getStackTrace().length > 0
+                ? ex.getStackTrace()[0]
+                : null;
+
+        String originInfo = (origin != null)
+                ? origin.getClassName() + "#" + origin.getMethodName() +
+                " (line " + origin.getLineNumber() + ")"
+                : "unknown origin";
+
+        log.error("Unexpected error on {} in {}:", request.getRequestURI(), originInfo, ex);
+
         log.error("Unexpected error on {}:", request.getRequestURI(), ex);
 
         ApiError body = new ApiError(

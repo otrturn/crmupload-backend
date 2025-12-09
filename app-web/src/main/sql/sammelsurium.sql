@@ -13,6 +13,10 @@ select *
 from app.crm_upload;
 
 select *
+from app.customer_product
+order by customer_id;
+
+select *
 from app.customer_billing
 order by customer_id;
 

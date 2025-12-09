@@ -56,7 +56,8 @@ public class AuthenticationService {
         boolean enabled = customerRepositoryPort.isEnabledByEmail(emailAddress);
         boolean hasOpenCrmUploads = customerRepositoryPort.isHasOpenCrmUploadsByEmail(emailAddress);
         Optional<CrmUploadCoreInfo> crmUploadInfo = customerRepositoryPort.findLatestUploadByEmail(emailAddress);
+        List<String> products = customerRepositoryPort.findProductsByEmail(emailAddress);
 
-        return new LoginResponse(token, enabled, hasOpenCrmUploads, crmUploadInfo.orElse(null), List.of());
+        return new LoginResponse(token, enabled, hasOpenCrmUploads, crmUploadInfo.orElse(null), products);
     }
 }

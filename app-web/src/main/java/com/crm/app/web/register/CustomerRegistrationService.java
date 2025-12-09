@@ -46,7 +46,8 @@ public class CustomerRegistrationService {
                 request.adrline2(),
                 request.postalcode(),
                 request.city(),
-                request.country()
+                request.country(),
+                request.products()
         );
 
         customerRepository.insertCustomer(customer);

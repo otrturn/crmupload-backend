@@ -12,6 +12,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.nio.file.Paths;
+import java.util.List;
 
 @Slf4j
 @SuppressWarnings("squid:S6437")
@@ -38,7 +39,8 @@ public class AppBulkTool implements CommandLineRunner, ExitCodeGenerator {
         switch (args[0]) {
             case "--registerCustomer" -> {
                 RegisterRequest request = new RegisterRequest("Ralf", "Scholler", null, "ralf@test.de", "01702934959",
-                        "Am Dorfplatz 6", null, "57610", "Ingelbach", "DE", "test123");
+                        "Am Dorfplatz 6", null, "57610", "Ingelbach", "DE", "test123",
+                        List.of("crm-upload", "duplicate-check"));
                 registerCustomers.process(10, request);
             }
             case "--BexioToEspo" ->

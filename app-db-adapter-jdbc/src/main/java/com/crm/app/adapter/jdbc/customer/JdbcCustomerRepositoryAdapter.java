@@ -24,6 +24,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
     private static final String LITERAL_LASTNAME = "lastname";
     private static final String LITERAL_COUNTRY = "country";
     private static final String LITERAL_EMAIL_ADDRESS = "email_address";
+    private static final String LITERAL_EMAIL = "email";
     private static final String LITERAL_CUSTOMER_ID = "customer_id";
     private static final String LITERAL_CUSTOMER_ID_CAMCELCASE = "customerId";
     private static final String LITERAL_SOURCE_SYSTEM = "source_system";
@@ -31,6 +32,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
     private static final String LITERAL_CRM_URL = "crm_url";
     private static final String LITERAL_CRM_CUSTOMER_ID = "crm_customer_id";
     private static final String LITERAL_NO_CUSTOMER_FOR_EMAIL = "No customer found for email '{}'";
+    private static final String LITERAL_PRODUCT = "product";
 
     private static final String SQL_FIND_ENABLED_BY_EMAIL =
             "SELECT enabled FROM app.customer WHERE email_address = :email_address";
@@ -98,6 +100,12 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
             LIMIT 1
             """;
 
+    private static final String SQL_INSERT_CUSTOMER_PRODUCT = """
+            INSERT INTO app.customer_product (customer_id, product)
+            VALUES (:customerId, :product)
+            ON CONFLICT DO NOTHING
+            """;
+
     private final NamedParameterJdbcTemplate jdbc;
 
     public JdbcCustomerRepositoryAdapter(NamedParameterJdbcTemplate jdbc) {
@@ -158,6 +166,17 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
                 .addValue(LITERAL_COUNTRY, customer.country());
 
         jdbc.update(sql, params);
+
+        if (customer.products() != null && !customer.products().isEmpty()) {
+            for (String product : customer.products()) {
+
+                var productParams = new MapSqlParameterSource()
+                        .addValue(LITERAL_CUSTOMER_ID_CAMCELCASE, customer.customerId())
+                        .addValue(LITERAL_PRODUCT, product);
+
+                jdbc.update(SQL_INSERT_CUSTOMER_PRODUCT, productParams);
+            }
+        }
     }
 
     @Override
@@ -306,7 +325,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
                 """;
 
         MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("email", emailAddress);
+                .addValue(LITERAL_EMAIL, emailAddress);
 
         List<CustomerProfileResponse> result = jdbc.query(
                 sql,
@@ -428,7 +447,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
     }
 
     public Optional<CrmUploadCoreInfo> findLatestUploadByEmail(String email) {
-        Map<String, Object> params = Map.of("email", email);
+        Map<String, Object> params = Map.of(LITERAL_EMAIL, email);
 
         List<CrmUploadCoreInfo> list = jdbc.query(
                 SQL_FIND_LATEST_SUCCESSFUL_UPLOAD_BY_EMAIL,
@@ -442,5 +461,37 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
         );
 
         return list.stream().findFirst();
+    }
+
+    @Override
+    public List<String> findProductsByCustomerId(long customerId) {
+        String sql = """
+                SELECT cp.product
+                FROM app.customer_product cp
+                WHERE cp.customer_id = :customerId
+                ORDER BY cp.product
+                """;
+
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue(LITERAL_CUSTOMER_ID_CAMCELCASE, customerId);
+
+        return jdbc.query(sql, params, (rs, rowNum) -> rs.getString(LITERAL_PRODUCT));
+    }
+
+    @Override
+    public List<String> findProductsByEmail(String email) {
+        String sql = """
+                SELECT DISTINCT cp.product
+                FROM app.customer c
+                JOIN app.customer_product cp
+                      ON cp.customer_id = c.customer_id
+                WHERE c.email_address = :email
+                ORDER BY cp.product
+                """;
+
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue(LITERAL_EMAIL, email);
+
+        return jdbc.query(sql, params, (rs, rowNum) -> rs.getString(LITERAL_PRODUCT));
     }
 }

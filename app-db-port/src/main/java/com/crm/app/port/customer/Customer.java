@@ -1,5 +1,7 @@
 package com.crm.app.port.customer;
 
+import java.util.List;
+
 public record Customer(
         Long customerId,
         Long userId,
@@ -12,7 +14,8 @@ public record Customer(
         String adrline2,
         String postalcode,
         String city,
-        String country
+        String country,
+        List<String> products
 ) {
 }
 
