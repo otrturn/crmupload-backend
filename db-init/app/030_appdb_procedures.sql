@@ -19,87 +19,54 @@ $$;
 -- Billing
 -- ------------------------------------------------------------
 
-CREATE OR REPLACE FUNCTION app.export_billing()
-    RETURNS TABLE
-            (
-                firstname     TEXT,
-                lastname      TEXT,
-                company_name  TEXT,
-                email_address TEXT,
-                phone_number  TEXT,
-                adrline1      TEXT,
-                adrline2      TEXT,
-                postalcode    TEXT,
-                city          TEXT,
-                country       TEXT,
-                source_system TEXT,
-                crm_system    TEXT
-            )
+CREATE OR REPLACE PROCEDURE app.export_billing()
     LANGUAGE plpgsql
 AS
 $$
 BEGIN
-    RETURN QUERY
-        WITH candidates AS (SELECT c.customer_id,
-                                   c.firstname,
-                                   c.lastname,
-                                   c.company_name,
-                                   c.email_address,
-                                   c.phone_number,
-                                   c.adrline1,
-                                   c.adrline2,
-                                   c.postalcode,
-                                   c.city,
-                                   c.country,
-                                   cu_first.source_system,
-                                   cu_first.crm_system,
-                                   cu_first.modified AS start_of_subscription
-                            FROM app.customer c
-                                     -- ältester "done"-Upload je Customer
-                                     JOIN LATERAL (
-                                SELECT cu.source_system,
-                                       cu.crm_system,
-                                       cu.modified
-                                FROM app.crm_upload cu
-                                WHERE cu.customer_id = c.customer_id
-                                  AND cu.status = 'done'
-                                ORDER BY cu.modified ASC
-                                LIMIT 1
-                                ) cu_first ON TRUE
-                            -- nur Customer ohne Eintrag in customer_billing
-                            WHERE NOT EXISTS (SELECT 1
-                                              FROM app.customer_billing cb
-                                              WHERE cb.customer_id = c.customer_id
-                                              AND product='crm-upload')),
-             inserted AS (
-                 INSERT INTO app.customer_billing (
-                                                   customer_id,
-                                                   product,
-                                                   status,
-                                                   start_of_subscription,
-                                                   submitted_to_billing
-                     )
-                     SELECT customer_id,
-                            'crm-upload',
-                            'new',
-                            start_of_subscription,
-                            now()
-                     FROM candidates
-                     RETURNING customer_id)
-        SELECT c.firstname,
-               c.lastname,
-               c.company_name,
-               c.email_address,
-               c.phone_number,
-               c.adrline1,
-               c.adrline2,
-               c.postalcode,
-               c.city,
-               c.country,
-               c.source_system,
-               c.crm_system
-        FROM candidates c
-                 JOIN inserted i
-                      ON i.customer_id = c.customer_id;
+    WITH candidates AS (
+        SELECT c.customer_id,
+               cu_first.modified        AS start_of_subscription,
+               cu_first.crm_customer_id AS crm_customer_id,
+               cu_first.source_system   AS source_system,
+               cu_first.crm_system      AS crm_system
+        FROM app.customer c
+                 JOIN LATERAL (
+            SELECT cu.crm_customer_id,
+                   cu.source_system,
+                   cu.crm_system,
+                   cu.modified
+            FROM app.crm_upload cu
+            WHERE cu.customer_id = c.customer_id
+              AND cu.status = 'done'
+            ORDER BY cu.modified ASC
+            LIMIT 1
+            ) cu_first ON TRUE
+        WHERE NOT EXISTS (
+            SELECT 1
+            FROM app.customer_billing cb
+            WHERE cb.customer_id = c.customer_id
+              AND cb.product = 'crm-upload'
+        )
+    )
+    INSERT INTO app.customer_billing (
+        customer_id,
+        product,
+        status,
+        billing_meta,
+        start_of_subscription
+    )
+    SELECT customer_id,
+           'crm-upload',
+           'new-subscription',
+           jsonb_build_object(
+                   'crm_customer_id', crm_customer_id,
+                   'source_system',   source_system,
+                   'crm_system',      crm_system
+           ),
+           start_of_subscription
+    FROM candidates;
+
 END;
 $$;
+

@@ -16,6 +16,11 @@ select *
 from app.customer_billing
 order by customer_id;
 
+delete from app.customer_billing;
+commit;
+
+call app.export_billing();
+
 update app.customer
 set enabled= true;
 commit;
@@ -25,9 +30,6 @@ call app.clearAccounts();
 update app.crm_upload
 set status= 'done';
 commit;
-
-select *
-from app.export_billing();
 
 SELECT
     cu.created         AS ts,
@@ -39,4 +41,14 @@ FROM app.crm_upload cu
          JOIN app.customer c
               ON c.customer_id = cu.customer_id
 WHERE c.email_address = 'ralf+0@test.de'
-ORDER BY cu.created DESC
+ORDER BY cu.created DESC;
+
+update app.customer_billing set submitted_to_billing=null;
+commit;
+
+SELECT customer_id
+FROM app.customer_billing
+WHERE submitted_to_billing IS NULL
+  AND product = 'crm-upload'
+  AND status = 'new-subscription'
+    FOR UPDATE SKIP LOCKED;

@@ -157,13 +157,14 @@ CREATE TABLE IF NOT EXISTS app.customer_billing
 (
     customer_id           INT         NOT NULL,
     product               TEXT        NOT NULL,
-    status                TEXT        NOT NULL DEFAULT 'new',
+    status                TEXT        NOT NULL DEFAULT 'new-subscription',
+    billing_meta          jsonb       NOT NULL DEFAULT '{}'::jsonb,
     start_of_subscription TIMESTAMPTZ,
     submitted_to_billing  TIMESTAMPTZ,
     created               TIMESTAMPTZ NOT NULL DEFAULT now(),
     modified              TIMESTAMPTZ NOT NULL DEFAULT now(),
     CONSTRAINT chk_customer_billing_product CHECK (product IN ('crm-upload', 'duplicates')),
-    CONSTRAINT chk_customer_billing_status CHECK (status IN ('new', 'renewal'))
+    CONSTRAINT chk_customer_billing_status CHECK (status IN ('new-subscription', 'renewal'))
 );
 
 ALTER TABLE app.customer_billing
