@@ -1,8 +1,8 @@
 package com.crm.app.worker.process;
 
 import com.crm.app.dto.CrmUploadContent;
-import com.crm.app.port.customer.Customer;
 import com.crm.app.port.customer.CrmUploadRepositoryPort;
+import com.crm.app.port.customer.Customer;
 import com.crm.app.worker.config.CrmUploadProperties;
 import com.crm.app.worker.util.WorkerUtils;
 import com.crmmacher.bexio_excel.dto.BexioColumn;

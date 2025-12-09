@@ -1,6 +1,7 @@
 package com.crm.app.port.customer;
 
 import com.crm.app.dto.CrmUploadContent;
+import com.crm.app.dto.CrmUploadRequest;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,14 +14,7 @@ public interface CrmUploadRepositoryPort {
     Optional<Customer> findCustomerByCustomerId(long customerId);
 
     void insertCrmUpload(
-            long uploadId,
-            long customerId,
-            String sourceSystem,
-            String crmSystem,
-            String crmUrl,
-            String crmCustomerId,
-            String apiKey,
-            byte[] content
+            CrmUploadRequest crmUploadRequest
     );
 
     List<Long> claimNextUploads(int limit);

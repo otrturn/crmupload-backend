@@ -2,9 +2,10 @@ package com.crm.app.web.upload;
 
 import com.crm.app.dto.CrmUploadHistory;
 import com.crm.app.dto.CrmUploadInfo;
+import com.crm.app.dto.CrmUploadRequest;
 import com.crm.app.dto.UploadRequest;
-import com.crm.app.port.customer.CustomerRepositoryPort;
 import com.crm.app.port.customer.CrmUploadRepositoryPort;
+import com.crm.app.port.customer.CustomerRepositoryPort;
 import com.crm.app.web.error.CustomerNotFoundException;
 import com.crm.app.web.error.UploadNotAllowedException;
 import lombok.RequiredArgsConstructor;
@@ -71,7 +72,7 @@ public class CrmUploadService {
         log.info("Generated uploadId={}", uploadId);
 
         try {
-            repository.insertCrmUpload(
+            repository.insertCrmUpload(new CrmUploadRequest(
                     uploadId,
                     customerId,
                     sourceSystem,
@@ -80,7 +81,7 @@ public class CrmUploadService {
                     crmCustomerId,
                     crmApiKey,
                     file.getBytes()
-            );
+            ));
         } catch (Exception ex) {
             log.error("processUpload: Failed to insert customer upload: uploadId={}, customerId={}", uploadId, customerId, ex);
             throw new IllegalStateException("Upload failed: " + ex.getMessage(), ex);
