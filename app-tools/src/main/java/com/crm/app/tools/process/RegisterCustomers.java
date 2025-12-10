@@ -1,5 +1,6 @@
 package com.crm.app.tools.process;
 
+import com.crm.app.dto.AppConstants;
 import com.crm.app.dto.RegisterRequest;
 import com.crm.app.tools.config.AppToolsConfig;
 import lombok.RequiredArgsConstructor;
@@ -57,7 +58,7 @@ public class RegisterCustomers {
                 base.city(),
                 base.country(),
                 base.password(),
-                List.of("crm-upload", "duplicate-check")
+                List.of(AppConstants.PRODUCT_CRM_UPLOAD, AppConstants.PRODUCT_DUPLICATE_CHECK)
         );
     }
 

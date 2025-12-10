@@ -1,5 +1,6 @@
 package com.crm.app.tools;
 
+import com.crm.app.dto.AppConstants;
 import com.crm.app.dto.RegisterRequest;
 import com.crm.app.tools.config.AppToolsConfig;
 import com.crm.app.tools.process.RegisterCustomers;
@@ -44,7 +45,7 @@ public class AppBulkTool implements CommandLineRunner, ExitCodeGenerator {
             case "--registerCustomer" -> {
                 RegisterRequest request = new RegisterRequest("Ralf", "Scholler", null, "ralf@test.de", "01702934959",
                         "Am Dorfplatz 6", null, "57610", "Ingelbach", "DE", "test123",
-                        List.of("crm-upload", "duplicate-check"));
+                        List.of(AppConstants.PRODUCT_CRM_UPLOAD, AppConstants.PRODUCT_DUPLICATE_CHECK));
                 registerCustomers.process(10, request);
             }
             case "--BexioToEspo" -> processBexioForEspo();
