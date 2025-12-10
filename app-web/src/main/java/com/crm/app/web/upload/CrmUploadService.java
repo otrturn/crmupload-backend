@@ -1,9 +1,6 @@
 package com.crm.app.web.upload;
 
-import com.crm.app.dto.CrmUploadCoreInfo;
-import com.crm.app.dto.CrmUploadHistory;
-import com.crm.app.dto.CrmUploadRequest;
-import com.crm.app.dto.UploadRequest;
+import com.crm.app.dto.*;
 import com.crm.app.port.customer.CrmUploadRepositoryPort;
 import com.crm.app.port.customer.CustomerRepositoryPort;
 import com.crm.app.web.error.CustomerNotFoundException;
@@ -54,9 +51,13 @@ public class CrmUploadService {
         boolean enabled = customerRepositoryPort.isEnabledByCustomerId(customerId);
         boolean hasOpenCrmUploads = customerRepositoryPort.isHasOpenCrmUploadsByCustomerId(customerId);
         Optional<CrmUploadCoreInfo> crmUploadInfo = customerRepositoryPort.findLatestUploadByCustomerId(customerId);
+        List<String> products = customerRepositoryPort.findProductsByEmail(emailAddress);
 
         if (!enabled) {
             throw new UploadNotAllowedException(String.format("processUpload: Customer %s is not enabled", emailAddress));
+        }
+        if (!products.contains(AppConstants.PRODUCT_CRM_UPLOAD)) {
+            throw new UploadNotAllowedException(String.format("processUpload: Customer %s does not have product [%s]", emailAddress, AppConstants.PRODUCT_CRM_UPLOAD));
         }
         if (hasOpenCrmUploads) {
             throw new UploadNotAllowedException(String.format("processUpload: Customer %s has open uploads", emailAddress));
@@ -66,7 +67,6 @@ public class CrmUploadService {
             throw new UploadNotAllowedException(String.format("processUpload: crmSystem/crmCustomerId %s/%s for customer %d invalid",
                     crmSystem, crmCustomerId, customerId));
         }
-
 
         long uploadId = repository.nextUploadId();
         log.info("Generated uploadId={}", uploadId);
