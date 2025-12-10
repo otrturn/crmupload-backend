@@ -5,6 +5,7 @@ import com.crm.app.tools.config.AppToolsConfig;
 import com.crm.app.tools.process.RegisterCustomers;
 import com.crm.app.tools.process.UploadCrmFile;
 import com.crmmacher.bexio.tools.generator.process.BexioGenerateWorkbook;
+import com.crmmacher.lexware_excel.tools.generator.process.LexwareGenerateWorkbook;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
@@ -23,6 +24,8 @@ public class AppBulkTool implements CommandLineRunner, ExitCodeGenerator {
     private final AppToolsConfig appToolsConfig;
     private final RegisterCustomers registerCustomers;
     private final UploadCrmFile uploadCrmFile;
+
+    private final String ESPO_CRM_LITERAL = "EspoCRM";
 
     public static void main(String[] args) {
         SpringApplication app = new SpringApplication(AppBulkTool.class);
@@ -44,10 +47,9 @@ public class AppBulkTool implements CommandLineRunner, ExitCodeGenerator {
                         List.of("crm-upload", "duplicate-check"));
                 registerCustomers.process(10, request);
             }
-            case "--BexioToEspo" ->
-                    processEspo();
-            case "--MyExcelToEspo" ->
-                    uploadCrmFile.process(Paths.get("/home/ralf/espocrm-demo/MyExcelKunden_V001.xlsx"), 1, "MyExcel", "EspoCRM");
+            case "--BexioToEspo" -> processBexioForEspo();
+            case "--LexwareToEspo" -> processLexwareForEspo();
+            case "--MyExcelToEspo" -> processMyExcelForEspo();
             default -> log.error("Unknown command {}", args[0]);
         }
         log.info("Batch-Prozess beendet.");
@@ -58,13 +60,26 @@ public class AppBulkTool implements CommandLineRunner, ExitCodeGenerator {
         return 0;
     }
 
-    private void processEspo() throws Exception {
+    private void processBexioForEspo() throws Exception {
         int nFiles = 1;
         for (int i = 1; i <= nFiles; i++) {
-            String filename = String.format("/home/ralf/espocrm-demo/Bexio_Generated_%05d.xlsx", i);
+            String filename = String.format("/home/ralf/espocrm-demo/generated/Bexio_Generated_%05d.xlsx", i);
             BexioGenerateWorkbook.createWorkbook(filename, 10, String.format("%04d", i));
-            uploadCrmFile.process(Paths.get(filename), 1, "Bexio", "EspoCRM");
+            uploadCrmFile.process(Paths.get(filename), 1, "Bexio", ESPO_CRM_LITERAL);
         }
+    }
+
+    private void processLexwareForEspo() throws Exception {
+        int nFiles = 1;
+        for (int i = 1; i <= nFiles; i++) {
+            String filename = String.format("/home/ralf/espocrm-demo/generated/Lexware_Generated_%05d.xlsx", i);
+            LexwareGenerateWorkbook.createWorkbook(filename, 10, String.format("LW-%04d", i));
+            uploadCrmFile.process(Paths.get(filename), 1, "Lexware", ESPO_CRM_LITERAL);
+        }
+    }
+
+    private void processMyExcelForEspo() throws Exception {
+        uploadCrmFile.process(Paths.get("/home/ralf/espocrm-demo/MyExcelKunden_V001.xlsx"), 1, "MyExcel", ESPO_CRM_LITERAL);
     }
 
 }

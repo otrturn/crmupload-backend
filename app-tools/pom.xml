@@ -31,6 +31,12 @@
         </dependency>
 
         <dependency>
+            <groupId>com.crmmacher-suite</groupId>
+            <artifactId>lexware-tools-generator</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
