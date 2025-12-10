@@ -4,6 +4,7 @@ import com.crm.app.dto.RegisterRequest;
 import com.crm.app.tools.config.AppToolsConfig;
 import com.crm.app.tools.process.RegisterCustomers;
 import com.crm.app.tools.process.UploadCrmFile;
+import com.crmmacher.bexio.tools.generator.process.BexioGenerateWorkbook;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
@@ -44,7 +45,7 @@ public class AppBulkTool implements CommandLineRunner, ExitCodeGenerator {
                 registerCustomers.process(10, request);
             }
             case "--BexioToEspo" ->
-                    uploadCrmFile.process(Paths.get("/home/ralf/espocrm-demo/Bexio_Generated.xlsx"), 1, "Bexio", "EspoCRM");
+                    processEspo();
             case "--MyExcelToEspo" ->
                     uploadCrmFile.process(Paths.get("/home/ralf/espocrm-demo/MyExcelKunden_V001.xlsx"), 1, "MyExcel", "EspoCRM");
             default -> log.error("Unknown command {}", args[0]);
@@ -56,4 +57,14 @@ public class AppBulkTool implements CommandLineRunner, ExitCodeGenerator {
     public int getExitCode() {
         return 0;
     }
+
+    private void processEspo() throws Exception {
+        int nFiles = 1;
+        for (int i = 1; i <= nFiles; i++) {
+            String filename = String.format("/home/ralf/espocrm-demo/Bexio_Generated_%05d.xlsx", i);
+            BexioGenerateWorkbook.createWorkbook(filename, 10, String.format("%04d", i));
+            uploadCrmFile.process(Paths.get(filename), 1, "Bexio", "EspoCRM");
+        }
+    }
+
 }

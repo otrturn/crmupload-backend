@@ -26,6 +26,7 @@ public class UploadCrmFile {
 
         log.info("uploadCustomerFile:baseUrl=" + appToolsConfig.getBaseUrl());
         log.info("uploadCustomerFile:url=" + url);
+        log.info("uploadCustomerFile:file=" + filePath.toString());
 
         RestTemplate restTemplate = new RestTemplate();
 
