@@ -24,6 +24,7 @@ public class CrmUploadProcessingService {
 
     private static final String UNKNOWN_CRM_SYSTEM = "Unknown crmSystem: ";
     private static final String UNKNOWN_SOURCE_SYSTEM = "Unknown sourceSystem: ";
+    private static final String ERROR_MSG="Unknown crmSystem '{}' for uploadId={}";
 
     @Transactional
     public void processSingleUpload(CrmUploadContent upload) {
@@ -48,7 +49,7 @@ public class CrmUploadProcessingService {
                 // TODO: implement
             }
             default -> {
-                log.warn("Unknown crmSystem '{}' for uploadId={}", upload.getCrmSystem(), upload.getUploadId());
+                log.warn(ERROR_MSG, upload.getCrmSystem(), upload.getUploadId());
                 repository.markUploadFailed(upload.getUploadId(), UNKNOWN_CRM_SYSTEM + upload.getCrmSystem());
             }
         }
@@ -61,7 +62,7 @@ public class CrmUploadProcessingService {
                 // TODO: implement
             }
             default -> {
-                log.warn("Unknown crmSystem '{}' for uploadId={}", upload.getCrmSystem(), upload.getUploadId());
+                log.warn(ERROR_MSG, upload.getCrmSystem(), upload.getUploadId());
                 repository.markUploadFailed(upload.getUploadId(), UNKNOWN_CRM_SYSTEM + upload.getCrmSystem());
             }
         }
@@ -74,7 +75,7 @@ public class CrmUploadProcessingService {
                 // TODO: implement
             }
             default -> {
-                log.warn("Unknown crmSystem '{}' for uploadId={}", upload.getCrmSystem(), upload.getUploadId());
+                log.warn(ERROR_MSG, upload.getCrmSystem(), upload.getUploadId());
                 repository.markUploadFailed(upload.getUploadId(), UNKNOWN_CRM_SYSTEM + upload.getCrmSystem());
             }
         }
