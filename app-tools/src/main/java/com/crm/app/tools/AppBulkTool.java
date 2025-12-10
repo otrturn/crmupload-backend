@@ -25,7 +25,7 @@ public class AppBulkTool implements CommandLineRunner, ExitCodeGenerator {
     private final RegisterCustomers registerCustomers;
     private final UploadCrmFile uploadCrmFile;
 
-    private final String ESPO_CRM_LITERAL = "EspoCRM";
+    private static final String ESPO_CRM_LITERAL = "EspoCRM";
 
     public static void main(String[] args) {
         SpringApplication app = new SpringApplication(AppBulkTool.class);
@@ -78,7 +78,7 @@ public class AppBulkTool implements CommandLineRunner, ExitCodeGenerator {
         }
     }
 
-    private void processMyExcelForEspo() throws Exception {
+    private void processMyExcelForEspo() {
         uploadCrmFile.process(Paths.get("/home/ralf/espocrm-demo/MyExcelKunden_V001.xlsx"), 1, "MyExcel", ESPO_CRM_LITERAL);
     }
 

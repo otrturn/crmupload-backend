@@ -17,7 +17,6 @@ public class JdbcUserAccountRepository implements UserAccountRepositoryPort {
     private static final String LITERAL_USERNAME = "username";
     private static final String LITERAL_PASSWORD = "password";
     private static final String LITERAL_ROLES = "roles";
-    private static final String LITERAL_LASTLOGIN = "lastlogin";
 
     private final NamedParameterJdbcTemplate jdbc;
 

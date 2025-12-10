@@ -1,10 +1,6 @@
 package com.crm.app.adapter.jdbc.customer;
 
-import com.crm.app.dto.CrmUploadCoreInfo;
-import com.crm.app.dto.CrmUploadHistory;
-import com.crm.app.dto.CustomerProfileRequest;
-import com.crm.app.dto.CustomerProfileResponse;
-import com.crm.app.dto.UpdatePasswordRequest;
+import com.crm.app.dto.*;
 import com.crm.app.port.customer.Customer;
 import com.crm.app.port.customer.CustomerRepositoryPort;
 import lombok.extern.slf4j.Slf4j;

@@ -8,34 +8,22 @@ import com.crm.app.worker.util.WorkerUtils;
 import com.crmmacher.bexio_excel.dto.BexioColumn;
 import com.crmmacher.bexio_excel.dto.BexioEntry;
 import com.crmmacher.bexio_excel.reader.ReadBexioExcel;
-import com.crmmacher.config.BaseCtx;
 import com.crmmacher.error.ErrMsg;
-import com.crmmacher.espo.dto.EspoAccount;
-import com.crmmacher.espo.dto.EspoContact;
 import com.crmmacher.espo.dto.EspoEntityPool;
 import com.crmmacher.espo.importer.bexio_excel.config.BexioCtx;
 import com.crmmacher.espo.importer.bexio_excel.util.MyBexioToEspoMapper;
-import com.crmmacher.espo.storage_handler.add.AddAccountsToEspo;
-import com.crmmacher.espo.storage_handler.add.AddContactsToEspo;
-import com.crmmacher.espo.storage_handler.add.AddLeadsToEspo;
-import com.crmmacher.espo.storage_handler.get.GetAccountFromEspo;
-import com.crmmacher.espo.storage_handler.get.GetContactFromEspo;
-import com.crmmacher.espo.storage_handler.get.GetLeadFromEspo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import static com.crm.app.worker.util.WorkerUtils.writeExcelToFile;
-import static com.crmmacher.espo.dto.EspoContact.setContactAccountId;
 
 @Slf4j
 @Component
