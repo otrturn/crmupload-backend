@@ -1,10 +1,10 @@
-package com.crm.app.worker.process;
+package com.crm.app.worker_upload.process;
 
 import com.crm.app.dto.CrmUploadContent;
 import com.crm.app.port.customer.CrmUploadRepositoryPort;
 import com.crm.app.port.customer.Customer;
-import com.crm.app.worker.config.CrmUploadProperties;
-import com.crm.app.worker.util.WorkerUtils;
+import com.crm.app.worker_upload.config.CrmUploadProperties;
+import com.crm.app.worker_upload.util.WorkerUtils;
 import com.crmmacher.error.ErrMsg;
 import com.crmmacher.espo.dto.EspoEntityPool;
 import com.crmmacher.espo.importer.lexware_excel.config.LexwareCtx;
@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.crm.app.worker.util.WorkerUtils.writeExcelToFile;
+import static com.crm.app.worker_upload.util.WorkerUtils.writeExcelToFile;
 
 @Slf4j
 @Component

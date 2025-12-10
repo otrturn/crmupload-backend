@@ -27,7 +27,7 @@ echo ">>> Build crmupload-web (Maven)"
 mvn -pl app-web -am clean package -DskipTests
 
 echo ">>> Build crmupload-worker (Maven)"
-mvn -pl app-worker -am clean package -DskipTests
+mvn -pl app-worker-upload -am clean package -DskipTests
 
 # -------------------------------------------------------------------
 # Docker Login bei GHCR
@@ -49,8 +49,8 @@ docker buildx build \
 echo ">>> Docker build+push worker (multi-arch)..."
 docker buildx build \
   --platform linux/amd64,linux/arm64/v8 \
-  -t ghcr.io/${GHCR_USER}/crmupload-worker:prod \
-  -f app-worker/Dockerfile \
-  app-worker/ \
+  -t ghcr.io/${GHCR_USER}/crmupload-worker-upload:prod \
+  -f app-worker-upload/Dockerfile \
+  app-worker-upload/ \
   --push
 

@@ -13,7 +13,7 @@
         <module>app-db-port</module>
         <module>app-db-adapter-jdbc</module>
         <module>app-web</module>
-        <module>app-worker</module>
+        <module>app-worker-upload</module>
         <module>app-common</module>
         <module>app-tools</module>
         <module>app-prod</module>

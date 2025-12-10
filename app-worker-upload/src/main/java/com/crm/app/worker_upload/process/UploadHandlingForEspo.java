@@ -1,9 +1,9 @@
-package com.crm.app.worker.process;
+package com.crm.app.worker_upload.process;
 
 import com.crm.app.dto.CrmUploadContent;
 import com.crm.app.port.customer.CrmUploadRepositoryPort;
 import com.crm.app.port.customer.Customer;
-import com.crm.app.worker.mail.UploadMailService;
+import com.crm.app.worker_upload.mail.UploadMailService;
 import com.crmmacher.bexio_excel.error.BexioReaderException;
 import com.crmmacher.config.BaseCtx;
 import com.crmmacher.error.ErrMsg;

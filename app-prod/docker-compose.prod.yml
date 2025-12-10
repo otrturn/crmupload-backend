@@ -41,9 +41,9 @@ services:
   # --------------------------------------------------------------
   # BACKGROUND WORKER / BATCH PROCESSOR
   # --------------------------------------------------------------
-  crmupload-worker:
-    image: ghcr.io/otrturn/crmupload-worker:prod
-    container_name: crmupload-worker
+  crmupload-worker-upload:
+    image: ghcr.io/otrturn/crmupload-worker-upload:prod
+    container_name: crmupload-worker-upload
     depends_on:
       app-db:
         condition: service_healthy

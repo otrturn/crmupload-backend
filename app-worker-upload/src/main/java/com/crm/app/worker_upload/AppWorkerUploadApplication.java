@@ -1,7 +1,7 @@
-package com.crm.app.worker;
+package com.crm.app.worker_upload;
 
 import com.crm.app.adapter.jdbc.config.AppDataSourceProperties;
-import com.crm.app.worker.config.CrmUploadProperties;
+import com.crm.app.worker_upload.config.CrmUploadProperties;
 import com.crmmacher.espo.importer.bexio_excel.config.BexioCtx;
 import com.crmmacher.espo.importer.lexware_excel.config.LexwareCtx;
 import com.crmmacher.espo.importer.my_excel.config.MyExcelCtx;
@@ -13,8 +13,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 @SpringBootApplication(scanBasePackages = "com.crm")
 @EnableConfigurationProperties({AppDataSourceProperties.class, CrmUploadProperties.class, BexioCtx.class, LexwareCtx.class, MyExcelCtx.class})
-public class AppWorkerApplication {
+public class AppWorkerUploadApplication {
     public static void main(String[] args) {
-        SpringApplication.run(AppWorkerApplication.class, args);
+        SpringApplication.run(AppWorkerUploadApplication.class, args);
     }
 }

@@ -1,4 +1,4 @@
-package com.crm.app.worker.config;
+package com.crm.app.worker_upload.config;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -1,13 +1,13 @@
-package com.crm.app.worker;
+package com.crm.app.worker_upload;
 
 import com.crm.app.dto.CrmSystem;
 import com.crm.app.dto.CrmUploadContent;
 import com.crm.app.dto.SourceSystem;
 import com.crm.app.port.customer.CrmUploadRepositoryPort;
-import com.crm.app.worker.config.CrmUploadProperties;
-import com.crm.app.worker.process.UploadWorkerProcessForBexio;
-import com.crm.app.worker.process.UploadWorkerProcessForLexware;
-import com.crm.app.worker.process.UploadWorkerProcessForMyExcel;
+import com.crm.app.worker_upload.config.CrmUploadProperties;
+import com.crm.app.worker_upload.process.UploadWorkerProcessForBexio;
+import com.crm.app.worker_upload.process.UploadWorkerProcessForLexware;
+import com.crm.app.worker_upload.process.UploadWorkerProcessForMyExcel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;

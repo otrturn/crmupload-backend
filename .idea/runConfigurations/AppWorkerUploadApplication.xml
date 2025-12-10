@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="AppWorkerApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
-    <module name="app-worker" />
-    <option name="SPRING_BOOT_MAIN_CLASS" value="com.crm.app.worker.AppWorkerApplication" />
+  <configuration default="false" name="AppWorkerUploadApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+    <module name="app-worker-upload" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="com.crm.app.worker_upload.AppWorkerUploadApplication" />
     <extension name="net.ashald.envfile">
       <option name="IS_ENABLED" value="false" />
       <option name="IS_SUBST" value="false" />

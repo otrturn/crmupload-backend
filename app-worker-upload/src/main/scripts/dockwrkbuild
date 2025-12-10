@@ -1,0 +1,2 @@
+remove-wrk.sh
+dockwrk build crmupload-worker-upload
