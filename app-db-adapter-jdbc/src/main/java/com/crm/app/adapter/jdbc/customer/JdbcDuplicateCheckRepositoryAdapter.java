@@ -21,9 +21,18 @@ public class JdbcDuplicateCheckRepositoryAdapter implements DuplicateCheckReposi
             "SELECT nextval('" + SEQUENCE_DUPLICATE_CHECK_ID + "')";
 
     private static final String SQL_INSERT_DUPLICATE_CHECK =
-            "INSERT INTO app.crm_upload " +
+            "INSERT INTO app.duplicate_check " +
                     "(duplicate_check_id, customer_id, source_system, content, status) " +
                     "VALUES (:duplicateCheckId, :customerId, :sourceSystem, :content, :status)";
+
+    private static final String LITERAL_CONTENT = "content";
+    private static final String LITERAL_STATUS = "status";
+
+    private static final String LITERAL_DUPLICATE_CHECK_ID_CAMELCASE = "duplicateCheckId";
+    private static final String LITERAL_CUSTOMER_ID_CAMELCASE = "customerId";
+    private static final String LITERAL_SOURCE_SYSTEM_CAMELCASE = "sourceSystem";
+
+    private static final String STATUS_DUPLICATE_CHECK_NEW = "new";
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
 
@@ -60,6 +69,39 @@ public class JdbcDuplicateCheckRepositoryAdapter implements DuplicateCheckReposi
     public void insertDuplicateCheck(DuplicateCheckRequest duplicateCheckRequest) {
         if (duplicateCheckRequest.getContent() == null) {
             throw new IllegalArgumentException("content must not be null");
+        }
+        final MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue(LITERAL_DUPLICATE_CHECK_ID_CAMELCASE, duplicateCheckRequest.getDuplicateCheckId())
+                .addValue(LITERAL_CUSTOMER_ID_CAMELCASE, duplicateCheckRequest.getCustomerId())
+                .addValue(LITERAL_SOURCE_SYSTEM_CAMELCASE, duplicateCheckRequest.getSourceSystem())
+                .addValue(LITERAL_CONTENT, duplicateCheckRequest.getContent())
+                .addValue(LITERAL_STATUS, STATUS_DUPLICATE_CHECK_NEW);
+
+        try {
+            final int affectedRows = jdbcTemplate.update(SQL_INSERT_DUPLICATE_CHECK, params);
+
+            if (affectedRows != 1) {
+                log.error("Insert into app.crm_upload affected {} rows for uploadId={}", affectedRows, duplicateCheckRequest.getDuplicateCheckId());
+                throw new IllegalStateException(
+                        "Insert into app.crm_upload did not affect exactly one row (affected=" + affectedRows + ")"
+                );
+            }
+
+            if (log.isDebugEnabled()) {
+                log.debug(
+                        "Inserted duplicate-check: duplicateCheckId={}, customerId={}, status={}",
+                        duplicateCheckRequest.getDuplicateCheckId(),
+                        duplicateCheckRequest.getCustomerId(),
+                        STATUS_DUPLICATE_CHECK_NEW);
+            }
+        } catch (DataAccessException ex) {
+            log.error(
+                    "Failed to insert duplicate-check upload for duplicateCheckId={}, customerId={}}",
+                    duplicateCheckRequest.getDuplicateCheckId(),
+                    duplicateCheckRequest.getCustomerId(),
+                    ex
+            );
+            throw new IllegalStateException("Could not insert customer upload", ex);
         }
     }
 

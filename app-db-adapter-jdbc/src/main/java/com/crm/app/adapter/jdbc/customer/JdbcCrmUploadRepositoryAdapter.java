@@ -70,7 +70,7 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
              WHERE upload_id = ANY(ARRAY[:uploadIds])
             """;
 
-    private static final String STATUS_NEW = "new";
+    private static final String STATUS_CRM_UPLOAD_NEW = "new";
 
     // Parameter- und Spalten-LITERALS
 
@@ -146,7 +146,7 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
                 .addValue(LITERAL_CRM_URL_CAMELCASE, crmUploadRequest.getCrmUrl())
                 .addValue(LITERAL_API_KEY_CAMELCASE, crmUploadRequest.getApiKey())
                 .addValue(LITERAL_CONTENT, crmUploadRequest.getContent())
-                .addValue(LITERAL_STATUS, STATUS_NEW);
+                .addValue(LITERAL_STATUS, STATUS_CRM_UPLOAD_NEW);
 
         try {
             final int affectedRows = jdbcTemplate.update(SQL_INSERT_CRM_UPLOAD, params);
@@ -164,7 +164,7 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
                         crmUploadRequest.getUploadId(),
                         crmUploadRequest.getCustomerId(),
                         crmUploadRequest.getCrmCustomerId(),
-                        STATUS_NEW
+                        STATUS_CRM_UPLOAD_NEW
                 );
             }
         } catch (DataAccessException ex) {

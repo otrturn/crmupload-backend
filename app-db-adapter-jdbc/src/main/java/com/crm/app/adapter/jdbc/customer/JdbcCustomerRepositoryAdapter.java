@@ -52,6 +52,8 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
 
     private static final String LITERAL_NO_CUSTOMER_FOR_EMAIL = "No customer found for email '{}'";
     private static final String LITERAL_NO_CUSTOMER_FOR_CUSTOMER_ID = "No customer found for customerId '{}'";
+    private static final String LITERAL_CUSTOMER_HAS_OPEN_CRM_UPLOADS = "Customer '{}' hasOpenCrmUploads={}";
+    private static final String LITERAL_FILE_READ_FAILED = "Failed to read file pending for customer '{}'";
 
     private static final String SQL_FIND_ENABLED_BY_EMAIL =
             "SELECT enabled FROM app.customer WHERE email_address = :email_address";
@@ -77,6 +79,25 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
                         WHERE cu.customer_id = :customer_id
                           AND cu.status IN ('new', 'processing')
                     ) AS has_open_uploads;""";
+
+    private static final String SQL_FIND_HAS_OPEN_DUPLICATE_CHECKS_BY_EMAIL =
+            """
+                    SELECT EXISTS (
+                        SELECT 1
+                        FROM app.duplicate_check dc
+                        JOIN app.customer c ON c.customer_id = dc.customer_id
+                        WHERE c.email_address = :email_address
+                          AND dc.status IN ('new', 'checking', 'checked', 'processing')
+                    ) AS has_open_duplicate_checks;""";
+
+    private static final String SQL_FIND_HAS_OPEN_DUPLICATE_CHECKS_BY_CUSTOMER_ID =
+            """
+                    SELECT EXISTS (
+                        SELECT 1
+                        FROM app.duplicate_check dc
+                        WHERE dc.customer_id = :customer_id
+                          AND dc.status IN ('new', 'checking', 'checked', 'processing')
+                    ) AS has_open_duplicate_checks;""";
 
     private static final String SQL_UPDATE_ENABLED = """
             UPDATE app.customer
@@ -299,13 +320,13 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
                 );
             }
 
-            log.debug("Customer '{}' hasOpenCrmUploads={}", emailAddress, hasOpenCrmUploads);
+            log.debug(LITERAL_CUSTOMER_HAS_OPEN_CRM_UPLOADS, emailAddress, hasOpenCrmUploads);
             return hasOpenCrmUploads;
         } catch (EmptyResultDataAccessException ex) {
             log.warn(LITERAL_NO_CUSTOMER_FOR_EMAIL, emailAddress);
             throw new IllegalStateException("No customer found for email '" + emailAddress + "'", ex);
         } catch (DataAccessException ex) {
-            log.error("Failed to read file pending for customer '{}'", emailAddress, ex);
+            log.error(LITERAL_FILE_READ_FAILED, emailAddress, ex);
             throw new IllegalStateException("Could not read file pending for customer '" + emailAddress + "'", ex);
         }
     }
@@ -327,13 +348,69 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
                 );
             }
 
-            log.debug("Customer '{}' hasOpenCrmUploads={}", customerId, hasOpenCrmUploads);
+            log.debug(LITERAL_CUSTOMER_HAS_OPEN_CRM_UPLOADS, customerId, hasOpenCrmUploads);
             return hasOpenCrmUploads;
         } catch (EmptyResultDataAccessException ex) {
             log.warn(LITERAL_NO_CUSTOMER_FOR_CUSTOMER_ID, customerId);
             throw new IllegalStateException("No customer found for customerId '" + customerId + "'", ex);
         } catch (DataAccessException ex) {
-            log.error("Failed to read file pending for customer '{}'", customerId, ex);
+            log.error(LITERAL_FILE_READ_FAILED, customerId, ex);
+            throw new IllegalStateException("Could not read file pending for customer '" + customerId + "'", ex);
+        }
+    }
+
+    @Override
+    public boolean isHasOpenDuplicateChecksByEmail(String emailAddress) {
+        MapSqlParameterSource params = new MapSqlParameterSource(LITERAL_EMAIL_ADDRESS, emailAddress);
+
+        try {
+            Boolean hasOpenDuplicateChecks = jdbc.queryForObject(
+                    SQL_FIND_HAS_OPEN_DUPLICATE_CHECKS_BY_EMAIL,
+                    params,
+                    Boolean.class
+            );
+
+            if (hasOpenDuplicateChecks == null) {
+                throw new IllegalStateException(
+                        "Column hasOpenDuplicateChecks is null for customer with email '%s'".formatted(emailAddress)
+                );
+            }
+
+            log.debug(LITERAL_CUSTOMER_HAS_OPEN_CRM_UPLOADS, emailAddress, hasOpenDuplicateChecks);
+            return hasOpenDuplicateChecks;
+        } catch (EmptyResultDataAccessException ex) {
+            log.warn(LITERAL_NO_CUSTOMER_FOR_EMAIL, emailAddress);
+            throw new IllegalStateException("No customer found for email '" + emailAddress + "'", ex);
+        } catch (DataAccessException ex) {
+            log.error(LITERAL_FILE_READ_FAILED, emailAddress, ex);
+            throw new IllegalStateException("Could not read file pending for customer '" + emailAddress + "'", ex);
+        }
+    }
+
+    @Override
+    public boolean isHasOpenDuplicateChecksByCustomerId(long customerId) {
+        MapSqlParameterSource params = new MapSqlParameterSource(LITERAL_CUSTOMER_ID, customerId);
+
+        try {
+            Boolean hasOpenDuplicateChecks = jdbc.queryForObject(
+                    SQL_FIND_HAS_OPEN_DUPLICATE_CHECKS_BY_CUSTOMER_ID,
+                    params,
+                    Boolean.class
+            );
+
+            if (hasOpenDuplicateChecks == null) {
+                throw new IllegalStateException(
+                        "Column hasOpenDuplicateChecks is null for customer with customerId '%d'".formatted(customerId)
+                );
+            }
+
+            log.debug("Customer '{}' hasOpenDuplicateChecks={}", customerId, hasOpenDuplicateChecks);
+            return hasOpenDuplicateChecks;
+        } catch (EmptyResultDataAccessException ex) {
+            log.warn(LITERAL_NO_CUSTOMER_FOR_CUSTOMER_ID, customerId);
+            throw new IllegalStateException("No customer found for customerId '" + customerId + "'", ex);
+        } catch (DataAccessException ex) {
+            log.error(LITERAL_FILE_READ_FAILED, customerId, ex);
             throw new IllegalStateException("Could not read file pending for customer '" + customerId + "'", ex);
         }
     }

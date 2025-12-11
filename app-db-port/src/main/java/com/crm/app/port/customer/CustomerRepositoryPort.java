@@ -21,6 +21,10 @@ public interface CustomerRepositoryPort {
 
     boolean isHasOpenCrmUploadsByCustomerId(long customerId);
 
+    boolean isHasOpenDuplicateChecksByEmail(String emailAddress);
+
+    boolean isHasOpenDuplicateChecksByCustomerId(long customerId);
+
     void setEnabled(long customerId, boolean enabled);
 
     CustomerProfileResponse getCustomer(String emailAddress);

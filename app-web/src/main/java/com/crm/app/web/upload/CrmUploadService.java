@@ -1,6 +1,9 @@
 package com.crm.app.web.upload;
 
-import com.crm.app.dto.*;
+import com.crm.app.dto.AppConstants;
+import com.crm.app.dto.CrmUploadCoreInfo;
+import com.crm.app.dto.CrmUploadHistory;
+import com.crm.app.dto.CrmUploadRequest;
 import com.crm.app.port.customer.CrmUploadRepositoryPort;
 import com.crm.app.port.customer.CustomerRepositoryPort;
 import com.crm.app.web.error.CustomerNotFoundException;
@@ -36,16 +39,7 @@ public class CrmUploadService {
 
         log.info("Received upload: email={}, crmCustomerId={}", emailAddress, crmCustomerId);
 
-        UploadRequest request = new UploadRequest(
-                emailAddress,
-                sourceSystem,
-                crmSystem,
-                crmUrl,
-                crmCustomerId,
-                crmApiKey
-        );
-
-        long customerId = customerRepositoryPort.findCustomerIdByEmail(request.getEmailAddress());
+        long customerId = customerRepositoryPort.findCustomerIdByEmail(emailAddress);
         log.info("Resolved customerId={} for email={}", customerId, emailAddress);
 
         boolean enabled = customerRepositoryPort.isEnabledByCustomerId(customerId);
