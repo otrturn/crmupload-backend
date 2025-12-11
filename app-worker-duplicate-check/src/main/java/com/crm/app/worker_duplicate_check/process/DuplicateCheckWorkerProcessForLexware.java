@@ -5,7 +5,7 @@ import com.crm.app.dto.DuplicateCheckEntry;
 import com.crm.app.port.customer.Customer;
 import com.crm.app.port.customer.CustomerRepositoryPort;
 import com.crm.app.port.customer.DuplicateCheckRepositoryPort;
-import com.crm.app.worker_duplicate_check.config.DuplicateCheckProperties;
+import com.crm.app.worker_duplicate_check.mail.DuplicatecheckMailService;
 import com.crmmacher.error.ErrMsg;
 import com.crmmacher.espo.importer.lexware_excel.config.LexwareCtx;
 import com.crmmacher.lexware_excel.dto.LexwareColumn;
@@ -26,8 +26,8 @@ import java.util.Optional;
 public class DuplicateCheckWorkerProcessForLexware {
 
     private final DuplicateCheckRepositoryPort duplicateCheckRepositoryPort;
-    private final DuplicateCheckProperties properties;
     private final CustomerRepositoryPort customerRepositoryPort;
+    private final DuplicatecheckMailService duplicatecheckMailService;
 
     private final LexwareCtx lexwareCtx;
 
@@ -48,6 +48,7 @@ public class DuplicateCheckWorkerProcessForLexware {
                     duplicateCheckContent.setContent(ProcessUtil.createExcelAsBytes(duplicateCheckEntries));
                     duplicateCheckRepositoryPort.markDuplicateCheckVerified(duplicateCheckContent.getDuplicateCheckId(), duplicateCheckContent.getContent());
                 } else {
+                    duplicatecheckMailService.sendErrorMail(customer.get(), duplicateCheckContent, errors, ProcessUtil.markExcelFile(duplicateCheckContent.getContent(), errors));
                     duplicateCheckRepositoryPort.markDuplicateCheckFailed(duplicateCheckContent.getDuplicateCheckId(), "Verification failed");
                 }
             } else {

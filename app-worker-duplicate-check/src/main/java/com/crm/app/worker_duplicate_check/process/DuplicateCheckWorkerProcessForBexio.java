@@ -6,6 +6,7 @@ import com.crm.app.port.customer.Customer;
 import com.crm.app.port.customer.CustomerRepositoryPort;
 import com.crm.app.port.customer.DuplicateCheckRepositoryPort;
 import com.crm.app.worker_duplicate_check.config.DuplicateCheckProperties;
+import com.crm.app.worker_duplicate_check.mail.DuplicatecheckMailService;
 import com.crmmacher.bexio_excel.dto.BexioColumn;
 import com.crmmacher.bexio_excel.dto.BexioEntry;
 import com.crmmacher.bexio_excel.reader.ReadBexioExcel;
@@ -26,8 +27,8 @@ import java.util.Optional;
 public class DuplicateCheckWorkerProcessForBexio {
 
     private final DuplicateCheckRepositoryPort duplicateCheckRepositoryPort;
-    private final DuplicateCheckProperties properties;
     private final CustomerRepositoryPort customerRepositoryPort;
+    private final DuplicatecheckMailService duplicatecheckMailService;
 
     private final BexioCtx bexioCtx;
 
@@ -48,6 +49,7 @@ public class DuplicateCheckWorkerProcessForBexio {
                     duplicateCheckContent.setContent(ProcessUtil.createExcelAsBytes(duplicateCheckEntries));
                     duplicateCheckRepositoryPort.markDuplicateCheckVerified(duplicateCheckContent.getDuplicateCheckId(), duplicateCheckContent.getContent());
                 } else {
+                    duplicatecheckMailService.sendErrorMail(customer.get(), duplicateCheckContent, errors, ProcessUtil.markExcelFile(duplicateCheckContent.getContent(), errors));
                     duplicateCheckRepositoryPort.markDuplicateCheckFailed(duplicateCheckContent.getDuplicateCheckId(), "Verification failed");
                 }
             } else {

@@ -2,16 +2,20 @@ package com.crm.app.worker_duplicate_check.process;
 
 import com.crm.app.dto.DuplicateCheckEntry;
 import com.crm.app.worker_duplicate_check.error.WorkerDuplicateCheckException;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import com.crmmacher.bexio_excel.error.BexioReaderException;
+import com.crmmacher.error.ErrMsg;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
+@Slf4j
 public class ProcessUtil {
     private ProcessUtil() {
     }
@@ -38,6 +42,36 @@ public class ProcessUtil {
             return bos.toByteArray();
         } catch (IOException e) {
             throw new WorkerDuplicateCheckException("Fehler beim Erzeugen des Excel-Workbooks: " + e.getMessage());
+        }
+    }
+
+    public static byte[] markExcelFile(byte[] excelBytes, List<ErrMsg> errors) {
+        try (InputStream fis = new ByteArrayInputStream(excelBytes);
+             Workbook workbook = new XSSFWorkbook(fis);
+             ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+            colourCells(errors, workbook);
+            workbook.write(bos);
+            return bos.toByteArray();
+        } catch (IOException e) {
+            log.error(e.getMessage());
+            throw new BexioReaderException("Cannot process excel files [byteArray][byteArray]");
+        }
+    }
+
+    public static void colourCells(List<ErrMsg> errors, Workbook workbook) {
+        XSSFCellStyle cellStyleMarkedCell = (XSSFCellStyle) workbook.createCellStyle();
+        cellStyleMarkedCell.setFillForegroundColor(IndexedColors.RED.index);
+        cellStyleMarkedCell.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+        for (ErrMsg errMsg : errors) {
+            Sheet sheet = workbook.getSheetAt(errMsg.getSheetNum());
+            Row row = sheet.getRow(errMsg.getRowNum());
+            Cell cell = row.getCell(errMsg.getColNum());
+            if (cell == null) {
+                cell = row.createCell(errMsg.getColNum());
+            }
+
+            cell.setCellStyle(cellStyleMarkedCell);
         }
     }
 }
