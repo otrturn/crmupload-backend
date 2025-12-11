@@ -45,7 +45,7 @@ public class CrmUploadService {
                 crmApiKey
         );
 
-        long customerId = repository.findCustomerIdByEmail(request.getEmailAddress());
+        long customerId = customerRepositoryPort.findCustomerIdByEmail(request.getEmailAddress());
         log.info("Resolved customerId={} for email={}", customerId, emailAddress);
 
         boolean enabled = customerRepositoryPort.isEnabledByCustomerId(customerId);

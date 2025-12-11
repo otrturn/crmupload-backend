@@ -48,6 +48,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
     private static final String LITERAL_PASSWORD = "password";
     private static final String LITERAL_TS = "ts";
     private static final String LITERAL_STATUS = "status";
+    private static final String LITERAL_USER_ID = "user_id";
 
     private static final String LITERAL_NO_CUSTOMER_FOR_EMAIL = "No customer found for email '{}'";
     private static final String LITERAL_NO_CUSTOMER_FOR_CUSTOMER_ID = "No customer found for customerId '{}'";
@@ -122,6 +123,33 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
             INSERT INTO app.customer_product (customer_id, product)
             VALUES (:customerId, :product)
             ON CONFLICT DO NOTHING
+            """;
+
+    private static final String SQL_FIND_CUSTOMER_ID_BY_EMAIL =
+            "SELECT c.customer_id FROM app.customer c WHERE c.email_address = :email_address";
+
+    private static final String SQL_FIND_BY_CUSTOMER_ID = """
+            SELECT customer_id,
+                   user_id,
+                   firstname,
+                   lastname,
+                   company_name,
+                   email_address,
+                   phone_number,
+                   adrline1,
+                   adrline2,
+                   postalcode,
+                   city,
+                   country
+              FROM app.customer
+             WHERE customer_id = :customerId
+            """;
+
+    private static final String SQL_FIND_PRODUCTS_BY_CUSTOMER_ID = """
+            SELECT product
+              FROM app.customer_product
+             WHERE customer_id = :customerId
+             ORDER BY product
             """;
 
     private final NamedParameterJdbcTemplate jdbc;
@@ -512,5 +540,122 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
                 .addValue(LITERAL_EMAIL, email);
 
         return jdbc.query(sql, params, (rs, rowNum) -> rs.getString(LITERAL_PRODUCT));
+    }
+
+    @Override
+    public long findCustomerIdByEmail(final String emailAddress) {
+        if (emailAddress == null || emailAddress.isBlank()) {
+            throw new IllegalArgumentException("emailAddress must not be null or blank");
+        }
+
+        final MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue(LITERAL_EMAIL_ADDRESS, emailAddress);
+
+        try {
+            final Long customerId = jdbc.queryForObject(
+                    SQL_FIND_CUSTOMER_ID_BY_EMAIL,
+                    params,
+                    Long.class
+            );
+
+            if (customerId == null) {
+                throw new IllegalStateException("Customer ID for emailAddress '" + emailAddress + "' is null");
+            }
+
+            if (log.isDebugEnabled()) {
+                log.debug("Found customer id {} for emailAddress {}", customerId, emailAddress);
+            }
+
+            return customerId;
+        } catch (EmptyResultDataAccessException ex) {
+            log.warn("No customer found for emailAddress {}", emailAddress);
+            throw new IllegalStateException("No customer found for emailAddress '" + emailAddress + "'", ex);
+        } catch (DataAccessException ex) {
+            log.error("Failed to find customer id for emailAddress {}", emailAddress, ex);
+            throw new IllegalStateException("Could not retrieve customer id for emailAddress '" + emailAddress + "'", ex);
+        }
+    }
+
+    @Override
+    public Optional<Customer> findCustomerByCustomerId(long customerId) {
+
+        MapSqlParameterSource params =
+                new MapSqlParameterSource()
+                        .addValue(LITERAL_CUSTOMER_ID_CAMELCASE, customerId);
+
+        try {
+            List<Customer> rows = jdbc.query(
+                    SQL_FIND_BY_CUSTOMER_ID,
+                    params,
+                    (rs, rowNum) -> new Customer(
+                            rs.getLong(LITERAL_CUSTOMER_ID),
+                            rs.getLong(LITERAL_USER_ID),
+                            rs.getString(LITERAL_FIRSTNAME),
+                            rs.getString(LITERAL_LASTNAME),
+                            rs.getString(LITERAL_COMPANY_NAME),
+                            rs.getString(LITERAL_EMAIL_ADDRESS),
+                            rs.getString(LITERAL_PHONE_NUMBER),
+                            rs.getString(LITERAL_ADRLINE1),
+                            rs.getString(LITERAL_ADRLINE2),
+                            rs.getString(LITERAL_POSTALCODE),
+                            rs.getString(LITERAL_CITY),
+                            rs.getString(LITERAL_COUNTRY),
+                            null
+                    )
+            );
+
+            if (rows.isEmpty()) {
+                return Optional.empty();
+            }
+
+            if (rows.size() > 1) {
+                throw new IllegalStateException(
+                        "Mehrere Customers mit customer_id=" + customerId + " gefunden"
+                );
+            }
+
+            Customer customer = rows.get(0);
+
+            List<String> products = loadProductsForCustomer(customerId);
+
+            Customer enrichedCustomer = new Customer(
+                    customer.customerId(),
+                    customer.userId(),
+                    customer.firstname(),
+                    customer.lastname(),
+                    customer.companyName(),
+                    customer.emailAddress(),
+                    customer.phoneNumber(),
+                    customer.adrline1(),
+                    customer.adrline2(),
+                    customer.postalcode(),
+                    customer.city(),
+                    customer.country(),
+                    products
+            );
+
+            return Optional.of(enrichedCustomer);
+
+        } catch (DataAccessException ex) {
+            log.error("Fehler beim Lesen von Customer customer_id={}", customerId, ex);
+            throw new IllegalStateException(
+                    "Fehler beim Lesen von Customer customer_id=" + customerId, ex
+            );
+        }
+    }
+
+    private List<String> loadProductsForCustomer(long customerId) {
+        try {
+            MapSqlParameterSource params = new MapSqlParameterSource()
+                    .addValue(LITERAL_CUSTOMER_ID_CAMELCASE, customerId);
+            return jdbc.query(
+                    SQL_FIND_PRODUCTS_BY_CUSTOMER_ID,
+                    params,
+                    (rs, rowNum) -> rs.getString(LITERAL_PRODUCT)
+            );
+        } catch (DataAccessException ex) {
+            log.error("Fehler beim Lesen der Produkte für customer_id={}", customerId, ex);
+            throw new IllegalStateException("Konnte Produkte für Customer nicht laden", ex);
+        }
     }
 }

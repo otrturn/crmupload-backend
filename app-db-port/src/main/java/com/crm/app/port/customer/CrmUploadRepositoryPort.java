@@ -4,14 +4,9 @@ import com.crm.app.dto.CrmUploadContent;
 import com.crm.app.dto.CrmUploadRequest;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface CrmUploadRepositoryPort {
     long nextUploadId();
-
-    long findCustomerIdByEmail(String email);
-
-    Optional<Customer> findCustomerByCustomerId(long customerId);
 
     void insertCrmUpload(
             CrmUploadRequest crmUploadRequest

@@ -24,7 +24,7 @@ public class CrmUploadProcessingService {
 
     private static final String UNKNOWN_CRM_SYSTEM = "Unknown crmSystem: ";
     private static final String UNKNOWN_SOURCE_SYSTEM = "Unknown sourceSystem: ";
-    private static final String ERROR_MSG="Unknown crmSystem '{}' for uploadId={}";
+    private static final String ERROR_MSG = "Unknown crmSystem '{}' for uploadId={}";
 
     @Transactional
     public void processSingleUpload(CrmUploadContent upload) {

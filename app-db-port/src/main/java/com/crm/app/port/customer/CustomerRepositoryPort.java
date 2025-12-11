@@ -39,4 +39,8 @@ public interface CustomerRepositoryPort {
 
     List<String> findProductsByEmail(String email);
 
+    long findCustomerIdByEmail(String email);
+
+    Optional<Customer> findCustomerByCustomerId(long customerId);
+
 }
