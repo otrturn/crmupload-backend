@@ -2,9 +2,9 @@ package com.crm.app.tools;
 
 import com.crm.app.dto.AppConstants;
 import com.crm.app.dto.RegisterRequest;
-import com.crm.app.tools.config.AppToolsConfig;
 import com.crm.app.tools.process.RegisterCustomers;
 import com.crm.app.tools.process.UploadCrmFile;
+import com.crm.app.tools.process.UploadDuplicateCheckFile;
 import com.crmmacher.bexio.tools.generator.process.BexioGenerateWorkbook;
 import com.crmmacher.lexware_excel.tools.generator.process.LexwareGenerateWorkbook;
 import lombok.RequiredArgsConstructor;
@@ -22,9 +22,11 @@ import java.util.List;
 @SpringBootApplication(scanBasePackages = "com.crm.app.tools")
 @RequiredArgsConstructor
 public class AppBulkTool implements CommandLineRunner, ExitCodeGenerator {
-    private final AppToolsConfig appToolsConfig;
     private final RegisterCustomers registerCustomers;
     private final UploadCrmFile uploadCrmFile;
+    private final UploadDuplicateCheckFile uploadDuplicateCheckFile;
+
+    private enum TASK {TO_ESPO, TO_DUPLICATE_CHECK}
 
     private static final String ESPO_CRM_LITERAL = "EspoCRM";
 
@@ -48,9 +50,15 @@ public class AppBulkTool implements CommandLineRunner, ExitCodeGenerator {
                         List.of(AppConstants.PRODUCT_CRM_UPLOAD, AppConstants.PRODUCT_DUPLICATE_CHECK));
                 registerCustomers.process(10, request);
             }
-            case "--BexioToEspo" -> processBexioForEspo();
-            case "--LexwareToEspo" -> processLexwareForEspo();
-            case "--MyExcelToEspo" -> processMyExcelForEspo();
+            case "--BexioToEspo" -> processBexio(TASK.TO_ESPO);
+            case "--BexioToDuplicateCheck" -> processBexio(TASK.TO_DUPLICATE_CHECK);
+
+            case "--LexwareToEspo" -> processLexware(TASK.TO_ESPO);
+            case "--LexwareToDuplicateCheck" -> processLexware(TASK.TO_DUPLICATE_CHECK);
+
+            case "--MyExcelToEspo" -> processMyExcel(TASK.TO_ESPO);
+            case "--MyExcelToDuplicateCheck" -> processMyExcel(TASK.TO_DUPLICATE_CHECK);
+
             default -> log.error("Unknown command {}", args[0]);
         }
         log.info("Batch-Prozess beendet.");
@@ -61,26 +69,38 @@ public class AppBulkTool implements CommandLineRunner, ExitCodeGenerator {
         return 0;
     }
 
-    private void processBexioForEspo() throws Exception {
+    private void processBexio(TASK task) throws Exception {
         int nFiles = 1;
         for (int i = 1; i <= nFiles; i++) {
             String filename = String.format("/home/ralf/espocrm-demo/generated/Bexio_Generated_%05d.xlsx", i);
             BexioGenerateWorkbook.createWorkbook(filename, 10, String.format("%04d", i));
-            uploadCrmFile.process(Paths.get(filename), 1, "Bexio", ESPO_CRM_LITERAL);
+            if (task.equals(TASK.TO_ESPO)) {
+                uploadCrmFile.process(Paths.get(filename), 1, "Bexio", ESPO_CRM_LITERAL);
+            } else if (task.equals(TASK.TO_DUPLICATE_CHECK)) {
+                uploadDuplicateCheckFile.process(Paths.get(filename), 1, "Bexio");
+            }
         }
     }
 
-    private void processLexwareForEspo() throws Exception {
+    private void processLexware(TASK task) throws Exception {
         int nFiles = 1;
         for (int i = 1; i <= nFiles; i++) {
             String filename = String.format("/home/ralf/espocrm-demo/generated/Lexware_Generated_%05d.xlsx", i);
             LexwareGenerateWorkbook.createWorkbook(filename, 10, String.format("LW-%04d", i));
-            uploadCrmFile.process(Paths.get(filename), 1, "Lexware", ESPO_CRM_LITERAL);
+            if (task.equals(TASK.TO_ESPO)) {
+                uploadCrmFile.process(Paths.get(filename), 1, "Lexware", ESPO_CRM_LITERAL);
+            } else if (task.equals(TASK.TO_DUPLICATE_CHECK)) {
+                uploadDuplicateCheckFile.process(Paths.get(filename), 1, "Lexware");
+            }
         }
     }
 
-    private void processMyExcelForEspo() {
-        uploadCrmFile.process(Paths.get("/home/ralf/espocrm-demo/MyExcelKunden_V001.xlsx"), 1, "MyExcel", ESPO_CRM_LITERAL);
+    private void processMyExcel(TASK task) {
+        if (task.equals(TASK.TO_ESPO)) {
+            uploadCrmFile.process(Paths.get("/home/ralf/espocrm-demo/MyExcelKunden_V001.xlsx"), 1, "MyExcel", ESPO_CRM_LITERAL);
+        } else if (task.equals(TASK.TO_DUPLICATE_CHECK)) {
+            uploadDuplicateCheckFile.process(Paths.get("/home/ralf/espocrm-demo/MyExcelKunden_V001.xlsx"), 1, "MyExcel");
+        }
     }
 
 }

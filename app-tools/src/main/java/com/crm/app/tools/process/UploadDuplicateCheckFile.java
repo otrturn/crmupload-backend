@@ -22,15 +22,15 @@ import static com.crm.app.tools.process.ProcessUtils.login;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class UploadCrmFile {
+public class UploadDuplicateCheckFile {
     private final AppToolsConfig appToolsConfig;
 
-    public void process(Path filePath, int n, String sourceSystem, String crmSystem) {
-        String url = appToolsConfig.getBaseUrl() + "/api/crm-upload";
+    public void process(Path filePath, int n, String sourceSystem) {
+        String url = appToolsConfig.getBaseUrl() + "/api/duplicate-check";
 
-        log.info("uploadCustomerFile:baseUrl=" + appToolsConfig.getBaseUrl());
-        log.info("uploadCustomerFile:url=" + url);
-        log.info("uploadCustomerFile:file=" + filePath.toString());
+        log.info("duplicateCheckFile:baseUrl=" + appToolsConfig.getBaseUrl());
+        log.info("duplicateCheckFile:url=" + url);
+        log.info("duplicateCheckFile:file=" + filePath.toString());
 
         RestTemplate restTemplate = new RestTemplate();
 
@@ -47,10 +47,6 @@ public class UploadCrmFile {
                 MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
                 body.add("emailAddress", email);
                 body.add("sourceSystem", sourceSystem);
-                body.add("crmSystem", crmSystem);
-                body.add("crmUrl", "EspoCRM".equalsIgnoreCase(crmSystem) ? "http://host.docker.internal:8080" : null);
-                body.add("crmCustomerId", "Pipedrive".equalsIgnoreCase(crmSystem) ? "CUST-" + i : null);
-                body.add("crmApiKey", "7a124718fbcde7a4a096396cb61fa80e");
                 body.add("file", fileResource);
 
                 HttpHeaders headers = new HttpHeaders();

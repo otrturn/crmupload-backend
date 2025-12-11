@@ -16,6 +16,9 @@ select *
 from app.crm_upload;
 
 select *
+from app.duplicate_check;
+
+select *
 from app.customer_product
 order by customer_id;
 
