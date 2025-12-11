@@ -1,5 +1,8 @@
 DROP TABLE IF EXISTS app.page_visits CASCADE;
 
+DROP TABLE IF EXISTS app.duplicate_check CASCADE;
+DROP SEQUENCE IF EXISTS app.sequence_duplicate_check;
+
 DROP TABLE IF EXISTS app.customer_billing CASCADE;
 DROP TABLE IF EXISTS app.customer_activation CASCADE;
 
@@ -95,6 +98,23 @@ ALTER TABLE app.customer
             ON DELETE RESTRICT;
 
 -- ****************************************************************************************************
+-- customer_activation
+-- ****************************************************************************************************
+
+CREATE TABLE IF NOT EXISTS app.customer_activation
+(
+    token       UUID        NOT NULL PRIMARY KEY,
+    customer_id INT         NOT NULL REFERENCES app.customer (customer_id),
+    created     TIMESTAMPTZ NOT NULL DEFAULT now(),
+    expires_at  TIMESTAMPTZ NOT NULL, -- z. B. now() + interval '24 hours'
+    used        BOOLEAN     NOT NULL DEFAULT FALSE,
+    used_at     TIMESTAMPTZ
+);
+
+CREATE INDEX IF NOT EXISTS idx_customer_activation_customer
+    ON app.customer_activation (customer_id);
+
+-- ****************************************************************************************************
 -- customer_product
 -- ****************************************************************************************************
 CREATE TABLE IF NOT EXISTS app.customer_product
@@ -157,21 +177,40 @@ ALTER TABLE app.crm_upload
             ON DELETE RESTRICT;
 
 -- ****************************************************************************************************
--- customer_activation
+-- duplicate_check
 -- ****************************************************************************************************
+CREATE SEQUENCE app.sequence_duplicate_check
+    START WITH 1
+    INCREMENT BY 1
+    MINVALUE 1
+    NO MAXVALUE
+    CACHE 1;
 
-CREATE TABLE IF NOT EXISTS app.customer_activation
+CREATE TABLE IF NOT EXISTS app.duplicate_check
 (
-    token       UUID        NOT NULL PRIMARY KEY,
-    customer_id INT         NOT NULL REFERENCES app.customer (customer_id),
-    created     TIMESTAMPTZ NOT NULL DEFAULT now(),
-    expires_at  TIMESTAMPTZ NOT NULL, -- z. B. now() + interval '24 hours'
-    used        BOOLEAN     NOT NULL DEFAULT FALSE,
-    used_at     TIMESTAMPTZ
+    duplicate_check_id INT         NOT NULL,
+    customer_id        INT         NOT NULL,
+    source_system      TEXT,
+    content            BYTEA,
+    status             TEXT        NOT NULL DEFAULT 'new',
+    last_error         TEXT,
+    created            TIMESTAMPTZ NOT NULL DEFAULT now(),
+    modified           TIMESTAMPTZ NOT NULL DEFAULT now(),
+    CONSTRAINT chk_duplicate_check_source_system CHECK (source_system IN ('Lexware', 'Bexio', 'MyExcel')),
+    CONSTRAINT chk_duplicate_check_status CHECK (status IN ('new', 'checking', 'checked', 'processing', 'done', 'failed'))
 );
 
-CREATE INDEX IF NOT EXISTS idx_customer_activation_customer
-    ON app.customer_activation (customer_id);
+ALTER TABLE app.duplicate_check
+    ADD CONSTRAINT uq_duplicate_check_upload_id UNIQUE (duplicate_check_id);
+
+CREATE INDEX idx_duplicate_check_customer_id
+    ON app.duplicate_check (customer_id);
+
+ALTER TABLE app.duplicate_check
+    ADD CONSTRAINT fk_duplicate_check_customer_id
+        FOREIGN KEY (customer_id)
+            REFERENCES app.customer (customer_id)
+            ON DELETE RESTRICT;
 
 -- ****************************************************************************************************
 -- customer_billing
