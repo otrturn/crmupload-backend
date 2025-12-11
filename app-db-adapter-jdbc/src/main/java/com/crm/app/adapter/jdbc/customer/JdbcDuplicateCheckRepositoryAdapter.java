@@ -1,6 +1,5 @@
 package com.crm.app.adapter.jdbc.customer;
 
-import com.crm.app.dto.CrmUploadContent;
 import com.crm.app.dto.DuplicateCheckContent;
 import com.crm.app.dto.DuplicateCheckRequest;
 import com.crm.app.port.customer.DuplicateCheckRepositoryPort;
@@ -28,7 +27,7 @@ public class JdbcDuplicateCheckRepositoryAdapter implements DuplicateCheckReposi
                     "(duplicate_check_id, customer_id, source_system, content, status) " +
                     "VALUES (:duplicateCheckId, :customerId, :sourceSystem, :content, :status)";
 
-    private static final String SQL_CLAIM_NEXT_DUPLICATE_CHECK_IDS_FOR_CHECK = """
+    private static final String SQL_CLAIM_NEXT_DUPLICATE_CHECK_IDS_FOR_VERIFICATION = """
             UPDATE app.duplicate_check dc
                SET status = 'verifying'
              WHERE dc.duplicate_check_id IN (
@@ -42,7 +41,7 @@ public class JdbcDuplicateCheckRepositoryAdapter implements DuplicateCheckReposi
              RETURNING duplicate_check_id
             """;
 
-    private static final String SQL_MARK_CHECKED = """
+    private static final String SQL_MARK_DUPLICATE_CHECK_VERIFIED = """
             UPDATE app.duplicate_check
                SET status = 'verified',
                    content = :content,
@@ -50,7 +49,7 @@ public class JdbcDuplicateCheckRepositoryAdapter implements DuplicateCheckReposi
              WHERE duplicate_check_id = :duplicateCheckId
             """;
 
-    private static final String SQL_MARK_FAILED = """
+    private static final String SQL_MARK_DUPLICATE_CHECK_FAILED = """
             UPDATE app.duplicate_check
                SET status = 'failed',
                    content = NULL,
@@ -155,12 +154,12 @@ public class JdbcDuplicateCheckRepositoryAdapter implements DuplicateCheckReposi
     }
 
     @Override
-    public List<Long> claimNextDuplicateChecksForCheck(final int limit) {
+    public List<Long> claimNextDuplicateChecksForVerification(final int limit) {
         final MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue(LITERAL_LIMIT, limit);
         try {
             return jdbcTemplate.query(
-                    SQL_CLAIM_NEXT_DUPLICATE_CHECK_IDS_FOR_CHECK,
+                    SQL_CLAIM_NEXT_DUPLICATE_CHECK_IDS_FOR_VERIFICATION,
                     params,
                     (rs, rowNum) -> rs.getLong(LITERAL_DUPLICATE_CHECK_ID)
             );
@@ -171,12 +170,12 @@ public class JdbcDuplicateCheckRepositoryAdapter implements DuplicateCheckReposi
     }
 
     @Override
-    public void markDuplicateCheckChecked(final long uploadId, byte[] content) {
+    public void markDuplicateCheckVerified(final long uploadId, byte[] content) {
         final MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue(LITERAL_DUPLICATE_CHECK_ID_CAMELCASE, uploadId)
                 .addValue(LITERAL_CONTENT, content);
         try {
-            jdbcTemplate.update(SQL_MARK_CHECKED, params);
+            jdbcTemplate.update(SQL_MARK_DUPLICATE_CHECK_VERIFIED, params);
         } catch (DataAccessException ex) {
             log.error("Failed to mark duplicate check {} as failed", uploadId, ex);
             throw new IllegalStateException("Could not mark duplicate check as checked", ex);
@@ -189,7 +188,7 @@ public class JdbcDuplicateCheckRepositoryAdapter implements DuplicateCheckReposi
                 .addValue(LITERAL_DUPLICATE_CHECK_ID_CAMELCASE, uploadId)
                 .addValue(LITERAL_ERROR, errorMessage);
         try {
-            jdbcTemplate.update(SQL_MARK_FAILED, params);
+            jdbcTemplate.update(SQL_MARK_DUPLICATE_CHECK_FAILED, params);
         } catch (DataAccessException ex) {
             log.error("Failed to mark duplicate check {} as failed", uploadId, ex);
             throw new IllegalStateException("Could not mark duplicate check as failed", ex);

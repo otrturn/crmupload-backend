@@ -21,7 +21,7 @@ public class DuplicateCheckWorker {
 
     @Scheduled(fixedDelayString = "${app.duplicate-check.poll-interval-ms:10000}")
     public void pollAndProcess() {
-        final List<Long> duplicateCheckIds = duplicateCheckRepositoryPort.claimNextDuplicateChecksForCheck(properties.getBatchSize());
+        final List<Long> duplicateCheckIds = duplicateCheckRepositoryPort.claimNextDuplicateChecksForVerification(properties.getBatchSize());
 
         if (duplicateCheckIds.isEmpty()) {
             return;
@@ -33,7 +33,7 @@ public class DuplicateCheckWorker {
 
         for (DuplicateCheckContent duplicateCheck : duplicateChecks) {
             try {
-                processingService.processSingleDuplcateCheckForVerification(duplicateCheck);
+                processingService.processSingleDuplicateCheckForVerification(duplicateCheck);
             } catch (Exception ex) {
                 log.error("Error processing crm_upload with uploadId={}", duplicateCheck.getDuplicateCheckId(), ex);
                 duplicateCheckRepositoryPort.markDuplicateCheckFailed(duplicateCheck.getDuplicateCheckId(), ex.getMessage());

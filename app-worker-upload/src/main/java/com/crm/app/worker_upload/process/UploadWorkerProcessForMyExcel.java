@@ -67,12 +67,12 @@ public class UploadWorkerProcessForMyExcel {
             List<EspoLead> espoLeads = MyExcelToEspoLeadMapper.toEspoLeads(myExcelLeads);
             VerifyMyExcelForEspo.verifyEspoLead(myExcelCtx, espoLeads, errors);
 
+            log.info(String.format("MyExcel %d leads read, %d errors", espoLeads.size(), errors.size()));
+            log.info(String.format("MyExcel %d leads mapped, %d errors", espoLeads.size(), errors.size()));
+
             EspoEntityPool espoEntityPool = new EspoEntityPool();
             espoEntityPool.setAccounts(espoAccounts);
             espoEntityPool.setContacts(espoContacts);
-
-            log.info(String.format("MyExcel %d leads read, %d errors", espoLeads.size(), errors.size()));
-            log.info(String.format("MyExcel %d leads mapped, %d errors", espoLeads.size(), errors.size()));
 
             Optional<Customer> customer = customerRepositoryPort.findCustomerByCustomerId(upload.getCustomerId());
             if (customer.isPresent()) {

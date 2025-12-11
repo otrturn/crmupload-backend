@@ -19,7 +19,7 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
 
     private static final String SEQUENCE_CRM_UPLOAD_UPLOAD_ID = "app.sequence_crm_upload";
 
-    private static final String SQL_NEXT_UPLOAD_ID =
+    private static final String SQL_NEXT_CRM_UPLOAD_ID =
             "SELECT nextval('" + SEQUENCE_CRM_UPLOAD_UPLOAD_ID + "')";
 
     private static final String SQL_INSERT_CRM_UPLOAD =
@@ -27,7 +27,7 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
                     "(upload_id, customer_id, source_system, crm_system, crm_url, crm_customer_id, api_key, content, status) " +
                     "VALUES (:uploadId, :customerId, :sourceSystem, :crmSystem, :crmUrl, :crmCustomerId, :apiKey, :content, :status)";
 
-    private static final String SQL_CLAIM_NEXT_UPLOADS = """
+    private static final String SQL_CLAIM_NEXT_CRM_UPLOADS = """
             UPDATE app.crm_upload cu
                SET status = 'processing'
              WHERE cu.upload_id IN (
@@ -41,7 +41,7 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
              RETURNING upload_id
             """;
 
-    private static final String SQL_MARK_DONE = """
+    private static final String SQL_MARK_CRM_UPLOAD_DONE = """
             UPDATE app.crm_upload
                SET status = 'done',
                    content = NULL,
@@ -51,7 +51,7 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
              WHERE upload_id = :uploadId
             """;
 
-    private static final String SQL_MARK_FAILED = """
+    private static final String SQL_MARK_CRM_UPLOAD_FAILED = """
             UPDATE app.crm_upload
                SET status = 'failed',
                    content = NULL,
@@ -61,7 +61,7 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
              WHERE upload_id = :uploadId
             """;
 
-    private static final String SQL_FIND_UPLOADS_BY_IDS = """
+    private static final String SQL_FIND_CRM_UPLOADS_BY_IDS = """
             SELECT upload_id,
                    customer_id,
                    source_system,
@@ -111,7 +111,7 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
     public long nextUploadId() {
         try {
             final Long nextId = jdbcTemplate.queryForObject(
-                    SQL_NEXT_UPLOAD_ID,
+                    SQL_NEXT_CRM_UPLOAD_ID,
                     new MapSqlParameterSource(),
                     Long.class
             );
@@ -189,7 +189,7 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
                 .addValue(LITERAL_LIMIT, limit);
         try {
             return jdbcTemplate.query(
-                    SQL_CLAIM_NEXT_UPLOADS,
+                    SQL_CLAIM_NEXT_CRM_UPLOADS,
                     params,
                     (rs, rowNum) -> rs.getLong(LITERAL_UPLOAD_ID)
             );
@@ -204,7 +204,7 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
         final MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue(LITERAL_UPLOAD_ID_CAMELCASE, uploadId);
         try {
-            jdbcTemplate.update(SQL_MARK_DONE, params);
+            jdbcTemplate.update(SQL_MARK_CRM_UPLOAD_DONE, params);
         } catch (DataAccessException ex) {
             log.error("Failed to mark upload {} as done", uploadId, ex);
             throw new IllegalStateException("Could not mark upload as done", ex);
@@ -217,7 +217,7 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
                 .addValue(LITERAL_UPLOAD_ID_CAMELCASE, uploadId)
                 .addValue(LITERAL_ERROR, errorMessage);
         try {
-            jdbcTemplate.update(SQL_MARK_FAILED, params);
+            jdbcTemplate.update(SQL_MARK_CRM_UPLOAD_FAILED, params);
         } catch (DataAccessException ex) {
             log.error("Failed to mark upload {} as failed", uploadId, ex);
             throw new IllegalStateException("Could not mark upload as failed", ex);
@@ -235,7 +235,7 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
 
         try {
             return jdbcTemplate.query(
-                    SQL_FIND_UPLOADS_BY_IDS,
+                    SQL_FIND_CRM_UPLOADS_BY_IDS,
                     params,
                     (rs, rowNum) -> new CrmUploadContent(
                             rs.getLong(LITERAL_UPLOAD_ID),
