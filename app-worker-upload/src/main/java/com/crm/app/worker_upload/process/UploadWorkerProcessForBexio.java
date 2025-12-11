@@ -40,16 +40,13 @@ public class UploadWorkerProcessForBexio {
 
     public void processUploadForEspo(CrmUploadContent upload) {
 
-        Path excelSourceFile = Paths.get(String.format("%s/Upload_Bexio_%06d.xlsx", properties.getWorkdir(), upload.getUploadId()));
         Path excelTargetFile = Paths.get(String.format("%s/Upload_Bexio_Korrektur_%06d.xlsx", properties.getWorkdir(), upload.getUploadId()));
         log.info("Processing crm_upload for Bexio uploadId={} sourceSysten={} crmSystem={}", upload.getUploadId(), upload.getSourceSystem(), upload.getCrmSystem());
         try {
-            writeExcelToFile(upload.getContent(), excelSourceFile);
-
             List<ErrMsg> errors = new ArrayList<>();
 
             List<BexioEntry> bexioEntries = new ArrayList<>();
-            Map<BexioColumn, Integer> indexMap = new ReadBexioExcel().getEntries(excelSourceFile, bexioEntries, errors);
+            Map<BexioColumn, Integer> indexMap = new ReadBexioExcel().getEntries(upload.getContent(), bexioEntries, errors);
             log.info(String.format("Bexio %d entries read, %d errors", bexioEntries.size(), errors.size()));
 
             EspoEntityPool espoEntityPoolForReceived = new EspoEntityPool();
@@ -58,14 +55,13 @@ public class UploadWorkerProcessForBexio {
 
             Optional<Customer> customer = customerRepositoryPort.findCustomerByCustomerId(upload.getCustomerId());
             if (customer.isPresent()) {
-                uploadHandlingForEspo.processForEspo(upload, excelSourceFile, excelTargetFile, errors, customer.get(), espoEntityPoolForReceived);
+                uploadHandlingForEspo.processForEspo(upload, upload.getContent(), excelTargetFile, errors, customer.get(), espoEntityPoolForReceived);
             } else {
                 log.error("Customer not found for customer id={}", upload.getCustomerId());
             }
         } catch (Exception ex) {
             repository.markUploadFailed(upload.getUploadId(), ex.getMessage());
         }
-        WorkerUtils.removeFile(excelSourceFile);
     }
 
 

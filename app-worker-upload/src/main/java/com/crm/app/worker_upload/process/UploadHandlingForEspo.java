@@ -23,6 +23,7 @@ import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Component;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -45,7 +46,7 @@ public class UploadHandlingForEspo {
 
     private static final String FORMAT_STRING = "Duration: %02d:%02d:%02d";
 
-    public void processForEspo(CrmUploadContent upload, Path excelSourcefile, Path excelTargetfile, List<ErrMsg> errors, Customer customer, EspoEntityPool espoEntityPoolForReceived) {
+    public void processForEspo(CrmUploadContent upload, byte[] excelBytes, Path excelTargetfile, List<ErrMsg> errors, Customer customer, EspoEntityPool espoEntityPoolForReceived) {
         EspoEntityPool espoEntityPoolForLoad = new EspoEntityPool();
         EspoEntityPool espoEntityPoolForAdd = new EspoEntityPool();
         EspoEntityPool espoEntityPoolForIgnore = new EspoEntityPool();
@@ -64,20 +65,20 @@ public class UploadHandlingForEspo {
             uploadMailService.sendSuccessMailForEspo(customer, upload, espoEntityPoolForAdd);
         } else {
             repository.markUploadFailed(upload.getUploadId(), "Validation failed");
-            markExcelFile(excelSourcefile, excelTargetfile, errors);
+            markExcelFile(excelBytes, excelTargetfile, errors);
             uploadMailService.sendErrorMailForEspo(customer, upload, errors, excelTargetfile);
         }
     }
 
-    private void markExcelFile(Path excelSourcefile, Path excelTargetfile, List<ErrMsg> errors) {
-        try (InputStream fis = Files.newInputStream(excelSourcefile);
+    private void markExcelFile(byte[] excelBytes, Path excelTargetfile, List<ErrMsg> errors) {
+        try (InputStream fis = new ByteArrayInputStream(excelBytes);
              Workbook workbook = new XSSFWorkbook(fis);
              OutputStream os = Files.newOutputStream(excelTargetfile)) {
             colourCells(errors, workbook);
             workbook.write(os);
         } catch (IOException e) {
             log.error(e.getMessage());
-            throw new BexioReaderException("Cannot process excel files [" + excelSourcefile + "][" + excelTargetfile + "]");
+            throw new BexioReaderException("Cannot process excel files [byteArray][" + excelTargetfile + "]");
         }
     }
 

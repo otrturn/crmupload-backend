@@ -47,29 +47,26 @@ public class UploadWorkerProcessForMyExcel {
     private final MyExcelCtx myExcelCtx;
 
     public void processUploadForEspo(CrmUploadContent upload) {
-        Path excelSourcefile = Paths.get(String.format("%s/Upload_MyExcel_%06d.xlsx", properties.getWorkdir(), upload.getUploadId()));
         Path excelTargetFile = Paths.get(String.format("%s/Upload_MyExcel_Korrektur_%06d.xlsx", properties.getWorkdir(), upload.getUploadId()));
         log.info("Processing crm_upload for MyExcel uploadId={} sourceSysten={} crmSystem={}", upload.getUploadId(), upload.getSourceSystem(), upload.getCrmSystem());
         try {
-            writeExcelToFile(upload.getContent(), excelSourcefile);
-
             List<ErrMsg> errors = new ArrayList<>();
 
-            List<MyExcelAccount> myExcelAccounts = new MyExcelReadAccounts().getAccounts(excelSourcefile, errors);
+            List<MyExcelAccount> myExcelAccounts = new MyExcelReadAccounts().getAccounts(upload.getContent(), errors);
             List<EspoAccount> espoAccounts = MyExcelToEspoAccountMapper.toEspoAccounts(myExcelAccounts);
             VerifyMyExcelForEspo.verifyEspoAccount(myExcelCtx, espoAccounts, errors);
 
             log.info(String.format("MyExcel %d accounts read, %d errors", espoAccounts.size(), errors.size()));
             log.info(String.format("MyExcel %d accounts mapped, %d errors", espoAccounts.size(), errors.size()));
 
-            List<MyExcelContact> myExcelContacts = new MyExcelReadContacts().getContacts(myExcelAccounts, excelSourcefile, errors);
+            List<MyExcelContact> myExcelContacts = new MyExcelReadContacts().getContacts(myExcelAccounts, upload.getContent(), errors);
             List<EspoContact> espoContacts = MyExcelToEspoContactMapper.toEspoContacts(myExcelContacts);
             VerifyMyExcelForEspo.verifyEspoContact(myExcelCtx, espoAccounts, espoContacts, errors);
 
             log.info(String.format("MyExcel %d contacts read, %d errors", espoContacts.size(), errors.size()));
             log.info(String.format("MyExcel %d contacts mapped, %d errors", espoContacts.size(), errors.size()));
 
-            List<MyExcelLead> myExcelLeads = new MyExcelReadLeads().getLeads(excelSourcefile, errors);
+            List<MyExcelLead> myExcelLeads = new MyExcelReadLeads().getLeads(upload.getContent(), errors);
             List<EspoLead> espoLeads = MyExcelToEspoLeadMapper.toEspoLeads(myExcelLeads);
             VerifyMyExcelForEspo.verifyEspoLead(myExcelCtx, espoLeads, errors);
 
@@ -82,13 +79,12 @@ public class UploadWorkerProcessForMyExcel {
 
             Optional<Customer> customer = customerRepositoryPort.findCustomerByCustomerId(upload.getCustomerId());
             if (customer.isPresent()) {
-                uploadHandlingForEspo.processForEspo(upload, excelSourcefile, excelTargetFile, errors, customer.get(), espoEntityPool);
+                uploadHandlingForEspo.processForEspo(upload, upload.getContent(), excelTargetFile, errors, customer.get(), espoEntityPool);
             } else {
                 log.error("Customer not found for customer id={}", upload.getCustomerId());
             }
         } catch (Exception ex) {
             repository.markUploadFailed(upload.getUploadId(), ex.getMessage());
         }
-        WorkerUtils.removeFile(excelSourcefile);
     }
 }

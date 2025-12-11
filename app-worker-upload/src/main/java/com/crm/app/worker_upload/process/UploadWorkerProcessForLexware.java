@@ -39,15 +39,13 @@ public class UploadWorkerProcessForLexware {
     private final LexwareCtx lexwareCtx;
 
     public void processUploadForEspo(CrmUploadContent upload) {
-        Path excelSourceFile = Paths.get(String.format("%s/Upload_Lexware_%06d.xlsx", properties.getWorkdir(), upload.getUploadId()));
         Path excelTargetFile = Paths.get(String.format("%s/Upload_Lexware_Korrektur_%06d.xlsx", properties.getWorkdir(), upload.getUploadId()));
         log.info("Processing crm_upload for Lexware uploadId={} sourceSysten={} crmSystem={}", upload.getUploadId(), upload.getSourceSystem(), upload.getCrmSystem());
         try {
-            writeExcelToFile(upload.getContent(), excelSourceFile);
             List<ErrMsg> errors = new ArrayList<>();
 
             List<LexwareEntry> bexioEntries = new ArrayList<>();
-            Map<LexwareColumn, Integer> indexMap = new ReadLexwareExcel().getEntries(excelSourceFile, bexioEntries, errors);
+            Map<LexwareColumn, Integer> indexMap = new ReadLexwareExcel().getEntries(upload.getContent(), bexioEntries, errors);
             log.info(String.format("Lexware %d entries read, %d errors", bexioEntries.size(), errors.size()));
 
             EspoEntityPool espoEntityPool = new EspoEntityPool();
@@ -56,13 +54,12 @@ public class UploadWorkerProcessForLexware {
 
             Optional<Customer> customer = customerRepositoryPort.findCustomerByCustomerId(upload.getCustomerId());
             if (customer.isPresent()) {
-                uploadHandlingForEspo.processForEspo(upload, excelSourceFile, excelTargetFile, errors, customer.get(), espoEntityPool);
+                uploadHandlingForEspo.processForEspo(upload, upload.getContent(), excelTargetFile, errors, customer.get(), espoEntityPool);
             } else {
                 log.error("Customer not found for customer id={}", upload.getCustomerId());
             }
         } catch (Exception ex) {
             repository.markUploadFailed(upload.getUploadId(), ex.getMessage());
         }
-        WorkerUtils.removeFile(excelSourceFile);
     }
 }
