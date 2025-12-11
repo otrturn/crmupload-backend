@@ -3,6 +3,7 @@ package com.crm.app.worker_upload.process;
 import com.crm.app.dto.CrmUploadContent;
 import com.crm.app.port.customer.CrmUploadRepositoryPort;
 import com.crm.app.port.customer.Customer;
+import com.crm.app.port.customer.CustomerRepositoryPort;
 import com.crm.app.worker_upload.config.CrmUploadProperties;
 import com.crm.app.worker_upload.util.WorkerUtils;
 import com.crmmacher.bexio_excel.dto.BexioColumn;
@@ -33,6 +34,7 @@ public class UploadWorkerProcessForBexio {
     private final CrmUploadRepositoryPort repository;
     private final CrmUploadProperties properties;
     private final UploadHandlingForEspo uploadHandlingForEspo;
+    private final CustomerRepositoryPort customerRepositoryPort;
 
     private final BexioCtx bexioCtx;
 
@@ -54,7 +56,7 @@ public class UploadWorkerProcessForBexio {
             MyBexioToEspoMapper.toEspoAccounts(bexioCtx, bexioEntries, espoEntityPoolForReceived, errors, indexMap);
             log.info(String.format("Bexio %d entries mapped, %d errors", bexioEntries.size(), errors.size()));
 
-            Optional<Customer> customer = repository.findCustomerByCustomerId(upload.getCustomerId());
+            Optional<Customer> customer = customerRepositoryPort.findCustomerByCustomerId(upload.getCustomerId());
             if (customer.isPresent()) {
                 uploadHandlingForEspo.processForEspo(upload, excelSourceFile, excelTargetFile, errors, customer.get(), espoEntityPoolForReceived);
             } else {

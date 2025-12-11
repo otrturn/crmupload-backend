@@ -3,6 +3,7 @@ package com.crm.app.worker_upload.process;
 import com.crm.app.dto.CrmUploadContent;
 import com.crm.app.port.customer.CrmUploadRepositoryPort;
 import com.crm.app.port.customer.Customer;
+import com.crm.app.port.customer.CustomerRepositoryPort;
 import com.crm.app.worker_upload.config.CrmUploadProperties;
 import com.crm.app.worker_upload.util.WorkerUtils;
 import com.crmmacher.error.ErrMsg;
@@ -41,6 +42,7 @@ public class UploadWorkerProcessForMyExcel {
     private final CrmUploadRepositoryPort repository;
     private final CrmUploadProperties properties;
     private final UploadHandlingForEspo uploadHandlingForEspo;
+    private final CustomerRepositoryPort customerRepositoryPort;
 
     private final MyExcelCtx myExcelCtx;
 
@@ -78,7 +80,7 @@ public class UploadWorkerProcessForMyExcel {
             log.info(String.format("MyExcel %d leads read, %d errors", espoLeads.size(), errors.size()));
             log.info(String.format("MyExcel %d leads mapped, %d errors", espoLeads.size(), errors.size()));
 
-            Optional<Customer> customer = repository.findCustomerByCustomerId(upload.getCustomerId());
+            Optional<Customer> customer = customerRepositoryPort.findCustomerByCustomerId(upload.getCustomerId());
             if (customer.isPresent()) {
                 uploadHandlingForEspo.processForEspo(upload, excelSourcefile, excelTargetFile, errors, customer.get(), espoEntityPool);
             } else {

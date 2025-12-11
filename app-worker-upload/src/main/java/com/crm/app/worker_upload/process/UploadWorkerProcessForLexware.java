@@ -3,6 +3,7 @@ package com.crm.app.worker_upload.process;
 import com.crm.app.dto.CrmUploadContent;
 import com.crm.app.port.customer.CrmUploadRepositoryPort;
 import com.crm.app.port.customer.Customer;
+import com.crm.app.port.customer.CustomerRepositoryPort;
 import com.crm.app.worker_upload.config.CrmUploadProperties;
 import com.crm.app.worker_upload.util.WorkerUtils;
 import com.crmmacher.error.ErrMsg;
@@ -33,6 +34,7 @@ public class UploadWorkerProcessForLexware {
     private final CrmUploadRepositoryPort repository;
     private final CrmUploadProperties properties;
     private final UploadHandlingForEspo uploadHandlingForEspo;
+    private final CustomerRepositoryPort customerRepositoryPort;
 
     private final LexwareCtx lexwareCtx;
 
@@ -52,7 +54,7 @@ public class UploadWorkerProcessForLexware {
             MyLexwareToEspoMapper.toEspoAccounts(lexwareCtx, bexioEntries, espoEntityPool, errors, indexMap);
             log.info(String.format("Lexware %d entries mapped, %d errors", bexioEntries.size(), errors.size()));
 
-            Optional<Customer> customer = repository.findCustomerByCustomerId(upload.getCustomerId());
+            Optional<Customer> customer = customerRepositoryPort.findCustomerByCustomerId(upload.getCustomerId());
             if (customer.isPresent()) {
                 uploadHandlingForEspo.processForEspo(upload, excelSourceFile, excelTargetFile, errors, customer.get(), espoEntityPool);
             } else {
