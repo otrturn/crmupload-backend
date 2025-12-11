@@ -1,0 +1,14 @@
+app:
+  datasource:
+    url: jdbc:postgresql://crmupload-db:5432/crmupload-appdb
+    username: appuser
+    password: apppass
+    driver-class-name: org.postgresql.Driver
+  duplicate-check-gpu:
+    poll-interval-ms: 10000
+    batch-size: 5
+    workdir: /data/tmp
+
+spring:
+  main:
+    web-application-type: none

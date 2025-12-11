@@ -1,0 +1,1 @@
+dockwrkgpu up -d --no-build

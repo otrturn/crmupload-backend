@@ -19,6 +19,7 @@
         <module>app-prod</module>
         <module>app-maintenance</module>
         <module>app-worker-duplicate-check</module>
+        <module>app-worker-duplicate-check-gpu</module>
     </modules>
 
     <parent>

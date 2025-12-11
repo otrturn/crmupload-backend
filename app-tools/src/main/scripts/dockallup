@@ -6,3 +6,6 @@ dockwrkuploadup
 
 cd app-worker-duplicate-check
 dockwrkdupup
+
+cd app-worker-duplicate-check-gpu
+dockwrkgpuup

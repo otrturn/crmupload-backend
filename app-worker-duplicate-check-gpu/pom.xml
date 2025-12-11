@@ -9,7 +9,7 @@
         <version>1.0</version>
     </parent>
 
-    <artifactId>app-worker-duplicate-check</artifactId>
+    <artifactId>app-worker-duplicate-check-gpu</artifactId>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>

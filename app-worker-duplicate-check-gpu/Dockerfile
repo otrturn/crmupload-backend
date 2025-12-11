@@ -1,0 +1,9 @@
+FROM eclipse-temurin:21-jre AS runtime
+
+WORKDIR /app
+
+# JAR aus dem Modul app-worker
+COPY target/app-worker-duplicate-check-gpu*.jar app-worker-duplicate-check-gpu.jar
+
+# Kein EXPOSE nötig, Worker hat kein HTTP
+ENTRYPOINT ["java", "-jar", "app-worker-duplicate-check-gpu.jar"]

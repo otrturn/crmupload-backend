@@ -6,3 +6,6 @@ dockwrkuploaddown;remove-wrk-upload.sh;dockwrkuploadbuild;dockwrkuploadup
 
 cd app-worker-duplicate-check
 dockwrkdupdown;remove-wrk-dup.sh;dockwrkdupbuild;dockwrkdupup
+
+cd app-worker-duplicate-check-gpu
+dockwrkgpudown;remove-wrk-gpu.sh;dockwrkgpubuild;dockwrkgpuup

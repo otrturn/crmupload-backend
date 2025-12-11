@@ -1,0 +1,2 @@
+remove-wrk-gpu.sh
+dockwrkgpu build crmupload-worker-duplicate-check-gpu
