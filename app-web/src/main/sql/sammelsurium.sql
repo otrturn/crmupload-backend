@@ -34,6 +34,10 @@ delete
 from app.crm_upload;
 commit;
 
+delete
+from app.duplicate_check;
+commit;
+
 call app.export_billing();
 
 update app.customer

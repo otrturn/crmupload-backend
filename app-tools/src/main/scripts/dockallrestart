@@ -1,0 +1,8 @@
+cd app-web
+dockwebdown;remove-web.sh;dockwebbuild;dockwebup
+
+cd app-worker-upload
+dockwrkuploaddown;remove-wrk-upload.sh;dockwrkuploadbuild;dockwrkuploadup
+
+cd app-worker-duplicate-check
+dockwrkdupdown;remove-wrk-dup.sh;dockwrkdupbuild;dockwrkdupup

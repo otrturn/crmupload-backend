@@ -1,5 +1,6 @@
 package com.crm.app.port.customer;
 
+import com.crm.app.dto.DuplicateCheckContent;
 import com.crm.app.dto.DuplicateCheckRequest;
 
 import java.util.List;
@@ -15,4 +16,5 @@ public interface DuplicateCheckRepositoryPort {
 
     void markDuplicateCheckFailed(long uploadId, String errorMessage);
 
+    List<DuplicateCheckContent> findDuplicateChecksByIds(List<Long> duplicateCheckIds);
 }

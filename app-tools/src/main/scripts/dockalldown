@@ -1,0 +1,8 @@
+cd app-web
+dockwebdown
+
+cd app-worker-upload
+dockwrkuploaddown
+
+cd app-worker-duplicate-check
+dockwrkdupdown

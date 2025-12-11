@@ -1,5 +1,7 @@
 package com.crm.app.adapter.jdbc.customer;
 
+import com.crm.app.dto.CrmUploadContent;
+import com.crm.app.dto.DuplicateCheckContent;
 import com.crm.app.dto.DuplicateCheckRequest;
 import com.crm.app.port.customer.DuplicateCheckRepositoryPort;
 import lombok.extern.slf4j.Slf4j;
@@ -57,7 +59,18 @@ public class JdbcDuplicateCheckRepositoryAdapter implements DuplicateCheckReposi
              WHERE duplicate_check_id = :duplicateCheckId
             """;
 
+    private static final String SQL_FIND_DUPLICATE_CHECKS_BY_IDS = """
+            SELECT duplicate_check_id,
+                   customer_id,
+                   source_system,
+                   content
+              FROM app.duplicate_check
+             WHERE duplicate_check_id = ANY(ARRAY[:duplicateCheckIds])
+            """;
+
     private static final String LITERAL_DUPLICATE_CHECK_ID = "duplicate_check_id";
+    private static final String LITERAL_CUSTOMER_ID = "customer_id";
+    private static final String LITERAL_SOURCE_SYSTEM = "source_system";
     private static final String LITERAL_CONTENT = "content";
     private static final String LITERAL_STATUS = "status";
     private static final String LITERAL_LIMIT = "limit";
@@ -66,6 +79,7 @@ public class JdbcDuplicateCheckRepositoryAdapter implements DuplicateCheckReposi
     private static final String LITERAL_DUPLICATE_CHECK_ID_CAMELCASE = "duplicateCheckId";
     private static final String LITERAL_CUSTOMER_ID_CAMELCASE = "customerId";
     private static final String LITERAL_SOURCE_SYSTEM_CAMELCASE = "sourceSystem";
+    private static final String LITERAL_DUPLICATE_CHECK_IDS_CAMELCASE = "duplicateCheckIds";
 
     private static final String STATUS_DUPLICATE_CHECK_NEW = "new";
 
@@ -179,6 +193,32 @@ public class JdbcDuplicateCheckRepositoryAdapter implements DuplicateCheckReposi
         } catch (DataAccessException ex) {
             log.error("Failed to mark duplicate check {} as failed", uploadId, ex);
             throw new IllegalStateException("Could not mark duplicate check as failed", ex);
+        }
+    }
+
+    @Override
+    public List<DuplicateCheckContent> findDuplicateChecksByIds(List<Long> duplicateCheckIds) {
+        if (duplicateCheckIds == null || duplicateCheckIds.isEmpty()) {
+            return List.of();
+        }
+
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue(LITERAL_DUPLICATE_CHECK_IDS_CAMELCASE, duplicateCheckIds);
+
+        try {
+            return jdbcTemplate.query(
+                    SQL_FIND_DUPLICATE_CHECKS_BY_IDS,
+                    params,
+                    (rs, rowNum) -> new DuplicateCheckContent(
+                            rs.getLong(LITERAL_DUPLICATE_CHECK_ID),
+                            rs.getLong(LITERAL_CUSTOMER_ID),
+                            rs.getString(LITERAL_SOURCE_SYSTEM),
+                            rs.getBytes(LITERAL_CONTENT)
+                    )
+            );
+        } catch (DataAccessException ex) {
+            log.error("Failed to load duplicate-check for ids={}", duplicateCheckIds, ex);
+            throw new IllegalStateException("Could not load customer duplicate-check", ex);
         }
     }
 

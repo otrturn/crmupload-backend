@@ -15,20 +15,17 @@ public class DuplicateCheckContent {
     private long customerId;
     private String sourceSystem;
     private byte[] content;
-    private String status;
 
     public DuplicateCheckContent(
             long duplicateCheckId,
             long customerId,
             String sourceSystem,
-            byte[] content,
-            String status
+            byte[] content
     ) {
         this.duplicateCheckId = duplicateCheckId;
         this.customerId = customerId;
         this.sourceSystem = sourceSystem;
         this.content = content;
-        this.status = status;
     }
 
     @Override
@@ -38,15 +35,14 @@ public class DuplicateCheckContent {
         return duplicateCheckId == other.duplicateCheckId &&
                 customerId == other.customerId &&
                 Objects.equals(getSourceSystem(), other.getSourceSystem()) &&
-                Arrays.equals(content, other.content) &&
-                Objects.equals(getStatus(), other.getStatus());
+                Arrays.equals(content, other.content);
     }
 
     @Override
     public int hashCode() {
         int result = Objects.hash(
                 duplicateCheckId, customerId,
-                getSourceSystem(), getStatus()
+                getSourceSystem()
         );
         result = 31 * result + Arrays.hashCode(content);
         return result;
@@ -59,7 +55,6 @@ public class DuplicateCheckContent {
                 "duplicateCheckId=" + duplicateCheckId +
                 ", customerId=" + customerId +
                 ", sourceSystem='" + getSourceSystem() + '\'' +
-                ", status='" + getStatus() + '\'' +
                 ", content.length=" + (content == null ? 0 : content.length) +
                 ']';
     }

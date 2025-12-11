@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -30,7 +29,7 @@ public class DuplicateCheckWorker {
 
         log.info("Claimed {} duplicate-check job(s): {}", duplicateCheckIds.size(), duplicateCheckIds);
 
-        List<DuplicateCheckContent> duplicateChecks = new ArrayList<>();
+        List<DuplicateCheckContent> duplicateChecks = duplicateCheckRepositoryPort.findDuplicateChecksByIds(duplicateCheckIds);
 
         for (DuplicateCheckContent duplicateCheck : duplicateChecks) {
             try {

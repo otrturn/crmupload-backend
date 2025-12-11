@@ -1,0 +1,8 @@
+cd app-web
+dockwebbuild
+
+cd app-worker-upload
+dockwrkuploadbuild
+
+cd app-worker-duplicate-check
+dockwrkdupbuild

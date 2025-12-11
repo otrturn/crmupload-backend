@@ -52,12 +52,18 @@ public class AppMaintenance implements CommandLineRunner, ExitCodeGenerator {
         AppParameters appParameters = new AppParameters();
         int i = 0;
         while (i < args.length) {
-            if (args[i].equals("--get-upload-file")) {
-                appParameters.setUploadId(Long.parseLong(nextArg(args, i, "---get-file")));
-                option = Option.GET_UPLOAD_FILE;
-                i += 2;
-            } else {
-                i++;
+            switch (args[i]) {
+                case "--get-upload-file" -> {
+                    appParameters.setUploadId(Long.parseLong(nextArg(args, i, "---get-file")));
+                    option = Option.GET_UPLOAD_FILE;
+                    i += 2;
+                }
+                case "--get-duplicate-check-file" -> {
+                    appParameters.setDuplicateCheckId(Long.parseLong(nextArg(args, i, "---get-file")));
+                    option = Option.GET_DUPLICATE_CHECK_FILE;
+                    i += 2;
+                }
+                default -> i++;
             }
         }
 
@@ -72,7 +78,7 @@ public class AppMaintenance implements CommandLineRunner, ExitCodeGenerator {
     }
 
     private enum Option {
-        GET_UPLOAD_FILE
+        GET_UPLOAD_FILE, GET_DUPLICATE_CHECK_FILE
     }
 
 }
