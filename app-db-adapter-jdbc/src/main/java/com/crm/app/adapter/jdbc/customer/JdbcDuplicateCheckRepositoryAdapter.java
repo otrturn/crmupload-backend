@@ -41,6 +41,20 @@ public class JdbcDuplicateCheckRepositoryAdapter implements DuplicateCheckReposi
              RETURNING duplicate_check_id
             """;
 
+    private static final String SQL_CLAIM_NEXT_DUPLICATE_CHECK_IDS_FOR_FINALISATION = """
+            UPDATE app.duplicate_check dc
+               SET status = 'finalising'
+             WHERE dc.duplicate_check_id IN (
+                   SELECT duplicate_check_id
+                     FROM app.duplicate_check
+                    WHERE status = 'duplicate-checked'
+                    ORDER BY duplicate_check_id
+                    FOR UPDATE SKIP LOCKED
+                    LIMIT :limit
+               )
+             RETURNING duplicate_check_id
+            """;
+
     private static final String SQL_MARK_DUPLICATE_CHECK_VERIFIED = """
             UPDATE app.duplicate_check
                SET status = 'verified',
@@ -52,6 +66,15 @@ public class JdbcDuplicateCheckRepositoryAdapter implements DuplicateCheckReposi
     private static final String SQL_MARK_DUPLICATE_CHECK_FAILED = """
             UPDATE app.duplicate_check
                SET status = 'failed',
+                   content = NULL,
+                   last_error = :error,
+                   modified = now()
+             WHERE duplicate_check_id = :duplicateCheckId
+            """;
+
+    private static final String SQL_MARK_DUPLICATE_CHECK_DONE = """
+            UPDATE app.duplicate_check
+               SET status = 'done',
                    content = NULL,
                    last_error = :error,
                    modified = now()
@@ -164,8 +187,24 @@ public class JdbcDuplicateCheckRepositoryAdapter implements DuplicateCheckReposi
                     (rs, rowNum) -> rs.getLong(LITERAL_DUPLICATE_CHECK_ID)
             );
         } catch (DataAccessException ex) {
-            log.error("Failed to claim duplicate checks for check", ex);
-            throw new IllegalStateException("Could not claim next duplicate checks for check", ex);
+            log.error("Failed to claim duplicate checks for verification", ex);
+            throw new IllegalStateException("Could not claim next duplicate checks for verification", ex);
+        }
+    }
+
+    @Override
+    public List<Long> claimNextDuplicateChecksForFinalisation(final int limit) {
+        final MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue(LITERAL_LIMIT, limit);
+        try {
+            return jdbcTemplate.query(
+                    SQL_CLAIM_NEXT_DUPLICATE_CHECK_IDS_FOR_FINALISATION,
+                    params,
+                    (rs, rowNum) -> rs.getLong(LITERAL_DUPLICATE_CHECK_ID)
+            );
+        } catch (DataAccessException ex) {
+            log.error("Failed to claim duplicate checks for finalisation", ex);
+            throw new IllegalStateException("Could not claim next duplicate checks for finalisation", ex);
         }
     }
 
@@ -192,6 +231,18 @@ public class JdbcDuplicateCheckRepositoryAdapter implements DuplicateCheckReposi
         } catch (DataAccessException ex) {
             log.error("Failed to mark duplicate check {} as failed", uploadId, ex);
             throw new IllegalStateException("Could not mark duplicate check as failed", ex);
+        }
+    }
+
+    @Override
+    public void markDuplicateCheckDone(final long uploadId) {
+        final MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue(LITERAL_DUPLICATE_CHECK_ID_CAMELCASE, uploadId);
+        try {
+            jdbcTemplate.update(SQL_MARK_DUPLICATE_CHECK_DONE, params);
+        } catch (DataAccessException ex) {
+            log.error("Failed to mark duplicate check {} as done", uploadId, ex);
+            throw new IllegalStateException("Could not mark duplicate check as done", ex);
         }
     }
 

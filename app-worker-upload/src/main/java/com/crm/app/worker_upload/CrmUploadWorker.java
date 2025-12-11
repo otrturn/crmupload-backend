@@ -20,7 +20,7 @@ public class CrmUploadWorker {
     private final CrmUploadProcessingService processingService;
 
     @Scheduled(fixedDelayString = "${app.crm-upload.poll-interval-ms:10000}")
-    public void pollAndProcess() {
+    public void pollAndProcessCrmUpload() {
         final List<Long> uploadIds = repository.claimNextUploads(properties.getBatchSize());
 
         if (uploadIds.isEmpty()) {

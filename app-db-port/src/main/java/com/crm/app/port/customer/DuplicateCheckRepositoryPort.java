@@ -12,9 +12,13 @@ public interface DuplicateCheckRepositoryPort {
 
     List<Long> claimNextDuplicateChecksForVerification(int limit);
 
+    List<Long> claimNextDuplicateChecksForFinalisation(int limit);
+
     void markDuplicateCheckVerified(long uploadId, byte[] content);
 
     void markDuplicateCheckFailed(long uploadId, String errorMessage);
+
+    void markDuplicateCheckDone(long uploadId);
 
     List<DuplicateCheckContent> findDuplicateChecksByIds(List<Long> duplicateCheckIds);
 }

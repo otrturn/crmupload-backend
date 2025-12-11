@@ -31,7 +31,7 @@ public class DuplicateCheckWorkerProcessForLexware {
 
     private final LexwareCtx lexwareCtx;
 
-    public void processDuplicateCheck(DuplicateCheckContent duplicateCheckContent) {
+    public void processDuplicateCheckForVerification(DuplicateCheckContent duplicateCheckContent) {
         log.info("Processing crm_upload for Lexware duplicateCheckId={} sourceSysten={}", duplicateCheckContent.getDuplicateCheckId(), duplicateCheckContent.getSourceSystem());
         try {
             List<ErrMsg> errors = new ArrayList<>();

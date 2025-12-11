@@ -29,7 +29,7 @@ public class ActivationMailService {
             mailSender.send(message);
             log.info("Activation mail sent to {}", recipientEmail);
         } catch (MessagingException e) {
-            log.error("Failed to send activation mail to {}", recipientEmail, e);
+            log.error("Activation error mail to send activation mail to {}", recipientEmail, e);
             // Je nach Philosophie:
             // - Registrierung trotzdem als „pending“ stehen lassen
             // - oder Fehler weiterwerfen

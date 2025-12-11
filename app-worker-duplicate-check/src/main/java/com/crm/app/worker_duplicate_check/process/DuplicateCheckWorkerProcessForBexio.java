@@ -5,7 +5,6 @@ import com.crm.app.dto.DuplicateCheckEntry;
 import com.crm.app.port.customer.Customer;
 import com.crm.app.port.customer.CustomerRepositoryPort;
 import com.crm.app.port.customer.DuplicateCheckRepositoryPort;
-import com.crm.app.worker_duplicate_check.config.DuplicateCheckProperties;
 import com.crm.app.worker_duplicate_check.mail.DuplicatecheckMailService;
 import com.crmmacher.bexio_excel.dto.BexioColumn;
 import com.crmmacher.bexio_excel.dto.BexioEntry;
@@ -32,7 +31,7 @@ public class DuplicateCheckWorkerProcessForBexio {
 
     private final BexioCtx bexioCtx;
 
-    public void processDuplicateCheck(DuplicateCheckContent duplicateCheckContent) {
+    public void processDuplicateCheckForVerification(DuplicateCheckContent duplicateCheckContent) {
         log.info("Processing crm_upload for Bexio duplicateCheckId={} sourceSysten={}", duplicateCheckContent.getDuplicateCheckId(), duplicateCheckContent.getSourceSystem());
         try {
             List<ErrMsg> errors = new ArrayList<>();

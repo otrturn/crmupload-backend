@@ -1,5 +1,7 @@
 package com.crm.app.worker_upload.mail;
 
+import com.crm.app.adapter.jdbc.config.AppDataSourceProperties;
+import com.crm.app.dto.AppConstants;
 import com.crm.app.dto.CrmUploadContent;
 import com.crm.app.port.customer.Customer;
 import com.crmmacher.error.ErrMsg;
@@ -22,6 +24,7 @@ import java.util.List;
 public class UploadMailService {
 
     private final JavaMailSender mailSender;
+    private final AppDataSourceProperties appDataSourceProperties;
 
     public void sendSuccessMailForEspo(Customer customer, CrmUploadContent upload, EspoEntityPool espoEntityPool) {
         try {
@@ -35,24 +38,30 @@ public class UploadMailService {
             helper.setFrom("noreply@crmupload.de");
 
             mailSender.send(message);
-            log.info("Activation mail sent to {}", customer.emailAddress());
+            log.info("Upload-Success mail sent to {}", customer.emailAddress());
         } catch (MessagingException e) {
-            log.error("Failed to send activation mail to {}", customer.emailAddress(), e);
+            log.error("Upload-Error mail to send activation mail to {}", customer.emailAddress(), e);
         }
     }
 
     private String bodySuccessForEspo(Customer customer, String sourceSystem, String crmSystem, EspoEntityPool espoEntityPool) {
-        return """
-                Hallo %s,
-                
-                Ihr %s Daten wurden in das CRM %s übertragen.
-                
-                Es wurden %d Firmen und %d Kontakte angelegt.
-                
-                Viele Grüße
-                Ihr CRM-Upload-Team
-                """.formatted(Customer.getFullname(customer), sourceSystem, crmSystem,
-                espoEntityPool.getAccounts().size(), espoEntityPool.getContacts().size());
+
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("Hallo ")
+                .append(Customer.getFullname(customer))
+                .append("\nIhre ").append(sourceSystem)
+                .append("Daten wurden in das CRM ").append(crmSystem)
+                .append("übertragen.\n\n")
+                .append("Es wurden ").append(espoEntityPool.getAccounts().size())
+                .append(" Firmen und ").append(espoEntityPool.getContacts().size())
+                .append("Kontakte angelegt.\n\n");
+
+        sb.append(AppConstants.RECOMMENDATION);
+
+        sb.append("Viele Grüße\n").append("Ihr CRM -Upload - Team\n\n");
+
+        return sb.toString();
     }
 
     public void sendErrorMailForEspo(Customer customer, CrmUploadContent upload, List<ErrMsg> errors, Path excelTargetfile) {
@@ -100,6 +109,8 @@ public class UploadMailService {
                     .append(error.getMessage())
                     .append("\n");
         }
+
+        sb.append(AppConstants.RECOMMENDATION);
 
         sb.append("\nViele Grüße\n")
                 .append("Ihr CRM-Upload-Team\n");

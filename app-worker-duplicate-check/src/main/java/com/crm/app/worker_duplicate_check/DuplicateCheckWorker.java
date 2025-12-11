@@ -20,14 +20,14 @@ public class DuplicateCheckWorker {
     private final DuplicatecheckProcessingService processingService;
 
     @Scheduled(fixedDelayString = "${app.duplicate-check.poll-interval-ms:10000}")
-    public void pollAndProcess() {
+    public void pollAndProcessDuplicateCheckForVerification() {
         final List<Long> duplicateCheckIds = duplicateCheckRepositoryPort.claimNextDuplicateChecksForVerification(properties.getBatchSize());
 
         if (duplicateCheckIds.isEmpty()) {
             return;
         }
 
-        log.info("Claimed {} duplicate-check job(s): {}", duplicateCheckIds.size(), duplicateCheckIds);
+        log.info("Claimed {} duplicate-check job(s) for verification: {}", duplicateCheckIds.size(), duplicateCheckIds);
 
         List<DuplicateCheckContent> duplicateChecks = duplicateCheckRepositoryPort.findDuplicateChecksByIds(duplicateCheckIds);
 
@@ -35,7 +35,29 @@ public class DuplicateCheckWorker {
             try {
                 processingService.processSingleDuplicateCheckForVerification(duplicateCheck);
             } catch (Exception ex) {
-                log.error("Error processing crm_upload with uploadId={}", duplicateCheck.getDuplicateCheckId(), ex);
+                log.error("Error processing duplicate-check for verification with uploadId={}", duplicateCheck.getDuplicateCheckId(), ex);
+                duplicateCheckRepositoryPort.markDuplicateCheckFailed(duplicateCheck.getDuplicateCheckId(), ex.getMessage());
+            }
+        }
+    }
+
+    @Scheduled(fixedDelayString = "${app.duplicate-check.poll-interval-ms:10000}")
+    public void pollAndProcessDuplicateCheckForFinalisation() {
+        final List<Long> duplicateCheckIds = duplicateCheckRepositoryPort.claimNextDuplicateChecksForFinalisation(properties.getBatchSize());
+
+        if (duplicateCheckIds.isEmpty()) {
+            return;
+        }
+
+        log.info("Claimed {} duplicate-check job(s) for finalisation: {}", duplicateCheckIds.size(), duplicateCheckIds);
+
+        List<DuplicateCheckContent> duplicateChecks = duplicateCheckRepositoryPort.findDuplicateChecksByIds(duplicateCheckIds);
+
+        for (DuplicateCheckContent duplicateCheck : duplicateChecks) {
+            try {
+                processingService.processSingleDuplicateCheckForFinalisation(duplicateCheck);
+            } catch (Exception ex) {
+                log.error("Error processing duplicate-check for finalisation with uploadId={}", duplicateCheck.getDuplicateCheckId(), ex);
                 duplicateCheckRepositoryPort.markDuplicateCheckFailed(duplicateCheck.getDuplicateCheckId(), ex.getMessage());
             }
         }
