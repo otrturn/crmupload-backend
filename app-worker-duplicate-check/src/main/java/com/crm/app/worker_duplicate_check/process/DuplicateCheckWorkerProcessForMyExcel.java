@@ -41,6 +41,7 @@ public class DuplicateCheckWorkerProcessForMyExcel {
                 List<DuplicateCheckEntry> duplicateCheckEntries = verifyAndMapEntries(myExcelAccounts, errors);
                 log.info(String.format("processDuplicateCheck: %d entries mapped, now %d errors", duplicateCheckEntries.size(), errors.size()));
                 if (!ErrMsg.containsErrors(errors)) {
+                    duplicateCheckContent.setContent(ProcessUtil.createExcelAsBytes(duplicateCheckEntries));
                     duplicateCheckRepositoryPort.markDuplicateCheckVerified(duplicateCheckContent.getDuplicateCheckId(), duplicateCheckContent.getContent());
                 } else {
                     duplicateCheckRepositoryPort.markDuplicateCheckFailed(duplicateCheckContent.getDuplicateCheckId(), "Verification failed");
