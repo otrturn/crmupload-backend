@@ -1,0 +1,16 @@
+services:
+  crmupload-worker-duplicate-check:
+    image: crmupload-worker-duplicate-check
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: crmupload-worker-duplicate-check
+    restart: unless-stopped
+    networks: [ crmuploadnet ]
+    volumes:
+      - /home/ralf/tmp:/data/tmp
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+networks:
+  crmuploadnet:
+    external: true

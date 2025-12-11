@@ -28,7 +28,7 @@ public class JdbcDuplicateCheckRepositoryAdapter implements DuplicateCheckReposi
 
     private static final String SQL_CLAIM_NEXT_DUPLICATE_CHECK_IDS_FOR_CHECK = """
             UPDATE app.duplicate_check dc
-               SET status = 'checking'
+               SET status = 'verifying'
              WHERE dc.duplicate_check_id IN (
                    SELECT duplicate_check_id
                      FROM app.duplicate_check
@@ -42,7 +42,7 @@ public class JdbcDuplicateCheckRepositoryAdapter implements DuplicateCheckReposi
 
     private static final String SQL_MARK_CHECKED = """
             UPDATE app.duplicate_check
-               SET status = 'checked',
+               SET status = 'verified',
                    content = :content,
                    modified = now()
              WHERE duplicate_check_id = :duplicateCheckId

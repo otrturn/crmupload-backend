@@ -5,7 +5,6 @@ import com.crm.app.port.customer.CrmUploadRepositoryPort;
 import com.crm.app.port.customer.Customer;
 import com.crm.app.port.customer.CustomerRepositoryPort;
 import com.crm.app.worker_upload.config.CrmUploadProperties;
-import com.crm.app.worker_upload.util.WorkerUtils;
 import com.crmmacher.bexio_excel.dto.BexioColumn;
 import com.crmmacher.bexio_excel.dto.BexioEntry;
 import com.crmmacher.bexio_excel.reader.ReadBexioExcel;
@@ -24,8 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.crm.app.worker_upload.util.WorkerUtils.writeExcelToFile;
-
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -39,7 +36,6 @@ public class UploadWorkerProcessForBexio {
     private final BexioCtx bexioCtx;
 
     public void processUploadForEspo(CrmUploadContent upload) {
-
         Path excelTargetFile = Paths.get(String.format("%s/Upload_Bexio_Korrektur_%06d.xlsx", properties.getWorkdir(), upload.getUploadId()));
         log.info("Processing crm_upload for Bexio uploadId={} sourceSysten={} crmSystem={}", upload.getUploadId(), upload.getSourceSystem(), upload.getCrmSystem());
         try {

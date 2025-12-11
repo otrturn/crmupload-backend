@@ -1,6 +1,5 @@
 package com.crm.app.worker_upload.util;
 
-import com.crm.app.port.customer.Customer;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -27,21 +26,6 @@ public class WorkerUtils {
         } catch (IOException e) {
             log.info("Failed to remove file {}", target.getFileName());
         }
-    }
-
-    public static String getFullname(Customer customer) {
-        if (customer == null) {
-            return "(Kein Name)";
-        }
-        String firstName = "";
-        if (customer.firstname() != null && !customer.firstname().isEmpty()) {
-            firstName = customer.firstname();
-        }
-        String lastName = "";
-        if (customer.lastname() != null && !customer.lastname().isEmpty()) {
-            lastName = customer.lastname();
-        }
-        return (!firstName.isEmpty() ? firstName + " " : "") + lastName;
     }
 
 }

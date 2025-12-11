@@ -5,7 +5,6 @@ import com.crm.app.port.customer.CrmUploadRepositoryPort;
 import com.crm.app.port.customer.Customer;
 import com.crm.app.port.customer.CustomerRepositoryPort;
 import com.crm.app.worker_upload.config.CrmUploadProperties;
-import com.crm.app.worker_upload.util.WorkerUtils;
 import com.crmmacher.error.ErrMsg;
 import com.crmmacher.espo.dto.EspoAccount;
 import com.crmmacher.espo.dto.EspoContact;
@@ -31,8 +30,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
-import static com.crm.app.worker_upload.util.WorkerUtils.writeExcelToFile;
 
 @Slf4j
 @Component

@@ -1,0 +1,5 @@
+app-db-data
+.idea
+.git
+.gitignore
+*.iml

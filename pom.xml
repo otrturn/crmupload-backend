@@ -18,6 +18,7 @@
         <module>app-tools</module>
         <module>app-prod</module>
         <module>app-maintenance</module>
+        <module>app-worker-duplicate-check</module>
     </modules>
 
     <parent>

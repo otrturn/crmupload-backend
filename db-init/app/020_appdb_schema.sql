@@ -197,7 +197,7 @@ CREATE TABLE IF NOT EXISTS app.duplicate_check
     created            TIMESTAMPTZ NOT NULL DEFAULT now(),
     modified           TIMESTAMPTZ NOT NULL DEFAULT now(),
     CONSTRAINT chk_duplicate_check_source_system CHECK (source_system IN ('Lexware', 'Bexio', 'MyExcel')),
-    CONSTRAINT chk_duplicate_check_status CHECK (status IN ('new', 'checking', 'checked', 'processing', 'done', 'failed'))
+    CONSTRAINT chk_duplicate_check_status CHECK (status IN ('new', 'verifying', 'verified', 'duplicate-checking', 'duplicate-checked', 'done', 'failed'))
 );
 
 ALTER TABLE app.duplicate_check

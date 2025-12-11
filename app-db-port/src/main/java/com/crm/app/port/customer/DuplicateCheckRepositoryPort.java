@@ -11,7 +11,7 @@ public interface DuplicateCheckRepositoryPort {
 
     List<Long> claimNextDuplicateChecksForCheck(int limit);
 
-    void markDuplicateCheckChecked(long uploadId,byte[] content);
+    void markDuplicateCheckChecked(long uploadId, byte[] content);
 
     void markDuplicateCheckFailed(long uploadId, String errorMessage);
 

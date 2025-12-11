@@ -1,0 +1,23 @@
+app:
+  datasource:
+    url: jdbc:postgresql://crmupload-db:5432/crmupload-appdb
+    username: appuser
+    password: apppass
+    driver-class-name: org.postgresql.Driver
+  duplicate-check:
+    poll-interval-ms: 10000
+    batch-size: 5
+    workdir: /data/tmp
+
+spring:
+  main:
+    web-application-type: none
+  mail:
+    host: crmupload-mailpit
+    port: 1025
+    username:
+    password:
+    properties:
+      mail.smtp.auth: false
+      mail.smtp.starttls.enable: false
+

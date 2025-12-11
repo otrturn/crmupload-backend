@@ -9,7 +9,7 @@ import java.util.Objects;
 
 @Getter
 @Setter
-public class DuplicateCheckInfo {
+public class DuplicateCheckContent {
 
     private long duplicateCheckId;
     private long customerId;
@@ -17,7 +17,7 @@ public class DuplicateCheckInfo {
     private byte[] content;
     private String status;
 
-    public DuplicateCheckInfo(
+    public DuplicateCheckContent(
             long duplicateCheckId,
             long customerId,
             String sourceSystem,
@@ -34,7 +34,7 @@ public class DuplicateCheckInfo {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof DuplicateCheckInfo other)) return false;
+        if (!(o instanceof DuplicateCheckContent other)) return false;
         return duplicateCheckId == other.duplicateCheckId &&
                 customerId == other.customerId &&
                 Objects.equals(getSourceSystem(), other.getSourceSystem()) &&

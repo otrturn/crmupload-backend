@@ -2,7 +2,6 @@ package com.crm.app.worker_upload.mail;
 
 import com.crm.app.dto.CrmUploadContent;
 import com.crm.app.port.customer.Customer;
-import com.crm.app.worker_upload.util.WorkerUtils;
 import com.crmmacher.error.ErrMsg;
 import com.crmmacher.espo.dto.EspoEntityPool;
 import jakarta.mail.MessagingException;
@@ -52,7 +51,7 @@ public class UploadMailService {
                 
                 Viele Grüße
                 Ihr CRM-Upload-Team
-                """.formatted(WorkerUtils.getFullname(customer), sourceSystem, crmSystem,
+                """.formatted(Customer.getFullname(customer), sourceSystem, crmSystem,
                 espoEntityPool.getAccounts().size(), espoEntityPool.getContacts().size());
     }
 
@@ -81,7 +80,7 @@ public class UploadMailService {
         StringBuilder sb = new StringBuilder();
 
         sb.append("Hallo ")
-                .append(WorkerUtils.getFullname(customer))
+                .append(Customer.getFullname(customer))
                 .append(",\n\n")
                 .append("Ihre ")
                 .append(sourceSystem)

@@ -36,8 +36,12 @@ public class DuplicateCheckService {
 
         List<String> products = customerRepositoryPort.findProductsByEmail(emailAddress);
 
+        boolean enabled = customerRepositoryPort.isEnabledByCustomerId(customerId);
         boolean hasOpenDuplicatechecks = customerRepositoryPort.isHasOpenDuplicateChecksByCustomerId(customerId);
 
+        if (!enabled) {
+            throw new UploadNotAllowedException(String.format("processUpload: Customer %s is not enabled", emailAddress));
+        }
         if (!products.contains(AppConstants.PRODUCT_DUPLICATE_CHECK)) {
             throw new UploadNotAllowedException(String.format("processUpload: Customer %s does not have product [%s]", emailAddress, AppConstants.PRODUCT_DUPLICATE_CHECK));
         }
