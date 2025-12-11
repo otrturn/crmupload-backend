@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -46,6 +47,12 @@ public class CustomerController {
     public ResponseEntity<CrmUploadHistoryResponse> getCrmUploadHistory(@PathVariable("emailAddress") String emailAddress) {
         List<CrmUploadHistory> response = crmUploadService.getCrmUploadHistoryByEmail(emailAddress);
         return ResponseEntity.ok(new CrmUploadHistoryResponse(response));
+    }
+
+    @GetMapping("/get-duplicate-check-history/{emailAddress:.+}")
+    public ResponseEntity<DuplicateCheckHistoryResponse> getDuplicateCheckHistory(@PathVariable("emailAddress") String emailAddress) {
+        List<DuplicateCheckHistory> response = new ArrayList<>();
+        return ResponseEntity.ok(new DuplicateCheckHistoryResponse(response));
     }
 
     @ExceptionHandler(CustomerNotFoundException.class)
