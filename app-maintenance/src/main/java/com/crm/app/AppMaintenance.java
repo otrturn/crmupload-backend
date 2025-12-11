@@ -1,8 +1,9 @@
-package com.crm.app.maintenance;
+package com.crm.app;
 
 import com.crm.app.adapter.jdbc.config.AppDataSourceProperties;
 import com.crm.app.config.AppParameters;
 import com.crm.app.error.MaintenanceException;
+import com.crm.app.process.GetDuplicateCheck;
 import com.crm.app.process.GetUploadFile;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +20,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 public class AppMaintenance implements CommandLineRunner, ExitCodeGenerator {
 
     private final GetUploadFile getUploadFile;
+    private final GetDuplicateCheck getDuplicateCheck;
     private Option option = null;
 
 
@@ -36,6 +38,8 @@ public class AppMaintenance implements CommandLineRunner, ExitCodeGenerator {
             throw new MaintenanceException("No valid arguments were provided [--get-upload-file {id}");
         } else if (option.equals(Option.GET_UPLOAD_FILE)) {
             getUploadFile.get(appParameters.getUploadId());
+        }else if (option.equals(Option.GET_DUPLICATE_CHECK_FILE)) {
+            getDuplicateCheck.get(appParameters.getDuplicateCheckId());
         }
         log.info("Batch-Prozess beendet.");
     }

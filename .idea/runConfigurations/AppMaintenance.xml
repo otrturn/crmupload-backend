@@ -1,11 +1,11 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="AppMaintenance" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
     <module name="app-maintenance" />
-    <option name="PROGRAM_PARAMETERS" value="--get-upload-file 1" />
-    <option name="SPRING_BOOT_MAIN_CLASS" value="com.crm.app.maintenance.AppMaintenance" />
+    <option name="PROGRAM_PARAMETERS" value="--get-duplicate-check-file 4" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="com.crm.app.AppMaintenance" />
     <extension name="coverage">
       <pattern>
-        <option name="PATTERN" value="com.crm.app.maintenance.*" />
+        <option name="PATTERN" value="com.crm.app.*" />
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>

@@ -29,8 +29,9 @@ public class GetUploadFile {
             throw new MaintenanceException("no upload found for id " + uploadId);
         }
         CrmUploadContent upload = uploads.get(0);
-        Path excelSourceFile = Paths.get(String.format("%s/Maintenance_%s_%s_%06d.xlsx", appMaintenanceConfig.getWorkdir(), upload.getSourceSystem(), upload.getCrmSystem(), upload.getUploadId()));
+        Path excelSourceFile = Paths.get(String.format("%s/Maintenance_Upload_%s_%s_%06d.xlsx", appMaintenanceConfig.getWorkdir(), upload.getSourceSystem(), upload.getCrmSystem(), upload.getUploadId()));
         writeExcelToFile(upload.getContent(), excelSourceFile);
+        log.info("{} written ", excelSourceFile);
     }
 
     public static void writeExcelToFile(byte[] data, Path target) {
