@@ -62,7 +62,7 @@ public class DuplicateCheckWorkerProcessForLexware {
         List<DuplicateCheckEntry> duplicateCheckEntries = new ArrayList<>();
         for (int i = 0; i < lexwareEntries.size(); i++) {
             LexwareEntry lexwareEntry = lexwareEntries.get(i);
-            if (lexwareEntry.getAccountName() == null || lexwareEntry.getAccountName().isBlank()) {
+            if (!(lexwareEntry.getAccountName() == null || lexwareEntry.getAccountName().isBlank())) {
                 DuplicateCheckEntry duplicateCheckEntry = new DuplicateCheckEntry(lexwareEntry.getAccountName(),
                         lexwareEntry.getAddress().getPostcalCode(),
                         lexwareEntry.getAddress().getStreet(),

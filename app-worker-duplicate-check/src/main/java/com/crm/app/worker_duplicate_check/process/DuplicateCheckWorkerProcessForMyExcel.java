@@ -58,7 +58,7 @@ public class DuplicateCheckWorkerProcessForMyExcel {
         List<DuplicateCheckEntry> duplicateCheckEntries = new ArrayList<>();
         for (int i = 0; i < myExcelEntries.size(); i++) {
             MyExcelAccount myExcelEntry = myExcelEntries.get(i);
-            if (myExcelEntry.getName() == null || myExcelEntry.getName().isBlank()) {
+            if (!(myExcelEntry.getName() == null || myExcelEntry.getName().isBlank())) {
                 DuplicateCheckEntry duplicateCheckEntry = new DuplicateCheckEntry(myExcelEntry.getName(),
                         myExcelEntry.getBillingAddress().getPostcalCode(),
                         myExcelEntry.getBillingAddress().getStreet(),

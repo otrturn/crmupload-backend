@@ -62,7 +62,7 @@ public class DuplicateCheckWorkerProcessForBexio {
         List<DuplicateCheckEntry> duplicateCheckEntries = new ArrayList<>();
         for (int i = 0; i < bexioEntries.size(); i++) {
             BexioEntry bexioEntry = bexioEntries.get(i);
-            if (bexioEntry.getAccountName() == null || bexioEntry.getAccountName().isBlank()) {
+            if (!(bexioEntry.getAccountName() == null || bexioEntry.getAccountName().isBlank())) {
                 DuplicateCheckEntry duplicateCheckEntry = new DuplicateCheckEntry(bexioEntry.getAccountName(),
                         bexioEntry.getAddress().getPostcalCode(),
                         bexioEntry.getAddress().getStreet(),

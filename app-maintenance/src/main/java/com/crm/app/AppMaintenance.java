@@ -38,7 +38,7 @@ public class AppMaintenance implements CommandLineRunner, ExitCodeGenerator {
             throw new MaintenanceException("No valid arguments were provided [--get-upload-file {id}");
         } else if (option.equals(Option.GET_UPLOAD_FILE)) {
             getUploadFile.get(appParameters.getUploadId());
-        }else if (option.equals(Option.GET_DUPLICATE_CHECK_FILE)) {
+        } else if (option.equals(Option.GET_DUPLICATE_CHECK_FILE)) {
             getDuplicateCheck.get(appParameters.getDuplicateCheckId());
         }
         log.info("Batch-Prozess beendet.");
