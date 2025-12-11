@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Objects;
 
 @Slf4j
@@ -25,8 +26,42 @@ public class JdbcDuplicateCheckRepositoryAdapter implements DuplicateCheckReposi
                     "(duplicate_check_id, customer_id, source_system, content, status) " +
                     "VALUES (:duplicateCheckId, :customerId, :sourceSystem, :content, :status)";
 
+    private static final String SQL_CLAIM_NEXT_DUPLICATE_CHECK_IDS_FOR_CHECK = """
+            UPDATE app.duplicate_check dc
+               SET status = 'checking'
+             WHERE dc.duplicate_check_id IN (
+                   SELECT duplicate_check_id
+                     FROM app.duplicate_check
+                    WHERE status = 'new'
+                    ORDER BY duplicate_check_id
+                    FOR UPDATE SKIP LOCKED
+                    LIMIT :limit
+               )
+             RETURNING duplicate_check_id
+            """;
+
+    private static final String SQL_MARK_CHECKED = """
+            UPDATE app.duplicate_check
+               SET status = 'checked',
+                   content = :content,
+                   modified = now()
+             WHERE duplicate_check_id = :duplicateCheckId
+            """;
+
+    private static final String SQL_MARK_FAILED = """
+            UPDATE app.duplicate_check
+               SET status = 'failed',
+                   content = NULL,
+                   last_error = :error,
+                   modified = now()
+             WHERE duplicate_check_id = :duplicateCheckId
+            """;
+
+    private static final String LITERAL_DUPLICATE_CHECK_ID = "duplicate_check_id";
     private static final String LITERAL_CONTENT = "content";
     private static final String LITERAL_STATUS = "status";
+    private static final String LITERAL_LIMIT = "limit";
+    private static final String LITERAL_ERROR = "error";
 
     private static final String LITERAL_DUPLICATE_CHECK_ID_CAMELCASE = "duplicateCheckId";
     private static final String LITERAL_CUSTOMER_ID_CAMELCASE = "customerId";
@@ -102,6 +137,48 @@ public class JdbcDuplicateCheckRepositoryAdapter implements DuplicateCheckReposi
                     ex
             );
             throw new IllegalStateException("Could not insert customer upload", ex);
+        }
+    }
+
+    @Override
+    public List<Long> claimNextDuplicateChecksForCheck(final int limit) {
+        final MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue(LITERAL_LIMIT, limit);
+        try {
+            return jdbcTemplate.query(
+                    SQL_CLAIM_NEXT_DUPLICATE_CHECK_IDS_FOR_CHECK,
+                    params,
+                    (rs, rowNum) -> rs.getLong(LITERAL_DUPLICATE_CHECK_ID)
+            );
+        } catch (DataAccessException ex) {
+            log.error("Failed to claim duplicate checks for check", ex);
+            throw new IllegalStateException("Could not claim next duplicate checks for check", ex);
+        }
+    }
+
+    @Override
+    public void markDuplicateCheckChecked(final long uploadId, byte[] content) {
+        final MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue(LITERAL_DUPLICATE_CHECK_ID_CAMELCASE, uploadId)
+                .addValue(LITERAL_CONTENT, content);
+        try {
+            jdbcTemplate.update(SQL_MARK_CHECKED, params);
+        } catch (DataAccessException ex) {
+            log.error("Failed to mark duplicate check {} as failed", uploadId, ex);
+            throw new IllegalStateException("Could not mark duplicate check as checked", ex);
+        }
+    }
+
+    @Override
+    public void markDuplicateCheckFailed(final long uploadId, final String errorMessage) {
+        final MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue(LITERAL_DUPLICATE_CHECK_ID_CAMELCASE, uploadId)
+                .addValue(LITERAL_ERROR, errorMessage);
+        try {
+            jdbcTemplate.update(SQL_MARK_FAILED, params);
+        } catch (DataAccessException ex) {
+            log.error("Failed to mark duplicate check {} as failed", uploadId, ex);
+            throw new IllegalStateException("Could not mark duplicate check as failed", ex);
         }
     }
 

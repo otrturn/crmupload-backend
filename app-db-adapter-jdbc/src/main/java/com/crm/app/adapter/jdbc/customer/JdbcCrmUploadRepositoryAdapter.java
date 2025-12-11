@@ -44,6 +44,8 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
     private static final String SQL_MARK_DONE = """
             UPDATE app.crm_upload
                SET status = 'done',
+                   content = NULL,
+                   api_key = NULL,
                    last_error = NULL,
                    modified = now()
              WHERE upload_id = :uploadId
@@ -52,6 +54,8 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
     private static final String SQL_MARK_FAILED = """
             UPDATE app.crm_upload
                SET status = 'failed',
+                   content = NULL,
+                   api_key = NULL,
                    last_error = :error,
                    modified = now()
              WHERE upload_id = :uploadId
@@ -85,6 +89,7 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
     private static final String LITERAL_CONTENT = "content";
     private static final String LITERAL_STATUS = "status";
     private static final String LITERAL_ERROR = "error";
+    private static final String LITERAL_LIMIT = "limit";
 
     // camelCase-Parameter → *_CAMELCASE
     private static final String LITERAL_UPLOAD_ID_CAMELCASE = "uploadId";
@@ -94,7 +99,6 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
     private static final String LITERAL_CRM_URL_CAMELCASE = "crmUrl";
     private static final String LITERAL_CRM_CUSTOMER_ID_CAMELCASE = "crmCustomerId";
     private static final String LITERAL_API_KEY_CAMELCASE = "apiKey";
-    private static final String LITERAL_LIMIT = "limit";
     private static final String LITERAL_UPLOAD_IDS_CAMELCASE = "uploadIds";
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
