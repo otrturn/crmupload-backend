@@ -38,7 +38,7 @@ echo "${GHCR_PAT}" | docker login ghcr.io -u "${GHCR_USER}" --password-stdin
 # -------------------------------------------------------------------
 # Multi-Arch Build & Push (amd64 + arm64/v8)
 # -------------------------------------------------------------------
-echo ">>> Docker build+push web (multi-arch)..."
+echo ">>> Docker build+push crmupload-web (multi-arch)..."
 docker buildx build \
   --platform linux/amd64,linux/arm64/v8 \
   -t ghcr.io/${GHCR_USER}/crmupload-web:prod \
@@ -46,11 +46,20 @@ docker buildx build \
   app-web/ \
   --push
 
-echo ">>> Docker build+push worker (multi-arch)..."
+echo ">>> Docker build+push crmupload-worker-upload (multi-arch)..."
 docker buildx build \
   --platform linux/amd64,linux/arm64/v8 \
   -t ghcr.io/${GHCR_USER}/crmupload-worker-upload:prod \
   -f app-worker-upload/Dockerfile \
   app-worker-upload/ \
+  --push
+
+
+echo ">>> Docker build+push crmupload-worker-duplicate-check (multi-arch)..."
+docker buildx build \
+  --platform linux/amd64,linux/arm64/v8 \
+  -t ghcr.io/${GHCR_USER}/crmupload-worker-duplicate-check:prod \
+  -f app-worker-duplicate-check/Dockerfile \
+  app-worker-duplicate-check/ \
   --push
 

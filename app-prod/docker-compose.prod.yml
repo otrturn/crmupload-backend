@@ -53,6 +53,18 @@ services:
     volumes:
       - ./tmp:/data/tmp                # ersetzt /home/ralf/tmp
 
+  crmupload-worker-duplicate-check:
+    image: ghcr.io/otrturn/crmupload-worker-duplicate-check:prod
+    container_name: crmupload-worker-duplicate-check
+    depends_on:
+      app-db:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - crmuploadnet
+    volumes:
+      - ./tmp:/data/tmp                # ersetzt /home/ralf/tmp
+
   # --------------------------------------------------------------
   # MAILPIT (SMTP debugging)
   # --------------------------------------------------------------
