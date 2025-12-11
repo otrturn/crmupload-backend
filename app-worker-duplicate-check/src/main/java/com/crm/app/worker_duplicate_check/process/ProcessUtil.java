@@ -72,6 +72,30 @@ public class ProcessUtil {
             }
 
             cell.setCellStyle(cellStyleMarkedCell);
+            addComment(cell, errMsg.getMessage());
         }
+    }
+
+    public static void addComment(Cell cell, String text) {
+        if (cell == null || text == null) {
+            return;
+        }
+
+        Sheet sheet = cell.getSheet();
+        Workbook wb = sheet.getWorkbook();
+        CreationHelper factory = wb.getCreationHelper();
+
+        Drawing<?> drawing = sheet.createDrawingPatriarch();
+
+        ClientAnchor anchor = factory.createClientAnchor();
+        anchor.setCol1(cell.getColumnIndex() + 1);
+        anchor.setRow1(cell.getRowIndex());
+        anchor.setCol2(cell.getColumnIndex() + 3);
+        anchor.setRow2(cell.getRowIndex() + 3);
+
+        Comment comment = drawing.createCellComment(anchor);
+        comment.setString(factory.createRichTextString(text));
+
+        cell.setCellComment(comment);
     }
 }
