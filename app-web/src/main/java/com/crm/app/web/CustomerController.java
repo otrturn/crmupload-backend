@@ -6,11 +6,9 @@ import com.crm.app.web.duplicate_check.DuplicateCheckService;
 import com.crm.app.web.error.CustomerNotFoundException;
 import com.crm.app.web.upload.CrmUploadService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
