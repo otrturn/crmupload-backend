@@ -35,6 +35,8 @@ public interface CustomerRepositoryPort {
 
     List<CrmUploadHistory> findUploadHistoryByEmailAddress(String emailAddress);
 
+    List<DuplicateCheckHistory> findDuplicateCheckHistoryByEmailAddress(String emailAddress);
+
     Optional<CrmUploadCoreInfo> findLatestUploadByCustomerId(long customerId);
 
     Optional<CrmUploadCoreInfo> findLatestUploadByEmail(String email);

@@ -2,9 +2,11 @@ package com.crm.app.web;
 
 import com.crm.app.dto.*;
 import com.crm.app.web.customer.CustomerProfileService;
+import com.crm.app.web.duplicate_check.DuplicateCheckService;
 import com.crm.app.web.error.CustomerNotFoundException;
 import com.crm.app.web.upload.CrmUploadService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,6 +20,7 @@ public class CustomerController {
 
     private final CustomerProfileService customerProfileService;
     private final CrmUploadService crmUploadService;
+    private final DuplicateCheckService duplicateCheckService;
 
     @GetMapping("/me/{emailAddress:.+}")
     public ResponseEntity<CustomerProfileResponse> getMe(@PathVariable("emailAddress") String emailAddress) {
@@ -51,7 +54,7 @@ public class CustomerController {
 
     @GetMapping("/get-duplicate-check-history/{emailAddress:.+}")
     public ResponseEntity<DuplicateCheckHistoryResponse> getDuplicateCheckHistory(@PathVariable("emailAddress") String emailAddress) {
-        List<DuplicateCheckHistory> response = new ArrayList<>();
+        List<DuplicateCheckHistory> response = duplicateCheckService.getDuplicateCheckHistoryByEmail(emailAddress);
         return ResponseEntity.ok(new DuplicateCheckHistoryResponse(response));
     }
 

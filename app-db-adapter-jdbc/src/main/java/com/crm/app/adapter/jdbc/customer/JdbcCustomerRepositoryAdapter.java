@@ -149,7 +149,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
     private static final String SQL_FIND_CUSTOMER_ID_BY_EMAIL =
             "SELECT c.customer_id FROM app.customer c WHERE c.email_address = :email_address";
 
-    private static final String SQL_FIND_BY_CUSTOMER_ID = """
+    private static final String SQL_CUSTOMER_FIND_BY_CUSTOMER_ID = """
             SELECT customer_id,
                    user_id,
                    firstname,
@@ -171,6 +171,18 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
               FROM app.customer_product
              WHERE customer_id = :customerId
              ORDER BY product
+            """;
+
+    private static final String SQL_FIND_DUPLICATE_CHECK_HISTORY_BY_EMAIL = """
+            SELECT
+                dc.created         AS ts,
+                dc.source_system   AS source_system,
+                dc.status          AS status
+            FROM app.duplicate_check dc
+            JOIN app.customer c
+              ON c.customer_id = dc.customer_id
+            WHERE c.email_address = :email_address
+            ORDER BY dc.created DESC
             """;
 
     private final NamedParameterJdbcTemplate jdbc;
@@ -662,7 +674,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
 
         try {
             List<Customer> rows = jdbc.query(
-                    SQL_FIND_BY_CUSTOMER_ID,
+                    SQL_CUSTOMER_FIND_BY_CUSTOMER_ID,
                     params,
                     (rs, rowNum) -> new Customer(
                             rs.getLong(LITERAL_CUSTOMER_ID),
@@ -719,6 +731,22 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
                     "Fehler beim Lesen von Customer customer_id=" + customerId, ex
             );
         }
+    }
+
+    @Override
+    public List<DuplicateCheckHistory> findDuplicateCheckHistoryByEmailAddress(String emailAddress) {
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue(LITERAL_EMAIL_ADDRESS, emailAddress);
+
+        return jdbc.query(
+                SQL_FIND_DUPLICATE_CHECK_HISTORY_BY_EMAIL,
+                params,
+                (rs, rowNum) -> new DuplicateCheckHistory(
+                        rs.getTimestamp(LITERAL_TS),
+                        rs.getString(LITERAL_SOURCE_SYSTEM),
+                        rs.getString(LITERAL_STATUS)
+                )
+        );
     }
 
     private List<String> loadProductsForCustomer(long customerId) {

@@ -1,9 +1,12 @@
 package com.crm.app.web.duplicate_check;
 
 import com.crm.app.dto.AppConstants;
+import com.crm.app.dto.CrmUploadHistory;
+import com.crm.app.dto.DuplicateCheckHistory;
 import com.crm.app.dto.DuplicateCheckRequest;
 import com.crm.app.port.customer.CustomerRepositoryPort;
 import com.crm.app.port.customer.DuplicateCheckRepositoryPort;
+import com.crm.app.web.error.CustomerNotFoundException;
 import com.crm.app.web.error.UploadNotAllowedException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -65,4 +68,10 @@ public class DuplicateCheckService {
         }
     }
 
-}
+    public List<DuplicateCheckHistory> getDuplicateCheckHistoryByEmail(String emailAddress) {
+        List<DuplicateCheckHistory> response = customerRepositoryPort.findDuplicateCheckHistoryByEmailAddress(emailAddress);
+        if (response == null) {
+            throw new CustomerNotFoundException(emailAddress);
+        }
+        return response;
+    }}
