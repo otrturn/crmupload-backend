@@ -56,6 +56,12 @@ public class CustomerController {
         return ResponseEntity.ok(new DuplicateCheckHistoryResponse(response));
     }
 
+    @GetMapping("/get-status/{emailAddress:.+}")
+    public ResponseEntity<CustomerStatusResponse> getStatus(@PathVariable("emailAddress") String emailAddress) {
+        CustomerStatusResponse response = customerProfileService.getStatus(emailAddress);
+        return ResponseEntity.ok(response);
+    }
+
     @ExceptionHandler(CustomerNotFoundException.class)
     public ResponseEntity<Void> handleCustomerNotFound(CustomerNotFoundException ex) {
         return ResponseEntity.notFound().build();

@@ -3,6 +3,7 @@ package com.crm.app.web.customer;
 
 import com.crm.app.dto.CustomerProfileRequest;
 import com.crm.app.dto.CustomerProfileResponse;
+import com.crm.app.dto.CustomerStatusResponse;
 import com.crm.app.dto.UpdatePasswordRequest;
 import com.crm.app.port.customer.CustomerRepositoryPort;
 import com.crm.app.web.error.CustomerNotFoundException;
@@ -41,5 +42,13 @@ public class CustomerProfileService {
         if (rows == 0) {
             throw new CustomerNotFoundException(emailAddress);
         }
+    }
+
+    public CustomerStatusResponse getStatus(String emailAddress) {
+        boolean isEnabled = customerRepositoryPort.isEnabledByEmail(emailAddress);
+        boolean hasOpenCrmUploads = customerRepositoryPort.isHasOpenCrmUploadsByEmail(emailAddress);
+        boolean hasOpenDuplicateChecks = customerRepositoryPort.isHasOpenDuplicateChecksByEmail(emailAddress);
+
+        return new CustomerStatusResponse(isEnabled, hasOpenCrmUploads, hasOpenDuplicateChecks);
     }
 }
