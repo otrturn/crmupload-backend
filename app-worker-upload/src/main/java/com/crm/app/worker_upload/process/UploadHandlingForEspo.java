@@ -3,8 +3,8 @@ package com.crm.app.worker_upload.process;
 import com.crm.app.dto.CrmUploadContent;
 import com.crm.app.port.customer.CrmUploadRepositoryPort;
 import com.crm.app.port.customer.Customer;
+import com.crm.app.worker_common.util.WorkerUtil;
 import com.crm.app.worker_upload.mail.UploadMailService;
-import com.crmmacher.bexio_excel.error.BexioReaderException;
 import com.crmmacher.config.BaseCtx;
 import com.crmmacher.error.ErrMsg;
 import com.crmmacher.espo.dto.EspoAccount;
@@ -18,16 +18,8 @@ import com.crmmacher.espo.storage_handler.get.GetContactFromEspo;
 import com.crmmacher.espo.storage_handler.get.GetLeadFromEspo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFCellStyle;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Component;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
@@ -65,62 +57,9 @@ public class UploadHandlingForEspo {
             uploadMailService.sendSuccessMailForEspo(customer, upload, espoEntityPoolForAdd);
         } else {
             repository.markUploadFailed(upload.getUploadId(), "Validation failed");
-            markExcelFile(excelBytes, excelTargetfile, errors);
+            WorkerUtil.markExcelFile(excelBytes, errors);
             uploadMailService.sendErrorMailForEspo(customer, upload, errors, excelTargetfile);
         }
-    }
-
-    private void markExcelFile(byte[] excelBytes, Path excelTargetfile, List<ErrMsg> errors) {
-        try (InputStream fis = new ByteArrayInputStream(excelBytes);
-             Workbook workbook = new XSSFWorkbook(fis);
-             OutputStream os = Files.newOutputStream(excelTargetfile)) {
-            colourCells(errors, workbook);
-            workbook.write(os);
-        } catch (IOException e) {
-            log.error(e.getMessage());
-            throw new BexioReaderException("Cannot process excel files [byteArray][" + excelTargetfile + "]");
-        }
-    }
-
-    private static void colourCells(List<ErrMsg> errors, Workbook workbook) {
-        XSSFCellStyle cellStyleMarkedCell = (XSSFCellStyle) workbook.createCellStyle();
-        cellStyleMarkedCell.setFillForegroundColor(IndexedColors.RED.index);
-        cellStyleMarkedCell.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-
-        for (ErrMsg errMsg : errors) {
-            Sheet sheet = workbook.getSheetAt(errMsg.getSheetNum());
-            Row row = sheet.getRow(errMsg.getRowNum());
-            Cell cell = row.getCell(errMsg.getColNum());
-            if (cell == null) {
-                cell = row.createCell(errMsg.getColNum());
-            }
-
-            cell.setCellStyle(cellStyleMarkedCell);
-            addComment(cell, errMsg.getMessage());
-        }
-    }
-
-    public static void addComment(Cell cell, String text) {
-        if (cell == null || text == null) {
-            return;
-        }
-
-        Sheet sheet = cell.getSheet();
-        Workbook wb = sheet.getWorkbook();
-        CreationHelper factory = wb.getCreationHelper();
-
-        Drawing<?> drawing = sheet.createDrawingPatriarch();
-
-        ClientAnchor anchor = factory.createClientAnchor();
-        anchor.setCol1(cell.getColumnIndex() + 1);
-        anchor.setRow1(cell.getRowIndex());
-        anchor.setCol2(cell.getColumnIndex() + 3);
-        anchor.setRow2(cell.getRowIndex() + 3);
-
-        Comment comment = drawing.createCellComment(anchor);
-        comment.setString(factory.createRichTextString(text));
-
-        cell.setCellComment(comment);
     }
 
     private void loadEspo(BaseCtx baseCtx, EspoEntityPool espoEntityPool) {

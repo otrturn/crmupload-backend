@@ -4,6 +4,7 @@ import com.crm.app.dto.DuplicateCheckContent;
 import com.crm.app.port.customer.Customer;
 import com.crm.app.port.customer.CustomerRepositoryPort;
 import com.crm.app.port.customer.DuplicateCheckRepositoryPort;
+import com.crm.app.worker_common.util.WorkerUtil;
 import com.crm.app.worker_duplicate_check_gpu.dto.CompanyEmbedded;
 import com.crm.app.worker_duplicate_check_gpu.error.WorkerDuplicateCheckGpuEmbeddingException;
 import com.crm.app.worker_duplicate_check_gpu.error.WorkerDuplicateCheckGpuException;
@@ -59,8 +60,14 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
             int idx = 0;
             while (idx <= accountsheet.getLastRowNum()) {
                 Row row = accountsheet.getRow(idx);
-                String accountName = row.getCell(0).getStringCellValue();
+                String accountName = row.getCell(WorkerUtil.IDX_ACCOUNTNAME).getStringCellValue();
                 CompanyEmbedded companyEmbedded = new CompanyEmbedded(accountName, client.embedMany(List.of(accountName)));
+                companyEmbedded.setPostalCode(row.getCell(WorkerUtil.IDX_POSTCAL_CODE).getStringCellValue());
+                companyEmbedded.setStreet(row.getCell(WorkerUtil.IDX_STREET).getStringCellValue());
+                companyEmbedded.setCity(row.getCell(WorkerUtil.IDX_CITY).getStringCellValue());
+                companyEmbedded.setCountry(row.getCell(WorkerUtil.IDX_COUNTRY).getStringCellValue());
+                companyEmbedded.setEmailAddress(row.getCell(WorkerUtil.IDX_EMAIL_ADDESS).getStringCellValue());
+                companyEmbedded.setPhoneNumber(row.getCell(WorkerUtil.IDX_PHONE_NUMER).getStringCellValue());
                 companiesEmbedded.add(companyEmbedded);
                 idx++;
             }

@@ -1,8 +1,7 @@
-package com.crm.app.worker_duplicate_check.process;
+package com.crm.app.worker_common.util;
 
 import com.crm.app.dto.DuplicateCheckEntry;
-import com.crm.app.worker_duplicate_check.error.WorkerDuplicateCheckException;
-import com.crmmacher.bexio_excel.error.BexioReaderException;
+import com.crm.app.worker_common.error.WorkerUtilCheckException;
 import com.crmmacher.error.ErrMsg;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
@@ -16,11 +15,20 @@ import java.io.InputStream;
 import java.util.List;
 
 @Slf4j
-public class ProcessUtil {
-    private ProcessUtil() {
+public class WorkerUtil {
+
+    public static final int IDX_ACCOUNTNAME = 0;
+    public static final int IDX_POSTCAL_CODE = 1;
+    public static final int IDX_STREET = 2;
+    public static final int IDX_CITY = 3;
+    public static final int IDX_COUNTRY = 4;
+    public static final int IDX_EMAIL_ADDESS = 5;
+    public static final int IDX_PHONE_NUMER = 6;
+
+    private WorkerUtil() {
     }
 
-    public static byte[] createExcelAsBytes(List<DuplicateCheckEntry> duplicateCheckEntries) {
+    public static byte[] createVerifiedExcelAsBytes(List<DuplicateCheckEntry> duplicateCheckEntries) {
         try (Workbook workbook = new XSSFWorkbook();
              ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
 
@@ -29,19 +37,19 @@ public class ProcessUtil {
             int i = 0;
             for (DuplicateCheckEntry duplicateCheckEntry : duplicateCheckEntries) {
                 Row row = sheet.createRow(i);
-                row.createCell(0, CellType.STRING).setCellValue(duplicateCheckEntry.getAccountName());
-                row.createCell(1, CellType.STRING).setCellValue(duplicateCheckEntry.getPostalCode());
-                row.createCell(2, CellType.STRING).setCellValue(duplicateCheckEntry.getStreet());
-                row.createCell(3, CellType.STRING).setCellValue(duplicateCheckEntry.getCity());
-                row.createCell(4, CellType.STRING).setCellValue(duplicateCheckEntry.getCountry());
-                row.createCell(5, CellType.STRING).setCellValue(duplicateCheckEntry.getEmailAddress());
-                row.createCell(6, CellType.STRING).setCellValue(duplicateCheckEntry.getPhoneNumber());
+                row.createCell(IDX_ACCOUNTNAME, CellType.STRING).setCellValue(duplicateCheckEntry.getAccountName());
+                row.createCell(IDX_POSTCAL_CODE, CellType.STRING).setCellValue(duplicateCheckEntry.getPostalCode());
+                row.createCell(IDX_STREET, CellType.STRING).setCellValue(duplicateCheckEntry.getStreet());
+                row.createCell(IDX_COUNTRY, CellType.STRING).setCellValue(duplicateCheckEntry.getCity());
+                row.createCell(IDX_COUNTRY, CellType.STRING).setCellValue(duplicateCheckEntry.getCountry());
+                row.createCell(IDX_EMAIL_ADDESS, CellType.STRING).setCellValue(duplicateCheckEntry.getEmailAddress());
+                row.createCell(IDX_PHONE_NUMER, CellType.STRING).setCellValue(duplicateCheckEntry.getPhoneNumber());
                 i++;
             }
             workbook.write(bos);
             return bos.toByteArray();
         } catch (IOException e) {
-            throw new WorkerDuplicateCheckException("Fehler beim Erzeugen des Excel-Workbooks: " + e.getMessage());
+            throw new WorkerUtilCheckException("Fehler beim Erzeugen des Excel-Workbooks: " + e.getMessage());
         }
     }
 
@@ -54,7 +62,7 @@ public class ProcessUtil {
             return bos.toByteArray();
         } catch (IOException e) {
             log.error(e.getMessage());
-            throw new BexioReaderException("Cannot process excel files [byteArray][byteArray]");
+            throw new WorkerUtilCheckException("Cannot process excel files [byteArray][byteArray]");
         }
     }
 

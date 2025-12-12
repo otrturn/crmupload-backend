@@ -8,11 +8,21 @@ import lombok.Setter;
 @Setter
 @RequiredArgsConstructor
 public class DuplicateCheckEntry {
-    private final String accountName;
-    private final String postalCode;
-    private final String street;
-    private final String city;
-    private final String country;
-    private final String emailAddress;
-    private final String phoneNumber;
+    private String accountName;
+    private String postalCode;
+    private String street;
+    private String city;
+    private String country;
+    private String emailAddress;
+    private String phoneNumber;
+
+    public DuplicateCheckEntry(String accountName, String postalCode, String street, String city, String country, String emailAddress, String phoneNumber) {
+        this.accountName = accountName;
+        this.postalCode = postalCode;
+        this.street = street;
+        this.city = city;
+        this.country = country;
+        this.emailAddress = emailAddress;
+        this.phoneNumber = phoneNumber;
+    }
 }
