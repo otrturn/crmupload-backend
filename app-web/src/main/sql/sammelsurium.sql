@@ -16,7 +16,8 @@ select *
 from app.crm_upload;
 
 select duplicate_check_id,customer_id,source_system,status
-from app.duplicate_check;
+from app.duplicate_check
+order by duplicate_check desc;
 
 select *
 from app.customer_product

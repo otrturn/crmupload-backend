@@ -21,6 +21,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -34,10 +36,19 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
     private final CustomerRepositoryPort customerRepositoryPort;
     private final EmbeddingClientFactory clientFactory;
 
+    private static final String DURATION_FORMAT_STRING = "Duration: %02d:%02d:%02d";
+
     public void processDuplicateCheckForCheck(DuplicateCheckContent duplicateCheckContent) {
         log.info("processDuplicateCheckForCheck for {} {}", duplicateCheckContent.getDuplicateCheckId(), duplicateCheckContent.getSourceSystem());
         try {
+
+            log.info("Start embedding ...");
+            Instant start = Instant.now();
             List<CompanyEmbedded> companiesEmbedded = getEmbedding(duplicateCheckContent);
+            log.info("Finished embedding ...");
+            Duration duration = Duration.between(start, Instant.now());
+            log.info(String.format(DURATION_FORMAT_STRING, duration.toHours(), duration.toMinutesPart(), duration.toSecondsPart()));
+
             createResultWorkbook(duplicateCheckContent, companiesEmbedded);
             Optional<Customer> customer = customerRepositoryPort.findCustomerByCustomerId(duplicateCheckContent.getCustomerId());
             if (customer.isPresent()) {
@@ -60,14 +71,14 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
             int idx = 0;
             while (idx <= accountsheet.getLastRowNum()) {
                 Row row = accountsheet.getRow(idx);
-                String accountName = row.getCell(WorkerUtil.IDX_ACCOUNTNAME).getStringCellValue();
+                String accountName = getCellValue(row.getCell(WorkerUtil.IDX_ACCOUNTNAME));
                 CompanyEmbedded companyEmbedded = new CompanyEmbedded(accountName, client.embedMany(List.of(accountName)));
-                companyEmbedded.setPostalCode(row.getCell(WorkerUtil.IDX_POSTCAL_CODE).getStringCellValue());
-                companyEmbedded.setStreet(row.getCell(WorkerUtil.IDX_STREET).getStringCellValue());
-                companyEmbedded.setCity(row.getCell(WorkerUtil.IDX_CITY).getStringCellValue());
-                companyEmbedded.setCountry(row.getCell(WorkerUtil.IDX_COUNTRY).getStringCellValue());
-                companyEmbedded.setEmailAddress(row.getCell(WorkerUtil.IDX_EMAIL_ADDESS).getStringCellValue());
-                companyEmbedded.setPhoneNumber(row.getCell(WorkerUtil.IDX_PHONE_NUMER).getStringCellValue());
+                companyEmbedded.setPostalCode(getCellValue(row.getCell(WorkerUtil.IDX_POSTCAL_CODE)));
+                companyEmbedded.setStreet(getCellValue(row.getCell(WorkerUtil.IDX_STREET)));
+                companyEmbedded.setCity(getCellValue(row.getCell(WorkerUtil.IDX_CITY)));
+                companyEmbedded.setCountry(getCellValue(row.getCell(WorkerUtil.IDX_COUNTRY)));
+                companyEmbedded.setEmailAddress(getCellValue(row.getCell(WorkerUtil.IDX_EMAIL_ADDESS)));
+                companyEmbedded.setPhoneNumber(getCellValue(row.getCell(WorkerUtil.IDX_PHONE_NUMER)));
                 companiesEmbedded.add(companyEmbedded);
                 idx++;
             }
@@ -76,6 +87,10 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
             throw new WorkerDuplicateCheckGpuEmbeddingException("Cannot get embedding");
         }
         return companiesEmbedded;
+    }
+
+    private String getCellValue(Cell cell) {
+        return cell != null ? cell.getStringCellValue() : "";
     }
 
     public void createResultWorkbook(DuplicateCheckContent duplicateCheckContent, List<CompanyEmbedded> companiesEmbedded) {

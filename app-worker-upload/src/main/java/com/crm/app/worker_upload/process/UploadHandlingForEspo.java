@@ -36,7 +36,7 @@ public class UploadHandlingForEspo {
     private final CrmUploadRepositoryPort repository;
     private final UploadMailService uploadMailService;
 
-    private static final String FORMAT_STRING = "Duration: %02d:%02d:%02d";
+    private static final String DURATION_FORMAT_STRING = "Duration: %02d:%02d:%02d";
 
     public void processForEspo(CrmUploadContent upload, byte[] excelBytes, Path excelTargetfile, List<ErrMsg> errors, Customer customer, EspoEntityPool espoEntityPoolForReceived) {
         EspoEntityPool espoEntityPoolForLoad = new EspoEntityPool();
@@ -70,7 +70,7 @@ public class UploadHandlingForEspo {
         espoEntityPool.setLeads(new GetLeadFromEspo().getLeadsWithDetails(baseCtx));
         Duration duration = Duration.between(start, Instant.now());
         log.info(String.format("Loaded espo %d accounts, %d contacts, %d leads", espoEntityPool.getAccounts().size(), espoEntityPool.getContacts().size(), espoEntityPool.getLeads().size()));
-        log.info(String.format(FORMAT_STRING, duration.toHours(), duration.toMinutesPart(), duration.toSecondsPart()));
+        log.info(String.format(DURATION_FORMAT_STRING, duration.toHours(), duration.toMinutesPart(), duration.toSecondsPart()));
     }
 
     private void checkForAddOrIgnore(EspoEntityPool espoEntityPoolForLoad, EspoEntityPool espoEntityPoolForReceived, EspoEntityPool espoEntityPoolForAdd, EspoEntityPool espoEntityPoolForIgnore) {
@@ -95,7 +95,7 @@ public class UploadHandlingForEspo {
             log.info("Add accounts ...");
             new AddAccountsToEspo().process(ctx, espoEntityPoolForAdd.getAccounts());
             duration = Duration.between(start, Instant.now());
-            log.info(String.format(FORMAT_STRING, duration.toHours(), duration.toMinutesPart(), duration.toSecondsPart()));
+            log.info(String.format(DURATION_FORMAT_STRING, duration.toHours(), duration.toMinutesPart(), duration.toSecondsPart()));
         }
 
         if (!espoEntityPoolForAdd.getContacts().isEmpty()) {
@@ -104,7 +104,7 @@ public class UploadHandlingForEspo {
             setContactAccountId(espoEntityPoolForAdd.getContacts());
             new AddContactsToEspo().process(ctx, espoEntityPoolForAdd.getContacts());
             duration = Duration.between(start, Instant.now());
-            log.info(String.format(FORMAT_STRING, duration.toHours(), duration.toMinutesPart(), duration.toSecondsPart()));
+            log.info(String.format(DURATION_FORMAT_STRING, duration.toHours(), duration.toMinutesPart(), duration.toSecondsPart()));
         }
 
         if (!espoEntityPoolForAdd.getLeads().isEmpty()) {
@@ -112,7 +112,7 @@ public class UploadHandlingForEspo {
             log.info("Add leads ...");
             new AddLeadsToEspo().process(ctx, espoEntityPoolForAdd.getLeads());
             duration = Duration.between(start, Instant.now());
-            log.info(String.format(FORMAT_STRING, duration.toHours(), duration.toMinutesPart(), duration.toSecondsPart()));
+            log.info(String.format(DURATION_FORMAT_STRING, duration.toHours(), duration.toMinutesPart(), duration.toSecondsPart()));
         }
     }
 
