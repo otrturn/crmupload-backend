@@ -68,7 +68,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
                         FROM app.crm_upload cu
                         JOIN app.customer c ON c.customer_id = cu.customer_id
                         WHERE c.email_address = :email_address
-                          AND cu.status IN ('new', 'processing')
+                          AND cu.status NOT IN ('done', 'failed')
                     ) AS has_open_uploads;""";
 
     private static final String SQL_FIND_HAS_OPEN_UPLOADS_BY_CUSTOMER_ID =
@@ -77,7 +77,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
                         SELECT 1
                         FROM app.crm_upload cu
                         WHERE cu.customer_id = :customer_id
-                          AND cu.status IN ('new', 'processing')
+                          AND cu.status NOT IN ('done', 'failed')
                     ) AS has_open_uploads;""";
 
     private static final String SQL_FIND_HAS_OPEN_DUPLICATE_CHECKS_BY_EMAIL =
@@ -87,7 +87,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
                         FROM app.duplicate_check dc
                         JOIN app.customer c ON c.customer_id = dc.customer_id
                         WHERE c.email_address = :email_address
-                          AND dc.status IN ('new', 'veryfying', 'verified', 'duplicate-checking', 'duplicate-checked','finalising')
+                          AND dc.status NOT IN ('done', 'failed')
                     ) AS has_open_duplicate_checks;""";
 
     private static final String SQL_FIND_HAS_OPEN_DUPLICATE_CHECKS_BY_CUSTOMER_ID =
@@ -96,7 +96,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
                         SELECT 1
                         FROM app.duplicate_check dc
                         WHERE dc.customer_id = :customer_id
-                          AND dc.status IN ('new', 'veryfying', 'verified', 'duplicate-checking', 'duplicate-checked','finalising')
+                          AND dc.status NOT IN ('done', 'failed')
                     ) AS has_open_duplicate_checks;""";
 
     private static final String SQL_UPDATE_ENABLED = """
