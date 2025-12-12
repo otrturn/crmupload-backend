@@ -19,7 +19,7 @@ import java.util.Optional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class DuplicatecheckProcessingService {
+public class DuplicateCheckProcessingService {
 
     private final CustomerRepositoryPort customerRepositoryPort;
     private final DuplicateCheckRepositoryPort duplicateCheckRepositoryPort;

@@ -15,7 +15,7 @@ from app.customer;
 select *
 from app.crm_upload;
 
-select *
+select duplicate_check_id,customer_id,source_system,status
 from app.duplicate_check;
 
 select *

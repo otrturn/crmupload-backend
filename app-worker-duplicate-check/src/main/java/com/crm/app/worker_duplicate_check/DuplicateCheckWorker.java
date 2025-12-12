@@ -17,7 +17,7 @@ public class DuplicateCheckWorker {
 
     private final DuplicateCheckRepositoryPort duplicateCheckRepositoryPort;
     private final DuplicateCheckProperties properties;
-    private final DuplicatecheckProcessingService processingService;
+    private final DuplicateCheckProcessingService processingService;
 
     @Scheduled(fixedDelayString = "${app.duplicate-check.poll-interval-ms:10000}")
     public void pollAndProcessDuplicateCheckForVerification() {
