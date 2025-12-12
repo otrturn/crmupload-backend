@@ -104,7 +104,7 @@ public class DuplicatecheckMailService {
                 .append("Ihre ")
                 .append(sourceSystem)
                 .append(" Daten wurden auf Dubletten geprüft.\n")
-                .append("Das Ergebnis finden Sie im Anhang\n");
+                .append("Das Ergebnis finden Sie im Anhang.\n");
 
         sb.append(AppConstants.RECOMMENDATION);
 

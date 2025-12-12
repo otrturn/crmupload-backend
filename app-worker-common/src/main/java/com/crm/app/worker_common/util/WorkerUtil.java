@@ -22,8 +22,8 @@ public class WorkerUtil {
     public static final int IDX_STREET = 2;
     public static final int IDX_CITY = 3;
     public static final int IDX_COUNTRY = 4;
-    public static final int IDX_EMAIL_ADDESS = 5;
-    public static final int IDX_PHONE_NUMER = 6;
+    public static final int IDX_EMAIL_ADDRESS = 5;
+    public static final int IDX_PHONE_NUMBER = 6;
 
     private WorkerUtil() {
     }
@@ -42,8 +42,8 @@ public class WorkerUtil {
                 row.createCell(IDX_STREET, CellType.STRING).setCellValue(duplicateCheckEntry.getStreet());
                 row.createCell(IDX_COUNTRY, CellType.STRING).setCellValue(duplicateCheckEntry.getCity());
                 row.createCell(IDX_COUNTRY, CellType.STRING).setCellValue(duplicateCheckEntry.getCountry());
-                row.createCell(IDX_EMAIL_ADDESS, CellType.STRING).setCellValue(duplicateCheckEntry.getEmailAddress());
-                row.createCell(IDX_PHONE_NUMER, CellType.STRING).setCellValue(duplicateCheckEntry.getPhoneNumber());
+                row.createCell(IDX_EMAIL_ADDRESS, CellType.STRING).setCellValue(duplicateCheckEntry.getEmailAddress());
+                row.createCell(IDX_PHONE_NUMBER, CellType.STRING).setCellValue(duplicateCheckEntry.getPhoneNumber());
                 i++;
             }
             workbook.write(bos);

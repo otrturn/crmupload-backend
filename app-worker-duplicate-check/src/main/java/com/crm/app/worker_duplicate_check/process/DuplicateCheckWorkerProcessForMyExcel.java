@@ -61,7 +61,13 @@ public class DuplicateCheckWorkerProcessForMyExcel {
         List<DuplicateCheckEntry> duplicateCheckEntries = new ArrayList<>();
         for (int i = 0; i < myExcelEntries.size(); i++) {
             MyExcelAccount myExcelEntry = myExcelEntries.get(i);
-            if (!(myExcelEntry.getName() == null || myExcelEntry.getName().isBlank())) {
+            if (myExcelEntry.getName() == null || myExcelEntry.getName().isBlank()) {
+                String msg = String.format("[Account] Zeile %d: Firmenname ist leer", i + 1);
+                errors.add(new ErrMsg(0, i, 0, "Firmenname", msg));
+            } else if (myExcelEntry.getBillingAddress().getPostcalCode() == null || myExcelEntry.getBillingAddress().getPostcalCode().isBlank()) {
+                String msg = String.format("[Account] Zeile %d: PLZ ist leer", i + 1);
+                errors.add(new ErrMsg(0, i, 0, "PLZ", msg));
+            } else {
                 DuplicateCheckEntry duplicateCheckEntry = new DuplicateCheckEntry(myExcelEntry.getName(),
                         myExcelEntry.getBillingAddress().getPostcalCode(),
                         myExcelEntry.getBillingAddress().getStreet(),
@@ -70,9 +76,6 @@ public class DuplicateCheckWorkerProcessForMyExcel {
                         !myExcelEntry.getEmailAddressData().isEmpty() ? myExcelEntry.getEmailAddressData().get(0).getEmailAddress() : "",
                         !myExcelEntry.getPhoneNumberData().isEmpty() ? myExcelEntry.getPhoneNumberData().get(0).getPhoneNumber() : "");
                 duplicateCheckEntries.add(duplicateCheckEntry);
-            } else {
-                String msg = String.format("[Account] Zeile %d: Firmenname ist leer", i + 1);
-                errors.add(new ErrMsg(0, i, 0, "Firmenname", msg));
             }
         }
         return duplicateCheckEntries;

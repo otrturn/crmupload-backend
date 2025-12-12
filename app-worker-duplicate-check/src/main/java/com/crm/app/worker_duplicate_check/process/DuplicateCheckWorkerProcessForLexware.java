@@ -65,7 +65,13 @@ public class DuplicateCheckWorkerProcessForLexware {
         List<DuplicateCheckEntry> duplicateCheckEntries = new ArrayList<>();
         for (int i = 0; i < lexwareEntries.size(); i++) {
             LexwareEntry lexwareEntry = lexwareEntries.get(i);
-            if (!(lexwareEntry.getAccountName() == null || lexwareEntry.getAccountName().isBlank())) {
+            if (lexwareEntry.getAccountName() == null || lexwareEntry.getAccountName().isBlank()) {
+                String msg = String.format("[Account] Zeile %d: Firmenname ist leer", i + 1);
+                errors.add(new ErrMsg(0, i, indexMap.get(LexwareColumn.FIRMENNAME), LexwareColumn.FIRMENNAME.name(), msg));
+            } else if (lexwareEntry.getAddress().getPostcalCode() == null || lexwareEntry.getAddress().getPostcalCode().isBlank()) {
+                String msg = String.format("[Account] Zeile %d: PLZ ist leer", i + 1);
+                errors.add(new ErrMsg(0, i, indexMap.get(LexwareColumn.PLZ), LexwareColumn.PLZ.name(), msg));
+            } else {
                 DuplicateCheckEntry duplicateCheckEntry = new DuplicateCheckEntry(lexwareEntry.getAccountName(),
                         lexwareEntry.getAddress().getPostcalCode(),
                         lexwareEntry.getAddress().getStreet(),
@@ -74,9 +80,6 @@ public class DuplicateCheckWorkerProcessForLexware {
                         !lexwareEntry.getEmailAddressData().isEmpty() ? lexwareEntry.getEmailAddressData().get(0).getEmailAddress() : "",
                         !lexwareEntry.getPhoneNumberData().isEmpty() ? lexwareEntry.getPhoneNumberData().get(0).getPhoneNumber() : "");
                 duplicateCheckEntries.add(duplicateCheckEntry);
-            } else {
-                String msg = String.format("[Account] Zeile %d: Firmenname ist leer", i + 1);
-                errors.add(new ErrMsg(0, i, indexMap.get(LexwareColumn.FIRMENNAME), LexwareColumn.FIRMENNAME.name(), msg));
             }
         }
         return duplicateCheckEntries;

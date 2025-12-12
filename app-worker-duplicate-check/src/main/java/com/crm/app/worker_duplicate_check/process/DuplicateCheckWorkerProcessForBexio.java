@@ -65,7 +65,13 @@ public class DuplicateCheckWorkerProcessForBexio {
         List<DuplicateCheckEntry> duplicateCheckEntries = new ArrayList<>();
         for (int i = 0; i < bexioEntries.size(); i++) {
             BexioEntry bexioEntry = bexioEntries.get(i);
-            if (!(bexioEntry.getAccountName() == null || bexioEntry.getAccountName().isBlank())) {
+            if (bexioEntry.getAccountName() == null || bexioEntry.getAccountName().isBlank()) {
+                String msg = String.format("[Account] Zeile %d: Firmenname ist leer", i + 1);
+                errors.add(new ErrMsg(0, i, indexMap.get(BexioColumn.FIRMENNAME), BexioColumn.FIRMENNAME.name(), msg));
+            } else if (bexioEntry.getAddress().getPostcalCode() == null || bexioEntry.getAddress().getPostcalCode().isBlank()) {
+                String msg = String.format("[Account] Zeile %d: PLZ ist leer", i + 1);
+                errors.add(new ErrMsg(0, i, indexMap.get(BexioColumn.PLZ), BexioColumn.PLZ.name(), msg));
+            } else {
                 DuplicateCheckEntry duplicateCheckEntry = new DuplicateCheckEntry(bexioEntry.getAccountName(),
                         bexioEntry.getAddress().getPostcalCode(),
                         bexioEntry.getAddress().getStreet(),
@@ -74,12 +80,8 @@ public class DuplicateCheckWorkerProcessForBexio {
                         !bexioEntry.getEmailAddressData().isEmpty() ? bexioEntry.getEmailAddressData().get(0).getEmailAddress() : "",
                         !bexioEntry.getPhoneNumberData().isEmpty() ? bexioEntry.getPhoneNumberData().get(0).getPhoneNumber() : "");
                 duplicateCheckEntries.add(duplicateCheckEntry);
-            } else {
-                String msg = String.format("[Account] Zeile %d: Firmenname ist leer", i + 1);
-                errors.add(new ErrMsg(0, i, indexMap.get(BexioColumn.FIRMENNAME), BexioColumn.FIRMENNAME.name(), msg));
             }
         }
         return duplicateCheckEntries;
     }
-
 }

@@ -4,6 +4,8 @@ import com.crm.app.dto.DuplicateCheckContent;
 import com.crm.app.port.customer.Customer;
 import com.crm.app.port.customer.CustomerRepositoryPort;
 import com.crm.app.port.customer.DuplicateCheckRepositoryPort;
+import com.crm.app.util.CompanyNameNormalizer;
+import com.crm.app.util.EmbeddingUtils;
 import com.crm.app.worker_common.util.WorkerUtil;
 import com.crm.app.worker_duplicate_check_gpu.dto.CompanyEmbedded;
 import com.crm.app.worker_duplicate_check_gpu.error.WorkerDuplicateCheckGpuEmbeddingException;
@@ -36,6 +38,8 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
     private final CustomerRepositoryPort customerRepositoryPort;
     private final EmbeddingClientFactory clientFactory;
 
+    private static final double COMPARISON_THRESHOLD = 0.85d;
+
     private static final String DURATION_FORMAT_STRING = "Duration: %02d:%02d:%02d";
 
     public void processDuplicateCheckForCheck(DuplicateCheckContent duplicateCheckContent) {
@@ -47,6 +51,13 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
             List<CompanyEmbedded> companiesEmbedded = getEmbedding(duplicateCheckContent);
             log.info("Finished embedding ...");
             Duration duration = Duration.between(start, Instant.now());
+            log.info(String.format(DURATION_FORMAT_STRING, duration.toHours(), duration.toMinutesPart(), duration.toSecondsPart()));
+
+            log.info("Start comparison analysis ...");
+            start = Instant.now();
+            comparisonAnalysis(companiesEmbedded);
+            log.info("Finished comparison analysis ...");
+            duration = Duration.between(start, Instant.now());
             log.info(String.format(DURATION_FORMAT_STRING, duration.toHours(), duration.toMinutesPart(), duration.toSecondsPart()));
 
             createResultWorkbook(duplicateCheckContent, companiesEmbedded);
@@ -71,14 +82,16 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
             int idx = 0;
             while (idx <= accountsheet.getLastRowNum()) {
                 Row row = accountsheet.getRow(idx);
-                String accountName = getCellValue(row.getCell(WorkerUtil.IDX_ACCOUNTNAME));
-                CompanyEmbedded companyEmbedded = new CompanyEmbedded(accountName, client.embedMany(List.of(accountName)));
+                CompanyEmbedded companyEmbedded = new CompanyEmbedded();
+                companyEmbedded.setAccountName(getCellValue(row.getCell(WorkerUtil.IDX_ACCOUNTNAME)));
+                companyEmbedded.setNormalisedAccountName(CompanyNameNormalizer.normalizeCompanyName(companyEmbedded.getAccountName()));
                 companyEmbedded.setPostalCode(getCellValue(row.getCell(WorkerUtil.IDX_POSTCAL_CODE)));
                 companyEmbedded.setStreet(getCellValue(row.getCell(WorkerUtil.IDX_STREET)));
                 companyEmbedded.setCity(getCellValue(row.getCell(WorkerUtil.IDX_CITY)));
                 companyEmbedded.setCountry(getCellValue(row.getCell(WorkerUtil.IDX_COUNTRY)));
-                companyEmbedded.setEmailAddress(getCellValue(row.getCell(WorkerUtil.IDX_EMAIL_ADDESS)));
-                companyEmbedded.setPhoneNumber(getCellValue(row.getCell(WorkerUtil.IDX_PHONE_NUMER)));
+                companyEmbedded.setEmailAddress(getCellValue(row.getCell(WorkerUtil.IDX_EMAIL_ADDRESS)));
+                companyEmbedded.setPhoneNumber(getCellValue(row.getCell(WorkerUtil.IDX_PHONE_NUMBER)));
+                companyEmbedded.setVectors(client.embedMany(List.of(companyEmbedded.getNormalisedAccountName())));
                 companiesEmbedded.add(companyEmbedded);
                 idx++;
             }
@@ -94,7 +107,6 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
     }
 
     public void createResultWorkbook(DuplicateCheckContent duplicateCheckContent, List<CompanyEmbedded> companiesEmbedded) {
-
         try (Workbook workbook = new XSSFWorkbook();
              ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
 
@@ -125,6 +137,17 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
             duplicateCheckContent.setContent(bos.toByteArray());
         } catch (IOException e) {
             throw new WorkerDuplicateCheckGpuException("Fehler beim Erzeugen des Excel-Workbooks: " + e.getMessage());
+        }
+    }
+
+    private void comparisonAnalysis(List<CompanyEmbedded> companiesEmbedded) {
+        for (int i = 0; i < companiesEmbedded.size(); i++) {
+            for (int j = i + 1; j < companiesEmbedded.size(); j++) {
+                double sim = EmbeddingUtils.cosineSim(companiesEmbedded.get(i).getVectors().get(0), companiesEmbedded.get(j).getVectors().get(0));
+                if (sim > COMPARISON_THRESHOLD) {
+                    companiesEmbedded.get(i).getSimilar().put(companiesEmbedded.get(j), sim);
+                }
+            }
         }
     }
 }

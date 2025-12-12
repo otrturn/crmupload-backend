@@ -4,18 +4,14 @@ import com.crm.app.dto.DuplicateCheckEntry;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
 public class CompanyEmbedded extends DuplicateCheckEntry {
+    private String normalisedAccountName;
     private List<float[]> vectors;
-
-
-    public CompanyEmbedded(String accountName, List<float[]> vectors) {
-        super();
-        this.setAccountName(accountName);
-        this.setVectors(vectors);
-    }
-
+    private Map<CompanyEmbedded, Double> similar = new HashMap<>();
 }
