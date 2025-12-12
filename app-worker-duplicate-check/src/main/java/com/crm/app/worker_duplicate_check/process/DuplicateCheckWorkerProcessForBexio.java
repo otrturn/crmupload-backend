@@ -55,6 +55,7 @@ public class DuplicateCheckWorkerProcessForBexio {
                 log.error("Customer not found for customer id={}", duplicateCheckContent.getCustomerId());
             }
         } catch (Exception ex) {
+            log.error("ERROR=[" + ex.getMessage() + "]");
             duplicateCheckRepositoryPort.markDuplicateCheckFailed(duplicateCheckContent.getDuplicateCheckId(), ex.getMessage());
         }
     }

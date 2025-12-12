@@ -4,7 +4,9 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 @Getter
@@ -15,6 +17,7 @@ public class DuplicateCheckContent {
     private long customerId;
     private String sourceSystem;
     private byte[] content;
+    List<float[]> vectors = new ArrayList<>();
 
     public DuplicateCheckContent(
             long duplicateCheckId,
@@ -26,6 +29,7 @@ public class DuplicateCheckContent {
         this.customerId = customerId;
         this.sourceSystem = sourceSystem;
         this.content = content;
+        this.vectors = new ArrayList<>();
     }
 
     @Override
