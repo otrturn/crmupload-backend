@@ -36,11 +36,11 @@ public class ProcessUtils {
             return response.getBody();
         } catch (HttpStatusCodeException ex) {
             // 4xx / 5xx
-            log.error("Login failed [{}]: {}", ex.getStatusCode(), ex.getResponseBodyAsString());
-            throw new IllegalStateException("Login failed: " + ex.getMessage(), ex);
+            log.error(String.format("Login failed [%s]: %s", ex.getStatusCode(), ex.getResponseBodyAsString()), ex);
+            throw new IllegalStateException(String.format("Login failed: %s", ex.getMessage()), ex);
         } catch (Exception ex) {
-            log.error("Unexpected error during login", ex);
-            throw new IllegalStateException("Unexpected login error: " + ex.getMessage(), ex);
+            log.error(String.format("Unexpected error during login: %s", ex.getMessage()), ex);
+            throw new IllegalStateException(String.format("Unexpected login error: %s", ex.getMessage()), ex);
         }
     }
 }

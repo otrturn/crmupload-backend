@@ -33,7 +33,7 @@ public class DuplicateCheckWorkerProcessForLexware {
     private final LexwareCtx lexwareCtx;
 
     public void processDuplicateCheckForVerification(DuplicateCheckContent duplicateCheckContent) {
-        log.info("Processing crm_upload for Lexware duplicateCheckId={} sourceSysten={}", duplicateCheckContent.getDuplicateCheckId(), duplicateCheckContent.getSourceSystem());
+        log.info(String.format("Processing crm_upload for Lexware duplicateCheckId=%d sourceSysten=%s", duplicateCheckContent.getDuplicateCheckId(), duplicateCheckContent.getSourceSystem()));
         try {
             List<ErrMsg> errors = new ArrayList<>();
 
@@ -56,7 +56,7 @@ public class DuplicateCheckWorkerProcessForLexware {
                 log.error(String.format("Customer not found for customerId=%d", duplicateCheckContent.getCustomerId()));
             }
         } catch (Exception ex) {
-            log.error("processDuplicateCheckForVerification",ex);
+            log.error(String.format("processDuplicateCheckForVerification: %s", ex.getMessage()), ex);
             duplicateCheckRepositoryPort.markDuplicateCheckFailed(duplicateCheckContent.getDuplicateCheckId(), ex.getMessage());
         }
     }
@@ -72,17 +72,18 @@ public class DuplicateCheckWorkerProcessForLexware {
                 String msg = String.format("[Account] Zeile %d: PLZ ist leer", i + 1);
                 errors.add(new ErrMsg(0, i, indexMap.get(LexwareColumn.PLZ), LexwareColumn.PLZ.name(), msg));
             } else {
-                DuplicateCheckEntry duplicateCheckEntry = new DuplicateCheckEntry(lexwareEntry.getAccountName(),
+                DuplicateCheckEntry duplicateCheckEntry = new DuplicateCheckEntry(
+                        lexwareEntry.getAccountName(),
                         lexwareEntry.getAddress().getPostcalCode(),
                         lexwareEntry.getAddress().getStreet(),
                         lexwareEntry.getAddress().getCity(),
                         lexwareEntry.getAddress().getCountry(),
                         !lexwareEntry.getEmailAddressData().isEmpty() ? lexwareEntry.getEmailAddressData().get(0).getEmailAddress() : "",
-                        !lexwareEntry.getPhoneNumberData().isEmpty() ? lexwareEntry.getPhoneNumberData().get(0).getPhoneNumber() : "");
+                        !lexwareEntry.getPhoneNumberData().isEmpty() ? lexwareEntry.getPhoneNumberData().get(0).getPhoneNumber() : ""
+                );
                 duplicateCheckEntries.add(duplicateCheckEntry);
             }
         }
         return duplicateCheckEntries;
     }
-
 }

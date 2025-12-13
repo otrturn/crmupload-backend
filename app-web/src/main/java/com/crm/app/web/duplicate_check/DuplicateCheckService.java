@@ -7,7 +7,6 @@ import com.crm.app.port.customer.CustomerRepositoryPort;
 import com.crm.app.port.customer.DuplicateCheckRepositoryPort;
 import com.crm.app.web.error.CustomerNotFoundException;
 import com.crm.app.web.error.DuplicateCheckNotAllowedException;
-import com.crm.app.web.error.UploadNotAllowedException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,19 +22,15 @@ public class DuplicateCheckService {
     private final CustomerRepositoryPort customerRepositoryPort;
     private final DuplicateCheckRepositoryPort duplicateCheckRepositoryPort;
 
-    public void processDuplicateCheck(
-            String emailAddress,
-            String sourceSystem,
-            MultipartFile file
-    ) {
+    public void processDuplicateCheck(String emailAddress, String sourceSystem, MultipartFile file) {
         if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException("processUpload: duplicate-check file must not be empty");
         }
 
-        log.info("Received upload: email={}", emailAddress);
+        log.info(String.format("Received upload: email=%s", emailAddress));
 
         long customerId = customerRepositoryPort.findCustomerIdByEmail(emailAddress);
-        log.info("Resolved customerId={} for email={}", customerId, emailAddress);
+        log.info(String.format("Resolved customerId=%d for email=%s", customerId, emailAddress));
 
         List<String> products = customerRepositoryPort.findProductsByEmail(emailAddress);
 
@@ -53,17 +48,12 @@ public class DuplicateCheckService {
         }
 
         long duplicateCheckId = duplicateCheckRepositoryPort.nextDuplicateCheckId();
-        log.info("Generated duplicateCheckId={}", duplicateCheckId);
+        log.info(String.format("Generated duplicateCheckId=%d", duplicateCheckId));
 
         try {
-            duplicateCheckRepositoryPort.insertDuplicateCheck(new DuplicateCheckRequest(
-                    duplicateCheckId,
-                    customerId,
-                    sourceSystem,
-                    file.getBytes()
-            ));
+            duplicateCheckRepositoryPort.insertDuplicateCheck(new DuplicateCheckRequest(duplicateCheckId, customerId, sourceSystem, file.getBytes()));
         } catch (Exception ex) {
-            log.error("processUpload: Failed to insert duplicate-check: duplicateCheckId={}, customerId={}", duplicateCheckId, customerId, ex);
+            log.error(String.format("processUpload: Failed to insert duplicate-check: duplicateCheckId=%d, customerId=%d", duplicateCheckId, customerId), ex);
             throw new IllegalStateException("Upload failed: " + ex.getMessage(), ex);
         }
     }

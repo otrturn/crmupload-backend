@@ -16,8 +16,11 @@ public class DuplicateCheckGpuProcessingService {
 
     @Transactional
     public void processSingleDuplicateCheckForCheck(DuplicateCheckContent duplicateCheckContent) {
-        log.info("processSingleDuplicateCheckForCheck for {} {}", duplicateCheckContent.getDuplicateCheckId(), duplicateCheckContent.getSourceSystem());
+        log.info(String.format(
+                "processSingleDuplicateCheckForCheck for %d %s",
+                duplicateCheckContent.getDuplicateCheckId(),
+                duplicateCheckContent.getSourceSystem()
+        ));
         duplicateCheckGpuWorkerProcessForCheck.processDuplicateCheckForCheck(duplicateCheckContent);
     }
-
 }

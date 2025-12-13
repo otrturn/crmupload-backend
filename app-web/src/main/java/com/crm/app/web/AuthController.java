@@ -45,8 +45,7 @@ public class AuthController {
     @ExceptionHandler(ReqgisterRequestInvalidDataException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public RegisterResponse handleRegisterRequestInvalidData(ReqgisterRequestInvalidDataException ex) {
-        log.warn("registration: : {}", ex.getMessage());
+        log.warn(String.format("registration: %s", ex.getMessage()));
         return new RegisterResponse("error: " + ex.getMessage());
     }
-
 }

@@ -24,23 +24,15 @@ public class CrmUploadService {
     private final CrmUploadRepositoryPort repository;
     private final CustomerRepositoryPort customerRepositoryPort;
 
-    public void processUpload(
-            String emailAddress,
-            String sourceSystem,
-            String crmSystem,
-            String crmUrl,
-            String crmCustomerId,
-            String crmApiKey,
-            MultipartFile file
-    ) {
+    public void processUpload(String emailAddress, String sourceSystem, String crmSystem, String crmUrl, String crmCustomerId, String crmApiKey, MultipartFile file) {
         if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException("processUpload: Uploaded file must not be empty");
         }
 
-        log.info("Received upload: email={}, crmCustomerId={}", emailAddress, crmCustomerId);
+        log.info(String.format("Received upload: email=%s, crmCustomerId=%s", emailAddress, crmCustomerId));
 
         long customerId = customerRepositoryPort.findCustomerIdByEmail(emailAddress);
-        log.info("Resolved customerId={} for email={}", customerId, emailAddress);
+        log.info(String.format("Resolved customerId=%d for email=%s", customerId, emailAddress));
 
         boolean enabled = customerRepositoryPort.isEnabledByCustomerId(customerId);
         boolean hasOpenCrmUploads = customerRepositoryPort.isHasOpenCrmUploadsByCustomerId(customerId);
@@ -56,26 +48,15 @@ public class CrmUploadService {
         if (hasOpenCrmUploads) {
             throw new UploadNotAllowedException(String.format("processUpload: Customer %s has open uploads", emailAddress));
         }
-        if (crmUploadInfo.isPresent() && (!crmUploadInfo.get().getCrmSystem().equals(crmSystem)
-                || !crmUploadInfo.get().getCrmCustomerId().equals(crmCustomerId))) {
-            throw new UploadNotAllowedException(String.format("processUpload: crmSystem/crmCustomerId %s/%s for customer %d invalid",
-                    crmSystem, crmCustomerId, customerId));
+        if (crmUploadInfo.isPresent() && (!crmUploadInfo.get().getCrmSystem().equals(crmSystem) || !crmUploadInfo.get().getCrmCustomerId().equals(crmCustomerId))) {
+            throw new UploadNotAllowedException(String.format("processUpload: crmSystem/crmCustomerId %s/%s for customer %d invalid", crmSystem, crmCustomerId, customerId));
         }
 
         long uploadId = repository.nextUploadId();
         log.info(String.format("Generated uploadId=%d", uploadId));
 
         try {
-            repository.insertCrmUpload(new CrmUploadRequest(
-                    uploadId,
-                    customerId,
-                    sourceSystem,
-                    crmSystem,
-                    crmUrl,
-                    crmCustomerId,
-                    crmApiKey,
-                    file.getBytes()
-            ));
+            repository.insertCrmUpload(new CrmUploadRequest(uploadId, customerId, sourceSystem, crmSystem, crmUrl, crmCustomerId, crmApiKey, file.getBytes()));
         } catch (Exception ex) {
             log.error(String.format("processUpload: Failed to insert customer upload: uploadId=%d, customerId=%d", uploadId, customerId), ex);
             throw new IllegalStateException("Upload failed: " + ex.getMessage(), ex);
@@ -89,5 +70,4 @@ public class CrmUploadService {
         }
         return response;
     }
-
 }

@@ -1,12 +1,15 @@
 package com.crm.app.util;
 
 import java.text.Normalizer;
-import java.util.*;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 public final class CompanyNameNormalizer {
 
-    private CompanyNameNormalizer() {}
+    private CompanyNameNormalizer() {
+    }
 
     private static final Pattern SEPARATORS_TO_SPACE =
             Pattern.compile("[\\p{Punct}·•–—_/\\\\+()\\[\\]{}'\"`´^°|@#=:;]+");

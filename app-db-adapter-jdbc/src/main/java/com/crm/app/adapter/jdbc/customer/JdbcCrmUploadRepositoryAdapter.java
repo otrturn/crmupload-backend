@@ -110,24 +110,17 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
     @Override
     public long nextUploadId() {
         try {
-            final Long nextId = jdbcTemplate.queryForObject(
-                    SQL_NEXT_CRM_UPLOAD_ID,
-                    new MapSqlParameterSource(),
-                    Long.class
-            );
+            final Long nextId = jdbcTemplate.queryForObject(SQL_NEXT_CRM_UPLOAD_ID, new MapSqlParameterSource(), Long.class);
 
-            final Long nonNullNextId = Objects.requireNonNull(
-                    nextId,
-                    "Sequence " + SEQUENCE_CRM_UPLOAD_UPLOAD_ID + " returned null"
-            );
+            final Long nonNullNextId = Objects.requireNonNull(nextId, "Sequence " + SEQUENCE_CRM_UPLOAD_UPLOAD_ID + " returned null");
 
             if (log.isDebugEnabled()) {
-                log.debug("Generated next upload id: {}", nonNullNextId);
+                log.debug(String.format("Generated next upload id: %d", nonNullNextId));
             }
 
             return nonNullNextId;
         } catch (DataAccessException ex) {
-            log.error("Failed to obtain next upload id from sequence {}", SEQUENCE_CRM_UPLOAD_UPLOAD_ID, ex);
+            log.error(String.format("Failed to obtain next upload id from sequence %s", SEQUENCE_CRM_UPLOAD_UPLOAD_ID), ex);
             throw new IllegalStateException("Could not retrieve next upload id", ex);
         }
     }
@@ -157,42 +150,23 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
 
             if (affectedRows != 1) {
                 log.error(String.format("Insert into app.crm_upload affected %d rows for uploadId=%d", affectedRows, crmUploadRequest.getUploadId()));
-                throw new IllegalStateException(
-                        "Insert into app.crm_upload did not affect exactly one row (affected=" + affectedRows + ")"
-                );
+                throw new IllegalStateException("Insert into app.crm_upload did not affect exactly one row (affected=" + affectedRows + ")");
             }
 
             if (log.isDebugEnabled()) {
-                log.debug(
-                        String.format("Inserted customer upload: uploadId=%d, customerId=%d, crmCustomerId=%s, status=%s",
-                        crmUploadRequest.getUploadId(),
-                        crmUploadRequest.getCustomerId(),
-                        crmUploadRequest.getCrmCustomerId(),
-                        STATUS_CRM_UPLOAD_NEW)
-                );
+                log.debug(String.format("Inserted customer upload: uploadId=%d, customerId=%d, crmCustomerId=%s, status=%s", crmUploadRequest.getUploadId(), crmUploadRequest.getCustomerId(), crmUploadRequest.getCrmCustomerId(), STATUS_CRM_UPLOAD_NEW));
             }
         } catch (DataAccessException ex) {
-            log.error(
-                    String.format("Failed to insert customer upload for uploadId=%d, customerId=%d, crmCustomerId=%s",
-                    crmUploadRequest.getUploadId(),
-                    crmUploadRequest.getCustomerId(),
-                    crmUploadRequest.getCrmCustomerId()),
-                    ex
-            );
+            log.error(String.format("Failed to insert customer upload for uploadId=%d, customerId=%d, crmCustomerId=%s", crmUploadRequest.getUploadId(), crmUploadRequest.getCustomerId(), crmUploadRequest.getCrmCustomerId()), ex);
             throw new IllegalStateException("Could not insert customer upload", ex);
         }
     }
 
     @Override
     public List<Long> claimNextUploads(final int limit) {
-        final MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue(LITERAL_LIMIT, limit);
+        final MapSqlParameterSource params = new MapSqlParameterSource().addValue(LITERAL_LIMIT, limit);
         try {
-            return jdbcTemplate.query(
-                    SQL_CLAIM_NEXT_CRM_UPLOADS,
-                    params,
-                    (rs, rowNum) -> rs.getLong(LITERAL_UPLOAD_ID)
-            );
+            return jdbcTemplate.query(SQL_CLAIM_NEXT_CRM_UPLOADS, params, (rs, rowNum) -> rs.getLong(LITERAL_UPLOAD_ID));
         } catch (DataAccessException ex) {
             log.error("Failed to claim next uploads", ex);
             throw new IllegalStateException("Could not claim next uploads", ex);
@@ -201,25 +175,22 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
 
     @Override
     public void markUploadDone(final long uploadId) {
-        final MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue(LITERAL_UPLOAD_ID_CAMELCASE, uploadId);
+        final MapSqlParameterSource params = new MapSqlParameterSource().addValue(LITERAL_UPLOAD_ID_CAMELCASE, uploadId);
         try {
             jdbcTemplate.update(SQL_MARK_CRM_UPLOAD_DONE, params);
         } catch (DataAccessException ex) {
-            log.error("Failed to mark upload {} as done", uploadId, ex);
+            log.error(String.format("Failed to mark upload %d as done", uploadId), ex);
             throw new IllegalStateException("Could not mark upload as done", ex);
         }
     }
 
     @Override
     public void markUploadFailed(final long uploadId, final String errorMessage) {
-        final MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue(LITERAL_UPLOAD_ID_CAMELCASE, uploadId)
-                .addValue(LITERAL_ERROR, errorMessage);
+        final MapSqlParameterSource params = new MapSqlParameterSource().addValue(LITERAL_UPLOAD_ID_CAMELCASE, uploadId).addValue(LITERAL_ERROR, errorMessage);
         try {
             jdbcTemplate.update(SQL_MARK_CRM_UPLOAD_FAILED, params);
         } catch (DataAccessException ex) {
-            log.error("Failed to mark upload {} as failed", uploadId, ex);
+            log.error(String.format("Failed to mark upload %d as failed", uploadId), ex);
             throw new IllegalStateException("Could not mark upload as failed", ex);
         }
     }
@@ -230,8 +201,7 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
             return List.of();
         }
 
-        MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue(LITERAL_UPLOAD_IDS_CAMELCASE, uploadIds);
+        MapSqlParameterSource params = new MapSqlParameterSource().addValue(LITERAL_UPLOAD_IDS_CAMELCASE, uploadIds);
 
         try {
             return jdbcTemplate.query(
@@ -249,9 +219,8 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
                     )
             );
         } catch (DataAccessException ex) {
-            log.error("Failed to load crm_upload for ids={}", uploadIds, ex);
+            log.error(String.format("Failed to load crm_upload for ids=%s", String.valueOf(uploadIds)), ex);
             throw new IllegalStateException("Could not load customer uploads", ex);
         }
     }
-
 }

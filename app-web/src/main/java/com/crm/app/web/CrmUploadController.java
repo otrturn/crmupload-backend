@@ -39,38 +39,28 @@ public class CrmUploadController {
             @RequestParam("crmApiKey") @NotBlank String crmApiKey,
             @RequestPart("file") MultipartFile file
     ) {
-        uploadService.processUpload(
-                emailAddress,
-                sourceSystem,
-                crmSystem,
-                crmUrl,
-                crmCustomerId,
-                crmApiKey,
-                file
-        );
-
+        uploadService.processUpload(emailAddress, sourceSystem, crmSystem, crmUrl, crmCustomerId, crmApiKey, file);
         return ResponseEntity.ok().build();
     }
 
     @ExceptionHandler(UploadNotAllowedException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public UploadResponse handleUploadNotAllowed(UploadNotAllowedException ex) {
-        log.warn("Upload not allowed: {}", ex.getMessage());
+        log.warn(String.format("Upload not allowed: %s", ex.getMessage()));
         return new UploadResponse(LITERAL_ERROR + ex.getMessage());
     }
 
     @ExceptionHandler(UploadAlreadyInProgressException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public UploadResponse handleUploadAlreadyInProgress(UploadAlreadyInProgressException ex) {
-        log.warn("Upload already in progress: {}", ex.getMessage());
+        log.warn(String.format("Upload already in progress: %s", ex.getMessage()));
         return new UploadResponse(LITERAL_ERROR + ex.getMessage());
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseStatus(org.springframework.http.HttpStatus.BAD_REQUEST)
     public UploadResponse handleIllegalArgument(IllegalArgumentException ex) {
-        log.warn("Bad request: {}", ex.getMessage());
+        log.warn(String.format("Bad request: %s", ex.getMessage()));
         return new UploadResponse(LITERAL_ERROR + ex.getMessage());
     }
-
 }

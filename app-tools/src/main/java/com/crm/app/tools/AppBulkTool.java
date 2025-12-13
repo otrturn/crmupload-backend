@@ -22,6 +22,7 @@ import java.util.List;
 @SpringBootApplication(scanBasePackages = "com.crm.app.tools")
 @RequiredArgsConstructor
 public class AppBulkTool implements CommandLineRunner, ExitCodeGenerator {
+
     private final RegisterCustomers registerCustomers;
     private final UploadCrmFile uploadCrmFile;
     private final UploadDuplicateCheckFile uploadDuplicateCheckFile;
@@ -39,7 +40,7 @@ public class AppBulkTool implements CommandLineRunner, ExitCodeGenerator {
     @Override
     public void run(String... args) throws Exception {
         if (args.length != 1) {
-            log.error("args.length is {}", args.length);
+            log.error(String.format("args.length is %d", args.length));
             return;
         }
         log.info("Starte Batch-Prozess…");
@@ -59,7 +60,7 @@ public class AppBulkTool implements CommandLineRunner, ExitCodeGenerator {
             case "--MyExcelToEspo" -> processMyExcel(TASK.TO_ESPO);
             case "--MyExcelToDuplicateCheck" -> processMyExcel(TASK.TO_DUPLICATE_CHECK);
 
-            default -> log.error("Unknown command {}", args[0]);
+            default -> log.error(String.format("Unknown command %s", args[0]));
         }
         log.info("Batch-Prozess beendet.");
     }
@@ -102,5 +103,4 @@ public class AppBulkTool implements CommandLineRunner, ExitCodeGenerator {
             uploadDuplicateCheckFile.process(Paths.get("/home/ralf/espocrm-demo/MyExcelKunden_V001.xlsx"), 1, "MyExcel");
         }
     }
-
 }

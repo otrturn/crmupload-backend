@@ -27,7 +27,7 @@ public class CrmUploadWorker {
             return;
         }
 
-        log.info("Claimed {} crm_upload job(s): {}", uploadIds.size(), uploadIds);
+        log.info(String.format("Claimed %d crm_upload job(s): %s", uploadIds.size(), uploadIds));
 
         List<CrmUploadContent> uploads = repository.findUploadsByIds(uploadIds);
 

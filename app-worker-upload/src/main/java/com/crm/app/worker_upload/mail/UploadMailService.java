@@ -34,18 +34,16 @@ public class UploadMailService {
             helper.setTo(customer.emailAddress());
             helper.setSubject(String.format("Ihre %s Daten wurden in das CRM %s übertragen", upload.getSourceSystem(), upload.getCrmSystem()));
             helper.setText(bodySuccessForEspo(customer, upload.getSourceSystem(), upload.getCrmSystem(), espoEntityPool), false);
-
             helper.setFrom("noreply@crmupload.de");
 
             mailSender.send(message);
-            log.info("Upload-Success mail sent to {}", customer.emailAddress());
+            log.info(String.format("Upload-Success mail sent to %s", customer.emailAddress()));
         } catch (MessagingException e) {
-            log.error("Upload-Error mail to send activation mail to {}", customer.emailAddress(), e);
+            log.error(String.format("Upload-Error mail to send activation mail to %s", customer.emailAddress()), e);
         }
     }
 
     private String bodySuccessForEspo(Customer customer, String sourceSystem, String crmSystem, EspoEntityPool espoEntityPool) {
-
         StringBuilder sb = new StringBuilder();
 
         sb.append("Hallo ")
@@ -58,7 +56,6 @@ public class UploadMailService {
                 .append("Kontakte angelegt.\n\n");
 
         sb.append(AppConstants.RECOMMENDATION);
-
         sb.append("Viele Grüße\n").append("Ihr CRM -Upload - Team\n\n");
 
         return sb.toString();
@@ -72,16 +69,15 @@ public class UploadMailService {
             helper.setTo(customer.emailAddress());
             helper.setSubject(String.format("Ihre %s Daten müssen noch korrigiert werden", upload.getSourceSystem()));
             helper.setText(bodyFailedForEspo(customer, upload.getSourceSystem(), upload.getCrmSystem(), errors), false);
-
             helper.setFrom("noreply@crmupload.de");
 
             FileSystemResource file = new FileSystemResource(excelTargetfile.toFile());
             helper.addAttachment(file.getFilename(), file);
 
             mailSender.send(message);
-            log.info("Activation mail sent to {}", customer.emailAddress());
+            log.info(String.format("Activation mail sent to %s", customer.emailAddress()));
         } catch (MessagingException e) {
-            log.error("Failed to send activation mail to {}", customer.emailAddress(), e);
+            log.error(String.format("Failed to send activation mail to %s", customer.emailAddress()), e);
         }
     }
 
@@ -111,12 +107,8 @@ public class UploadMailService {
         }
 
         sb.append(AppConstants.RECOMMENDATION);
-
-        sb.append("\nViele Grüße\n")
-                .append("Ihr CRM-Upload-Team\n");
+        sb.append("\nViele Grüße\n").append("Ihr CRM-Upload-Team\n");
 
         return sb.toString();
     }
-
 }
-

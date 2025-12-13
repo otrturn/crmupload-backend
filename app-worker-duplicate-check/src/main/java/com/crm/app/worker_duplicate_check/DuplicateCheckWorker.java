@@ -27,7 +27,7 @@ public class DuplicateCheckWorker {
             return;
         }
 
-        log.info("Claimed {} duplicate-check job(s) for verification: {}", duplicateCheckIds.size(), duplicateCheckIds);
+        log.info(String.format("Claimed %d duplicate-check job(s) for verification: %s", duplicateCheckIds.size(), String.valueOf(duplicateCheckIds)));
 
         List<DuplicateCheckContent> duplicateChecks = duplicateCheckRepositoryPort.findDuplicateChecksByIds(duplicateCheckIds);
 
@@ -49,7 +49,7 @@ public class DuplicateCheckWorker {
             return;
         }
 
-        log.info("Claimed {} duplicate-check job(s) for finalisation: {}", duplicateCheckIds.size(), duplicateCheckIds);
+        log.info(String.format("Claimed %d duplicate-check job(s) for finalisation: %s", duplicateCheckIds.size(), String.valueOf(duplicateCheckIds)));
 
         List<DuplicateCheckContent> duplicateChecks = duplicateCheckRepositoryPort.findDuplicateChecksByIds(duplicateCheckIds);
 

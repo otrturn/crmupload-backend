@@ -46,7 +46,7 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
     private static final String DURATION_FORMAT_STRING = "Duration: %02d:%02d:%02d";
 
     public void processDuplicateCheckForCheck(DuplicateCheckContent duplicateCheckContent) {
-        log.info("processDuplicateCheckForCheck for {} {}", duplicateCheckContent.getDuplicateCheckId(), duplicateCheckContent.getSourceSystem());
+        log.info(String.format("processDuplicateCheckForCheck for %d %s", duplicateCheckContent.getDuplicateCheckId(), duplicateCheckContent.getSourceSystem()));
         try {
 
             log.info("Start embedding ...");
@@ -71,7 +71,7 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
                 log.error(String.format("Customer not found for customerId=%d", duplicateCheckContent.getCustomerId()));
             }
         } catch (Exception ex) {
-            log.error("ERROR=" + ex.getMessage());
+            log.error(String.format("ERROR=%s", ex.getMessage()), ex);
             duplicateCheckRepositoryPort.markDuplicateCheckFailed(duplicateCheckContent.getDuplicateCheckId(), ex.getMessage());
         }
     }
@@ -99,8 +99,8 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
                 idx++;
             }
         } catch (IOException e) {
-            log.error("getEmbedding",e);
-            throw new WorkerDuplicateCheckGpuEmbeddingException("Cannot get embedding",e);
+            log.error(String.format("getEmbedding: %s", e.getMessage()), e);
+            throw new WorkerDuplicateCheckGpuEmbeddingException("Cannot get embedding", e);
         }
         return companiesEmbedded;
     }
@@ -128,11 +128,11 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
         try (Workbook workbook = new XSSFWorkbook();
              ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
 
-            byte[] ocker = new byte[] {
-                    (byte) 0xFF,   // Alpha
-                    (byte) 0xFF,   // Red
-                    (byte) 0xE6,   // Green
-                    (byte) 0x99    // Blue
+            byte[] ocker = new byte[]{
+                    (byte) 0xFF,
+                    (byte) 0xFF,
+                    (byte) 0xE6,
+                    (byte) 0x99
             };
 
             XSSFColor ockerColor = new XSSFColor(ocker, new DefaultIndexedColorMap());
@@ -234,13 +234,11 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
                         cell.setCellValue(companyEmbeddedSimilar.getCountry());
 
                         rowIdx++;
-
                     }
 
                     sheet.groupRow(idxFirstRowOfGroup, idxLastRowOfGroup);
 
                     partnerCounter++;
-
                 }
 
                 rowIdx++;
@@ -249,9 +247,8 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
             workbook.write(bos);
             duplicateCheckContent.setContent(bos.toByteArray());
         } catch (IOException e) {
-            log.error("createResultWorkbook",e);
-            throw new WorkerDuplicateCheckGpuException("Fehler beim Erzeugen des Excel-Workbooks: ",e);
+            log.error(String.format("createResultWorkbook: %s", e.getMessage()), e);
+            throw new WorkerDuplicateCheckGpuException("Fehler beim Erzeugen des Excel-Workbooks: ", e);
         }
     }
-
 }

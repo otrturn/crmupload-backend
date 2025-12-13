@@ -23,7 +23,7 @@ public class GetUploadFile {
     private final AppMaintenanceConfig appMaintenanceConfig;
 
     public void get(long uploadId) {
-        log.info("Get Upload File for {}.", uploadId);
+        log.info(String.format("Get Upload File for %d.", uploadId));
         List<CrmUploadContent> uploads = repository.findUploadsByIds(List.of(uploadId));
         if (uploads.isEmpty()) {
             throw new MaintenanceException("no upload found for id " + uploadId);
@@ -31,15 +31,15 @@ public class GetUploadFile {
         CrmUploadContent upload = uploads.get(0);
         Path excelSourceFile = Paths.get(String.format("%s/Maintenance_Upload_%s_%s_%06d.xlsx", appMaintenanceConfig.getWorkdir(), upload.getSourceSystem(), upload.getCrmSystem(), upload.getUploadId()));
         writeExcelToFile(upload.getContent(), excelSourceFile);
-        log.info("{} written ", excelSourceFile);
+        log.info(String.format("%s written", excelSourceFile));
     }
 
     public static void writeExcelToFile(byte[] data, Path target) {
         try {
             Files.write(target, data);
         } catch (IOException e) {
-            log.info("Failed to write Excel file {}", target.getFileName());
-            throw new IllegalStateException("Failed to write Excel file {}" + target.getFileName(), e);
+            log.info(String.format("Failed to write Excel file %s", target.getFileName()));
+            throw new IllegalStateException(String.format("Failed to write Excel file %s", target.getFileName()), e);
         }
     }
 }

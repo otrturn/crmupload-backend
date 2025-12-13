@@ -35,17 +35,14 @@ public class AuthenticationService {
     }
 
     public LoginResponse login(LoginRequest request) {
-        log.info("login request: {}", request);
-        var authToken = new UsernamePasswordAuthenticationToken(
-                request.username(), request.password()
-        );
+        log.info(String.format("login request: %s", String.valueOf(request)));
+        var authToken = new UsernamePasswordAuthenticationToken(request.username(), request.password());
 
         try {
             authManager.authenticate(authToken);
-            log.info("Login successful for username={}", request.username());
+            log.info(String.format("Login successful for username=%s", request.username()));
         } catch (AuthenticationException ex) {
-            log.error("Authentication failed for username={}: {} - {}",
-                    request.username(), ex.getClass().getSimpleName(), ex.getMessage());
+            log.error(String.format("Authentication failed for username=%s: %s - %s", request.username(), ex.getClass().getSimpleName(), ex.getMessage()), ex);
             throw ex;
         }
 

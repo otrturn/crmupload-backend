@@ -30,16 +30,15 @@ public class DuplicatecheckMailService {
             helper.setTo(customer.emailAddress());
             helper.setSubject(String.format("Ihre %s Daten wurden auf Dubletten geprüft", duplicateCheckContent.getSourceSystem()));
             helper.setText(bodySuccess(customer, duplicateCheckContent.getSourceSystem()), false);
-
             helper.setFrom("noreply@crmupload.de");
 
             ByteArrayResource resource = new ByteArrayResource(resultFile);
             helper.addAttachment("Ergebnis.xlsx", resource);
 
             mailSender.send(message);
-            log.info("Duplicate check success mail sent to {}", customer.emailAddress());
+            log.info(String.format("Duplicate check success mail sent to %s", customer.emailAddress()));
         } catch (MessagingException e) {
-            log.error("Duplicate check error mail to send activation mail to {}", customer.emailAddress(), e);
+            log.error(String.format("Duplicate check error mail to send activation mail to %s", customer.emailAddress()), e);
         }
     }
 
@@ -51,16 +50,15 @@ public class DuplicatecheckMailService {
             helper.setTo(customer.emailAddress());
             helper.setSubject(String.format("Ihre %s Daten müssen noch korrigiert werden", duplicateCheckContent.getSourceSystem()));
             helper.setText(bodyFailed(customer, duplicateCheckContent.getSourceSystem(), errors), false);
-
             helper.setFrom("noreply@crmupload.de");
 
             ByteArrayResource resource = new ByteArrayResource(errorFile);
             helper.addAttachment("Korrektur.xlsx", resource);
 
             mailSender.send(message);
-            log.info("Error mail sent to {}", customer.emailAddress());
+            log.info(String.format("Error mail sent to %s", customer.emailAddress()));
         } catch (MessagingException e) {
-            log.error("Failed to send activation mail to {}", customer.emailAddress(), e);
+            log.error(String.format("Failed to send activation mail to %s", customer.emailAddress()), e);
         }
     }
 
@@ -72,7 +70,7 @@ public class DuplicatecheckMailService {
                 .append(",\n\n")
                 .append("Ihre ")
                 .append(sourceSystem)
-                .append(" Daten konnten noch nicht für di Dublettenprüfugn vorbereitet werden\n")
+                .append(" Daten konnten noch nicht für die Dublettenprüfung vorbereitet werden\n")
                 .append("Folgende Korrekturen müssen noch vorgenommen werden:\n");
 
         for (ErrMsg error : errors) {
@@ -88,9 +86,7 @@ public class DuplicatecheckMailService {
         }
 
         sb.append(AppConstants.RECOMMENDATION);
-
-        sb.append("\nViele Grüße\n")
-                .append("Ihr CRM-Upload-Team\n");
+        sb.append("\nViele Grüße\n").append("Ihr CRM-Upload-Team\n");
 
         return sb.toString();
     }
@@ -107,12 +103,8 @@ public class DuplicatecheckMailService {
                 .append("Das Ergebnis finden Sie im Anhang.\n");
 
         sb.append(AppConstants.RECOMMENDATION);
-
-        sb.append("\nViele Grüße\n")
-                .append("Ihr CRM-Upload-Team\n");
+        sb.append("\nViele Grüße\n").append("Ihr CRM-Upload-Team\n");
 
         return sb.toString();
     }
-
 }
-

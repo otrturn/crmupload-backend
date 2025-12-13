@@ -33,7 +33,7 @@ public class DuplicateCheckWorkerProcessForBexio {
     private final BexioCtx bexioCtx;
 
     public void processDuplicateCheckForVerification(DuplicateCheckContent duplicateCheckContent) {
-        log.info("Processing crm_upload for Bexio duplicateCheckId={} sourceSysten={}", duplicateCheckContent.getDuplicateCheckId(), duplicateCheckContent.getSourceSystem());
+        log.info(String.format("Processing crm_upload for Bexio duplicateCheckId=%d sourceSysten=%s", duplicateCheckContent.getDuplicateCheckId(), duplicateCheckContent.getSourceSystem()));
         try {
             List<ErrMsg> errors = new ArrayList<>();
 
@@ -56,7 +56,7 @@ public class DuplicateCheckWorkerProcessForBexio {
                 log.error(String.format("Customer not found for customerId=%d", duplicateCheckContent.getCustomerId()));
             }
         } catch (Exception ex) {
-            log.error("processDuplicateCheckForVerification",ex);
+            log.error(String.format("processDuplicateCheckForVerification: %s", ex.getMessage()), ex);
             duplicateCheckRepositoryPort.markDuplicateCheckFailed(duplicateCheckContent.getDuplicateCheckId(), ex.getMessage());
         }
     }
@@ -72,13 +72,15 @@ public class DuplicateCheckWorkerProcessForBexio {
                 String msg = String.format("[Account] Zeile %d: PLZ ist leer", i + 1);
                 errors.add(new ErrMsg(0, i, indexMap.get(BexioColumn.PLZ), BexioColumn.PLZ.name(), msg));
             } else {
-                DuplicateCheckEntry duplicateCheckEntry = new DuplicateCheckEntry(bexioEntry.getAccountName(),
+                DuplicateCheckEntry duplicateCheckEntry = new DuplicateCheckEntry(
+                        bexioEntry.getAccountName(),
                         bexioEntry.getAddress().getPostcalCode(),
                         bexioEntry.getAddress().getStreet(),
                         bexioEntry.getAddress().getCity(),
                         bexioEntry.getAddress().getCountry(),
                         !bexioEntry.getEmailAddressData().isEmpty() ? bexioEntry.getEmailAddressData().get(0).getEmailAddress() : "",
-                        !bexioEntry.getPhoneNumberData().isEmpty() ? bexioEntry.getPhoneNumberData().get(0).getPhoneNumber() : "");
+                        !bexioEntry.getPhoneNumberData().isEmpty() ? bexioEntry.getPhoneNumberData().get(0).getPhoneNumber() : ""
+                );
                 duplicateCheckEntries.add(duplicateCheckEntry);
             }
         }

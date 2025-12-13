@@ -31,34 +31,28 @@ public class DuplicateCheckController {
             @RequestParam("sourceSystem") @NotBlank String sourceSystem,
             @RequestPart("file") MultipartFile file
     ) {
-        duplicateCheckService.processDuplicateCheck(
-                emailAddress,
-                sourceSystem,
-                file
-        );
-
+        duplicateCheckService.processDuplicateCheck(emailAddress, sourceSystem, file);
         return ResponseEntity.ok().build();
     }
 
     @ExceptionHandler(UploadNotAllowedException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public UploadResponse handleDuplicateCheckNotAllowed(UploadNotAllowedException ex) {
-        log.warn("Duplicate-Check not allowed: {}", ex.getMessage());
+        log.warn(String.format("Duplicate-Check not allowed: %s", ex.getMessage()));
         return new UploadResponse(LITERAL_ERROR + ex.getMessage());
     }
 
     @ExceptionHandler(UploadAlreadyInProgressException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public UploadResponse handleDuplicateCheckAlreadyInProgress(UploadAlreadyInProgressException ex) {
-        log.warn("Upload already in progress: {}", ex.getMessage());
+        log.warn(String.format("Upload already in progress: %s", ex.getMessage()));
         return new UploadResponse(LITERAL_ERROR + ex.getMessage());
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public UploadResponse handleIllegalArgument(IllegalArgumentException ex) {
-        log.warn("Bad request: {}", ex.getMessage());
+        log.warn(String.format("Bad request: %s", ex.getMessage()));
         return new UploadResponse(LITERAL_ERROR + ex.getMessage());
     }
-
 }

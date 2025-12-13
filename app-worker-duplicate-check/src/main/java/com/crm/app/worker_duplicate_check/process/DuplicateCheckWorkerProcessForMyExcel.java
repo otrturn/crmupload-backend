@@ -31,7 +31,7 @@ public class DuplicateCheckWorkerProcessForMyExcel {
     private final MyExcelCtx myExcelCtx;
 
     public void processDuplicateCheckForVerification(DuplicateCheckContent duplicateCheckContent) {
-        log.info("Processing crm_upload for MyExcel duplicateCheckId={} sourceSysten={}", duplicateCheckContent.getDuplicateCheckId(), duplicateCheckContent.getSourceSystem());
+        log.info(String.format("Processing crm_upload for MyExcel duplicateCheckId=%d sourceSysten=%s", duplicateCheckContent.getDuplicateCheckId(), duplicateCheckContent.getSourceSystem()));
         try {
             List<ErrMsg> errors = new ArrayList<>();
 
@@ -52,7 +52,7 @@ public class DuplicateCheckWorkerProcessForMyExcel {
                 log.error(String.format("Customer not found for customerId=%d", duplicateCheckContent.getCustomerId()));
             }
         } catch (Exception ex) {
-            log.error("processDuplicateCheckForVerification",ex);
+            log.error(String.format("processDuplicateCheckForVerification: %s", ex.getMessage()), ex);
             duplicateCheckRepositoryPort.markDuplicateCheckFailed(duplicateCheckContent.getDuplicateCheckId(), ex.getMessage());
         }
     }
@@ -68,17 +68,18 @@ public class DuplicateCheckWorkerProcessForMyExcel {
                 String msg = String.format("[Account] Zeile %d: PLZ ist leer", i + 1);
                 errors.add(new ErrMsg(0, i, 0, "PLZ", msg));
             } else {
-                DuplicateCheckEntry duplicateCheckEntry = new DuplicateCheckEntry(myExcelEntry.getName(),
+                DuplicateCheckEntry duplicateCheckEntry = new DuplicateCheckEntry(
+                        myExcelEntry.getName(),
                         myExcelEntry.getBillingAddress().getPostcalCode(),
                         myExcelEntry.getBillingAddress().getStreet(),
                         myExcelEntry.getBillingAddress().getCity(),
                         myExcelEntry.getBillingAddress().getCountry(),
                         !myExcelEntry.getEmailAddressData().isEmpty() ? myExcelEntry.getEmailAddressData().get(0).getEmailAddress() : "",
-                        !myExcelEntry.getPhoneNumberData().isEmpty() ? myExcelEntry.getPhoneNumberData().get(0).getPhoneNumber() : "");
+                        !myExcelEntry.getPhoneNumberData().isEmpty() ? myExcelEntry.getPhoneNumberData().get(0).getPhoneNumber() : ""
+                );
                 duplicateCheckEntries.add(duplicateCheckEntry);
             }
         }
         return duplicateCheckEntries;
     }
-
 }

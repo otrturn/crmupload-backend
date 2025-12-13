@@ -50,10 +50,11 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
     private static final String LITERAL_STATUS = "status";
     private static final String LITERAL_USER_ID = "user_id";
 
-    private static final String LITERAL_NO_CUSTOMER_FOR_EMAIL = "No customer found for email '{}'";
-    private static final String LITERAL_NO_CUSTOMER_FOR_CUSTOMER_ID = "No customer found for customerId '{}'";
-    private static final String LITERAL_CUSTOMER_HAS_OPEN_CRM_UPLOADS = "Customer '{}' hasOpenCrmUploads={}";
-    private static final String LITERAL_FILE_READ_FAILED = "Failed to read file pending for customer '{}'";
+    private static final String LITERAL_NO_CUSTOMER_FOR_EMAIL = "No customer found for email '%s'";
+    private static final String LITERAL_NO_CUSTOMER_FOR_CUSTOMER_ID = "No customer found for customerId '%s'";
+    private static final String LITERAL_CUSTOMER_HAS_OPEN_CRM_UPLOADS = "Customer '%s' hasOpenCrmUploads=%s";
+    private static final String LITERAL_CUSTOMER_HAS_OPEN_DUPLICATE_CHECKS = "Customer '%s' hasOpenDuplicateChecks=%s";
+    private static final String LITERAL_FILE_READ_FAILED = "Failed to read file pending for customer '%s'";
 
     private static final String SQL_FIND_ENABLED_BY_EMAIL =
             "SELECT enabled FROM app.customer WHERE email_address = :email_address";
@@ -199,11 +200,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
                 WHERE email_address = :email_address
                 """;
 
-        Long count = jdbc.queryForObject(
-                sql,
-                new MapSqlParameterSource(LITERAL_EMAIL_ADDRESS, emailAddress),
-                Long.class
-        );
+        Long count = jdbc.queryForObject(sql, new MapSqlParameterSource(LITERAL_EMAIL_ADDRESS, emailAddress), Long.class);
         return count != null && count > 0;
     }
 
@@ -250,10 +247,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
 
         if (customer.products() != null && !customer.products().isEmpty()) {
             for (String product : customer.products()) {
-                var productParams = new MapSqlParameterSource()
-                        .addValue(LITERAL_CUSTOMER_ID_CAMELCASE, customer.customerId())
-                        .addValue(LITERAL_PRODUCT, product);
-
+                var productParams = new MapSqlParameterSource().addValue(LITERAL_CUSTOMER_ID_CAMELCASE, customer.customerId()).addValue(LITERAL_PRODUCT, product);
                 jdbc.update(SQL_INSERT_CUSTOMER_PRODUCT, productParams);
             }
         }
@@ -264,25 +258,19 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
         MapSqlParameterSource params = new MapSqlParameterSource(LITERAL_EMAIL_ADDRESS, emailAddress);
 
         try {
-            Boolean enabled = jdbc.queryForObject(
-                    SQL_FIND_ENABLED_BY_EMAIL,
-                    params,
-                    Boolean.class
-            );
+            Boolean enabled = jdbc.queryForObject(SQL_FIND_ENABLED_BY_EMAIL, params, Boolean.class);
 
             if (enabled == null) {
-                throw new IllegalStateException(
-                        "Column enabled is null for customer with email '%s'".formatted(emailAddress)
-                );
+                throw new IllegalStateException("Column enabled is null for customer with email '%s'".formatted(emailAddress));
             }
 
-            log.debug("Customer '{}' enabled={}", emailAddress, enabled);
+            log.debug(String.format("Customer '%s' enabled=%s", emailAddress, String.valueOf(enabled)));
             return enabled;
         } catch (EmptyResultDataAccessException ex) {
-            log.warn(LITERAL_NO_CUSTOMER_FOR_EMAIL, emailAddress);
+            log.warn(String.format(LITERAL_NO_CUSTOMER_FOR_EMAIL, emailAddress));
             throw new IllegalStateException("No customer found for email '" + emailAddress + "'", ex);
         } catch (DataAccessException ex) {
-            log.error("Failed to read enabled flag for customer '{}'", emailAddress, ex);
+            log.error(String.format("Failed to read enabled flag for customer '%s'", emailAddress), ex);
             throw new IllegalStateException("Could not read enabled flag for customer '" + emailAddress + "'", ex);
         }
     }
@@ -292,25 +280,19 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
         MapSqlParameterSource params = new MapSqlParameterSource(LITERAL_CUSTOMER_ID, customerId);
 
         try {
-            Boolean enabled = jdbc.queryForObject(
-                    SQL_FIND_ENABLED_BY_CUSTOMER_ID,
-                    params,
-                    Boolean.class
-            );
+            Boolean enabled = jdbc.queryForObject(SQL_FIND_ENABLED_BY_CUSTOMER_ID, params, Boolean.class);
 
             if (enabled == null) {
-                throw new IllegalStateException(
-                        "Column enabled is null for customer with customerId '%d'".formatted(customerId)
-                );
+                throw new IllegalStateException("Column enabled is null for customer with customerId '%d'".formatted(customerId));
             }
 
-            log.debug("Customer '{}' enabled={}", customerId, enabled);
+            log.debug(String.format("Customer '%d' enabled=%s", customerId, String.valueOf(enabled)));
             return enabled;
         } catch (EmptyResultDataAccessException ex) {
-            log.warn(LITERAL_NO_CUSTOMER_FOR_CUSTOMER_ID, customerId);
+            log.warn(String.format(LITERAL_NO_CUSTOMER_FOR_CUSTOMER_ID, String.valueOf(customerId)));
             throw new IllegalStateException("No customer found for customerId '" + customerId + "'", ex);
         } catch (DataAccessException ex) {
-            log.error("Failed to read enabled flag for customer '{}'", customerId, ex);
+            log.error(String.format("Failed to read enabled flag for customer '%d'", customerId), ex);
             throw new IllegalStateException("Could not read enabled flag for customerId '" + customerId + "'", ex);
         }
     }
@@ -320,25 +302,19 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
         MapSqlParameterSource params = new MapSqlParameterSource(LITERAL_EMAIL_ADDRESS, emailAddress);
 
         try {
-            Boolean hasOpenCrmUploads = jdbc.queryForObject(
-                    SQL_FIND_HAS_OPEN_CRM_UPLOADS_BY_EMAIL,
-                    params,
-                    Boolean.class
-            );
+            Boolean hasOpenCrmUploads = jdbc.queryForObject(SQL_FIND_HAS_OPEN_CRM_UPLOADS_BY_EMAIL, params, Boolean.class);
 
             if (hasOpenCrmUploads == null) {
-                throw new IllegalStateException(
-                        "Column hasOpenCrmUploads is null for customer with email '%s'".formatted(emailAddress)
-                );
+                throw new IllegalStateException("Column hasOpenCrmUploads is null for customer with email '%s'".formatted(emailAddress));
             }
 
-            log.debug(LITERAL_CUSTOMER_HAS_OPEN_CRM_UPLOADS, emailAddress, hasOpenCrmUploads);
+            log.debug(String.format(LITERAL_CUSTOMER_HAS_OPEN_CRM_UPLOADS, emailAddress, String.valueOf(hasOpenCrmUploads)));
             return hasOpenCrmUploads;
         } catch (EmptyResultDataAccessException ex) {
-            log.warn(LITERAL_NO_CUSTOMER_FOR_EMAIL, emailAddress);
+            log.warn(String.format(LITERAL_NO_CUSTOMER_FOR_EMAIL, emailAddress));
             throw new IllegalStateException("No customer found for email '" + emailAddress + "'", ex);
         } catch (DataAccessException ex) {
-            log.error(LITERAL_FILE_READ_FAILED, emailAddress, ex);
+            log.error(String.format(LITERAL_FILE_READ_FAILED, emailAddress), ex);
             throw new IllegalStateException("Could not read file pending for customer '" + emailAddress + "'", ex);
         }
     }
@@ -348,25 +324,19 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
         MapSqlParameterSource params = new MapSqlParameterSource(LITERAL_CUSTOMER_ID, customerId);
 
         try {
-            Boolean hasOpenCrmUploads = jdbc.queryForObject(
-                    SQL_FIND_HAS_OPEN_UPLOADS_BY_CUSTOMER_ID,
-                    params,
-                    Boolean.class
-            );
+            Boolean hasOpenCrmUploads = jdbc.queryForObject(SQL_FIND_HAS_OPEN_UPLOADS_BY_CUSTOMER_ID, params, Boolean.class);
 
             if (hasOpenCrmUploads == null) {
-                throw new IllegalStateException(
-                        "Column hasOpenCrmUploads is null for customer with customerId '%d'".formatted(customerId)
-                );
+                throw new IllegalStateException("Column hasOpenCrmUploads is null for customer with customerId '%d'".formatted(customerId));
             }
 
-            log.debug(LITERAL_CUSTOMER_HAS_OPEN_CRM_UPLOADS, customerId, hasOpenCrmUploads);
+            log.debug(String.format(LITERAL_CUSTOMER_HAS_OPEN_CRM_UPLOADS, String.valueOf(customerId), String.valueOf(hasOpenCrmUploads)));
             return hasOpenCrmUploads;
         } catch (EmptyResultDataAccessException ex) {
-            log.warn(LITERAL_NO_CUSTOMER_FOR_CUSTOMER_ID, customerId);
+            log.warn(String.format(LITERAL_NO_CUSTOMER_FOR_CUSTOMER_ID, String.valueOf(customerId)));
             throw new IllegalStateException("No customer found for customerId '" + customerId + "'", ex);
         } catch (DataAccessException ex) {
-            log.error(LITERAL_FILE_READ_FAILED, customerId, ex);
+            log.error(String.format(LITERAL_FILE_READ_FAILED, String.valueOf(customerId)), ex);
             throw new IllegalStateException("Could not read file pending for customer '" + customerId + "'", ex);
         }
     }
@@ -376,25 +346,19 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
         MapSqlParameterSource params = new MapSqlParameterSource(LITERAL_EMAIL_ADDRESS, emailAddress);
 
         try {
-            Boolean hasOpenDuplicateChecks = jdbc.queryForObject(
-                    SQL_FIND_HAS_OPEN_DUPLICATE_CHECKS_BY_EMAIL,
-                    params,
-                    Boolean.class
-            );
+            Boolean hasOpenDuplicateChecks = jdbc.queryForObject(SQL_FIND_HAS_OPEN_DUPLICATE_CHECKS_BY_EMAIL, params, Boolean.class);
 
             if (hasOpenDuplicateChecks == null) {
-                throw new IllegalStateException(
-                        "Column hasOpenDuplicateChecks is null for customer with email '%s'".formatted(emailAddress)
-                );
+                throw new IllegalStateException("Column hasOpenDuplicateChecks is null for customer with email '%s'".formatted(emailAddress));
             }
 
-            log.debug(LITERAL_CUSTOMER_HAS_OPEN_CRM_UPLOADS, emailAddress, hasOpenDuplicateChecks);
+            log.debug(String.format(LITERAL_CUSTOMER_HAS_OPEN_DUPLICATE_CHECKS, emailAddress, String.valueOf(hasOpenDuplicateChecks)));
             return hasOpenDuplicateChecks;
         } catch (EmptyResultDataAccessException ex) {
-            log.warn(LITERAL_NO_CUSTOMER_FOR_EMAIL, emailAddress);
+            log.warn(String.format(LITERAL_NO_CUSTOMER_FOR_EMAIL, emailAddress));
             throw new IllegalStateException("No customer found for email '" + emailAddress + "'", ex);
         } catch (DataAccessException ex) {
-            log.error(LITERAL_FILE_READ_FAILED, emailAddress, ex);
+            log.error(String.format(LITERAL_FILE_READ_FAILED, emailAddress), ex);
             throw new IllegalStateException("Could not read file pending for customer '" + emailAddress + "'", ex);
         }
     }
@@ -404,34 +368,26 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
         MapSqlParameterSource params = new MapSqlParameterSource(LITERAL_CUSTOMER_ID, customerId);
 
         try {
-            Boolean hasOpenDuplicateChecks = jdbc.queryForObject(
-                    SQL_FIND_HAS_OPEN_DUPLICATE_CHECKS_BY_CUSTOMER_ID,
-                    params,
-                    Boolean.class
-            );
+            Boolean hasOpenDuplicateChecks = jdbc.queryForObject(SQL_FIND_HAS_OPEN_DUPLICATE_CHECKS_BY_CUSTOMER_ID, params, Boolean.class);
 
             if (hasOpenDuplicateChecks == null) {
-                throw new IllegalStateException(
-                        "Column hasOpenDuplicateChecks is null for customer with customerId '%d'".formatted(customerId)
-                );
+                throw new IllegalStateException("Column hasOpenDuplicateChecks is null for customer with customerId '%d'".formatted(customerId));
             }
 
-            log.debug("Customer '{}' hasOpenDuplicateChecks={}", customerId, hasOpenDuplicateChecks);
+            log.debug(String.format(LITERAL_CUSTOMER_HAS_OPEN_DUPLICATE_CHECKS, String.valueOf(customerId), String.valueOf(hasOpenDuplicateChecks)));
             return hasOpenDuplicateChecks;
         } catch (EmptyResultDataAccessException ex) {
-            log.warn(LITERAL_NO_CUSTOMER_FOR_CUSTOMER_ID, customerId);
+            log.warn(String.format(LITERAL_NO_CUSTOMER_FOR_CUSTOMER_ID, String.valueOf(customerId)));
             throw new IllegalStateException("No customer found for customerId '" + customerId + "'", ex);
         } catch (DataAccessException ex) {
-            log.error(LITERAL_FILE_READ_FAILED, customerId, ex);
+            log.error(String.format(LITERAL_FILE_READ_FAILED, String.valueOf(customerId)), ex);
             throw new IllegalStateException("Could not read file pending for customer '" + customerId + "'", ex);
         }
     }
 
     @Override
     public void setEnabled(final long customerId, final boolean enabled) {
-        MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue(LITERAL_CUSTOMER_ID_CAMELCASE, customerId)
-                .addValue(LITERAL_ENABLED, enabled);
+        MapSqlParameterSource params = new MapSqlParameterSource().addValue(LITERAL_CUSTOMER_ID_CAMELCASE, customerId).addValue(LITERAL_ENABLED, enabled);
 
         try {
             int updated = jdbc.update(SQL_UPDATE_ENABLED, params);
@@ -460,14 +416,9 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
                 WHERE email_address = :email
                 """;
 
-        MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue(LITERAL_EMAIL, emailAddress);
+        MapSqlParameterSource params = new MapSqlParameterSource().addValue(LITERAL_EMAIL, emailAddress);
 
-        List<CustomerProfileResponse> result = jdbc.query(
-                sql,
-                params,
-                (rs, rowNum) -> mapToCustomerProfileResponse(rs, emailAddress)
-        );
+        List<CustomerProfileResponse> result = jdbc.query(sql, params, (rs, rowNum) -> mapToCustomerProfileResponse(rs, emailAddress));
 
         return result.isEmpty() ? null : result.get(0);
     }
@@ -530,72 +481,35 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
                   AND c.email_address = :email_address
                 """;
 
-        MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue(LITERAL_PASSWORD, request.password())
-                .addValue(LITERAL_EMAIL_ADDRESS, emailAddress);
+        MapSqlParameterSource params = new MapSqlParameterSource().addValue(LITERAL_PASSWORD, request.password()).addValue(LITERAL_EMAIL_ADDRESS, emailAddress);
 
         try {
             int updated = jdbc.update(sql, params);
             if (updated == 0) {
-                log.warn("No user_account/customer found for email '{}'", emailAddress);
+                log.warn(String.format("No user_account/customer found for email '%s'", emailAddress));
             }
             return updated;
         } catch (DataAccessException ex) {
-            log.error("Failed to update password for customer/user with email '{}'", emailAddress, ex);
+            log.error(String.format("Failed to update password for customer/user with email '%s'", emailAddress), ex);
             throw new IllegalStateException("Could not update password for email '" + emailAddress + "'", ex);
         }
     }
 
     @Override
     public List<CrmUploadHistory> findUploadHistoryByEmailAddress(String emailAddress) {
-        MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue(LITERAL_EMAIL_ADDRESS, emailAddress);
-
-        return jdbc.query(
-                SQL_FIND_UPLOAD_HISTORY_BY_EMAIL,
-                params,
-                (rs, rowNum) -> new CrmUploadHistory(
-                        rs.getTimestamp(LITERAL_TS),
-                        rs.getString(LITERAL_SOURCE_SYSTEM),
-                        rs.getString(LITERAL_CRM_SYSTEM),
-                        rs.getString(LITERAL_CRM_URL),
-                        rs.getString(LITERAL_CRM_CUSTOMER_ID),
-                        rs.getString(LITERAL_STATUS)
-                )
-        );
+        MapSqlParameterSource params = new MapSqlParameterSource().addValue(LITERAL_EMAIL_ADDRESS, emailAddress);
+        return jdbc.query(SQL_FIND_UPLOAD_HISTORY_BY_EMAIL, params, (rs, rowNum) -> new CrmUploadHistory(rs.getTimestamp(LITERAL_TS), rs.getString(LITERAL_SOURCE_SYSTEM), rs.getString(LITERAL_CRM_SYSTEM), rs.getString(LITERAL_CRM_URL), rs.getString(LITERAL_CRM_CUSTOMER_ID), rs.getString(LITERAL_STATUS)));
     }
 
     public Optional<CrmUploadCoreInfo> findLatestUploadByCustomerId(long customerId) {
         Map<String, Object> params = Map.of(LITERAL_CUSTOMER_ID_CAMELCASE, customerId);
-
-        List<CrmUploadCoreInfo> list = jdbc.query(
-                SQL_FIND_LATEST_SUCCESSFUL_UPLOAD_BY_CUSTOMER_ID,
-                params,
-                (rs, rowNum) -> new CrmUploadCoreInfo(
-                        rs.getString(LITERAL_SOURCE_SYSTEM),
-                        rs.getString(LITERAL_CRM_SYSTEM),
-                        rs.getString(LITERAL_CRM_URL),
-                        rs.getString(LITERAL_CRM_CUSTOMER_ID)
-                )
-        );
-
+        List<CrmUploadCoreInfo> list = jdbc.query(SQL_FIND_LATEST_SUCCESSFUL_UPLOAD_BY_CUSTOMER_ID, params, (rs, rowNum) -> new CrmUploadCoreInfo(rs.getString(LITERAL_SOURCE_SYSTEM), rs.getString(LITERAL_CRM_SYSTEM), rs.getString(LITERAL_CRM_URL), rs.getString(LITERAL_CRM_CUSTOMER_ID)));
         return list.stream().findFirst();
     }
 
     public Optional<CrmUploadCoreInfo> findLatestUploadByEmail(String email) {
         Map<String, Object> params = Map.of(LITERAL_EMAIL, email);
-
-        List<CrmUploadCoreInfo> list = jdbc.query(
-                SQL_FIND_LATEST_SUCCESSFUL_UPLOAD_BY_EMAIL,
-                params,
-                (rs, rowNum) -> new CrmUploadCoreInfo(
-                        rs.getString(LITERAL_SOURCE_SYSTEM),
-                        rs.getString(LITERAL_CRM_SYSTEM),
-                        rs.getString(LITERAL_CRM_URL),
-                        rs.getString(LITERAL_CRM_CUSTOMER_ID)
-                )
-        );
-
+        List<CrmUploadCoreInfo> list = jdbc.query(SQL_FIND_LATEST_SUCCESSFUL_UPLOAD_BY_EMAIL, params, (rs, rowNum) -> new CrmUploadCoreInfo(rs.getString(LITERAL_SOURCE_SYSTEM), rs.getString(LITERAL_CRM_SYSTEM), rs.getString(LITERAL_CRM_URL), rs.getString(LITERAL_CRM_CUSTOMER_ID)));
         return list.stream().findFirst();
     }
 
@@ -608,8 +522,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
                 ORDER BY cp.product
                 """;
 
-        MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue(LITERAL_CUSTOMER_ID_CAMELCASE, customerId);
+        MapSqlParameterSource params = new MapSqlParameterSource().addValue(LITERAL_CUSTOMER_ID_CAMELCASE, customerId);
 
         return jdbc.query(sql, params, (rs, rowNum) -> rs.getString(LITERAL_PRODUCT));
     }
@@ -625,8 +538,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
                 ORDER BY cp.product
                 """;
 
-        MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue(LITERAL_EMAIL, email);
+        MapSqlParameterSource params = new MapSqlParameterSource().addValue(LITERAL_EMAIL, email);
 
         return jdbc.query(sql, params, (rs, rowNum) -> rs.getString(LITERAL_PRODUCT));
     }
@@ -637,129 +549,70 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
             throw new IllegalArgumentException("emailAddress must not be null or blank");
         }
 
-        final MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue(LITERAL_EMAIL_ADDRESS, emailAddress);
+        final MapSqlParameterSource params = new MapSqlParameterSource().addValue(LITERAL_EMAIL_ADDRESS, emailAddress);
 
         try {
-            final Long customerId = jdbc.queryForObject(
-                    SQL_FIND_CUSTOMER_ID_BY_EMAIL,
-                    params,
-                    Long.class
-            );
+            final Long customerId = jdbc.queryForObject(SQL_FIND_CUSTOMER_ID_BY_EMAIL, params, Long.class);
 
             if (customerId == null) {
                 throw new IllegalStateException("Customer ID for emailAddress '" + emailAddress + "' is null");
             }
 
             if (log.isDebugEnabled()) {
-                log.debug("Found customer id {} for emailAddress {}", customerId, emailAddress);
+                log.debug(String.format("Found customer id %d for emailAddress %s", customerId, emailAddress));
             }
 
             return customerId;
         } catch (EmptyResultDataAccessException ex) {
-            log.warn("No customer found for emailAddress {}", emailAddress);
+            log.warn(String.format("No customer found for emailAddress %s", emailAddress));
             throw new IllegalStateException("No customer found for emailAddress '" + emailAddress + "'", ex);
         } catch (DataAccessException ex) {
-            log.error("Failed to find customer id for emailAddress {}", emailAddress, ex);
+            log.error(String.format("Failed to find customer id for emailAddress %s", emailAddress), ex);
             throw new IllegalStateException("Could not retrieve customer id for emailAddress '" + emailAddress + "'", ex);
         }
     }
 
     @Override
     public Optional<Customer> findCustomerByCustomerId(long customerId) {
-
-        MapSqlParameterSource params =
-                new MapSqlParameterSource()
-                        .addValue(LITERAL_CUSTOMER_ID_CAMELCASE, customerId);
+        MapSqlParameterSource params = new MapSqlParameterSource().addValue(LITERAL_CUSTOMER_ID_CAMELCASE, customerId);
 
         try {
-            List<Customer> rows = jdbc.query(
-                    SQL_CUSTOMER_FIND_BY_CUSTOMER_ID,
-                    params,
-                    (rs, rowNum) -> new Customer(
-                            rs.getLong(LITERAL_CUSTOMER_ID),
-                            rs.getLong(LITERAL_USER_ID),
-                            rs.getString(LITERAL_FIRSTNAME),
-                            rs.getString(LITERAL_LASTNAME),
-                            rs.getString(LITERAL_COMPANY_NAME),
-                            rs.getString(LITERAL_EMAIL_ADDRESS),
-                            rs.getString(LITERAL_PHONE_NUMBER),
-                            rs.getString(LITERAL_ADRLINE1),
-                            rs.getString(LITERAL_ADRLINE2),
-                            rs.getString(LITERAL_POSTALCODE),
-                            rs.getString(LITERAL_CITY),
-                            rs.getString(LITERAL_COUNTRY),
-                            null
-                    )
-            );
+            List<Customer> rows = jdbc.query(SQL_CUSTOMER_FIND_BY_CUSTOMER_ID, params, (rs, rowNum) -> new Customer(rs.getLong(LITERAL_CUSTOMER_ID), rs.getLong(LITERAL_USER_ID), rs.getString(LITERAL_FIRSTNAME), rs.getString(LITERAL_LASTNAME), rs.getString(LITERAL_COMPANY_NAME), rs.getString(LITERAL_EMAIL_ADDRESS), rs.getString(LITERAL_PHONE_NUMBER), rs.getString(LITERAL_ADRLINE1), rs.getString(LITERAL_ADRLINE2), rs.getString(LITERAL_POSTALCODE), rs.getString(LITERAL_CITY), rs.getString(LITERAL_COUNTRY), null));
 
             if (rows.isEmpty()) {
                 return Optional.empty();
             }
 
             if (rows.size() > 1) {
-                throw new IllegalStateException(
-                        "Mehrere Customers mit customer_id=" + customerId + " gefunden"
-                );
+                throw new IllegalStateException("Mehrere Customers mit customer_id=" + customerId + " gefunden");
             }
 
             Customer customer = rows.get(0);
 
             List<String> products = loadProductsForCustomer(customerId);
 
-            Customer enrichedCustomer = new Customer(
-                    customer.customerId(),
-                    customer.userId(),
-                    customer.firstname(),
-                    customer.lastname(),
-                    customer.companyName(),
-                    customer.emailAddress(),
-                    customer.phoneNumber(),
-                    customer.adrline1(),
-                    customer.adrline2(),
-                    customer.postalcode(),
-                    customer.city(),
-                    customer.country(),
-                    products
-            );
+            Customer enrichedCustomer = new Customer(customer.customerId(), customer.userId(), customer.firstname(), customer.lastname(), customer.companyName(), customer.emailAddress(), customer.phoneNumber(), customer.adrline1(), customer.adrline2(), customer.postalcode(), customer.city(), customer.country(), products);
 
             return Optional.of(enrichedCustomer);
 
         } catch (DataAccessException ex) {
-            log.error("Fehler beim Lesen von Customer customer_id={}", customerId, ex);
-            throw new IllegalStateException(
-                    "Fehler beim Lesen von Customer customer_id=" + customerId, ex
-            );
+            log.error(String.format("Fehler beim Lesen von Customer customer_id=%d", customerId), ex);
+            throw new IllegalStateException("Fehler beim Lesen von Customer customer_id=" + customerId, ex);
         }
     }
 
     @Override
     public List<DuplicateCheckHistory> findDuplicateCheckHistoryByEmailAddress(String emailAddress) {
-        MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue(LITERAL_EMAIL_ADDRESS, emailAddress);
-
-        return jdbc.query(
-                SQL_FIND_DUPLICATE_CHECK_HISTORY_BY_EMAIL,
-                params,
-                (rs, rowNum) -> new DuplicateCheckHistory(
-                        rs.getTimestamp(LITERAL_TS),
-                        rs.getString(LITERAL_SOURCE_SYSTEM),
-                        rs.getString(LITERAL_STATUS)
-                )
-        );
+        MapSqlParameterSource params = new MapSqlParameterSource().addValue(LITERAL_EMAIL_ADDRESS, emailAddress);
+        return jdbc.query(SQL_FIND_DUPLICATE_CHECK_HISTORY_BY_EMAIL, params, (rs, rowNum) -> new DuplicateCheckHistory(rs.getTimestamp(LITERAL_TS), rs.getString(LITERAL_SOURCE_SYSTEM), rs.getString(LITERAL_STATUS)));
     }
 
     private List<String> loadProductsForCustomer(long customerId) {
         try {
-            MapSqlParameterSource params = new MapSqlParameterSource()
-                    .addValue(LITERAL_CUSTOMER_ID_CAMELCASE, customerId);
-            return jdbc.query(
-                    SQL_FIND_PRODUCTS_BY_CUSTOMER_ID,
-                    params,
-                    (rs, rowNum) -> rs.getString(LITERAL_PRODUCT)
-            );
+            MapSqlParameterSource params = new MapSqlParameterSource().addValue(LITERAL_CUSTOMER_ID_CAMELCASE, customerId);
+            return jdbc.query(SQL_FIND_PRODUCTS_BY_CUSTOMER_ID, params, (rs, rowNum) -> rs.getString(LITERAL_PRODUCT));
         } catch (DataAccessException ex) {
-            log.error("Fehler beim Lesen der Produkte für customer_id={}", customerId, ex);
+            log.error(String.format("Fehler beim Lesen der Produkte für customer_id=%d", customerId), ex);
             throw new IllegalStateException("Konnte Produkte für Customer nicht laden", ex);
         }
     }

@@ -135,24 +135,17 @@ public class JdbcDuplicateCheckRepositoryAdapter implements DuplicateCheckReposi
     @Override
     public long nextDuplicateCheckId() {
         try {
-            final Long nextId = jdbcTemplate.queryForObject(
-                    SQL_DUPLICATE_CHECK_ID,
-                    new MapSqlParameterSource(),
-                    Long.class
-            );
+            final Long nextId = jdbcTemplate.queryForObject(SQL_DUPLICATE_CHECK_ID, new MapSqlParameterSource(), Long.class);
 
-            final Long nonNullNextId = Objects.requireNonNull(
-                    nextId,
-                    "Sequence " + SEQUENCE_DUPLICATE_CHECK_ID + " returned null"
-            );
+            final Long nonNullNextId = Objects.requireNonNull(nextId, "Sequence " + SEQUENCE_DUPLICATE_CHECK_ID + " returned null");
 
             if (log.isDebugEnabled()) {
-                log.debug("Generated next duplicateCheck id: {}", nonNullNextId);
+                log.debug(String.format("Generated next duplicateCheck id: %d", nonNullNextId));
             }
 
             return nonNullNextId;
         } catch (DataAccessException ex) {
-            log.error("Failed to obtain next duplicateCheck id from sequence {}", SEQUENCE_DUPLICATE_CHECK_ID, ex);
+            log.error(String.format("Failed to obtain next duplicateCheck id from sequence %s", SEQUENCE_DUPLICATE_CHECK_ID), ex);
             throw new IllegalStateException("Could not retrieve next duplicateCheck id", ex);
         }
     }
@@ -173,40 +166,24 @@ public class JdbcDuplicateCheckRepositoryAdapter implements DuplicateCheckReposi
             final int affectedRows = jdbcTemplate.update(SQL_INSERT_DUPLICATE_CHECK, params);
 
             if (affectedRows != 1) {
-                log.error(String.format("Insert into app.crm_upload affected %d rows for uploadId=%s", affectedRows, duplicateCheckRequest.getDuplicateCheckId()));
-                throw new IllegalStateException(
-                        "Insert into app.crm_upload did not affect exactly one row (affected=" + affectedRows + ")"
-                );
+                log.error(String.format("Insert into app.duplicate_check affected %d rows for duplicateCheckId=%d", affectedRows, duplicateCheckRequest.getDuplicateCheckId()));
+                throw new IllegalStateException("Insert into app.duplicate_check did not affect exactly one row (affected=" + affectedRows + ")");
             }
 
             if (log.isDebugEnabled()) {
-                log.debug(
-                        "Inserted duplicate-check: duplicateCheckId={}, customerId={}, status={}",
-                        duplicateCheckRequest.getDuplicateCheckId(),
-                        duplicateCheckRequest.getCustomerId(),
-                        STATUS_DUPLICATE_CHECK_NEW);
+                log.debug(String.format("Inserted duplicate-check: duplicateCheckId=%d, customerId=%d, status=%s", duplicateCheckRequest.getDuplicateCheckId(), duplicateCheckRequest.getCustomerId(), STATUS_DUPLICATE_CHECK_NEW));
             }
         } catch (DataAccessException ex) {
-            log.error(
-                    "Failed to insert duplicate-check upload for duplicateCheckId={}, customerId={}}",
-                    duplicateCheckRequest.getDuplicateCheckId(),
-                    duplicateCheckRequest.getCustomerId(),
-                    ex
-            );
+            log.error(String.format("Failed to insert duplicate-check upload for duplicateCheckId=%d, customerId=%d", duplicateCheckRequest.getDuplicateCheckId(), duplicateCheckRequest.getCustomerId()), ex);
             throw new IllegalStateException("Could not insert customer upload", ex);
         }
     }
 
     @Override
     public List<Long> claimNextDuplicateChecksForVerification(final int limit) {
-        final MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue(LITERAL_LIMIT, limit);
+        final MapSqlParameterSource params = new MapSqlParameterSource().addValue(LITERAL_LIMIT, limit);
         try {
-            return jdbcTemplate.query(
-                    SQL_CLAIM_NEXT_DUPLICATE_CHECK_IDS_FOR_VERIFICATION,
-                    params,
-                    (rs, rowNum) -> rs.getLong(LITERAL_DUPLICATE_CHECK_ID)
-            );
+            return jdbcTemplate.query(SQL_CLAIM_NEXT_DUPLICATE_CHECK_IDS_FOR_VERIFICATION, params, (rs, rowNum) -> rs.getLong(LITERAL_DUPLICATE_CHECK_ID));
         } catch (DataAccessException ex) {
             log.error("Failed to claim duplicate checks for verification", ex);
             throw new IllegalStateException("Could not claim next duplicate checks for verification", ex);
@@ -215,14 +192,9 @@ public class JdbcDuplicateCheckRepositoryAdapter implements DuplicateCheckReposi
 
     @Override
     public List<Long> claimNextDuplicateChecksForFinalisation(final int limit) {
-        final MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue(LITERAL_LIMIT, limit);
+        final MapSqlParameterSource params = new MapSqlParameterSource().addValue(LITERAL_LIMIT, limit);
         try {
-            return jdbcTemplate.query(
-                    SQL_CLAIM_NEXT_DUPLICATE_CHECK_IDS_FOR_FINALISATION,
-                    params,
-                    (rs, rowNum) -> rs.getLong(LITERAL_DUPLICATE_CHECK_ID)
-            );
+            return jdbcTemplate.query(SQL_CLAIM_NEXT_DUPLICATE_CHECK_IDS_FOR_FINALISATION, params, (rs, rowNum) -> rs.getLong(LITERAL_DUPLICATE_CHECK_ID));
         } catch (DataAccessException ex) {
             log.error("Failed to claim duplicate checks for finalisation", ex);
             throw new IllegalStateException("Could not claim next duplicate checks for finalisation", ex);
@@ -231,14 +203,9 @@ public class JdbcDuplicateCheckRepositoryAdapter implements DuplicateCheckReposi
 
     @Override
     public List<Long> claimNextDuplicateChecksForCheck(final int limit) {
-        final MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue(LITERAL_LIMIT, limit);
+        final MapSqlParameterSource params = new MapSqlParameterSource().addValue(LITERAL_LIMIT, limit);
         try {
-            return jdbcTemplate.query(
-                    SQL_CLAIM_NEXT_DUPLICATE_CHECK_IDS_FOR_CHECK,
-                    params,
-                    (rs, rowNum) -> rs.getLong(LITERAL_DUPLICATE_CHECK_ID)
-            );
+            return jdbcTemplate.query(SQL_CLAIM_NEXT_DUPLICATE_CHECK_IDS_FOR_CHECK, params, (rs, rowNum) -> rs.getLong(LITERAL_DUPLICATE_CHECK_ID));
         } catch (DataAccessException ex) {
             log.error("Failed to claim duplicate checks for finalisation", ex);
             throw new IllegalStateException("Could not claim next duplicate checks for finalisation", ex);
@@ -247,51 +214,44 @@ public class JdbcDuplicateCheckRepositoryAdapter implements DuplicateCheckReposi
 
     @Override
     public void markDuplicateCheckVerified(final long uploadId, byte[] content) {
-        final MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue(LITERAL_DUPLICATE_CHECK_ID_CAMELCASE, uploadId)
-                .addValue(LITERAL_CONTENT, content);
+        final MapSqlParameterSource params = new MapSqlParameterSource().addValue(LITERAL_DUPLICATE_CHECK_ID_CAMELCASE, uploadId).addValue(LITERAL_CONTENT, content);
         try {
             jdbcTemplate.update(SQL_MARK_DUPLICATE_CHECK_VERIFIED, params);
         } catch (DataAccessException ex) {
-            log.error("Failed to mark duplicate check {} as failed", uploadId, ex);
+            log.error(String.format("Failed to mark duplicate check %d as verified", uploadId), ex);
             throw new IllegalStateException("Could not mark duplicate check as checked", ex);
         }
     }
 
     @Override
     public void markDuplicateCheckChecked(final long uploadId, byte[] content) {
-        final MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue(LITERAL_DUPLICATE_CHECK_ID_CAMELCASE, uploadId)
-                .addValue(LITERAL_CONTENT, content);
+        final MapSqlParameterSource params = new MapSqlParameterSource().addValue(LITERAL_DUPLICATE_CHECK_ID_CAMELCASE, uploadId).addValue(LITERAL_CONTENT, content);
         try {
             jdbcTemplate.update(SQL_MARK_DUPLICATE_CHECK_CHECKED, params);
         } catch (DataAccessException ex) {
-            log.error("Failed to mark duplicate check {} as failed", uploadId, ex);
+            log.error(String.format("Failed to mark duplicate check %d as checked", uploadId), ex);
             throw new IllegalStateException("Could not mark duplicate check as checked", ex);
         }
     }
 
     @Override
     public void markDuplicateCheckFailed(final long uploadId, final String errorMessage) {
-        final MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue(LITERAL_DUPLICATE_CHECK_ID_CAMELCASE, uploadId)
-                .addValue(LITERAL_ERROR, errorMessage);
+        final MapSqlParameterSource params = new MapSqlParameterSource().addValue(LITERAL_DUPLICATE_CHECK_ID_CAMELCASE, uploadId).addValue(LITERAL_ERROR, errorMessage);
         try {
             jdbcTemplate.update(SQL_MARK_DUPLICATE_CHECK_FAILED, params);
         } catch (DataAccessException ex) {
-            log.error("Failed to mark duplicate check {} as failed", uploadId, ex);
+            log.error(String.format("Failed to mark duplicate check %d as failed", uploadId), ex);
             throw new IllegalStateException("Could not mark duplicate check as failed", ex);
         }
     }
 
     @Override
     public void markDuplicateCheckDone(final long uploadId) {
-        final MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue(LITERAL_DUPLICATE_CHECK_ID_CAMELCASE, uploadId);
+        final MapSqlParameterSource params = new MapSqlParameterSource().addValue(LITERAL_DUPLICATE_CHECK_ID_CAMELCASE, uploadId);
         try {
             jdbcTemplate.update(SQL_MARK_DUPLICATE_CHECK_DONE, params);
         } catch (DataAccessException ex) {
-            log.error("Failed to mark duplicate check {} as done", uploadId, ex);
+            log.error(String.format("Failed to mark duplicate check %d as done", uploadId), ex);
             throw new IllegalStateException("Could not mark duplicate check as done", ex);
         }
     }
@@ -302,8 +262,7 @@ public class JdbcDuplicateCheckRepositoryAdapter implements DuplicateCheckReposi
             return List.of();
         }
 
-        MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue(LITERAL_DUPLICATE_CHECK_IDS_CAMELCASE, duplicateCheckIds);
+        MapSqlParameterSource params = new MapSqlParameterSource().addValue(LITERAL_DUPLICATE_CHECK_IDS_CAMELCASE, duplicateCheckIds);
 
         try {
             return jdbcTemplate.query(
@@ -317,9 +276,8 @@ public class JdbcDuplicateCheckRepositoryAdapter implements DuplicateCheckReposi
                     )
             );
         } catch (DataAccessException ex) {
-            log.error("Failed to load duplicate-check for ids={}", duplicateCheckIds, ex);
+            log.error(String.format("Failed to load duplicate-check for ids=%s", String.valueOf(duplicateCheckIds)), ex);
             throw new IllegalStateException("Could not load customer duplicate-check", ex);
         }
     }
-
 }

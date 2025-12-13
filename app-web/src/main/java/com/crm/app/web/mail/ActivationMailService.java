@@ -27,9 +27,9 @@ public class ActivationMailService {
             helper.setFrom("noreply@crmupload.de");
 
             mailSender.send(message);
-            log.info("Activation mail sent to {}", recipientEmail);
+            log.info(String.format("Activation mail sent to %s", recipientEmail));
         } catch (MessagingException e) {
-            log.error("Activation error mail to send activation mail to {}", recipientEmail, e);
+            log.error(String.format("Activation error mail to send activation mail to %s", recipientEmail), e);
             // Je nach Philosophie:
             // - Registrierung trotzdem als „pending“ stehen lassen
             // - oder Fehler weiterwerfen
@@ -51,4 +51,3 @@ public class ActivationMailService {
                 """.formatted(name, activationLink);
     }
 }
-

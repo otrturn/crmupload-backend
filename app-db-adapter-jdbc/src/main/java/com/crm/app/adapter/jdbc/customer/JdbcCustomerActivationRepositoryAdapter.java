@@ -55,10 +55,10 @@ public class JdbcCustomerActivationRepositoryAdapter implements CustomerActivati
 
         try {
             jdbcTemplate.update(SQL_INSERT_TOKEN, params);
-            log.info("Created activation token for customerId={}", customerId);
+            log.info(String.format("Created activation token for customerId=%d", customerId));
             return token.toString();
         } catch (DataAccessException ex) {
-            log.error("Failed to create activation token for customerId={}", customerId, ex);
+            log.error(String.format("Failed to create activation token for customerId=%d", customerId), ex);
             throw new IllegalStateException("Could not create activation token", ex);
         }
     }
@@ -75,7 +75,7 @@ public class JdbcCustomerActivationRepositoryAdapter implements CustomerActivati
                 return Optional.of(rs.getLong(LITERAL_CUSTOMER_ID));
             });
         } catch (DataAccessException ex) {
-            log.error("Failed to load activation token {}", token, ex);
+            log.error(String.format("Failed to load activation token %s", token), ex);
             throw new IllegalStateException("Could not load activation token", ex);
         }
     }
@@ -86,7 +86,7 @@ public class JdbcCustomerActivationRepositoryAdapter implements CustomerActivati
         try {
             jdbcTemplate.update(SQL_MARK_TOKEN_USED, params);
         } catch (DataAccessException ex) {
-            log.error("Failed to mark activation token {} as used", token, ex);
+            log.error(String.format("Failed to mark activation token %s as used", token), ex);
             throw new IllegalStateException("Could not update activation token", ex);
         }
     }

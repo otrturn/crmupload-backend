@@ -23,7 +23,7 @@ public class GetDuplicateCheck {
     private final AppMaintenanceConfig appMaintenanceConfig;
 
     public void get(long duplicateCheckId) {
-        log.info("Get Duplicate Check File for {}.", duplicateCheckId);
+        log.info(String.format("Get Duplicate Check File for %d.", duplicateCheckId));
         List<DuplicateCheckContent> duplicateChecks = repository.findDuplicateChecksByIds(List.of(duplicateCheckId));
         if (duplicateChecks.isEmpty()) {
             throw new MaintenanceException("no duplicate check found for id " + duplicateCheckId);
@@ -31,15 +31,15 @@ public class GetDuplicateCheck {
         DuplicateCheckContent duplicateCheck = duplicateChecks.get(0);
         Path excelSourceFile = Paths.get(String.format("%s/Maintenance_Duplicate_Check_%s_%06d.xlsx", appMaintenanceConfig.getWorkdir(), duplicateCheck.getSourceSystem(), duplicateCheck.getDuplicateCheckId()));
         writeExcelToFile(duplicateCheck.getContent(), excelSourceFile);
-        log.info("{} written ", excelSourceFile);
+        log.info(String.format("%s written", excelSourceFile));
     }
 
     public static void writeExcelToFile(byte[] data, Path target) {
         try {
             Files.write(target, data);
         } catch (IOException e) {
-            log.info("Failed to write Excel file {}", target.getFileName());
-            throw new IllegalStateException("Failed to write Excel file {}" + target.getFileName(), e);
+            log.info(String.format("Failed to write Excel file %s", target.getFileName()));
+            throw new IllegalStateException(String.format("Failed to write Excel file %s", target.getFileName()), e);
         }
     }
 }

@@ -14,10 +14,11 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class RegisterCustomers {
+
     private final AppToolsConfig appToolsConfig;
 
     public void process(int n, RegisterRequest requestTemplate) {
-        log.info("registerCustomers:baseUrl=" + appToolsConfig.getBaseUrl());
+        log.info(String.format("registerCustomers:baseUrl=%s", appToolsConfig.getBaseUrl()));
 
         WebClient client = WebClient.builder()
                 .baseUrl(appToolsConfig.getBaseUrl())
@@ -34,11 +35,11 @@ public class RegisterCustomers {
                         .bodyToMono(String.class)
                         .block(); // synchron
 
-                log.info("Response " + i + ": " + response);
+                log.info(String.format("Response %d: %s", i, response));
 
             } catch (Exception ex) {
-                System.err.println("Error in request " + i + ": " + ex.getMessage());
-                log.error("Error in request {} {}", i, ex.getMessage(), ex);
+                System.err.println(String.format("Error in request %d: %s", i, ex.getMessage()));
+                log.error(String.format("Error in request %d: %s", i, ex.getMessage()), ex);
             }
         }
     }
@@ -61,5 +62,4 @@ public class RegisterCustomers {
                 List.of(AppConstants.PRODUCT_CRM_UPLOAD, AppConstants.PRODUCT_DUPLICATE_CHECK)
         );
     }
-
 }

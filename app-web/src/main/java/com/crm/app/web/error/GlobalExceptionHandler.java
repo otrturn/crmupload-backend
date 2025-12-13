@@ -17,11 +17,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<ApiError> handleIllegalState(IllegalStateException ex,
                                                        HttpServletRequest request) {
-        log.warn("Business error on {}: {}", request.getRequestURI(), ex.getMessage());
+        log.warn(String.format("Business error on %s: %s", request.getRequestURI(), ex.getMessage()));
 
         ApiError body = new ApiError(
                 HttpStatus.CONFLICT.value(),
-                HttpStatus.CONFLICT.getReasonPhrase(),   // "Conflict"
+                HttpStatus.CONFLICT.getReasonPhrase(),
                 ex.getMessage(),
                 request.getRequestURI(),
                 Instant.now(),
@@ -34,11 +34,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ApiError> handleAuthentication(AuthenticationException ex,
                                                          HttpServletRequest request) {
-        log.warn("Authentication failed on {}: {}", request.getRequestURI(), ex.getMessage());
+        log.warn(String.format("Authentication failed on %s: %s", request.getRequestURI(), ex.getMessage()));
 
         ApiError body = new ApiError(
                 HttpStatus.UNAUTHORIZED.value(),
-                HttpStatus.UNAUTHORIZED.getReasonPhrase(),    // "Unauthorized"
+                HttpStatus.UNAUTHORIZED.getReasonPhrase(),
                 "Invalid username or password",
                 request.getRequestURI(),
                 Instant.now(),
@@ -51,19 +51,19 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleGeneric(Exception ex,
                                                   HttpServletRequest request) {
-        // Ursprungsort der Exception
+
         StackTraceElement origin = ex.getStackTrace().length > 0
                 ? ex.getStackTrace()[0]
                 : null;
 
         String originInfo = (origin != null)
-                ? origin.getClassName() + "#" + origin.getMethodName() +
-                " (line " + origin.getLineNumber() + ")"
+                ? String.format("%s#%s (line %d)",
+                origin.getClassName(),
+                origin.getMethodName(),
+                origin.getLineNumber())
                 : "unknown origin";
 
-        log.error("Unexpected error on {} in {}:", request.getRequestURI(), originInfo, ex);
-
-        log.error("Unexpected error on {}:", request.getRequestURI(), ex);
+        log.error(String.format("Unexpected error on %s in %s", request.getRequestURI(), originInfo), ex);
 
         ApiError body = new ApiError(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
