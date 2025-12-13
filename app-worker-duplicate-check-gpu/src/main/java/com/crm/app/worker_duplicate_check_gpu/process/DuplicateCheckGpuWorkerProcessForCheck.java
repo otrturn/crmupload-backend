@@ -109,15 +109,15 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
         for (int i = 0; i < companiesEmbedded.size(); i++) {
             for (int j = i + 1; j < companiesEmbedded.size(); j++) {
                 double sim = EmbeddingUtils.cosineSim(companiesEmbedded.get(i).getVectors().get(0), companiesEmbedded.get(j).getVectors().get(0));
-                if (sim >= properties.getCosineSimilarityThreshold() && postalCodeDiffers(companiesEmbedded.get(i), companiesEmbedded.get(j))) {
+                if (sim >= properties.getCosineSimilarityThreshold() && postalCodeAreaEqual(companiesEmbedded.get(i), companiesEmbedded.get(j))) {
                     companiesEmbedded.get(i).getSimilarCompanies().put(companiesEmbedded.get(j), sim);
                 }
             }
         }
     }
 
-    private boolean postalCodeDiffers(CompanyEmbedded companyEmbedded1, CompanyEmbedded companyEmbedded2) {
-        return companyEmbedded1.getPostalCode().charAt(0) != companyEmbedded2.getPostalCode().charAt(0);
+    private boolean postalCodeAreaEqual(CompanyEmbedded companyEmbedded1, CompanyEmbedded companyEmbedded2) {
+        return companyEmbedded1.getPostalCode().charAt(0) == companyEmbedded2.getPostalCode().charAt(0);
     }
 
     private String getCellValue(Cell cell) {
