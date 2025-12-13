@@ -117,6 +117,7 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
     private boolean postalCodeDiffers(CompanyEmbedded companyEmbedded1, CompanyEmbedded companyEmbedded2) {
         return companyEmbedded1.getPostalCode().charAt(0) != companyEmbedded2.getPostalCode().charAt(0);
     }
+
     private String getCellValue(Cell cell) {
         return cell != null ? cell.getStringCellValue() : "";
     }
@@ -130,33 +131,84 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
             cellStyleHeaderCell.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
             Sheet sheet = workbook.createSheet("Dubletten");
-            Row row = sheet.createRow(0);
-
+            int rowIdx = 0;
+            Row row;
             Cell cell;
+
+            row = sheet.createRow(rowIdx);
+
             cell = row.createCell(0, CellType.STRING);
             cell.setCellValue("Firmenname");
             cell.setCellStyle(cellStyleHeaderCell);
+
             cell = row.createCell(1, CellType.STRING);
             cell.setCellValue("Ähnliche Firma");
             cell.setCellStyle(cellStyleHeaderCell);
 
-            int idx = 1;
+            cell = row.createCell(2, CellType.STRING);
+            cell.setCellValue("PLZ");
+            cell.setCellStyle(cellStyleHeaderCell);
+
+            cell = row.createCell(3, CellType.STRING);
+            cell.setCellValue("Strasse");
+            cell.setCellStyle(cellStyleHeaderCell);
+
+            cell = row.createCell(4, CellType.STRING);
+            cell.setCellValue("Ort");
+            cell.setCellStyle(cellStyleHeaderCell);
+
+            cell = row.createCell(5, CellType.STRING);
+            cell.setCellValue("Land");
+            cell.setCellStyle(cellStyleHeaderCell);
+
+            rowIdx++;
+
             for (CompanyEmbedded companyEmbedded : companiesEmbedded) {
-                if ( !companyEmbedded.getSimilarCompanies().isEmpty()){
-                    row = sheet.createRow(idx);
+                if (!companyEmbedded.getSimilarCompanies().isEmpty()) {
+                    row = sheet.createRow(rowIdx);
+
                     cell = row.createCell(0, CellType.STRING);
                     cell.setCellValue(companyEmbedded.getAccountName());
-                    idx++;
 
-                    for (Map.Entry<CompanyEmbedded, Double> similarCompanyEntry: companyEmbedded.getSimilarCompanies().entrySet())
-                    {
-                        row = sheet.createRow(idx);
+                    cell = row.createCell(2, CellType.STRING);
+                    cell.setCellValue(companyEmbedded.getPostalCode());
+
+                    cell = row.createCell(3, CellType.STRING);
+                    cell.setCellValue(companyEmbedded.getStreet());
+
+                    cell = row.createCell(4, CellType.STRING);
+                    cell.setCellValue(companyEmbedded.getCity());
+
+                    cell = row.createCell(5, CellType.STRING);
+                    cell.setCellValue(companyEmbedded.getCountry());
+
+                    rowIdx++;
+
+                    for (Map.Entry<CompanyEmbedded, Double> similarCompanyEntry : companyEmbedded.getSimilarCompanies().entrySet()) {
+                        row = sheet.createRow(rowIdx);
                         CompanyEmbedded companyEmbeddedSimilar = similarCompanyEntry.getKey();
+
                         cell = row.createCell(1, CellType.STRING);
                         cell.setCellValue(companyEmbeddedSimilar.getAccountName());
-                        idx++;
+
+                        cell = row.createCell(2, CellType.STRING);
+                        cell.setCellValue(companyEmbeddedSimilar.getPostalCode());
+
+                        cell = row.createCell(3, CellType.STRING);
+                        cell.setCellValue(companyEmbeddedSimilar.getStreet());
+
+                        cell = row.createCell(4, CellType.STRING);
+                        cell.setCellValue(companyEmbeddedSimilar.getCity());
+
+                        cell = row.createCell(5, CellType.STRING);
+                        cell.setCellValue(companyEmbeddedSimilar.getCountry());
+
+                        rowIdx++;
+
                     }
                 }
+
+                rowIdx++;
             }
 
             workbook.write(bos);

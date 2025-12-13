@@ -40,7 +40,7 @@ public class WorkerUtil {
                 row.createCell(IDX_ACCOUNTNAME, CellType.STRING).setCellValue(duplicateCheckEntry.getAccountName());
                 row.createCell(IDX_POSTCAL_CODE, CellType.STRING).setCellValue(duplicateCheckEntry.getPostalCode());
                 row.createCell(IDX_STREET, CellType.STRING).setCellValue(duplicateCheckEntry.getStreet());
-                row.createCell(IDX_COUNTRY, CellType.STRING).setCellValue(duplicateCheckEntry.getCity());
+                row.createCell(IDX_CITY, CellType.STRING).setCellValue(duplicateCheckEntry.getCity());
                 row.createCell(IDX_COUNTRY, CellType.STRING).setCellValue(duplicateCheckEntry.getCountry());
                 row.createCell(IDX_EMAIL_ADDRESS, CellType.STRING).setCellValue(duplicateCheckEntry.getEmailAddress());
                 row.createCell(IDX_PHONE_NUMBER, CellType.STRING).setCellValue(duplicateCheckEntry.getPhoneNumber());
