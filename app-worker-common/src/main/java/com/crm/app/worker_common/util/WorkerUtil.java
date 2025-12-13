@@ -49,7 +49,8 @@ public class WorkerUtil {
             workbook.write(bos);
             return bos.toByteArray();
         } catch (IOException e) {
-            throw new WorkerUtilCheckException("Fehler beim Erzeugen des Excel-Workbooks: " + e.getMessage());
+            log.error("Cannot process excel files [byteArray][byteArray]", e);
+            throw new WorkerUtilCheckException("Fehler beim Erzeugen des Excel-Workbooks: ", e);
         }
     }
 
@@ -61,8 +62,8 @@ public class WorkerUtil {
             workbook.write(bos);
             return bos.toByteArray();
         } catch (IOException e) {
-            log.error(e.getMessage());
-            throw new WorkerUtilCheckException("Cannot process excel files [byteArray][byteArray]");
+            log.error("Cannot process excel files [byteArray][byteArray]", e);
+            throw new WorkerUtilCheckException("Cannot process excel files [byteArray][byteArray]", e);
         }
     }
 

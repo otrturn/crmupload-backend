@@ -99,8 +99,8 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
                 idx++;
             }
         } catch (IOException e) {
-            log.error(e.getMessage());
-            throw new WorkerDuplicateCheckGpuEmbeddingException("Cannot get embedding");
+            log.error("getEmbedding",e);
+            throw new WorkerDuplicateCheckGpuEmbeddingException("Cannot get embedding",e);
         }
         return companiesEmbedded;
     }
@@ -249,7 +249,8 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
             workbook.write(bos);
             duplicateCheckContent.setContent(bos.toByteArray());
         } catch (IOException e) {
-            throw new WorkerDuplicateCheckGpuException("Fehler beim Erzeugen des Excel-Workbooks: " + e.getMessage());
+            log.error("createResultWorkbook",e);
+            throw new WorkerDuplicateCheckGpuException("Fehler beim Erzeugen des Excel-Workbooks: ",e);
         }
     }
 

@@ -81,6 +81,7 @@ public class UploadWorkerProcessForMyExcel {
                 log.error("Customer not found for customer id={}", upload.getCustomerId());
             }
         } catch (Exception ex) {
+            log.error("processUploadForEspo", ex);
             repository.markUploadFailed(upload.getUploadId(), ex.getMessage());
         }
     }

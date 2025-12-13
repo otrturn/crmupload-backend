@@ -52,7 +52,7 @@ public class DuplicateCheckWorkerProcessForMyExcel {
                 log.error("Customer not found for customer id={}", duplicateCheckContent.getCustomerId());
             }
         } catch (Exception ex) {
-            log.error("ERROR=[" + ex.getMessage() + "]");
+            log.error("processDuplicateCheckForVerification",ex);
             duplicateCheckRepositoryPort.markDuplicateCheckFailed(duplicateCheckContent.getDuplicateCheckId(), ex.getMessage());
         }
     }

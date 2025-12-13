@@ -6,6 +6,7 @@ import com.crm.app.dto.DuplicateCheckRequest;
 import com.crm.app.port.customer.CustomerRepositoryPort;
 import com.crm.app.port.customer.DuplicateCheckRepositoryPort;
 import com.crm.app.web.error.CustomerNotFoundException;
+import com.crm.app.web.error.DuplicateCheckNotAllowedException;
 import com.crm.app.web.error.UploadNotAllowedException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,13 +43,13 @@ public class DuplicateCheckService {
         boolean hasOpenDuplicatechecks = customerRepositoryPort.isHasOpenDuplicateChecksByCustomerId(customerId);
 
         if (!enabled) {
-            throw new UploadNotAllowedException(String.format("processUpload: Customer %s is not enabled", emailAddress));
+            throw new DuplicateCheckNotAllowedException(String.format("processUpload: Customer %s is not enabled", emailAddress));
         }
         if (!products.contains(AppConstants.PRODUCT_DUPLICATE_CHECK)) {
-            throw new UploadNotAllowedException(String.format("processUpload: Customer %s does not have product [%s]", emailAddress, AppConstants.PRODUCT_DUPLICATE_CHECK));
+            throw new DuplicateCheckNotAllowedException(String.format("processUpload: Customer %s does not have product [%s]", emailAddress, AppConstants.PRODUCT_DUPLICATE_CHECK));
         }
         if (hasOpenDuplicatechecks) {
-            throw new UploadNotAllowedException(String.format("processUpload: Customer %s has open duplicate-check", emailAddress));
+            throw new DuplicateCheckNotAllowedException(String.format("processUpload: Customer %s has open duplicate-check", emailAddress));
         }
 
         long duplicateCheckId = duplicateCheckRepositoryPort.nextDuplicateCheckId();

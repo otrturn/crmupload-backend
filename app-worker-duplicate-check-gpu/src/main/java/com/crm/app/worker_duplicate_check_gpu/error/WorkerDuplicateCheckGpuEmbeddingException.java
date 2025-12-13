@@ -4,4 +4,7 @@ public class WorkerDuplicateCheckGpuEmbeddingException extends RuntimeException 
     public WorkerDuplicateCheckGpuEmbeddingException(String message) {
         super(message);
     }
+    public WorkerDuplicateCheckGpuEmbeddingException(String message, Exception e) {
+        super(message,e);
+    }
 }
