@@ -7,6 +7,7 @@ import com.crm.app.port.customer.DuplicateCheckRepositoryPort;
 import com.crm.app.util.CompanyNameNormalizer;
 import com.crm.app.util.EmbeddingUtils;
 import com.crm.app.worker_common.util.WorkerUtil;
+import com.crm.app.worker_duplicate_check_gpu.config.DuplicateCheckGpuProperties;
 import com.crm.app.worker_duplicate_check_gpu.dto.CompanyEmbedded;
 import com.crm.app.worker_duplicate_check_gpu.error.WorkerDuplicateCheckGpuEmbeddingException;
 import com.crm.app.worker_duplicate_check_gpu.error.WorkerDuplicateCheckGpuException;
@@ -27,6 +28,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -37,8 +39,7 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
     private final DuplicateCheckRepositoryPort duplicateCheckRepositoryPort;
     private final CustomerRepositoryPort customerRepositoryPort;
     private final EmbeddingClientFactory clientFactory;
-
-    private static final double COMPARISON_THRESHOLD = 0.85d;
+    private final DuplicateCheckGpuProperties properties;
 
     private static final String DURATION_FORMAT_STRING = "Duration: %02d:%02d:%02d";
 
@@ -102,6 +103,20 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
         return companiesEmbedded;
     }
 
+    private void comparisonAnalysis(List<CompanyEmbedded> companiesEmbedded) {
+        for (int i = 0; i < companiesEmbedded.size(); i++) {
+            for (int j = i + 1; j < companiesEmbedded.size(); j++) {
+                double sim = EmbeddingUtils.cosineSim(companiesEmbedded.get(i).getVectors().get(0), companiesEmbedded.get(j).getVectors().get(0));
+                if (sim >= properties.getCosineSimilarityThreshold() && postalCodeDiffers(companiesEmbedded.get(i), companiesEmbedded.get(j))) {
+                    companiesEmbedded.get(i).getSimilarCompanies().put(companiesEmbedded.get(j), sim);
+                }
+            }
+        }
+    }
+
+    private boolean postalCodeDiffers(CompanyEmbedded companyEmbedded1, CompanyEmbedded companyEmbedded2) {
+        return companyEmbedded1.getPostalCode().charAt(0) != companyEmbedded2.getPostalCode().charAt(0);
+    }
     private String getCellValue(Cell cell) {
         return cell != null ? cell.getStringCellValue() : "";
     }
@@ -119,18 +134,29 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
 
             Cell cell;
             cell = row.createCell(0, CellType.STRING);
-            cell.setCellValue("Gruppe");
+            cell.setCellValue("Firmenname");
             cell.setCellStyle(cellStyleHeaderCell);
             cell = row.createCell(1, CellType.STRING);
-            cell.setCellValue("Firmenname");
+            cell.setCellValue("Ähnliche Firma");
             cell.setCellStyle(cellStyleHeaderCell);
 
             int idx = 1;
             for (CompanyEmbedded companyEmbedded : companiesEmbedded) {
-                row = sheet.createRow(idx);
-                cell = row.createCell(1, CellType.STRING);
-                cell.setCellValue(companyEmbedded.getAccountName());
-                idx++;
+                if ( !companyEmbedded.getSimilarCompanies().isEmpty()){
+                    row = sheet.createRow(idx);
+                    cell = row.createCell(0, CellType.STRING);
+                    cell.setCellValue(companyEmbedded.getAccountName());
+                    idx++;
+
+                    for (Map.Entry<CompanyEmbedded, Double> similarCompanyEntry: companyEmbedded.getSimilarCompanies().entrySet())
+                    {
+                        row = sheet.createRow(idx);
+                        CompanyEmbedded companyEmbeddedSimilar = similarCompanyEntry.getKey();
+                        cell = row.createCell(1, CellType.STRING);
+                        cell.setCellValue(companyEmbeddedSimilar.getAccountName());
+                        idx++;
+                    }
+                }
             }
 
             workbook.write(bos);
@@ -140,14 +166,4 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
         }
     }
 
-    private void comparisonAnalysis(List<CompanyEmbedded> companiesEmbedded) {
-        for (int i = 0; i < companiesEmbedded.size(); i++) {
-            for (int j = i + 1; j < companiesEmbedded.size(); j++) {
-                double sim = EmbeddingUtils.cosineSim(companiesEmbedded.get(i).getVectors().get(0), companiesEmbedded.get(j).getVectors().get(0));
-                if (sim > COMPARISON_THRESHOLD) {
-                    companiesEmbedded.get(i).getSimilar().put(companiesEmbedded.get(j), sim);
-                }
-            }
-        }
-    }
 }

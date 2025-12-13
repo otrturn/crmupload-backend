@@ -11,5 +11,6 @@ public class DuplicateCheckGpuProperties {
     private int pollIntervalMs = 10000;
     private int batchSize = 5;
     private String workdir;
+    private double cosineSimilarityThreshold = 0.85d;
 }
 

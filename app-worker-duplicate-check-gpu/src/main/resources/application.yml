@@ -8,6 +8,7 @@ app:
     poll-interval-ms: 10000
     batch-size: 5
     workdir: /data/tmp
+    cosineSimilarityThreshold: 0.85
   embedding:
     models:
       tei-bge-m3:

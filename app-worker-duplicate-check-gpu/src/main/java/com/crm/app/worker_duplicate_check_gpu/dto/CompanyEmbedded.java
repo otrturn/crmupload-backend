@@ -13,5 +13,5 @@ import java.util.Map;
 public class CompanyEmbedded extends DuplicateCheckEntry {
     private String normalisedAccountName;
     private List<float[]> vectors;
-    private Map<CompanyEmbedded, Double> similar = new HashMap<>();
+    private Map<CompanyEmbedded, Double> similarCompanies = new HashMap<>();
 }
