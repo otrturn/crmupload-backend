@@ -36,7 +36,6 @@ public class DuplicateCheckWorker {
                 processingService.processSingleDuplicateCheckForVerification(duplicateCheck);
             } catch (Exception ex) {
                 log.error(String.format("Error processing duplicate-check for verification with uploadId=%d", duplicateCheck.getDuplicateCheckId()), ex);
-                duplicateCheckRepositoryPort.markDuplicateCheckFailed(duplicateCheck.getDuplicateCheckId(), ex.getMessage());
             }
         }
     }
@@ -58,7 +57,6 @@ public class DuplicateCheckWorker {
                 processingService.processSingleDuplicateCheckForFinalisation(duplicateCheck);
             } catch (Exception ex) {
                 log.error(String.format("Error processing duplicate-check for finalisation with uploadId=%d", duplicateCheck.getDuplicateCheckId()), ex);
-                duplicateCheckRepositoryPort.markDuplicateCheckFailed(duplicateCheck.getDuplicateCheckId(), ex.getMessage());
             }
         }
     }

@@ -57,7 +57,6 @@ public class DuplicateCheckWorkerProcessForLexware {
             }
         } catch (Exception ex) {
             log.error(String.format("processDuplicateCheckForVerification: %s", ex.getMessage()), ex);
-            duplicateCheckRepositoryPort.markDuplicateCheckFailed(duplicateCheckContent.getDuplicateCheckId(), ex.getMessage());
         }
     }
 

@@ -82,7 +82,6 @@ public class UploadWorkerProcessForMyExcel {
             }
         } catch (Exception ex) {
             log.error("processUploadForEspo", ex);
-            repository.markUploadFailed(upload.getUploadId(), ex.getMessage());
         }
     }
 }

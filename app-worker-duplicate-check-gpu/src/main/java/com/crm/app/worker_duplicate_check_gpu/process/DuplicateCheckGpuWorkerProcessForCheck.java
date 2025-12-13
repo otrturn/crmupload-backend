@@ -72,7 +72,6 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
             }
         } catch (Exception ex) {
             log.error(String.format("ERROR=%s", ex.getMessage()), ex);
-            duplicateCheckRepositoryPort.markDuplicateCheckFailed(duplicateCheckContent.getDuplicateCheckId(), ex.getMessage());
         }
     }
 

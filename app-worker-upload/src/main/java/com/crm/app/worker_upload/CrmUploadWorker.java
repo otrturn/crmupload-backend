@@ -36,7 +36,6 @@ public class CrmUploadWorker {
                 processingService.processSingleUpload(upload);
             } catch (Exception ex) {
                 log.error(String.format("Error processing crm_upload with uploadId=%d", upload.getUploadId()), ex);
-                repository.markUploadFailed(upload.getUploadId(), ex.getMessage());
             }
         }
     }

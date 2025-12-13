@@ -36,7 +36,6 @@ public class DuplicateCheckGpuWorker {
                 processingService.processSingleDuplicateCheckForCheck(duplicateCheck);
             } catch (Exception ex) {
                 log.error(String.format("Error processing duplicate-check for check with uploadId=%d", duplicateCheck.getDuplicateCheckId()), ex);
-                duplicateCheckRepositoryPort.markDuplicateCheckFailed(duplicateCheck.getDuplicateCheckId(), ex.getMessage());
             }
         }
     }

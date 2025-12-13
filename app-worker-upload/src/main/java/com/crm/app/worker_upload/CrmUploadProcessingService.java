@@ -36,7 +36,7 @@ public class CrmUploadProcessingService {
             case LEXWARE -> handleLexware(upload, crmSystem);
             case MYEXCEL -> handleMyExcel(upload, crmSystem);
             default -> {
-                log.warn(String.format(ERROR_MSG, upload.getCrmSystem(), upload.getUploadId()));
+                log.error(String.format(ERROR_MSG, upload.getCrmSystem(), upload.getUploadId()));
                 repository.markUploadFailed(upload.getUploadId(), UNKNOWN_SOURCE_SYSTEM + upload.getSourceSystem());
             }
         }
