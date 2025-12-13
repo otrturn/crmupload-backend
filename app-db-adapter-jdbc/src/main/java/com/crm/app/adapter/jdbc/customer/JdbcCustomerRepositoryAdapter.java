@@ -439,7 +439,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
                 throw new IllegalStateException("No customer found for customerId=" + customerId);
             }
         } catch (DataAccessException ex) {
-            log.error("Failed to update enabled flag for customerId={}", customerId, ex);
+            log.error(String.format("Failed to update enabled flag for customerId=%d", customerId), ex);
             throw new IllegalStateException("Could not update enabled flag for customer " + customerId, ex);
         }
     }

@@ -42,7 +42,7 @@ public class DuplicateCheckProcessingService {
             case MYEXCEL ->
                     duplicateCheckWorkerProcessForMyExcel.processDuplicateCheckForVerification(duplicateCheckContent);
             default -> {
-                log.warn("Unknown sourceSystem '{}' for duplicateCheckId={}", duplicateCheckContent.getSourceSystem(), duplicateCheckContent.getDuplicateCheckId());
+                log.warn(String.format("Unknown sourceSystem '%s' for duplicateCheckId=%d", duplicateCheckContent.getSourceSystem(), duplicateCheckContent.getDuplicateCheckId()));
                 duplicateCheckRepositoryPort.markDuplicateCheckFailed(duplicateCheckContent.getDuplicateCheckId(), UNKNOWN_SOURCE_SYSTEM + duplicateCheckContent.getSourceSystem());
             }
         }
@@ -54,13 +54,13 @@ public class DuplicateCheckProcessingService {
     }
 
     private void sendSuccessMailAndUpdateToDone(DuplicateCheckContent duplicateCheckContent) {
-        log.info("sendSuccessMailAndUpdateToDone for sourceSystem {} duplicateCheckId {}", duplicateCheckContent.getSourceSystem(), duplicateCheckContent.getDuplicateCheckId());
+        log.info(String.format("sendSuccessMailAndUpdateToDone for sourceSystem=%s duplicateCheckId=%d", duplicateCheckContent.getSourceSystem(), duplicateCheckContent.getDuplicateCheckId()));
         Optional<Customer> customer = customerRepositoryPort.findCustomerByCustomerId(duplicateCheckContent.getCustomerId());
         if (customer.isPresent()) {
             duplicatecheckMailService.sendSuccessMail(customer.get(), duplicateCheckContent, duplicateCheckContent.getContent());
             duplicateCheckRepositoryPort.markDuplicateCheckDone(duplicateCheckContent.getDuplicateCheckId());
         } else {
-            log.error("Customer not found for customer id={}", duplicateCheckContent.getCustomerId());
+            log.error(String.format("Customer not found for customerId=%d", duplicateCheckContent.getCustomerId()));
         }
     }
 }

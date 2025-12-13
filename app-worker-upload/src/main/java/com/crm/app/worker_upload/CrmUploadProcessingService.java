@@ -24,7 +24,7 @@ public class CrmUploadProcessingService {
 
     private static final String UNKNOWN_CRM_SYSTEM = "Unknown crmSystem: ";
     private static final String UNKNOWN_SOURCE_SYSTEM = "Unknown sourceSystem: ";
-    private static final String ERROR_MSG = "Unknown crmSystem '{}' for uploadId={}";
+    private static final String ERROR_MSG = "Unknown crmSystem '%s' for uploadId=%d";
 
     @Transactional
     public void processSingleUpload(CrmUploadContent upload) {
@@ -36,7 +36,7 @@ public class CrmUploadProcessingService {
             case LEXWARE -> handleLexware(upload, crmSystem);
             case MYEXCEL -> handleMyExcel(upload, crmSystem);
             default -> {
-                log.warn("Unknown sourceSystem '{}' for uploadId={}", upload.getSourceSystem(), upload.getUploadId());
+                log.warn(String.format(ERROR_MSG, upload.getCrmSystem(), upload.getUploadId()));
                 repository.markUploadFailed(upload.getUploadId(), UNKNOWN_SOURCE_SYSTEM + upload.getSourceSystem());
             }
         }
@@ -49,7 +49,7 @@ public class CrmUploadProcessingService {
                 // TODO: implement
             }
             default -> {
-                log.warn(ERROR_MSG, upload.getCrmSystem(), upload.getUploadId());
+                log.warn(String.format(ERROR_MSG, upload.getCrmSystem(), upload.getUploadId()));
                 repository.markUploadFailed(upload.getUploadId(), UNKNOWN_CRM_SYSTEM + upload.getCrmSystem());
             }
         }
@@ -62,7 +62,7 @@ public class CrmUploadProcessingService {
                 // TODO: implement
             }
             default -> {
-                log.warn(ERROR_MSG, upload.getCrmSystem(), upload.getUploadId());
+                log.warn(String.format(ERROR_MSG, upload.getCrmSystem(), upload.getUploadId()));
                 repository.markUploadFailed(upload.getUploadId(), UNKNOWN_CRM_SYSTEM + upload.getCrmSystem());
             }
         }
@@ -75,7 +75,7 @@ public class CrmUploadProcessingService {
                 // TODO: implement
             }
             default -> {
-                log.warn(ERROR_MSG, upload.getCrmSystem(), upload.getUploadId());
+                log.warn(String.format(ERROR_MSG, upload.getCrmSystem(), upload.getUploadId()));
                 repository.markUploadFailed(upload.getUploadId(), UNKNOWN_CRM_SYSTEM + upload.getCrmSystem());
             }
         }

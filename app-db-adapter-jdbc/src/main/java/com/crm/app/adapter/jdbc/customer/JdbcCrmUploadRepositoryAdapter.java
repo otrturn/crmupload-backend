@@ -156,7 +156,7 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
             final int affectedRows = jdbcTemplate.update(SQL_INSERT_CRM_UPLOAD, params);
 
             if (affectedRows != 1) {
-                log.error("Insert into app.crm_upload affected {} rows for uploadId={}", affectedRows, crmUploadRequest.getUploadId());
+                log.error(String.format("Insert into app.crm_upload affected %d rows for uploadId=%d", affectedRows, crmUploadRequest.getUploadId()));
                 throw new IllegalStateException(
                         "Insert into app.crm_upload did not affect exactly one row (affected=" + affectedRows + ")"
                 );
@@ -164,19 +164,19 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
 
             if (log.isDebugEnabled()) {
                 log.debug(
-                        "Inserted customer upload: uploadId={}, customerId={}, crmCustomerId={}, status={}",
+                        String.format("Inserted customer upload: uploadId=%d, customerId=%d, crmCustomerId=%s, status=%s",
                         crmUploadRequest.getUploadId(),
                         crmUploadRequest.getCustomerId(),
                         crmUploadRequest.getCrmCustomerId(),
-                        STATUS_CRM_UPLOAD_NEW
+                        STATUS_CRM_UPLOAD_NEW)
                 );
             }
         } catch (DataAccessException ex) {
             log.error(
-                    "Failed to insert customer upload for uploadId={}, customerId={}, crmCustomerId={}",
+                    String.format("Failed to insert customer upload for uploadId=%d, customerId=%d, crmCustomerId=%s",
                     crmUploadRequest.getUploadId(),
                     crmUploadRequest.getCustomerId(),
-                    crmUploadRequest.getCrmCustomerId(),
+                    crmUploadRequest.getCrmCustomerId()),
                     ex
             );
             throw new IllegalStateException("Could not insert customer upload", ex);

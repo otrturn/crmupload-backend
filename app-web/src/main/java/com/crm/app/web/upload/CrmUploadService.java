@@ -63,7 +63,7 @@ public class CrmUploadService {
         }
 
         long uploadId = repository.nextUploadId();
-        log.info("Generated uploadId={}", uploadId);
+        log.info(String.format("Generated uploadId=%d", uploadId));
 
         try {
             repository.insertCrmUpload(new CrmUploadRequest(
@@ -77,7 +77,7 @@ public class CrmUploadService {
                     file.getBytes()
             ));
         } catch (Exception ex) {
-            log.error("processUpload: Failed to insert customer upload: uploadId={}, customerId={}", uploadId, customerId, ex);
+            log.error(String.format("processUpload: Failed to insert customer upload: uploadId=%d, customerId=%d", uploadId, customerId), ex);
             throw new IllegalStateException("Upload failed: " + ex.getMessage(), ex);
         }
     }

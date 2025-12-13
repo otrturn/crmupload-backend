@@ -49,7 +49,7 @@ public class DuplicateCheckWorkerProcessForMyExcel {
                     duplicateCheckRepositoryPort.markDuplicateCheckFailed(duplicateCheckContent.getDuplicateCheckId(), "Verification failed");
                 }
             } else {
-                log.error("Customer not found for customer id={}", duplicateCheckContent.getCustomerId());
+                log.error(String.format("Customer not found for customerId=%d", duplicateCheckContent.getCustomerId()));
             }
         } catch (Exception ex) {
             log.error("processDuplicateCheckForVerification",ex);

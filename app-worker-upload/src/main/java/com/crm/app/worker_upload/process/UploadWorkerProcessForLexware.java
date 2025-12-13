@@ -37,7 +37,7 @@ public class UploadWorkerProcessForLexware {
 
     public void processUploadForEspo(CrmUploadContent upload) {
         Path excelTargetFile = Paths.get(String.format("%s/Upload_Lexware_Korrektur_%06d.xlsx", properties.getWorkdir(), upload.getUploadId()));
-        log.info("Processing crm_upload for Lexware uploadId={} sourceSysten={} crmSystem={}", upload.getUploadId(), upload.getSourceSystem(), upload.getCrmSystem());
+        log.info(String.format("Processing crm_upload for Lexware uploadId=%d sourceSysten=%s crmSystem=%s", upload.getUploadId(), upload.getSourceSystem(), upload.getCrmSystem()));
         try {
             List<ErrMsg> errors = new ArrayList<>();
 
@@ -53,7 +53,7 @@ public class UploadWorkerProcessForLexware {
             if (customer.isPresent()) {
                 uploadHandlingForEspo.processForEspo(upload, upload.getContent(), excelTargetFile, errors, customer.get(), espoEntityPool);
             } else {
-                log.error("Customer not found for customer id={}", upload.getCustomerId());
+                log.error(String.format("Customer not found for customerId=%d", upload.getCustomerId()));
             }
         } catch (Exception ex) {
             log.error("processUploadForEspo", ex);

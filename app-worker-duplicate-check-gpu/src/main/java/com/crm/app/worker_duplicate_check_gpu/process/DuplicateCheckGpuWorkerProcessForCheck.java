@@ -68,7 +68,7 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
             if (customer.isPresent()) {
                 duplicateCheckRepositoryPort.markDuplicateCheckChecked(duplicateCheckContent.getDuplicateCheckId(), duplicateCheckContent.getContent());
             } else {
-                log.error("Customer not found for customer id={}", duplicateCheckContent.getCustomerId());
+                log.error(String.format("Customer not found for customerId=%d", duplicateCheckContent.getCustomerId()));
             }
         } catch (Exception ex) {
             log.error("ERROR=" + ex.getMessage());

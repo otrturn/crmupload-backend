@@ -173,7 +173,7 @@ public class JdbcDuplicateCheckRepositoryAdapter implements DuplicateCheckReposi
             final int affectedRows = jdbcTemplate.update(SQL_INSERT_DUPLICATE_CHECK, params);
 
             if (affectedRows != 1) {
-                log.error("Insert into app.crm_upload affected {} rows for uploadId={}", affectedRows, duplicateCheckRequest.getDuplicateCheckId());
+                log.error(String.format("Insert into app.crm_upload affected %d rows for uploadId=%s", affectedRows, duplicateCheckRequest.getDuplicateCheckId()));
                 throw new IllegalStateException(
                         "Insert into app.crm_upload did not affect exactly one row (affected=" + affectedRows + ")"
                 );
