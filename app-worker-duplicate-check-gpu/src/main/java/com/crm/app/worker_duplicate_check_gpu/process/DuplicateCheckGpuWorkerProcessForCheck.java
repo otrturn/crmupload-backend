@@ -16,7 +16,9 @@ import com.ki.rag.embedding.client.embed.EmbeddingClientFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.DefaultIndexedColorMap;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Component;
 
@@ -126,12 +128,31 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
         try (Workbook workbook = new XSSFWorkbook();
              ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
 
+            byte[] ocker = new byte[] {
+                    (byte) 0xFF,   // Alpha
+                    (byte) 0xFF,   // Red
+                    (byte) 0xE6,   // Green
+                    (byte) 0x99    // Blue
+            };
+
+            XSSFColor ockerColor = new XSSFColor(ocker, new DefaultIndexedColorMap());
+
             XSSFCellStyle cellStyleHeaderCell = (XSSFCellStyle) workbook.createCellStyle();
             cellStyleHeaderCell.setFillForegroundColor(IndexedColors.GOLD.index);
             cellStyleHeaderCell.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
+            XSSFCellStyle cellStyleHeaderCellLightBlue = (XSSFCellStyle) workbook.createCellStyle();
+            cellStyleHeaderCellLightBlue.setFillForegroundColor(ockerColor);
+            cellStyleHeaderCellLightBlue.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+            XSSFCellStyle cellStyleHeaderCellLightGreen = (XSSFCellStyle) workbook.createCellStyle();
+            cellStyleHeaderCellLightGreen.setFillForegroundColor(IndexedColors.LIGHT_TURQUOISE.index);
+            cellStyleHeaderCellLightGreen.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
             Sheet sheet = workbook.createSheet("Dubletten");
             int rowIdx = 0;
+            int partnerCounter = 0;
+
             Row row;
             Cell cell;
 
@@ -163,6 +184,9 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
 
             rowIdx++;
 
+            int idxFirstRowOfGroup;
+            int idxLastRowOfGroup;
+
             for (CompanyEmbedded companyEmbedded : companiesEmbedded) {
                 if (!companyEmbedded.getSimilarCompanies().isEmpty()) {
                     row = sheet.createRow(rowIdx);
@@ -184,12 +208,18 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
 
                     rowIdx++;
 
+                    idxFirstRowOfGroup = rowIdx;
+                    idxLastRowOfGroup = rowIdx;
+
                     for (Map.Entry<CompanyEmbedded, Double> similarCompanyEntry : companyEmbedded.getSimilarCompanies().entrySet()) {
+                        idxLastRowOfGroup = rowIdx;
+
                         row = sheet.createRow(rowIdx);
                         CompanyEmbedded companyEmbeddedSimilar = similarCompanyEntry.getKey();
 
                         cell = row.createCell(1, CellType.STRING);
                         cell.setCellValue(companyEmbeddedSimilar.getAccountName());
+                        cell.setCellStyle(partnerCounter % 2 == 0 ? cellStyleHeaderCellLightBlue : cellStyleHeaderCellLightGreen);
 
                         cell = row.createCell(2, CellType.STRING);
                         cell.setCellValue(companyEmbeddedSimilar.getPostalCode());
@@ -206,6 +236,11 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
                         rowIdx++;
 
                     }
+
+                    sheet.groupRow(idxFirstRowOfGroup, idxLastRowOfGroup);
+
+                    partnerCounter++;
+
                 }
 
                 rowIdx++;
