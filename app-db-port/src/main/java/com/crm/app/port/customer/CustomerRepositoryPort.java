@@ -29,6 +29,8 @@ public interface CustomerRepositoryPort {
 
     CustomerProfileResponse getCustomer(String emailAddress);
 
+    CustomerProfileResponse getCustomer(long customerId);
+
     int updateCustomerProfile(String emailAddress, CustomerProfileRequest request);
 
     int updateCustomerPassword(String emailAddress, UpdatePasswordRequest request);

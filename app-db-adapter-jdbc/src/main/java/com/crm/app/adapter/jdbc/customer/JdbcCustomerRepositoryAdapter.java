@@ -423,12 +423,51 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
         return result.isEmpty() ? null : result.get(0);
     }
 
+    @Override
+    public CustomerProfileResponse getCustomer(long customerId) {
+        String sql = """
+                SELECT firstname,
+                       lastname,
+                       company_name,
+                       email_address,
+                       phone_number,
+                       adrline1,
+                       adrline2,
+                       postalcode,
+                       city,
+                       country
+                FROM app.customer
+                WHERE customer_id = :customerId
+                """;
+
+        MapSqlParameterSource params = new MapSqlParameterSource().addValue(LITERAL_CUSTOMER_ID, customerId);
+
+        List<CustomerProfileResponse> result = jdbc.query(sql, params, (rs, rowNum) -> mapToCustomerProfileResponse(rs));
+
+        return result.isEmpty() ? null : result.get(0);
+    }
+
     private CustomerProfileResponse mapToCustomerProfileResponse(ResultSet rs, String emailAddress) throws SQLException {
         return new CustomerProfileResponse(
                 rs.getString(LITERAL_FIRSTNAME),
                 rs.getString(LITERAL_LASTNAME),
                 rs.getString(LITERAL_COMPANY_NAME),
                 emailAddress,
+                rs.getString(LITERAL_PHONE_NUMBER),
+                rs.getString(LITERAL_ADRLINE1),
+                rs.getString(LITERAL_ADRLINE2),
+                rs.getString(LITERAL_POSTALCODE),
+                rs.getString(LITERAL_CITY),
+                rs.getString(LITERAL_COUNTRY)
+        );
+    }
+
+    private CustomerProfileResponse mapToCustomerProfileResponse(ResultSet rs) throws SQLException {
+        return new CustomerProfileResponse(
+                rs.getString(LITERAL_FIRSTNAME),
+                rs.getString(LITERAL_LASTNAME),
+                rs.getString(LITERAL_COMPANY_NAME),
+                rs.getString(LITERAL_EMAIL_ADDRESS),
                 rs.getString(LITERAL_PHONE_NUMBER),
                 rs.getString(LITERAL_ADRLINE1),
                 rs.getString(LITERAL_ADRLINE2),

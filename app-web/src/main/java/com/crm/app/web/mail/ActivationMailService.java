@@ -21,8 +21,8 @@ public class ActivationMailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, "UTF-8");
 
             helper.setTo(recipientEmail);
-            helper.setSubject("Bitte Account freischalten");
-            helper.setText(buildBody(name, activationLink), false);
+            helper.setSubject("„Betreff: Bitte bestätigen Sie Ihre Registrierung bei CRM-Upload“");
+            helper.setText(buildActivationBody(name, activationLink), false);
 
             helper.setFrom("noreply@crmupload.de");
 
@@ -36,18 +36,64 @@ public class ActivationMailService {
         }
     }
 
-    private String buildBody(String name, String activationLink) {
+    private String buildActivationBody(String name, String activationLink) {
         return """
                 Hallo %s,
                 
-                danke für Ihre Registrierung bei CRM-Upload.
+                vielen Dank für Ihre Registrierung bei CRM-Upload.
                 
-                Bitte klicken Sie auf den folgenden Link, um Ihr Konto freizuschalten:
+                Bitte klicken Sie auf den folgenden Link, um Ihr Benutzerkonto
+                freizuschalten:
                 
                 %s
                 
+                Sollten Sie sich nicht selbst registriert haben, können Sie diese
+                E-Mail ignorieren. Ihr Konto wird dann nicht aktiviert.
+                
+                Bei Fragen erreichen Sie uns unter:
+                info@crmupload.de
+                
                 Viele Grüße
                 Ihr CRM-Upload-Team
+                www.crmupload.de
                 """.formatted(name, activationLink);
     }
+
+    public void sendConfirmationMail(String recipientEmail, String name) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, "UTF-8");
+
+            helper.setTo(recipientEmail);
+            helper.setSubject("„Betreff: Ihr CRM-Upload-Konto wurde aktiviert“");
+            helper.setText(buildConfirmationBody(name), false);
+
+            helper.setFrom("noreply@crmupload.de");
+
+            mailSender.send(message);
+            log.info(String.format("Confirmation mail sent to %s", recipientEmail));
+        } catch (MessagingException e) {
+            log.error(String.format("Confirmation error mail to send activation mail to %s", recipientEmail), e);
+        }
+    }
+
+    private String buildConfirmationBody(String name) {
+        return """
+                Hallo %s,
+                
+                Ihr Benutzerkonto bei CRM-Upload wurde erfolgreich aktiviert.
+                
+                Sie können sich ab sofort mit Ihrer E-Mail-Adresse anmelden
+                und die angebotenen Leistungen nutzen.
+                
+                Sollten Sie diese Aktivierung nicht selbst vorgenommen haben,
+                kontaktieren Sie uns bitte umgehend unter:
+                info@crmupload.de
+                
+                Viele Grüße
+                Ihr CRM-Upload-Team
+                www.crmupload.de
+                """.formatted(name);
+    }
+
 }
