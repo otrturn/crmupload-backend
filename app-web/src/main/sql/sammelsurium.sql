@@ -27,18 +27,6 @@ select *
 from app.customer_billing
 order by customer_id;
 
-delete
-from app.customer_billing;
-commit;
-
-delete
-from app.crm_upload;
-commit;
-
-delete
-from app.duplicate_check;
-commit;
-
 call app.export_billing();
 
 update app.customer
@@ -70,3 +58,33 @@ WHERE submitted_to_billing IS NULL
   AND product = 'crm-upload'
   AND status = 'new-subscription'
     FOR UPDATE SKIP LOCKED;
+
+
+-- ****************************************************************************************************
+delete from app.user_account;
+commit;
+
+delete
+from app.customer;
+commit;
+
+delete
+from app.customer_product;
+commit;
+
+delete
+from app.customer_activation;
+commit;
+
+delete
+from app.customer_billing;
+commit;
+
+delete
+from app.crm_upload;
+commit;
+
+delete
+from app.duplicate_check;
+commit;
+

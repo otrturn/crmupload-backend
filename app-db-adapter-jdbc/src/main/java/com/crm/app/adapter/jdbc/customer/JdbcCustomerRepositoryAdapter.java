@@ -443,7 +443,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
                        city,
                        country
                 FROM app.customer
-                WHERE customer_id = :customerId
+                WHERE customer_id = :customer_id
                 """;
 
         MapSqlParameterSource params = new MapSqlParameterSource().addValue(LITERAL_CUSTOMER_ID, customerId);
