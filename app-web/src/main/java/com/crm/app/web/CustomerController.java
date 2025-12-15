@@ -21,15 +21,15 @@ public class CustomerController {
     private final DuplicateCheckService duplicateCheckService;
 
     @GetMapping("/me/{emailAddress:.+}")
-    public ResponseEntity<CustomerProfileResponse> getMe(@PathVariable("emailAddress") String emailAddress) {
-        CustomerProfileResponse response = customerProfileService.getCustomerByEmail(emailAddress);
+    public ResponseEntity<CustomerProfile> getMe(@PathVariable("emailAddress") String emailAddress) {
+        CustomerProfile response = customerProfileService.getCustomerByEmail(emailAddress);
         return ResponseEntity.ok(response);
     }
 
     @PutMapping("/update-customer/{emailAddress:.+}")
     public ResponseEntity<Void> updateCustomer(
             @PathVariable("emailAddress") String emailAddress,
-            @RequestBody CustomerProfileRequest request
+            @RequestBody CustomerProfile request
     ) {
         customerProfileService.updateCustomerProfile(emailAddress, request);
         return ResponseEntity.noContent().build();

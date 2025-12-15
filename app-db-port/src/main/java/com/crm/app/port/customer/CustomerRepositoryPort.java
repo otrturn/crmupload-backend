@@ -27,11 +27,11 @@ public interface CustomerRepositoryPort {
 
     void setEnabled(long customerId, boolean enabled);
 
-    CustomerProfileResponse getCustomer(String emailAddress);
+    CustomerProfile getCustomer(String emailAddress);
 
-    CustomerProfileResponse getCustomer(long customerId);
+    CustomerProfile getCustomer(long customerId);
 
-    int updateCustomerProfile(String emailAddress, CustomerProfileRequest request);
+    int updateCustomerProfile(String emailAddress, CustomerProfile request);
 
     int updateCustomerPassword(String emailAddress, UpdatePasswordRequest request);
 

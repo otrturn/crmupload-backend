@@ -401,7 +401,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
     }
 
     @Override
-    public CustomerProfileResponse getCustomer(String emailAddress) {
+    public CustomerProfile getCustomer(String emailAddress) {
         String sql = """
                 SELECT firstname,
                        lastname,
@@ -418,13 +418,13 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
 
         MapSqlParameterSource params = new MapSqlParameterSource().addValue(LITERAL_EMAIL, emailAddress);
 
-        List<CustomerProfileResponse> result = jdbc.query(sql, params, (rs, rowNum) -> mapToCustomerProfileResponse(rs, emailAddress));
+        List<CustomerProfile> result = jdbc.query(sql, params, (rs, rowNum) -> mapToCustomerProfileResponse(rs, emailAddress));
 
         return result.isEmpty() ? null : result.get(0);
     }
 
     @Override
-    public CustomerProfileResponse getCustomer(long customerId) {
+    public CustomerProfile getCustomer(long customerId) {
         String sql = """
                 SELECT firstname,
                        lastname,
@@ -442,13 +442,13 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
 
         MapSqlParameterSource params = new MapSqlParameterSource().addValue(LITERAL_CUSTOMER_ID, customerId);
 
-        List<CustomerProfileResponse> result = jdbc.query(sql, params, (rs, rowNum) -> mapToCustomerProfileResponse(rs));
+        List<CustomerProfile> result = jdbc.query(sql, params, (rs, rowNum) -> mapToCustomerProfileResponse(rs));
 
         return result.isEmpty() ? null : result.get(0);
     }
 
-    private CustomerProfileResponse mapToCustomerProfileResponse(ResultSet rs, String emailAddress) throws SQLException {
-        return new CustomerProfileResponse(
+    private CustomerProfile mapToCustomerProfileResponse(ResultSet rs, String emailAddress) throws SQLException {
+        return new CustomerProfile(
                 rs.getString(LITERAL_FIRSTNAME),
                 rs.getString(LITERAL_LASTNAME),
                 rs.getString(LITERAL_COMPANY_NAME),
@@ -462,8 +462,8 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
         );
     }
 
-    private CustomerProfileResponse mapToCustomerProfileResponse(ResultSet rs) throws SQLException {
-        return new CustomerProfileResponse(
+    private CustomerProfile mapToCustomerProfileResponse(ResultSet rs) throws SQLException {
+        return new CustomerProfile(
                 rs.getString(LITERAL_FIRSTNAME),
                 rs.getString(LITERAL_LASTNAME),
                 rs.getString(LITERAL_COMPANY_NAME),
@@ -478,7 +478,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
     }
 
     @Override
-    public int updateCustomerProfile(String emailAddress, CustomerProfileRequest request) {
+    public int updateCustomerProfile(String emailAddress, CustomerProfile request) {
         String sql = """
                 UPDATE app.customer
                 SET firstname    = :firstname,

@@ -1,8 +1,7 @@
 package com.crm.app.web.customer;
 
 
-import com.crm.app.dto.CustomerProfileRequest;
-import com.crm.app.dto.CustomerProfileResponse;
+import com.crm.app.dto.CustomerProfile;
 import com.crm.app.dto.CustomerStatusResponse;
 import com.crm.app.dto.UpdatePasswordRequest;
 import com.crm.app.port.customer.CustomerRepositoryPort;
@@ -18,15 +17,15 @@ public class CustomerProfileService {
     private final CustomerRepositoryPort customerRepositoryPort;
     private final PasswordEncoder passwordEncoder;
 
-    public CustomerProfileResponse getCustomerByEmail(String emailAddress) {
-        CustomerProfileResponse response = customerRepositoryPort.getCustomer(emailAddress);
+    public CustomerProfile getCustomerByEmail(String emailAddress) {
+        CustomerProfile response = customerRepositoryPort.getCustomer(emailAddress);
         if (response == null) {
             throw new CustomerNotFoundException(emailAddress);
         }
         return response;
     }
 
-    public void updateCustomerProfile(String email, CustomerProfileRequest request) {
+    public void updateCustomerProfile(String email, CustomerProfile request) {
         int rows = customerRepositoryPort.updateCustomerProfile(email, request);
         if (rows == 0) {
             throw new CustomerNotFoundException(request.email_address());

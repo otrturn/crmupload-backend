@@ -1,6 +1,6 @@
 package com.crm.app.web.activation;
 
-import com.crm.app.dto.CustomerProfileResponse;
+import com.crm.app.dto.CustomerProfile;
 import com.crm.app.port.customer.CustomerActivationRepositoryPort;
 import com.crm.app.port.customer.CustomerRepositoryPort;
 import com.crm.app.web.config.AppWebProperties;
@@ -33,9 +33,9 @@ public class CustomerActivationService {
 
         activationRepository.markTokenUsed(token);
 
-        CustomerProfileResponse customerProfileResponse = customerRepository.getCustomer(customerId);
+        CustomerProfile customerProfile = customerRepository.getCustomer(customerId);
 
-        activationMailService.sendConfirmationMail(customerProfileResponse.email_address(),customerProfileResponse.firstname() + " " + customerProfileResponse.lastname());
+        activationMailService.sendConfirmationMail(customerProfile.email_address(), customerProfile.firstname() + " " + customerProfile.lastname());
 
         return true;
     }
