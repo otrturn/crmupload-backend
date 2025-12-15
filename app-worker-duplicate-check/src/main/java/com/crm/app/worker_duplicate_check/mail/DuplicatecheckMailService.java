@@ -1,6 +1,5 @@
 package com.crm.app.worker_duplicate_check.mail;
 
-import com.crm.app.dto.AppConstants;
 import com.crm.app.dto.DuplicateCheckContent;
 import com.crm.app.port.customer.Customer;
 import com.crmmacher.error.ErrMsg;
@@ -13,6 +12,9 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Slf4j
@@ -22,19 +24,36 @@ public class DuplicatecheckMailService {
 
     private final JavaMailSender mailSender;
 
+    private static final String TIMEZONE = "Europe/Berlin";
+    private static final String DATE_FORMAT = "dd.MM.yyyy";
+
     public void sendSuccessMail(Customer customer, DuplicateCheckContent duplicateCheckContent, byte[] resultFile) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(customer.emailAddress());
-            helper.setSubject(String.format("Ihre %s Daten wurden auf Dubletten geprüft", duplicateCheckContent.getSourceSystem()));
-            helper.setText(bodySuccess(customer, duplicateCheckContent.getSourceSystem()), false);
-            helper.setFrom("noreply@crmupload.de");
+            helper.setSubject(String.format(
+                    "Dublettenprüfung abgeschlossen – %s (Prüf-ID %s, Stand %s)",
+                    duplicateCheckContent.getSourceSystem(),
+                    duplicateCheckContent.getDuplicateCheckId(),
+                    DateTimeFormatter.ofPattern(DATE_FORMAT)
+                            .withZone(ZoneId.of(TIMEZONE))
+                            .format(Instant.now())
+            ));
+            helper.setText(bodySuccess(customer, duplicateCheckContent), false);
+            helper.setFrom("CRM-Upload <support@crmupload.de>");
+            helper.setReplyTo("CRM-Upload Support <support@crmupload.de>");
 
-            ByteArrayResource resource = new ByteArrayResource(resultFile);
-            helper.addAttachment("Ergebnis.xlsx", resource);
-
+            helper.addAttachment(
+                    String.format("Dublettenpruefung_Ergebnis_%s_%s.xlsx",
+                            duplicateCheckContent.getSourceSystem(),
+                            DateTimeFormatter.ofPattern("yyyyMMdd")
+                                    .withZone(ZoneId.of(TIMEZONE))
+                                    .format(Instant.now())
+                    ),
+                    new ByteArrayResource(resultFile)
+            );
             mailSender.send(message);
             log.info(String.format("Duplicate check success mail sent to %s", customer.emailAddress()));
         } catch (MessagingException e) {
@@ -48,32 +67,54 @@ public class DuplicatecheckMailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(customer.emailAddress());
-            helper.setSubject(String.format("Ihre %s Daten müssen noch korrigiert werden", duplicateCheckContent.getSourceSystem()));
+            helper.setSubject(String.format(
+                    "Dublettenprüfung nicht möglich – %s (Prüf-ID %s, Stand %s)",
+                    duplicateCheckContent.getSourceSystem(),
+                    duplicateCheckContent.getDuplicateCheckId(),
+                    DateTimeFormatter.ofPattern(DATE_FORMAT)
+                            .withZone(ZoneId.of(TIMEZONE))
+                            .format(Instant.now())
+            ));
             helper.setText(bodyFailed(customer, duplicateCheckContent.getSourceSystem(), errors), false);
-            helper.setFrom("noreply@crmupload.de");
+            helper.setFrom("CRM-Upload <support@crmupload.de>");
+            helper.setReplyTo("CRM-Upload Support <support@crmupload.de>");
 
-            ByteArrayResource resource = new ByteArrayResource(errorFile);
-            helper.addAttachment("Korrektur.xlsx", resource);
-
+            helper.addAttachment(
+                    String.format("Dublettenpruefung_Korrektur_%s_%s.xlsx",
+                            duplicateCheckContent.getSourceSystem(),
+                            DateTimeFormatter.ofPattern("yyyyMMdd")
+                                    .withZone(ZoneId.of(TIMEZONE))
+                                    .format(Instant.now())
+                    ),
+                    new ByteArrayResource(errorFile)
+            );
             mailSender.send(message);
             log.info(String.format("Error mail sent to %s", customer.emailAddress()));
         } catch (MessagingException e) {
-            log.error(String.format("Failed to send activation mail to %s", customer.emailAddress()), e);
+            log.error(String.format("Failed to send duplicate check success mail to %s", customer.emailAddress()), e);
         }
     }
 
     private String bodyFailed(Customer customer, String sourceSystem, List<ErrMsg> errors) {
-        StringBuilder sb = new StringBuilder();
+        var date = DateTimeFormatter.ofPattern(DATE_FORMAT)
+                .withZone(ZoneId.of(TIMEZONE))
+                .format(Instant.now());
 
-        sb.append("Hallo ")
-                .append(Customer.getFullname(customer))
-                .append(",\n\n")
-                .append("Ihre ")
-                .append(sourceSystem)
-                .append(" Daten konnten noch nicht für die Dublettenprüfung vorbereitet werden\n")
-                .append("Folgende Korrekturen müssen noch vorgenommen werden:\n");
+        StringBuilder sb = new StringBuilder();
+        sb.append("""
+                Hallo %s,
+                
+                Ihre %s-Dublettenprüfung konnte noch nicht durchgeführt werden,
+                weil in der Datei Pflichtangaben fehlen oder einzelne Werte ungültig sind.
+                
+                Im Anhang finden Sie Ihre Exceldatei mit markierten Feldern sowie die notwendigen Korrekturen:
+                """.formatted(Customer.getFullname(customer), sourceSystem));
+
+        int max = 50;
+        int count = 0;
 
         for (ErrMsg error : errors) {
+            if (count++ >= max) break;
             sb.append("- Arbeitsblatt ")
                     .append(error.getSheetNum() + 1)
                     .append(" Zeile ")
@@ -85,26 +126,64 @@ public class DuplicatecheckMailService {
                     .append("\n");
         }
 
-        sb.append(AppConstants.RECOMMENDATION);
-        sb.append("\nViele Grüße\n").append("Ihr CRM-Upload-Team\n");
+        if (errors.size() > max) {
+            sb.append(String.format("… sowie %d weitere Hinweise (siehe Markierungen in der Datei).",
+                    errors.size() - max));
+            sb.append("\n");
+        }
+
+        sb.append("""
+                
+                Datum: %s
+                
+                Bitte korrigieren Sie die markierten Stellen und laden Sie die Datei anschließend erneut hoch.
+                
+                Hinweis zum Datenschutz:
+                Der Anhang kann personenbezogene Daten enthalten. Bitte behandeln Sie die Datei vertraulich
+                und löschen Sie sie nach Abschluss der Korrektur.
+                
+                Falls Sie diese Dublettenprüfung nicht selbst ausgelöst haben, ignorieren Sie diese E-Mail bitte
+                und informieren Sie uns unter: support@crmupload.de
+                
+                Viele Grüße
+                Ihr CRM-Upload-Team
+                support@crmupload.de
+                www.crmupload.de
+                """.formatted(date));
 
         return sb.toString();
     }
 
-    private String bodySuccess(Customer customer, String sourceSystem) {
-        StringBuilder sb = new StringBuilder();
+    private String bodySuccess(Customer customer, DuplicateCheckContent content) {
+        String date = DateTimeFormatter.ofPattern(DATE_FORMAT)
+                .withZone(ZoneId.of(TIMEZONE))
+                .format(Instant.now());
 
-        sb.append("Hallo ")
-                .append(Customer.getFullname(customer))
-                .append(",\n\n")
-                .append("Ihre ")
-                .append(sourceSystem)
-                .append(" Daten wurden auf Dubletten geprüft.\n")
-                .append("Das Ergebnis finden Sie im Anhang.\n");
-
-        sb.append(AppConstants.RECOMMENDATION);
-        sb.append("\nViele Grüße\n").append("Ihr CRM-Upload-Team\n");
-
-        return sb.toString();
+        return """
+                Hallo %s,
+                
+                Ihre %s-Daten wurden erfolgreich auf mögliche Dubletten geprüft.
+                Das Ergebnis finden Sie im Anhang.
+                
+                Prüf-ID: %s
+                Datum: %s
+                
+                Hinweis zum Datenschutz:
+                Der Anhang kann personenbezogene Daten enthalten. Bitte behandeln Sie die Datei vertraulich
+                und löschen Sie sie nach Abschluss der Prüfung.
+                
+                Falls Sie diese Dublettenprüfung nicht selbst ausgelöst haben, ignorieren Sie diese E-Mail bitte
+                und informieren Sie uns unter: support@crmupload.de
+                
+                Viele Grüße
+                Ihr CRM-Upload-Team
+                support@crmupload.de
+                www.crmupload.de
+                """.formatted(
+                Customer.getFullname(customer),
+                content.getSourceSystem(),
+                content.getDuplicateCheckId(),
+                date
+        );
     }
 }

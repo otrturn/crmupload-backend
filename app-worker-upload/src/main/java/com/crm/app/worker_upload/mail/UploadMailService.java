@@ -122,7 +122,11 @@ public class UploadMailService {
                 Im Anhang finden Sie Ihre Exceldatei mit markierten Feldern sowie die notwendigen Korrekturen:
                 """.formatted(Customer.getFullname(customer), sourceSystem, crmSystem));
 
+        int max = 50;
+        int count = 0;
+
         for (ErrMsg error : errors) {
+            if (count++ >= max) break;
             sb.append("- Arbeitsblatt ")
                     .append(error.getSheetNum() + 1)
                     .append(" Zeile ")
@@ -132,6 +136,12 @@ public class UploadMailService {
                     .append(": ")
                     .append(error.getMessage())
                     .append("\n");
+        }
+
+        if (errors.size() > max) {
+            sb.append(String.format("… sowie %d weitere Hinweise (siehe Markierungen in der Datei).",
+                    errors.size() - max));
+            sb.append("\n");
         }
 
         sb.append("""
