@@ -11,7 +11,23 @@ import java.util.Map;
 @Getter
 @Setter
 public class CompanyEmbedded extends DuplicateCheckEntry {
+
+    @Getter
+    public static class SimilarCompany {
+        EmbeddingMatchType matchType;
+        CompanyEmbedded companyEmbedded;
+
+        public SimilarCompany(EmbeddingMatchType matchType, CompanyEmbedded companyEmbedded) {
+            this.matchType = matchType;
+            this.companyEmbedded = companyEmbedded;
+        }
+    }
+
     private String normalisedAccountName;
-    private List<float[]> vectors;
-    private Map<CompanyEmbedded, Double> similarCompanies = new HashMap<>();
+    private String normalisedAddress;
+    private List<float[]> vectorsAccountName;
+    private List<float[]> vectorsAddress;
+    private boolean matchTypeAccountName = false;
+    private boolean matchTypeAddress = false;
+    private Map<SimilarCompany, Double> similarCompanies = new HashMap<>();
 }

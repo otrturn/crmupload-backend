@@ -6,9 +6,9 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-public final class CompanyNameNormalizer {
+public final class AccountNameEmbeddingNormalizer {
 
-    private CompanyNameNormalizer() {
+    private AccountNameEmbeddingNormalizer() {
     }
 
     private static final Pattern SEPARATORS_TO_SPACE =

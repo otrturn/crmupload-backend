@@ -4,33 +4,32 @@ import com.crm.app.dto.DuplicateCheckContent;
 import com.crm.app.port.customer.Customer;
 import com.crm.app.port.customer.CustomerRepositoryPort;
 import com.crm.app.port.customer.DuplicateCheckRepositoryPort;
-import com.crm.app.util.CompanyNameNormalizer;
+import com.crm.app.util.AccountNameEmbeddingNormalizer;
+import com.crm.app.util.AddressEmbeddingNormalizer;
 import com.crm.app.util.EmbeddingUtils;
 import com.crm.app.worker_common.util.WorkerUtil;
 import com.crm.app.worker_duplicate_check_gpu.config.DuplicateCheckGpuProperties;
 import com.crm.app.worker_duplicate_check_gpu.dto.CompanyEmbedded;
+import com.crm.app.worker_duplicate_check_gpu.dto.EmbeddingMatchType;
 import com.crm.app.worker_duplicate_check_gpu.error.WorkerDuplicateCheckGpuEmbeddingException;
-import com.crm.app.worker_duplicate_check_gpu.error.WorkerDuplicateCheckGpuException;
 import com.ki.rag.embedding.client.embed.EmbeddingClient;
 import com.ki.rag.embedding.client.embed.EmbeddingClientFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.DefaultIndexedColorMap;
-import org.apache.poi.xssf.usermodel.XSSFCellStyle;
-import org.apache.poi.xssf.usermodel.XSSFColor;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -63,7 +62,7 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
             duration = Duration.between(start, Instant.now());
             log.info(String.format(DURATION_FORMAT_STRING, duration.toHours(), duration.toMinutesPart(), duration.toSecondsPart()));
 
-            createResultWorkbook(duplicateCheckContent, companiesEmbedded);
+            new CreateResultWorkbook().createResultWorkbook(duplicateCheckContent, companiesEmbedded);
             Optional<Customer> customer = customerRepositoryPort.findCustomerByCustomerId(duplicateCheckContent.getCustomerId());
             if (customer.isPresent()) {
                 duplicateCheckRepositoryPort.markDuplicateCheckChecked(duplicateCheckContent.getDuplicateCheckId(), duplicateCheckContent.getContent());
@@ -86,14 +85,18 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
                 Row row = accountsheet.getRow(idx);
                 CompanyEmbedded companyEmbedded = new CompanyEmbedded();
                 companyEmbedded.setAccountName(getCellValue(row.getCell(WorkerUtil.IDX_ACCOUNTNAME)));
-                companyEmbedded.setNormalisedAccountName(CompanyNameNormalizer.normalizeCompanyName(companyEmbedded.getAccountName()));
+                companyEmbedded.setNormalisedAccountName(AccountNameEmbeddingNormalizer.normalizeCompanyName(companyEmbedded.getAccountName()));
                 companyEmbedded.setPostalCode(getCellValue(row.getCell(WorkerUtil.IDX_POSTCAL_CODE)));
                 companyEmbedded.setStreet(getCellValue(row.getCell(WorkerUtil.IDX_STREET)));
                 companyEmbedded.setCity(getCellValue(row.getCell(WorkerUtil.IDX_CITY)));
                 companyEmbedded.setCountry(getCellValue(row.getCell(WorkerUtil.IDX_COUNTRY)));
                 companyEmbedded.setEmailAddress(getCellValue(row.getCell(WorkerUtil.IDX_EMAIL_ADDRESS)));
                 companyEmbedded.setPhoneNumber(getCellValue(row.getCell(WorkerUtil.IDX_PHONE_NUMBER)));
-                companyEmbedded.setVectors(client.embedMany(List.of(companyEmbedded.getNormalisedAccountName())));
+                companyEmbedded.setVectorsAccountName(client.embedMany(List.of(companyEmbedded.getNormalisedAccountName())));
+                if (properties.isPerformAddressAnalysis()) {
+                    companyEmbedded.setNormalisedAddress(AddressEmbeddingNormalizer.normalize(companyEmbedded.getStreet(), companyEmbedded.getCity()));
+                    companyEmbedded.setVectorsAddress(client.embedMany(List.of(companyEmbedded.getNormalisedAddress())));
+                }
                 companiesEmbedded.add(companyEmbedded);
                 idx++;
             }
@@ -106,12 +109,99 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
 
     private void comparisonAnalysis(List<CompanyEmbedded> companiesEmbedded) {
         for (int i = 0; i < companiesEmbedded.size(); i++) {
+            CompanyEmbedded a = companiesEmbedded.get(i);
+
             for (int j = i + 1; j < companiesEmbedded.size(); j++) {
-                double sim = EmbeddingUtils.cosineSim(companiesEmbedded.get(i).getVectors().get(0), companiesEmbedded.get(j).getVectors().get(0));
-                if (sim >= properties.getCosineSimilarityThreshold() && postalCodeAreaEqual(companiesEmbedded.get(i), companiesEmbedded.get(j))) {
-                    companiesEmbedded.get(i).getSimilarCompanies().put(companiesEmbedded.get(j), sim);
+                CompanyEmbedded b = companiesEmbedded.get(j);
+
+                if (postalCodeAreaEqual(a, b)) {
+                    MatchResult match;
+                    if (properties.isPerformAddressAnalysis()) {
+                        match = evaluateMatchWithAddress(a, b);
+                    } else {
+                        match = evaluateMatchAccountNameOnly(a, b);
+                    }
+
+                    if (match.isMatch()) {
+                        a.getSimilarCompanies().put(
+                                new CompanyEmbedded.SimilarCompany(match.type(), b),
+                                match.score()
+                        );
+                    }
                 }
             }
+        }
+    }
+
+    private MatchResult evaluateMatchAccountNameOnly(CompanyEmbedded a, CompanyEmbedded b) {
+        double nameSim = cosineAccountName(a, b);
+
+        if (nameSim < properties.getCosineSimilarityThresholdAccountName()) {
+            return MatchResult.noMatch();
+        }
+
+        return MatchResult.match(
+                EmbeddingMatchType.ACCOUNT_NAME,
+                nameSim
+        );
+    }
+
+    @SuppressWarnings("squid:S1194")
+    private MatchResult evaluateMatchWithAddress(CompanyEmbedded a, CompanyEmbedded b) {
+        double nameSim = cosineAccountName(a, b);
+        boolean nameMatch = nameSim >= properties.getCosineSimilarityThresholdAccountName();
+
+        double addressSim = cosineAddress(a, b);
+        boolean addressMatch = addressSim >= properties.getCosineSimilarityThresholdAddress();
+
+        if (!nameMatch && !addressMatch) {
+            return MatchResult.noMatch();
+        }
+
+        EmbeddingMatchType type = resolveMatchType(nameMatch, addressMatch);
+        double score = resolveScore(nameMatch, addressMatch, nameSim, addressSim);
+
+        return MatchResult.match(type, score);
+    }
+
+    private double cosineAccountName(CompanyEmbedded a, CompanyEmbedded b) {
+        return EmbeddingUtils.cosineSim(
+                a.getVectorsAccountName().get(0),
+                b.getVectorsAccountName().get(0)
+        );
+    }
+
+    private double cosineAddress(CompanyEmbedded a, CompanyEmbedded b) {
+        return EmbeddingUtils.cosineSim(
+                a.getVectorsAddress().get(0),
+                b.getVectorsAddress().get(0)
+        );
+    }
+
+    private EmbeddingMatchType resolveMatchType(boolean nameMatch, boolean addressMatch) {
+        if (nameMatch && addressMatch) {
+            return EmbeddingMatchType.ACCOUNT_NAME_AND_ADDRESS;
+        }
+        return nameMatch ? EmbeddingMatchType.ACCOUNT_NAME : EmbeddingMatchType.ADDRESS;
+    }
+
+    private double resolveScore(boolean nameMatch, boolean addressMatch, double nameSim, double addressSim) {
+        if (nameMatch && addressMatch) {
+            return Math.max(nameSim, addressSim); // oder min/avg – je nach gewünschter Logik
+        }
+        return nameMatch ? nameSim : addressSim;
+    }
+
+    /**
+     * kleines Result-Objekt, damit die Hauptmethode flach bleibt
+     */
+    private record MatchResult(boolean isMatch, EmbeddingMatchType type, double score) {
+        static MatchResult noMatch() {
+            return new MatchResult(false, null, 0.0);
+        }
+
+        static MatchResult match(EmbeddingMatchType type, double score) {
+            return new MatchResult(true, type, score);
         }
     }
 
@@ -123,131 +213,4 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
         return cell != null ? cell.getStringCellValue() : "";
     }
 
-    public void createResultWorkbook(DuplicateCheckContent duplicateCheckContent, List<CompanyEmbedded> companiesEmbedded) {
-        try (Workbook workbook = new XSSFWorkbook();
-             ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
-
-            byte[] ocker = new byte[]{
-                    (byte) 0xFF,
-                    (byte) 0xFF,
-                    (byte) 0xE6,
-                    (byte) 0x99
-            };
-
-            XSSFColor ockerColor = new XSSFColor(ocker, new DefaultIndexedColorMap());
-
-            XSSFCellStyle cellStyleHeaderCell = (XSSFCellStyle) workbook.createCellStyle();
-            cellStyleHeaderCell.setFillForegroundColor(IndexedColors.GOLD.index);
-            cellStyleHeaderCell.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-
-            XSSFCellStyle cellStyleHeaderCellLightBlue = (XSSFCellStyle) workbook.createCellStyle();
-            cellStyleHeaderCellLightBlue.setFillForegroundColor(ockerColor);
-            cellStyleHeaderCellLightBlue.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-
-            XSSFCellStyle cellStyleHeaderCellLightGreen = (XSSFCellStyle) workbook.createCellStyle();
-            cellStyleHeaderCellLightGreen.setFillForegroundColor(IndexedColors.LIGHT_TURQUOISE.index);
-            cellStyleHeaderCellLightGreen.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-
-            Sheet sheet = workbook.createSheet("Dubletten");
-            int rowIdx = 0;
-            int partnerCounter = 0;
-
-            Row row;
-            Cell cell;
-
-            row = sheet.createRow(rowIdx);
-
-            cell = row.createCell(0, CellType.STRING);
-            cell.setCellValue("Firmenname");
-            cell.setCellStyle(cellStyleHeaderCell);
-
-            cell = row.createCell(1, CellType.STRING);
-            cell.setCellValue("Ähnliche Firma");
-            cell.setCellStyle(cellStyleHeaderCell);
-
-            cell = row.createCell(2, CellType.STRING);
-            cell.setCellValue("PLZ");
-            cell.setCellStyle(cellStyleHeaderCell);
-
-            cell = row.createCell(3, CellType.STRING);
-            cell.setCellValue("Strasse");
-            cell.setCellStyle(cellStyleHeaderCell);
-
-            cell = row.createCell(4, CellType.STRING);
-            cell.setCellValue("Ort");
-            cell.setCellStyle(cellStyleHeaderCell);
-
-            cell = row.createCell(5, CellType.STRING);
-            cell.setCellValue("Land");
-            cell.setCellStyle(cellStyleHeaderCell);
-
-            rowIdx++;
-
-            int idxFirstRowOfGroup;
-            int idxLastRowOfGroup;
-
-            for (CompanyEmbedded companyEmbedded : companiesEmbedded) {
-                if (!companyEmbedded.getSimilarCompanies().isEmpty()) {
-                    row = sheet.createRow(rowIdx);
-
-                    cell = row.createCell(0, CellType.STRING);
-                    cell.setCellValue(companyEmbedded.getAccountName());
-
-                    cell = row.createCell(2, CellType.STRING);
-                    cell.setCellValue(companyEmbedded.getPostalCode());
-
-                    cell = row.createCell(3, CellType.STRING);
-                    cell.setCellValue(companyEmbedded.getStreet());
-
-                    cell = row.createCell(4, CellType.STRING);
-                    cell.setCellValue(companyEmbedded.getCity());
-
-                    cell = row.createCell(5, CellType.STRING);
-                    cell.setCellValue(companyEmbedded.getCountry());
-
-                    rowIdx++;
-
-                    idxFirstRowOfGroup = rowIdx;
-                    idxLastRowOfGroup = rowIdx;
-
-                    for (Map.Entry<CompanyEmbedded, Double> similarCompanyEntry : companyEmbedded.getSimilarCompanies().entrySet()) {
-                        idxLastRowOfGroup = rowIdx;
-
-                        row = sheet.createRow(rowIdx);
-                        CompanyEmbedded companyEmbeddedSimilar = similarCompanyEntry.getKey();
-
-                        cell = row.createCell(1, CellType.STRING);
-                        cell.setCellValue(companyEmbeddedSimilar.getAccountName());
-                        cell.setCellStyle(partnerCounter % 2 == 0 ? cellStyleHeaderCellLightBlue : cellStyleHeaderCellLightGreen);
-
-                        cell = row.createCell(2, CellType.STRING);
-                        cell.setCellValue(companyEmbeddedSimilar.getPostalCode());
-
-                        cell = row.createCell(3, CellType.STRING);
-                        cell.setCellValue(companyEmbeddedSimilar.getStreet());
-
-                        cell = row.createCell(4, CellType.STRING);
-                        cell.setCellValue(companyEmbeddedSimilar.getCity());
-
-                        cell = row.createCell(5, CellType.STRING);
-                        cell.setCellValue(companyEmbeddedSimilar.getCountry());
-
-                        rowIdx++;
-                    }
-
-                    sheet.groupRow(idxFirstRowOfGroup, idxLastRowOfGroup);
-
-                    partnerCounter++;
-                }
-
-                rowIdx++;
-            }
-
-            workbook.write(bos);
-            duplicateCheckContent.setContent(bos.toByteArray());
-        } catch (IOException e) {
-            log.error(String.format("createResultWorkbook: %s", e.getMessage()), e);
-            throw new WorkerDuplicateCheckGpuException("Fehler beim Erzeugen des Excel-Workbooks: ", e);
-        }
-    }
 }
