@@ -5,6 +5,7 @@ import com.crm.app.dto.RegisterResponse;
 import com.crm.app.port.customer.Customer;
 import com.crm.app.port.customer.CustomerRepositoryPort;
 import com.crm.app.web.activation.CustomerActivationService;
+import com.crm.app.web.error.CustomerAlreadyExistsException;
 import com.crm.app.web.validation.RegisterRequestValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +30,7 @@ public class CustomerRegistrationService {
         RegisterRequestValidator.assertValid(request);
 
         if (customerRepository.emailExists(emailAddress)) {
-            throw new IllegalStateException("Customer with email already exists: " + emailAddress);
+            throw new CustomerAlreadyExistsException("Customer with email already exists: " + emailAddress);
         }
 
         UserAccountRegistrationResult accountResult =

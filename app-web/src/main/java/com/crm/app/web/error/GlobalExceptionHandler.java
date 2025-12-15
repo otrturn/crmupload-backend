@@ -76,4 +76,39 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
     }
+
+    @ExceptionHandler(RegisterRequestInvalidDataException.class)
+    public ResponseEntity<ApiError> handleRegisterInvalid(RegisterRequestInvalidDataException ex,
+                                                          HttpServletRequest request) {
+        log.warn("Register validation error on {}: {}", request.getRequestURI(), ex.getMessage());
+
+        ApiError body = new ApiError(
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                ex.getMessage(),
+                request.getRequestURI(),
+                Instant.now(),
+                "REGISTER_INVALID_DATA"
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+
+    @ExceptionHandler(CustomerAlreadyExistsException.class)
+    public ResponseEntity<ApiError> handleCustomerAlreadyExists(CustomerAlreadyExistsException ex,
+                                                                HttpServletRequest request) {
+
+        log.warn("Customer already exists on {}: {}", request.getRequestURI(), ex.getMessage());
+
+        ApiError body = new ApiError(
+                HttpStatus.CONFLICT.value(),
+                HttpStatus.CONFLICT.getReasonPhrase(),
+                ex.getMessage(),
+                request.getRequestURI(),
+                Instant.now(),
+                "CUSTOMER_ALREADY_EXISTS"
+        );
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+    }
 }

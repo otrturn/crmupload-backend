@@ -1,7 +1,7 @@
 package com.crm.app.web.validation;
 
 import com.crm.app.dto.RegisterRequest;
-import com.crm.app.web.error.ReqgisterRequestInvalidDataException;
+import com.crm.app.web.error.RegisterRequestInvalidDataException;
 
 public final class RegisterRequestValidator {
 
@@ -10,7 +10,7 @@ public final class RegisterRequestValidator {
 
     public static void assertValid(RegisterRequest request) {
         if (request == null) {
-            throw new ReqgisterRequestInvalidDataException("registration: request must not be null");
+            throw new RegisterRequestInvalidDataException("registration: request must not be null");
         }
 
         String emailAddress = request.email_address(); // für Logging/Fehlermeldung
@@ -20,7 +20,7 @@ public final class RegisterRequestValidator {
                         && !stringIsFilled(request.company_name());
 
         if (invalid) {
-            throw new ReqgisterRequestInvalidDataException(
+            throw new RegisterRequestInvalidDataException(
                     String.format(
                             "registration: Customer %s firstName/lastName/company_name invalid",
                             emailAddress
