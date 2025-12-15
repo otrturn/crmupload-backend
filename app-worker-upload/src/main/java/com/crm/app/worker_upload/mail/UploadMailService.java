@@ -66,10 +66,16 @@ public class UploadMailService {
                 Upload-ID: %d
                 Datum der Übertragung: %s
                 
-                Die Übertragung gilt als technisch erfolgreich, sobald Datensätze vom Ziel-CRM angenommen wurden.
+                Die Übertragung gilt als technisch erfolgreich, sobald Datensätze
+                vom Ziel-CRM angenommen wurden. Eine inhaltliche oder geschäftliche
+                Bewertung der Daten ist damit nicht verbunden.
                 
-                Sie können sich jederzeit in Ihrem Nutzerkonto anmelden, um den Status
-                und weitere Details einzusehen.
+                Die für diesen Upload vorübergehend gespeicherten Daten werden nach
+                Abschluss der Übertragung gemäß unseren Allgemeinen Geschäftsbedingungen
+                gelöscht, soweit keine gesetzlichen Aufbewahrungspflichten entgegenstehen.
+                
+                Den Status Ihrer Uploads können Sie jederzeit in Ihrem Nutzerkonto
+                einsehen.
                 
                 Sollten Sie diese Übertragung nicht selbst ausgelöst haben oder Fragen
                 zur Verarbeitung haben, kontaktieren Sie uns bitte unter:
