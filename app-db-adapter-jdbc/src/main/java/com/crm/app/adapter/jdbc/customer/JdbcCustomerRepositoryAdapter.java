@@ -125,7 +125,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
             """;
 
     private static final String SQL_FIND_LATEST_SUCCESSFUL_UPLOAD_BY_CUSTOMER_ID = """
-            SELECT source_system, crm_system, crm_customer_id
+            SELECT source_system, crm_system, crm_url, crm_customer_id
             FROM app.crm_upload
             WHERE customer_id = :customerId
               AND status = 'done'

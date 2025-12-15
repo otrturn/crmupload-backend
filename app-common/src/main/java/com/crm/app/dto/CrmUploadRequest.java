@@ -10,7 +10,6 @@ import java.util.Objects;
 
 @Getter
 @Setter
-@NoArgsConstructor
 @SuppressWarnings({"squid:S6218", "squid:S107"})
 public class CrmUploadRequest extends CrmUploadCoreInfo {
 
@@ -40,21 +39,44 @@ public class CrmUploadRequest extends CrmUploadCoreInfo {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof CrmUploadRequest other)) return false;
-        return uploadId == other.uploadId &&
-                customerId == other.customerId &&
-                Objects.equals(getSourceSystem(), other.getSourceSystem()) &&
-                Objects.equals(getCrmSystem(), other.getCrmSystem()) &&
-                Objects.equals(getCrmUrl(), other.getCrmUrl()) &&
-                Objects.equals(getCrmCustomerId(), other.getCrmCustomerId()) &&
-                Objects.equals(apiKey, other.apiKey) &&
-                Arrays.equals(content, other.content);
+
+        // Getter defensiv auswerten (einmal!)
+        final var thisSourceSystem = this.getSourceSystem();
+        final var otherSourceSystem = other.getSourceSystem();
+
+        final var thisCrmSystem = this.getCrmSystem();
+        final var otherCrmSystem = other.getCrmSystem();
+
+        final var thisCrmUrl = this.getCrmUrl();
+        final var otherCrmUrl = other.getCrmUrl();
+
+        final var thisCrmCustomerId = this.getCrmCustomerId();
+        final var otherCrmCustomerId = other.getCrmCustomerId();
+
+        return uploadId == other.uploadId
+                && customerId == other.customerId
+                && Objects.equals(thisSourceSystem, otherSourceSystem)
+                && Objects.equals(thisCrmSystem, otherCrmSystem)
+                && Objects.equals(thisCrmUrl, otherCrmUrl)
+                && Objects.equals(thisCrmCustomerId, otherCrmCustomerId)
+                && Objects.equals(apiKey, other.apiKey)
+                && Arrays.equals(content, other.content);
     }
 
     @Override
     public int hashCode() {
+        final var sourceSystem = getSourceSystem();
+        final var crmSystem = getCrmSystem();
+        final var crmUrl = getCrmUrl();
+        final var crmCustomerId = getCrmCustomerId();
+
         int result = Objects.hash(
-                uploadId, customerId,
-                getSourceSystem(), getCrmSystem(), getCrmUrl(), getCrmCustomerId(),
+                uploadId,
+                customerId,
+                sourceSystem,
+                crmSystem,
+                crmUrl,
+                crmCustomerId,
                 apiKey
         );
         result = 31 * result + Arrays.hashCode(content);

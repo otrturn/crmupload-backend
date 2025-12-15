@@ -6,7 +6,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@NoArgsConstructor
 @SuppressWarnings({"squid:S6218", "squid:S107"})
 public class CrmUploadContent extends CrmUploadCoreInfo {
 

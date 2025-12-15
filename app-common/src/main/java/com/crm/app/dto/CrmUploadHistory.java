@@ -8,7 +8,6 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
-@NoArgsConstructor
 public class CrmUploadHistory extends CrmUploadCoreInfo {
 
     private Timestamp ts;

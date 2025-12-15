@@ -28,7 +28,7 @@ public class UploadMailService {
     private final JavaMailSender mailSender;
     private final AppDataSourceProperties appDataSourceProperties;
 
-    public void sendSuccessMailForEspo(Customer customer, CrmUploadContent upload, EspoEntityPool espoEntityPool) {
+    public void sendSuccessMailForEspo(Customer customer, CrmUploadContent upload, EspoEntityPool espoEntityPool, EspoEntityPool espoEntityPoolForIgnore) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, "UTF-8");
@@ -42,7 +42,7 @@ public class UploadMailService {
                             upload.getUploadId()
                     )
             );
-            helper.setText(bodySuccessForEspo(customer, upload.getUploadId(), Instant.now(), upload.getSourceSystem(), upload.getCrmSystem(), espoEntityPool), false);
+            helper.setText(bodySuccessForEspo(customer, upload.getUploadId(), upload.getSourceSystem(), upload.getCrmSystem(), espoEntityPool,espoEntityPoolForIgnore), false);
             helper.setFrom("CRM-Upload <support@crmupload.de>");
             helper.setReplyTo("CRM-Upload Support <support@crmupload.de>");
 
@@ -53,7 +53,7 @@ public class UploadMailService {
         }
     }
 
-    private String bodySuccessForEspo(Customer customer, long uploadId, Instant uploadDate, String sourceSystem, String crmSystem, EspoEntityPool espoEntityPool) {
+    private String bodySuccessForEspo(Customer customer, long uploadId,  String sourceSystem, String crmSystem, EspoEntityPool espoEntityPool, EspoEntityPool espoEntityPoolForIgnore) {
         return """
                 Hallo %s,
                 
@@ -61,7 +61,9 @@ public class UploadMailService {
                 
                 Ergebnis der Übertragung:
                 - Firmen angelegt: %d
+                - Firmen ignoriert: %d (bereits vorhanden)
                 - Kontakte angelegt: %d
+                - Kontakte ignoriert: %d (bereits vorhanden)
                 
                 Upload-ID: %d
                 Datum der Übertragung: %s
@@ -84,11 +86,14 @@ public class UploadMailService {
                 Viele Grüße
                 Ihr CRM-Upload-Team
                 www.crmupload.de
-                """.formatted(Customer.getFullname(customer), sourceSystem, crmSystem, espoEntityPool.getAccounts().size(), espoEntityPool.getContacts().size(),
-                uploadId, DateTimeFormatter
+                """.formatted(Customer.getFullname(customer), sourceSystem, crmSystem,
+                espoEntityPool.getAccounts().size(),espoEntityPoolForIgnore.getAccounts().size(),
+                espoEntityPool.getContacts().size(),espoEntityPoolForIgnore.getContacts().size(),
+                uploadId,
+                DateTimeFormatter
                         .ofPattern("dd.MM.yyyy")
                         .withZone(ZoneId.systemDefault())
-                        .format(uploadDate));
+                        .format(Instant.now()));
     }
 
     public void sendErrorMailForEspo(Customer customer, CrmUploadContent upload, List<ErrMsg> errors, Path excelTargetfile) {

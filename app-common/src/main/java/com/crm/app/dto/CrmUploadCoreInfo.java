@@ -1,18 +1,15 @@
 package com.crm.app.dto;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Getter
-@Setter
-@NoArgsConstructor
 public class CrmUploadCoreInfo {
 
-    private String sourceSystem;
-    private String crmSystem;
-    private String crmUrl;
-    private String crmCustomerId;
+    @Getter
+    private final String sourceSystem;
+    @Getter
+    private final String crmSystem;
+    private final String crmUrl;
+    private final String crmCustomerId;
 
     public CrmUploadCoreInfo(
             String sourceSystem,
@@ -24,5 +21,13 @@ public class CrmUploadCoreInfo {
         this.crmSystem = crmSystem;
         this.crmUrl = crmUrl;
         this.crmCustomerId = crmCustomerId;
+    }
+
+    public String getCrmUrl() {
+        return crmUrl == null ? "" : crmUrl;
+    }
+
+    public String getCrmCustomerId() {
+        return crmCustomerId == null ? "" : crmCustomerId;
     }
 }

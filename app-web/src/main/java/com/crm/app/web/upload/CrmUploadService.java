@@ -48,8 +48,13 @@ public class CrmUploadService {
         if (hasOpenCrmUploads) {
             throw new UploadNotAllowedException(String.format("processUpload: Customer %s has open uploads", emailAddress));
         }
-        if (crmUploadInfo.isPresent() && (!crmUploadInfo.get().getCrmSystem().equals(crmSystem) || !crmUploadInfo.get().getCrmCustomerId().equals(crmCustomerId))) {
-            throw new UploadNotAllowedException(String.format("processUpload: crmSystem/crmCustomerId %s/%s for customer %d invalid", crmSystem, crmCustomerId, customerId));
+        if (crmUploadInfo.isPresent() && (!crmUploadInfo.get().getCrmSystem().equals(crmSystem != null ? crmSystem : "") || !crmUploadInfo.get().getCrmCustomerId().equals(crmCustomerId != null ? crmCustomerId : ""))) {
+            throw new UploadNotAllowedException(String.format("processUpload: crmSystem/crmCustomerId %s/%s [%s][%s] for customer %d invalid",
+                    crmSystem,
+                    crmCustomerId,
+                    crmUploadInfo.get().getCrmSystem(),
+                    crmUploadInfo.get().getCrmCustomerId(),
+                    customerId));
         }
 
         long uploadId = repository.nextUploadId();

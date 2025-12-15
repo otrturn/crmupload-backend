@@ -54,7 +54,7 @@ public class UploadHandlingForEspo {
             logStatistics(espoEntityPoolForReceived, espoEntityPoolForAdd, espoEntityPoolForIgnore);
 
             repository.markUploadDone(upload.getUploadId());
-            uploadMailService.sendSuccessMailForEspo(customer, upload, espoEntityPoolForAdd);
+            uploadMailService.sendSuccessMailForEspo(customer, upload, espoEntityPoolForAdd, espoEntityPoolForIgnore);
         } else {
             repository.markUploadFailed(upload.getUploadId(), "Validation failed");
             WorkerUtil.markExcelFile(excelBytes, errors);
