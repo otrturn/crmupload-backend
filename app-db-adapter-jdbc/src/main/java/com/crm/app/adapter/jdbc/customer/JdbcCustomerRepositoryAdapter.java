@@ -20,6 +20,8 @@ import java.util.Optional;
 @Slf4j
 public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
 
+    private static final String LITERAL_CUSTOMER_NUMBER = "customer_number";
+    private static final String LITERAL_CUSTOMER_NUMBER_CAMELCASE = "customerNumber";
     private static final String LITERAL_FIRSTNAME = "firstname";
     private static final String LITERAL_LASTNAME = "lastname";
     private static final String LITERAL_COUNTRY = "country";
@@ -152,6 +154,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
 
     private static final String SQL_CUSTOMER_FIND_BY_CUSTOMER_ID = """
             SELECT customer_id,
+                   customer_number,
                    user_id,
                    firstname,
                    lastname,
@@ -218,12 +221,12 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
     public void insertCustomer(Customer customer) {
         String sql = """
                 INSERT INTO app.customer (
-                    customer_id, user_id, firstname, lastname, company_name,
+                    customer_id, customer_number, user_id, firstname, lastname, company_name,
                     email_address, phone_number,
                     adrline1, adrline2, postalcode, city, country
                 )
                 VALUES (
-                    :customerId, :userId, :firstname, :lastname, :companyName,
+                    :customerId, :customerNumber, :userId, :firstname, :lastname, :companyName,
                     :email_address, :phone,
                     :adr1, :adr2, :postal, :city, :country
                 )
@@ -231,6 +234,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
 
         var params = new MapSqlParameterSource()
                 .addValue(LITERAL_CUSTOMER_ID_CAMELCASE, customer.customerId())
+                .addValue(LITERAL_CUSTOMER_NUMBER_CAMELCASE, customer.customerNumber())
                 .addValue(LITERAL_USER_ID_CAMELCASE, customer.userId())
                 .addValue(LITERAL_FIRSTNAME, customer.firstname())
                 .addValue(LITERAL_LASTNAME, customer.lastname())
@@ -403,7 +407,8 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
     @Override
     public CustomerProfile getCustomer(String emailAddress) {
         String sql = """
-                SELECT firstname,
+                SELECT customer_number,
+                       firstname,
                        lastname,
                        company_name,
                        phone_number,
@@ -426,7 +431,8 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
     @Override
     public CustomerProfile getCustomer(long customerId) {
         String sql = """
-                SELECT firstname,
+                SELECT customer_number,
+                       firstname,
                        lastname,
                        company_name,
                        email_address,
@@ -449,6 +455,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
 
     private CustomerProfile mapToCustomerProfileResponse(ResultSet rs, String emailAddress) throws SQLException {
         return new CustomerProfile(
+                rs.getString(LITERAL_CUSTOMER_NUMBER),
                 rs.getString(LITERAL_FIRSTNAME),
                 rs.getString(LITERAL_LASTNAME),
                 rs.getString(LITERAL_COMPANY_NAME),
@@ -464,6 +471,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
 
     private CustomerProfile mapToCustomerProfileResponse(ResultSet rs) throws SQLException {
         return new CustomerProfile(
+                rs.getString(LITERAL_CUSTOMER_NUMBER),
                 rs.getString(LITERAL_FIRSTNAME),
                 rs.getString(LITERAL_LASTNAME),
                 rs.getString(LITERAL_COMPANY_NAME),
@@ -616,7 +624,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
         MapSqlParameterSource params = new MapSqlParameterSource().addValue(LITERAL_CUSTOMER_ID_CAMELCASE, customerId);
 
         try {
-            List<Customer> rows = jdbc.query(SQL_CUSTOMER_FIND_BY_CUSTOMER_ID, params, (rs, rowNum) -> new Customer(rs.getLong(LITERAL_CUSTOMER_ID), rs.getLong(LITERAL_USER_ID), rs.getString(LITERAL_FIRSTNAME), rs.getString(LITERAL_LASTNAME), rs.getString(LITERAL_COMPANY_NAME), rs.getString(LITERAL_EMAIL_ADDRESS), rs.getString(LITERAL_PHONE_NUMBER), rs.getString(LITERAL_ADRLINE1), rs.getString(LITERAL_ADRLINE2), rs.getString(LITERAL_POSTALCODE), rs.getString(LITERAL_CITY), rs.getString(LITERAL_COUNTRY), null));
+            List<Customer> rows = jdbc.query(SQL_CUSTOMER_FIND_BY_CUSTOMER_ID, params, (rs, rowNum) -> new Customer(rs.getLong(LITERAL_CUSTOMER_ID), rs.getString(LITERAL_CUSTOMER_NUMBER), rs.getLong(LITERAL_USER_ID), rs.getString(LITERAL_FIRSTNAME), rs.getString(LITERAL_LASTNAME), rs.getString(LITERAL_COMPANY_NAME), rs.getString(LITERAL_EMAIL_ADDRESS), rs.getString(LITERAL_PHONE_NUMBER), rs.getString(LITERAL_ADRLINE1), rs.getString(LITERAL_ADRLINE2), rs.getString(LITERAL_POSTALCODE), rs.getString(LITERAL_CITY), rs.getString(LITERAL_COUNTRY), null));
 
             if (rows.isEmpty()) {
                 return Optional.empty();
@@ -630,7 +638,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
 
             List<String> products = loadProductsForCustomer(customerId);
 
-            Customer enrichedCustomer = new Customer(customer.customerId(), customer.userId(), customer.firstname(), customer.lastname(), customer.companyName(), customer.emailAddress(), customer.phoneNumber(), customer.adrline1(), customer.adrline2(), customer.postalcode(), customer.city(), customer.country(), products);
+            Customer enrichedCustomer = new Customer(customer.customerId(), customer.customerNumber(), customer.userId(), customer.firstname(), customer.lastname(), customer.companyName(), customer.emailAddress(), customer.phoneNumber(), customer.adrline1(), customer.adrline2(), customer.postalcode(), customer.city(), customer.country(), products);
 
             return Optional.of(enrichedCustomer);
 

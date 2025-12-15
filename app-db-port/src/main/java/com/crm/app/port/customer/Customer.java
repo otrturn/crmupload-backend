@@ -4,6 +4,7 @@ import java.util.List;
 
 public record Customer(
         Long customerId,
+        String customerNumber,
         Long userId,
         String firstname,
         String lastname,
