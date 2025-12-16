@@ -13,6 +13,7 @@ import com.crmmacher.espo.dto.EspoEntityPool;
 import com.crmmacher.espo.storage_handler.add.AddAccountsToEspo;
 import com.crmmacher.espo.storage_handler.add.AddContactsToEspo;
 import com.crmmacher.espo.storage_handler.add.AddLeadsToEspo;
+import com.crmmacher.espo.storage_handler.add.error.EspoValidationException;
 import com.crmmacher.espo.storage_handler.get.GetAccountFromEspo;
 import com.crmmacher.espo.storage_handler.get.GetContactFromEspo;
 import com.crmmacher.espo.storage_handler.get.GetLeadFromEspo;
@@ -55,6 +56,8 @@ public class UploadHandlingForEspo {
 
                 repository.markUploadDone(upload.getUploadId());
                 uploadMailService.sendSuccessMailForEspo(customer, upload, espoEntityPoolForAdd, espoEntityPoolForIgnore);
+            } catch (EspoValidationException e) {
+                repository.markUploadFailed(upload.getUploadId(), "ESPO Validation failed[" + e.getMessage() + "]");
             } catch (Exception e) {
                 repository.markUploadFailed(upload.getUploadId(), "ESPO Handling failed[" + e.getMessage() + "]");
             }
