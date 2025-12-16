@@ -25,8 +25,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -49,21 +47,21 @@ public class UploadWorkerProcessForMyExcel {
             List<ErrMsg> errors = new ArrayList<>();
 
             List<MyExcelAccount> myExcelAccounts = new MyExcelReadAccounts().getAccounts(upload.getContent(), errors);
-            List<EspoAccount> espoAccounts = MyExcelToEspoAccountMapper.toEspoAccounts(myExcelAccounts);
+            List<EspoAccount> espoAccounts = MyExcelToEspoAccountMapper.toEspoAccounts(myExcelAccounts, errors);
             VerifyMyExcelForEspo.verifyEspoAccount(myExcelCtx, espoAccounts, errors);
 
             log.info(String.format("MyExcel %d accounts read, %d errors", espoAccounts.size(), errors.size()));
             log.info(String.format("MyExcel %d accounts mapped, %d errors", espoAccounts.size(), errors.size()));
 
             List<MyExcelContact> myExcelContacts = new MyExcelReadContacts().getContacts(myExcelAccounts, upload.getContent(), errors);
-            List<EspoContact> espoContacts = MyExcelToEspoContactMapper.toEspoContacts(myExcelContacts);
+            List<EspoContact> espoContacts = MyExcelToEspoContactMapper.toEspoContacts(myExcelContacts, errors);
             VerifyMyExcelForEspo.verifyEspoContact(myExcelCtx, espoAccounts, espoContacts, errors);
 
             log.info(String.format("MyExcel %d contacts read, %d errors", espoContacts.size(), errors.size()));
             log.info(String.format("MyExcel %d contacts mapped, %d errors", espoContacts.size(), errors.size()));
 
             List<MyExcelLead> myExcelLeads = new MyExcelReadLeads().getLeads(upload.getContent(), errors);
-            List<EspoLead> espoLeads = MyExcelToEspoLeadMapper.toEspoLeads(myExcelLeads);
+            List<EspoLead> espoLeads = MyExcelToEspoLeadMapper.toEspoLeads(myExcelLeads, errors);
             VerifyMyExcelForEspo.verifyEspoLead(myExcelCtx, espoLeads, errors);
 
             log.info(String.format("MyExcel %d leads read, %d errors", espoLeads.size(), errors.size()));
