@@ -20,7 +20,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
@@ -58,7 +57,7 @@ public class UploadHandlingForEspo {
         } else {
             repository.markUploadFailed(upload.getUploadId(), "Validation failed");
             WorkerUtil.markExcelFile(excelBytes, errors);
-            uploadMailService.sendErrorMailForEspo(customer, upload, errors);
+            uploadMailService.sendErrorMailForEspo(customer, upload, errors, WorkerUtil.markExcelFile(excelBytes, errors));
         }
     }
 

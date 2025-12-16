@@ -96,7 +96,7 @@ public class UploadMailService {
                         .format(Instant.now()));
     }
 
-    public void sendErrorMailForEspo(Customer customer, CrmUploadContent upload, List<ErrMsg> errors) {
+    public void sendErrorMailForEspo(Customer customer, CrmUploadContent upload, List<ErrMsg> errors, byte[] errorFile) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -114,7 +114,7 @@ public class UploadMailService {
                                     .withZone(ZoneId.of(TIMEZONE))
                                     .format(Instant.now())
                     ),
-                    new ByteArrayResource(upload.getContent())
+                    new ByteArrayResource(errorFile)
             );
             mailSender.send(message);
             log.info(String.format("CorrectionMail mail sent to %s", customer.emailAddress()));
