@@ -51,6 +51,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
     private static final String LITERAL_TS = "ts";
     private static final String LITERAL_STATUS = "status";
     private static final String LITERAL_USER_ID = "user_id";
+    private static final String LITERAL_ACTIVATION_DATE = "activation_date";
 
     private static final String LITERAL_NO_CUSTOMER_FOR_EMAIL = "No customer found for email '%s'";
     private static final String LITERAL_NO_CUSTOMER_FOR_CUSTOMER_ID = "No customer found for customerId '%s'";
@@ -105,6 +106,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
     private static final String SQL_UPDATE_ENABLED = """
             UPDATE app.customer
                SET enabled = :enabled,
+                   activation_date = now(),
                    modified = now()
              WHERE customer_id = :customerId
             """;
@@ -416,7 +418,8 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
                        adrline2,
                        postalcode,
                        city,
-                       country
+                       country,
+                       activation_date
                 FROM app.customer
                 WHERE email_address = :email
                 """;
@@ -441,7 +444,8 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
                        adrline2,
                        postalcode,
                        city,
-                       country
+                       country,
+                       activation_date
                 FROM app.customer
                 WHERE customer_id = :customer_id
                 """;
@@ -465,7 +469,8 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
                 rs.getString(LITERAL_ADRLINE2),
                 rs.getString(LITERAL_POSTALCODE),
                 rs.getString(LITERAL_CITY),
-                rs.getString(LITERAL_COUNTRY)
+                rs.getString(LITERAL_COUNTRY),
+                rs.getTimestamp(LITERAL_ACTIVATION_DATE)
         );
     }
 
@@ -481,7 +486,8 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
                 rs.getString(LITERAL_ADRLINE2),
                 rs.getString(LITERAL_POSTALCODE),
                 rs.getString(LITERAL_CITY),
-                rs.getString(LITERAL_COUNTRY)
+                rs.getString(LITERAL_COUNTRY),
+                rs.getTimestamp(LITERAL_ACTIVATION_DATE)
         );
     }
 

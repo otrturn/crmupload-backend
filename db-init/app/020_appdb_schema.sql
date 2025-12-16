@@ -68,6 +68,7 @@ CREATE TABLE IF NOT EXISTS app.customer
     city            TEXT        NOT NULL,
     country         TEXT        NOT NULL CHECK (country IN ('DE', 'AT', 'CH')),
     enabled         BOOLEAN     NOT NULL DEFAULT false,
+    activation_date TIMESTAMPTZ,
     created         TIMESTAMPTZ NOT NULL DEFAULT now(),
     modified        TIMESTAMPTZ NOT NULL DEFAULT now()
 );
