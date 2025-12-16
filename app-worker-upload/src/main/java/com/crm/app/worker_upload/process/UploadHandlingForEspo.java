@@ -47,13 +47,17 @@ public class UploadHandlingForEspo {
         baseCtx.setApiKey(upload.getApiKey());
 
         if (!ErrMsg.containsErrors(errors)) {
-            loadEspo(baseCtx, espoEntityPoolForLoad);
-            checkForAddOrIgnore(espoEntityPoolForLoad, espoEntityPoolForReceived, espoEntityPoolForAdd, espoEntityPoolForIgnore);
-            addEntitiesToEspo(baseCtx, espoEntityPoolForAdd);
-            logStatistics(espoEntityPoolForReceived, espoEntityPoolForAdd, espoEntityPoolForIgnore);
+            try {
+                loadEspo(baseCtx, espoEntityPoolForLoad);
+                checkForAddOrIgnore(espoEntityPoolForLoad, espoEntityPoolForReceived, espoEntityPoolForAdd, espoEntityPoolForIgnore);
+                addEntitiesToEspo(baseCtx, espoEntityPoolForAdd);
+                logStatistics(espoEntityPoolForReceived, espoEntityPoolForAdd, espoEntityPoolForIgnore);
 
-            repository.markUploadDone(upload.getUploadId());
-            uploadMailService.sendSuccessMailForEspo(customer, upload, espoEntityPoolForAdd, espoEntityPoolForIgnore);
+                repository.markUploadDone(upload.getUploadId());
+                uploadMailService.sendSuccessMailForEspo(customer, upload, espoEntityPoolForAdd, espoEntityPoolForIgnore);
+            } catch (Exception e) {
+                repository.markUploadFailed(upload.getUploadId(), "ESPO Handling failed[" + e.getMessage() + "]");
+            }
         } else {
             repository.markUploadFailed(upload.getUploadId(), "Validation failed");
             WorkerUtil.markExcelFile(excelBytes, errors);
