@@ -1,6 +1,5 @@
 package com.crm.app.worker_upload.mail;
 
-import com.crm.app.adapter.jdbc.config.AppDataSourceProperties;
 import com.crm.app.dto.CrmUploadContent;
 import com.crm.app.port.customer.Customer;
 import com.crmmacher.error.ErrMsg;
@@ -9,6 +8,7 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -25,8 +25,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UploadMailService {
 
+    private static final String TIMEZONE = "Europe/Berlin";
     private final JavaMailSender mailSender;
-    private final AppDataSourceProperties appDataSourceProperties;
 
     public void sendSuccessMailForEspo(Customer customer, CrmUploadContent upload, EspoEntityPool espoEntityPool, EspoEntityPool espoEntityPoolForIgnore) {
         try {
@@ -42,7 +42,7 @@ public class UploadMailService {
                             upload.getUploadId()
                     )
             );
-            helper.setText(bodySuccessForEspo(customer, upload.getUploadId(), upload.getSourceSystem(), upload.getCrmSystem(), espoEntityPool,espoEntityPoolForIgnore), false);
+            helper.setText(bodySuccessForEspo(customer, upload.getUploadId(), upload.getSourceSystem(), upload.getCrmSystem(), espoEntityPool, espoEntityPoolForIgnore), false);
             helper.setFrom("CRM-Upload <support@crmupload.de>");
             helper.setReplyTo("CRM-Upload Support <support@crmupload.de>");
 
@@ -53,7 +53,7 @@ public class UploadMailService {
         }
     }
 
-    private String bodySuccessForEspo(Customer customer, long uploadId,  String sourceSystem, String crmSystem, EspoEntityPool espoEntityPool, EspoEntityPool espoEntityPoolForIgnore) {
+    private String bodySuccessForEspo(Customer customer, long uploadId, String sourceSystem, String crmSystem, EspoEntityPool espoEntityPool, EspoEntityPool espoEntityPoolForIgnore) {
         return """
                 Hallo %s,
                 
@@ -87,8 +87,8 @@ public class UploadMailService {
                 Ihr CRM-Upload-Team
                 www.crmupload.de
                 """.formatted(Customer.getFullname(customer), sourceSystem, crmSystem,
-                espoEntityPool.getAccounts().size(),espoEntityPoolForIgnore.getAccounts().size(),
-                espoEntityPool.getContacts().size(),espoEntityPoolForIgnore.getContacts().size(),
+                espoEntityPool.getAccounts().size(), espoEntityPoolForIgnore.getAccounts().size(),
+                espoEntityPool.getContacts().size(), espoEntityPoolForIgnore.getContacts().size(),
                 uploadId,
                 DateTimeFormatter
                         .ofPattern("dd.MM.yyyy")
@@ -96,7 +96,7 @@ public class UploadMailService {
                         .format(Instant.now()));
     }
 
-    public void sendErrorMailForEspo(Customer customer, CrmUploadContent upload, List<ErrMsg> errors, Path excelTargetfile) {
+    public void sendErrorMailForEspo(Customer customer, CrmUploadContent upload, List<ErrMsg> errors) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -107,9 +107,15 @@ public class UploadMailService {
             helper.setFrom("CRM-Upload <support@crmupload.de>");
             helper.setReplyTo("CRM-Upload Support <support@crmupload.de>");
 
-            FileSystemResource file = new FileSystemResource(excelTargetfile.toFile());
-            helper.addAttachment(file.getFilename(), file);
-
+            helper.addAttachment(
+                    String.format("Upload_Ergebnis_%s_%s.xlsx",
+                            upload.getSourceSystem(),
+                            DateTimeFormatter.ofPattern("yyyyMMdd")
+                                    .withZone(ZoneId.of(TIMEZONE))
+                                    .format(Instant.now())
+                    ),
+                    new ByteArrayResource(upload.getContent())
+            );
             mailSender.send(message);
             log.info(String.format("CorrectionMail mail sent to %s", customer.emailAddress()));
         } catch (MessagingException e) {

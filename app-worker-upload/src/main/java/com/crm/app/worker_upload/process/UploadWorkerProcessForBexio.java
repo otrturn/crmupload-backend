@@ -16,8 +16,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +34,6 @@ public class UploadWorkerProcessForBexio {
     private final BexioCtx bexioCtx;
 
     public void processUploadForEspo(CrmUploadContent upload) {
-        Path excelTargetFile = Paths.get(String.format("%s/Upload_Bexio_Korrektur_%06d.xlsx", properties.getWorkdir(), upload.getUploadId()));
         log.info(String.format("Processing crm_upload for Bexio uploadId=%d sourceSysten=%s crmSystem=%s", upload.getUploadId(), upload.getSourceSystem(), upload.getCrmSystem()));
         try {
             List<ErrMsg> errors = new ArrayList<>();
@@ -51,7 +48,7 @@ public class UploadWorkerProcessForBexio {
 
             Optional<Customer> customer = customerRepositoryPort.findCustomerByCustomerId(upload.getCustomerId());
             if (customer.isPresent()) {
-                uploadHandlingForEspo.processForEspo(upload, upload.getContent(), excelTargetFile, errors, customer.get(), espoEntityPoolForReceived);
+                uploadHandlingForEspo.processForEspo(upload, upload.getContent(), errors, customer.get(), espoEntityPoolForReceived);
             } else {
                 log.error(String.format("Customer not found for customerId=%d", upload.getCustomerId()));
             }

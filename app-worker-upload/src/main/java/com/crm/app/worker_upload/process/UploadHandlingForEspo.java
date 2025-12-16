@@ -38,7 +38,7 @@ public class UploadHandlingForEspo {
 
     private static final String DURATION_FORMAT_STRING = "Duration: %02d:%02d:%02d";
 
-    public void processForEspo(CrmUploadContent upload, byte[] excelBytes, Path excelTargetfile, List<ErrMsg> errors, Customer customer, EspoEntityPool espoEntityPoolForReceived) {
+    public void processForEspo(CrmUploadContent upload, byte[] excelBytes, List<ErrMsg> errors, Customer customer, EspoEntityPool espoEntityPoolForReceived) {
         EspoEntityPool espoEntityPoolForLoad = new EspoEntityPool();
         EspoEntityPool espoEntityPoolForAdd = new EspoEntityPool();
         EspoEntityPool espoEntityPoolForIgnore = new EspoEntityPool();
@@ -58,7 +58,7 @@ public class UploadHandlingForEspo {
         } else {
             repository.markUploadFailed(upload.getUploadId(), "Validation failed");
             WorkerUtil.markExcelFile(excelBytes, errors);
-            uploadMailService.sendErrorMailForEspo(customer, upload, errors, excelTargetfile);
+            uploadMailService.sendErrorMailForEspo(customer, upload, errors);
         }
     }
 

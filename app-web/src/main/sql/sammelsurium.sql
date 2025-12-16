@@ -30,7 +30,8 @@ order by customer_id;
 call app.export_billing();
 
 update app.customer
-set enabled= true, activation_date=now();
+set enabled= true,
+    activation_date=now();
 commit;
 
 update app.crm_upload
