@@ -7,7 +7,6 @@ app:
   crm-upload:
     poll-interval-ms: 10000
     batch-size: 5
-    workdir: /data/tmp
 
 spring:
   main:

@@ -10,7 +10,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class DuplicateCheckGpuProperties {
     private int pollIntervalMs = 10000;
     private int batchSize = 5;
-    private String workdir;
     private double cosineSimilarityThresholdAccountName = 0.85d;
     private double cosineSimilarityThresholdAddress = 0.85d;
     private boolean performAddressAnalysis = false;

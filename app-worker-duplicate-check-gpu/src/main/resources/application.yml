@@ -2,7 +2,6 @@ app:
   duplicate-check-gpu:
     poll-interval-ms: 10000
     batch-size: 5
-    workdir: /data/tmp
     cosineSimilarityThresholdAccountName: 0.85
     cosineSimilarityThresholdAddress: 0.82
   embedding:
