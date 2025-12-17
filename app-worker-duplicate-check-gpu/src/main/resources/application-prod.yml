@@ -1,14 +1,6 @@
-server:
-  port: 8086
-
 app:
   datasource:
     url: jdbc:postgresql://crmupload-db:5432/crmupload-appdb
     username: appuser
     password: apppass
     driver-class-name: org.postgresql.Driver
-
-  jwt:
-    secret: "eine-lange-zufällige-zeichenkette-hier-eintragen-32+Zeichen"
-    expiration-ms: 3600000   # 1 Stunde
-
