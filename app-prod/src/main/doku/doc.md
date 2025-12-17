@@ -30,3 +30,9 @@ Dann auf dem Dev-Rechner
 ```
 psql "host=10.10.0.1 port=5436 dbname=crmupload-appdb user=appuser"
 ```
+
+# Docker
+
+```
+docker ps --format "table {{.ID}}\t{{.Image}}\t{{.RunningFor}}\t{{.Status}}\t{{.Names}}"
+```
