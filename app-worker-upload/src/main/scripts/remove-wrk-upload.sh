@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-# Alle Container stoppen, die auf dem Image "crmupload-worker" basieren
+# Alle Container stoppen, die auf dem Image "crmupload-worker-upload" basieren
 echo "🛑 Stoppe Container mit Image 'crmupload-worker-upload'..."
 docker ps -a --filter ancestor=crmupload-worker-upload --format "{{.ID}}" | while read cid; do
 	if [ -n "$cid" ]; then
@@ -11,9 +11,9 @@ docker ps -a --filter ancestor=crmupload-worker-upload --format "{{.ID}}" | whil
 	fi
 done
 
-# Alle Images löschen, die "crmupload-worker" enthalten
+# Alle Images löschen, die "crmupload-worker-upload" enthalten
 echo "🧹 Entferne Images mit Namen 'crmupload-worker-upload'..."
-docker images --format "{{.Repository}}:{{.Tag}} {{.ID}}" | grep "crmupload-worker-upload" | while read repo id; do
+docker images --format "{{.Repository}}:{{.Tag}} {{.ID}}" | grep '^crmupload-worker-upload:' | while read repo id; do
 	if [ -n "$id" ]; then
 		echo "→ Entferne Image $id ($repo)"
 		docker rmi -f "$id"

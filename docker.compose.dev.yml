@@ -72,12 +72,12 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
-  crmupload-worker-duplicate-check-gpu:
+  crmupload-worker-duplicate-check-gpu-dev:
     image: crmupload-worker-duplicate-check-gpu
     build:
       context: ./app-worker-duplicate-check-gpu
       dockerfile: Dockerfile
-    container_name: crmupload-worker-duplicate-check-gpu
+    container_name: crmupload-worker-duplicate-check-gpu-dev
     restart: unless-stopped
     networks:
       - crmuploadnet

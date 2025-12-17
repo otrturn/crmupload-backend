@@ -13,7 +13,7 @@ done
 
 # Alle Images löschen, die "crmupload-web" enthalten
 echo "🧹 Entferne Images mit Namen 'crmupload-web'..."
-docker images --format "{{.Repository}}:{{.Tag}} {{.ID}}" | grep "crmupload-web" | while read repo id; do
+docker images --format "{{.Repository}}:{{.Tag}} {{.ID}}" | grep '^crmupload-web:' | while read repo id; do
 	if [ -n "$id" ]; then
 		echo "→ Entferne Image $id ($repo)"
 		docker rmi -f "$id"

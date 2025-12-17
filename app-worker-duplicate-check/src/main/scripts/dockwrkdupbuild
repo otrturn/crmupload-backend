@@ -1,2 +1,0 @@
-remove-wrk-dup.sh
-dockwrkdup build crmupload-worker-duplicate-check
