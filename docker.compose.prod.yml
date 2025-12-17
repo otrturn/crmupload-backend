@@ -37,6 +37,8 @@ services:
     restart: unless-stopped
     networks:
       - crmuploadnet
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
 
   # --------------------------------------------------------------
   # BACKGROUND WORKER / BATCH PROCESSOR
@@ -52,6 +54,8 @@ services:
       - crmuploadnet
     volumes:
       - ./tmp:/data/tmp                # ersetzt /home/ralf/tmp
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
 
   crmupload-worker-duplicate-check:
     image: ghcr.io/otrturn/crmupload-worker-duplicate-check:prod
@@ -64,6 +68,8 @@ services:
       - crmuploadnet
     volumes:
       - ./tmp:/data/tmp                # ersetzt /home/ralf/tmp
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
 
   # --------------------------------------------------------------
   # MAILPIT (SMTP debugging)

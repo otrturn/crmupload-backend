@@ -1,6 +1,6 @@
 if [ "X"${1} == Xall ]
 then
-    dockdev up -d --no-build app-db crmupload-web crmupload-worker-upload crmupload-worker-duplicate-check crmupload-worker-duplicate-check-gpu-dev crmupload-worker-duplicate-check-gpu-prod
+    dockdev up -d --no-build app-db crmupload-web crmupload-worker-upload crmupload-worker-duplicate-check crmupload-worker-duplicate-check-gpu-dev crmupload-worker-duplicate-check-gpu-prod crmupload-mailpit
 else
-    dockdev up -d --no-build app-db crmupload-web crmupload-worker-upload crmupload-worker-duplicate-check crmupload-worker-duplicate-check-gpu-dev
+    dockdev up -d --no-build app-db crmupload-web crmupload-worker-upload crmupload-worker-duplicate-check crmupload-worker-duplicate-check-gpu-dev crmupload-mailpit
 fi
