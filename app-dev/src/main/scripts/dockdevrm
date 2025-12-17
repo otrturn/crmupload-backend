@@ -1,4 +1,13 @@
-remove-web.sh
-remove-wrk-dup.sh
-remove-wrk-gpu.sh
-remove-wrk-upload.sh
+if [ "X"${1} == Xall ]
+then
+    remove-web.sh
+    remove-wrk-dup.sh
+    remove-wrk-gpu-dev.sh
+    remove-wrk-gpu-prod.sh
+    remove-wrk-upload.sh
+else
+    remove-web.sh
+    remove-wrk-dup.sh
+    remove-wrk-gpu-dev.sh
+    remove-wrk-upload.sh
+fi
