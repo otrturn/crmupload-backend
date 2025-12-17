@@ -27,7 +27,7 @@ public class DuplicateCheckGpuWorker {
             return;
         }
 
-        log.info(String.format("Claimed %d duplicate-check job(s) for check: %s", duplicateCheckIds.size(), String.valueOf(duplicateCheckIds)));
+        log.info(String.format("Claimed %d duplicate-check job(s) for check: %s", duplicateCheckIds.size(), duplicateCheckIds));
 
         List<DuplicateCheckContent> duplicateChecks = duplicateCheckRepositoryPort.findDuplicateChecksByIds(duplicateCheckIds);
 

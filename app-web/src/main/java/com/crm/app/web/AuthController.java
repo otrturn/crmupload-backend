@@ -5,10 +5,8 @@ import com.crm.app.dto.LoginResponse;
 import com.crm.app.dto.RegisterRequest;
 import com.crm.app.dto.RegisterResponse;
 import com.crm.app.web.auth.AuthenticationService;
-import com.crm.app.web.error.RegisterRequestInvalidDataException;
 import com.crm.app.web.register.CustomerRegistrationService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
