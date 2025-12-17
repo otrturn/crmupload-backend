@@ -21,6 +21,7 @@
         <module>app-worker-duplicate-check</module>
         <module>app-worker-duplicate-check-gpu</module>
         <module>app-worker-common</module>
+        <module>app-dev</module>
     </modules>
 
     <parent>

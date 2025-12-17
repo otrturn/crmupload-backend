@@ -1,0 +1,11 @@
+cd app-web
+dockwebbuild
+
+cd app-worker-upload
+dockwrkuploadbuild
+
+cd app-worker-duplicate-check
+dockwrkdupbuild
+
+cd app-worker-duplicate-check-gpu
+dockwrkgpubuild

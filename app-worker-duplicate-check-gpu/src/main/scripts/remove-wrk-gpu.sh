@@ -2,7 +2,7 @@
 set -e
 
 # Alle Container stoppen, die auf dem Image "crmupload-worker" basieren
-echo "🛑 Stoppe Container mit Image 'crmupload-duplicate-check-gpu'..."
+echo "🛑 Stoppe Container mit Image 'crmupload-worker-duplicate-check-gpu'..."
 docker ps -a --filter ancestor=crmupload-worker-duplicate-check-gpu --format "{{.ID}}" | while read cid; do
 	if [ -n "$cid" ]; then
 		echo "→ Stoppe Container $cid"
@@ -12,8 +12,8 @@ docker ps -a --filter ancestor=crmupload-worker-duplicate-check-gpu --format "{{
 done
 
 # Alle Images löschen, die "crmupload-worker" enthalten
-echo "🧹 Entferne Images mit Namen 'crmupload-duplicate-check-gpu'..."
-docker images --format "{{.Repository}}:{{.Tag}} {{.ID}}" | grep "crmupload-duplicate-check-gpu" | while read repo id; do
+echo "🧹 Entferne Images mit Namen 'crmupload-worker-duplicate-check-gpu'..."
+docker images --format "{{.Repository}}:{{.Tag}} {{.ID}}" | grep "crmupload-worker-duplicate-check-gpu" | while read repo id; do
 	if [ -n "$id" ]; then
 		echo "→ Entferne Image $id ($repo)"
 		docker rmi -f "$id"

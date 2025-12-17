@@ -20,4 +20,4 @@ export REMOTE_DIR="/opt/crmupload-deploy"
 export DEPLOY_NETWORK="crmuploadnet"
 
 # Optional: Komponierte Datei für Prod
-export DEPLOY_COMPOSE_FILE="docker-compose.prod.yml"
+export DEPLOY_COMPOSE_FILE="docker.compose.prod.yml"

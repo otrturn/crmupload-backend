@@ -13,7 +13,7 @@ done
 
 # Alle Images löschen, die "crmupload-worker" enthalten
 echo "🧹 Entferne Images mit Namen 'crmupload-duplicate-check'..."
-docker images --format "{{.Repository}}:{{.Tag}} {{.ID}}" | grep "crmupload-duplicate-check" | while read repo id; do
+docker images --format "{{.Repository}}:{{.Tag}} {{.ID}}" | grep "crmupload-worker-duplicate-check" | while read repo id; do
 	if [ -n "$id" ]; then
 		echo "→ Entferne Image $id ($repo)"
 		docker rmi -f "$id"

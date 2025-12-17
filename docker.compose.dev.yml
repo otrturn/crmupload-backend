@@ -1,0 +1,89 @@
+services:
+  app-db:
+    image: postgres:16
+    container_name: crmupload-db
+    environment:
+      POSTGRES_DB: crmupload-appdb
+      POSTGRES_USER: appuser
+      POSTGRES_PASSWORD: apppass
+    ports:
+      - "5436:5432"
+    restart: unless-stopped
+    volumes:
+      - ../app-db-data:/var/lib/postgresql/data
+      - ../db-init/app:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U appuser -d crmupload-appdb" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: [ crmuploadnet ]
+
+  crmupload-web:
+    image: crmupload-web
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: crmupload-web
+    depends_on:
+      app-db:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8086:8086"   # nur auf localhost!
+    restart: unless-stopped
+    networks: [ crmuploadnet ]
+
+  # --------------------------------------------------------------
+  # MAILPIT (SMTP debugging)
+  # --------------------------------------------------------------
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: crmupload-mailpit
+    ports:
+      - "${MAILPIT_SMTP_PORT:-1025}:1025"
+      - "${MAILPIT_HTTP_PORT:-8025}:8025"
+    restart: unless-stopped
+    networks: [ crmuploadnet ]
+
+  crmupload-worker-upload:
+    image: crmupload-worker-upload
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: crmupload-worker-upload
+    restart: unless-stopped
+    networks: [ crmuploadnet ]
+    volumes:
+      - /home/ralf/tmp:/data/tmp
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  crmupload-worker-duplicate-check:
+    image: crmupload-worker-duplicate-check
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: crmupload-worker-duplicate-check
+    restart: unless-stopped
+    networks: [ crmuploadnet ]
+    volumes:
+      - /home/ralf/tmp:/data/tmp
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  crmupload-worker-duplicate-check-gpu:
+    image: crmupload-worker-duplicate-check-gpu
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: crmupload-worker-duplicate-check-gpu
+    restart: unless-stopped
+    networks: [ crmuploadnet ]
+    volumes:
+      - /home/ralf/tmp:/data/tmp
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+networks:
+  crmuploadnet:
+    external: true
