@@ -10,7 +10,7 @@ services:
       POSTGRES_USER: appuser
       POSTGRES_PASSWORD: apppass
     ports:
-      - "5436:5432"                    # optional: Zugriff via WireGuard
+      - "10.10.0.1:5436:5432"                    # optional: Zugriff via WireGuard
     restart: unless-stopped
     volumes:
       - ./app-db-data:/var/lib/postgresql/data

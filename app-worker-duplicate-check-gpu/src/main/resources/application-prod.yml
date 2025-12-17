@@ -1,6 +1,6 @@
 app:
   datasource:
-    url: jdbc:postgresql://crmupload-db:5432/crmupload-appdb
+    url: jdbc:postgresql://10.10.0.1:5436/crmupload-appdb
     username: appuser
     password: apppass
     driver-class-name: org.postgresql.Driver
