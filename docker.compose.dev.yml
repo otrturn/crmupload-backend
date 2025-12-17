@@ -13,8 +13,8 @@ services:
       - "5436:5432"
     restart: unless-stopped
     volumes:
-      - ../app-db-data:/var/lib/postgresql/data
-      - ../db-init/app:/docker-entrypoint-initdb.d:ro
+      - ./app-db-data:/var/lib/postgresql/data
+      - ./db-init/app:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U appuser -d crmupload-appdb" ]
       interval: 10s
