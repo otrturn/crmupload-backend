@@ -21,6 +21,7 @@ services:
       - ./monitoring/promtail/config.yml:/etc/promtail/config.yml:ro
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./monitoring/promtail/positions:/positions
     restart: unless-stopped
     networks:
       - crmuploadnet
