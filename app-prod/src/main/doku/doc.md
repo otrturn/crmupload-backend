@@ -39,3 +39,8 @@ psql "host=10.10.0.1 port=5436 dbname=crmupload-appdb user=appuser"
 ```
 docker ps --format "table {{.ID}}\t{{.Image}}\t{{.RunningFor}}\t{{.Status}}\t{{.Names}}"
 ```
+
+# Copy to server
+```
+scp ./backup_prod_db.sh ralf@10.10.0.1:/opt/crmupload-deploy/backup
+```
