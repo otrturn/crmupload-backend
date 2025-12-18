@@ -1,0 +1,12 @@
+app:
+  datasource:
+    url: jdbc:postgresql://crmupload-db:5432/crmupload-appdb
+    username: appuser
+    password: apppass
+    driver-class-name: org.postgresql.Driver
+  billing:
+    work-dir: /home/ralf/tmp
+
+spring:
+  main:
+    web-application-type: none
