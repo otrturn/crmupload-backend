@@ -32,6 +32,10 @@ public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
     private static final String LITERAL_INVOICE_NO_CAMELCASE = "invoiceNo";
     private static final String LITERAL_BILLING_META_CAMELCASE = "billingMeta";
     private static final String LITERAL_INVOICE_IMAGE_CAMELCASE = "invoiceImage";
+    private static final String LITERAL_TAX_VALUE_CAMELCASE = "taxValue";
+    private static final String LITERAL_TAX_AMOUNT_CAMELCASE = "taxAmount";
+    private static final String LITERAL_NET_AMOUNT_CAMELCASE = "netAmount";
+    private static final String LITERAL_AMOUNT_CAMELCASE = "amount";
 
     private final NamedParameterJdbcTemplate jdbc;
     private final ObjectMapper objectMapper;
@@ -176,27 +180,39 @@ public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
         String billingMetaJson = toBillingMetaJson(productCodes);
 
         String sql = """
-                INSERT INTO app.customer_billing (
-                    customer_id,
-                    invoice_no,
-                    billing_meta,
-                    invoice_image,
-                    submitted_to_billing
-                )
-                VALUES (
-                    :customerId,
-                    :invoiceNo,
-                    :billingMeta::jsonb,
-                    :invoiceImage,
-                    NULL
-                )
+                    INSERT INTO app.customer_billing (
+                        customer_id,
+                        invoice_no,
+                        tax_value,
+                        tax_amount,
+                        net_amount,
+                        amount,
+                        billing_meta,
+                        invoice_image,
+                        submitted_to_billing
+                    )
+                    VALUES (
+                        :customerId,
+                        :invoiceNo,
+                        :taxValue,
+                        :taxAmount,
+                        :netAmount,
+                        :amount,
+                        :billingMeta::jsonb,
+                        :invoiceImage,
+                        NULL
+                    )
                 """;
 
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue(LITERAL_CUSTOMER_ID_CAMELCASE, customerBillingData.customerId())
-                .addValue(LITERAL_INVOICE_NO_CAMELCASE, invoiceRecord.invoiceNo())
+                .addValue(LITERAL_INVOICE_NO_CAMELCASE, invoiceRecord.getInvoiceNo())
+                .addValue(LITERAL_TAX_VALUE_CAMELCASE, invoiceRecord.getTaxValue())
+                .addValue(LITERAL_TAX_AMOUNT_CAMELCASE, invoiceRecord.getTaxAmount())
+                .addValue(LITERAL_NET_AMOUNT_CAMELCASE, invoiceRecord.getNetAmount())
+                .addValue(LITERAL_AMOUNT_CAMELCASE, invoiceRecord.getAmount())
                 .addValue(LITERAL_BILLING_META_CAMELCASE, billingMetaJson, Types.OTHER)
-                .addValue(LITERAL_INVOICE_IMAGE_CAMELCASE, invoiceRecord.invoiceImage());
+                .addValue(LITERAL_INVOICE_IMAGE_CAMELCASE, invoiceRecord.getInvoiceImage());
 
         jdbc.update(sql, params);
     }

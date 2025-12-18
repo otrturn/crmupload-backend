@@ -292,13 +292,18 @@ CREATE SEQUENCE app.sequence_customer_billing
 
 CREATE TABLE IF NOT EXISTS app.customer_billing
 (
-    customer_id          INT         NOT NULL,
-    invoice_no           INT         NOT NULL,
-    billing_meta         jsonb       NOT NULL DEFAULT '{}'::jsonb,
-    invoice_image        BYTEA       NOT NULL,
-    submitted_to_billing TIMESTAMPTZ,
-    created              TIMESTAMPTZ NOT NULL DEFAULT now(),
-    modified             TIMESTAMPTZ NOT NULL DEFAULT now()
+    customer_id         INT         NOT NULL,
+    invoice_no          TEXT        NOT NULL,
+    billing_meta        jsonb       NOT NULL DEFAULT '{}'::jsonb,
+    invoice_image       BYTEA       NOT NULL,
+    submitted_to_agency TIMESTAMPTZ,
+    billing_date        TIMESTAMPTZ NOT NULL DEFAULT now(),
+    tax_value           NUMERIC     NOT NULL,
+    tax_amount          NUMERIC     NOT NULL,
+    net_amount          NUMERIC     NOT NULL,
+    amount              NUMERIC     NOT NULL,
+    created             TIMESTAMPTZ NOT NULL DEFAULT now(),
+    modified            TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 ALTER TABLE app.customer_billing

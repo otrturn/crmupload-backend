@@ -1,13 +1,20 @@
 package com.crm.app.dto;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 
-public record InvoiceRecord(
-        Long invoiceNo,
-        byte[] invoiceImage
-) {
+@Getter
+@Setter
+public class InvoiceRecord {
+    private String invoiceNo;
+    double taxValue;
+    double taxAmount;
+    double netAmount;
+    double amount;
+    private byte[] invoiceImage;
 
     @Override
     public boolean equals(Object o) {

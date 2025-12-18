@@ -32,7 +32,10 @@ public class GenerateInvoices {
                 Optional<Customer> customer = customerRepositoryPort.findCustomerByCustomerId(customerBillingData.customerId());
                 if (customer.isPresent()) {
                     byte[] invoiceImage = new byte[10];
-                    InvoiceRecord invoiceRecord = new InvoiceRecord(billingRepositoryPort.nextInvoiceNo(), invoiceImage);
+                    long invoiceNo = billingRepositoryPort.nextInvoiceNo();
+                    InvoiceRecord invoiceRecord = new InvoiceRecord();
+                    invoiceRecord.setInvoiceNo(String.format("%03d.%03d", invoiceNo / 1000, invoiceNo % 1000));
+                    invoiceRecord.setInvoiceImage(invoiceImage);
                     billingRepositoryPort.insertInvoiceRecord(customerBillingData, customer.get(), invoiceRecord);
                 } else {
                     log.error(String.format("Customer not found for customerId=%d", customerBillingData.customerId()));
