@@ -87,21 +87,18 @@ public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
                   FROM app.customer_billing cb
                   WHERE cb.customer_id = cp.customer_id
                     AND COALESCE(cb.billing_meta->'products', '[]'::jsonb)
-                        ? upper(cp.product)
+                        @> to_jsonb(ARRAY[upper(cp.product)])::jsonb
                 )
                 ORDER BY cp.customer_id, cp.product
                 """;
 
-        MapSqlParameterSource params = new MapSqlParameterSource();
-
-        List<Row> rows = jdbc.query(sql, params, (rs, rowNum) ->
+        List<Row> rows = jdbc.query(sql, (rs, rowNum) ->
                 new Row(
                         rs.getLong(LITERAL_CUSTOMER_ID),
                         rs.getString(LITERAL_PRODUCT),
                         rs.getTimestamp(LITERAL_ACTIVATION_DATE)
                 )
         );
-
         Map<Long, List<CustomerProduct>> grouped = new LinkedHashMap<>();
 
         for (Row row : rows) {
