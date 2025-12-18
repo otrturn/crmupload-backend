@@ -45,9 +45,9 @@ public interface CustomerRepositoryPort {
 
     Optional<CrmUploadCoreInfo> findLatestUploadByEmail(String email);
 
-    List<String> findProductsByCustomerId(long customerId);
+    List<String> findActiveProductsByCustomerId(long customerId);
 
-    List<String> findProductsByEmail(String email);
+    List<String> findActiveProductsByEmail(String email);
 
     long findCustomerIdByEmail(String email);
 

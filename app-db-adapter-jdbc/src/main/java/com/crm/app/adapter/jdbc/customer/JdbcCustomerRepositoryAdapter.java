@@ -180,10 +180,11 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
              WHERE customer_id = :customerId
             """;
 
-    private static final String SQL_FIND_PRODUCTS_BY_CUSTOMER_ID = """
+    private static final String SQL_FIND_ACTIVE_PRODUCTS_BY_CUSTOMER_ID = """
             SELECT product
               FROM app.customer_product
              WHERE customer_id = :customerId
+             AND   enabled = true
              ORDER BY product
             """;
 
@@ -590,11 +591,12 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
     }
 
     @Override
-    public List<String> findProductsByCustomerId(long customerId) {
+    public List<String> findActiveProductsByCustomerId(long customerId) {
         String sql = """
                 SELECT cp.product
                 FROM app.customer_product cp
                 WHERE cp.customer_id = :customerId
+                AND   cp.enabled = true
                 ORDER BY cp.product
                 """;
 
@@ -604,13 +606,14 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
     }
 
     @Override
-    public List<String> findProductsByEmail(String email) {
+    public List<String> findActiveProductsByEmail(String email) {
         String sql = """
                 SELECT DISTINCT cp.product
                 FROM app.customer c
                 JOIN app.customer_product cp
                       ON cp.customer_id = c.customer_id
                 WHERE c.email_address = :email
+                AND   cp.enabled = true
                 ORDER BY cp.product
                 """;
 
@@ -665,7 +668,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
 
             Customer customer = rows.get(0);
 
-            List<String> products = loadProductsForCustomer(customerId);
+            List<String> products = loadActiveProductsForCustomer(customerId);
 
             Customer enrichedCustomer = new Customer(customer.customerId(), customer.customerNumber(), customer.userId(), customer.firstname(), customer.lastname(), customer.companyName(), customer.emailAddress(), customer.phoneNumber(), customer.adrline1(), customer.adrline2(), customer.postalcode(), customer.city(), customer.country(), products);
 
@@ -683,10 +686,10 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
         return jdbc.query(SQL_FIND_DUPLICATE_CHECK_HISTORY_BY_EMAIL, params, (rs, rowNum) -> new DuplicateCheckHistory(rs.getTimestamp(LITERAL_TS), rs.getString(LITERAL_SOURCE_SYSTEM), rs.getString(LITERAL_STATUS)));
     }
 
-    private List<String> loadProductsForCustomer(long customerId) {
+    private List<String> loadActiveProductsForCustomer(long customerId) {
         try {
             MapSqlParameterSource params = new MapSqlParameterSource().addValue(LITERAL_CUSTOMER_ID_CAMELCASE, customerId);
-            return jdbc.query(SQL_FIND_PRODUCTS_BY_CUSTOMER_ID, params, (rs, rowNum) -> rs.getString(LITERAL_PRODUCT));
+            return jdbc.query(SQL_FIND_ACTIVE_PRODUCTS_BY_CUSTOMER_ID, params, (rs, rowNum) -> rs.getString(LITERAL_PRODUCT));
         } catch (DataAccessException ex) {
             log.error(String.format("Fehler beim Lesen der Produkte für customer_id=%d", customerId), ex);
             throw new IllegalStateException("Konnte Produkte für Customer nicht laden", ex);

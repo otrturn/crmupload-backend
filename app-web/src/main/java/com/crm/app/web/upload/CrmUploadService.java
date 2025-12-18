@@ -37,7 +37,7 @@ public class CrmUploadService {
         boolean enabled = customerRepositoryPort.isEnabledByCustomerId(customerId);
         boolean hasOpenCrmUploads = customerRepositoryPort.isHasOpenCrmUploadsByCustomerId(customerId);
         Optional<CrmUploadCoreInfo> crmUploadInfo = customerRepositoryPort.findLatestUploadByCustomerId(customerId);
-        List<String> products = customerRepositoryPort.findProductsByEmail(emailAddress);
+        List<String> products = customerRepositoryPort.findActiveProductsByEmail(emailAddress);
 
         if (!enabled) {
             throw new UploadNotAllowedException(String.format("processUpload: Customer %s is not enabled", emailAddress));

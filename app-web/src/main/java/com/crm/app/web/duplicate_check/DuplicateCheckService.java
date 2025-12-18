@@ -32,7 +32,7 @@ public class DuplicateCheckService {
         long customerId = customerRepositoryPort.findCustomerIdByEmail(emailAddress);
         log.info(String.format("Resolved customerId=%d for email=%s", customerId, emailAddress));
 
-        List<String> products = customerRepositoryPort.findProductsByEmail(emailAddress);
+        List<String> products = customerRepositoryPort.findActiveProductsByEmail(emailAddress);
 
         boolean enabled = customerRepositoryPort.isEnabledByCustomerId(customerId);
         boolean hasOpenDuplicatechecks = customerRepositoryPort.isHasOpenDuplicateChecksByCustomerId(customerId);

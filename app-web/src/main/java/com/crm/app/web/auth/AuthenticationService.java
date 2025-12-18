@@ -54,7 +54,7 @@ public class AuthenticationService {
         boolean hasOpenCrmUploads = customerRepositoryPort.isHasOpenCrmUploadsByEmail(emailAddress);
         boolean hasOpenDuplicateChecks = customerRepositoryPort.isHasOpenDuplicateChecksByEmail(emailAddress);
         Optional<CrmUploadCoreInfo> crmUploadInfo = customerRepositoryPort.findLatestUploadByEmail(emailAddress);
-        List<String> products = customerRepositoryPort.findProductsByEmail(emailAddress);
+        List<String> products = customerRepositoryPort.findActiveProductsByEmail(emailAddress);
 
         return new LoginResponse(token, enabled, hasOpenCrmUploads, hasOpenDuplicateChecks, crmUploadInfo.orElse(null), products);
     }
