@@ -25,6 +25,10 @@ public interface CustomerRepositoryPort {
 
     boolean isHasOpenDuplicateChecksByCustomerId(long customerId);
 
+    boolean isUnderObservationByEmail(String emailAddress);
+
+    boolean isUnderObservationByCustomerId(long customerId);
+
     void setEnabled(long customerId, boolean enabled);
 
     CustomerProfile getCustomer(String emailAddress);

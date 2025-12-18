@@ -35,23 +35,24 @@ CREATE SEQUENCE app.sequence_customer
 
 CREATE TABLE IF NOT EXISTS app.customer
 (
-    customer_id     INT         NOT NULL,
-    customer_number TEXT        NOT NULL,
-    user_id         INT         NOT NULL,
-    firstname       TEXT,
-    lastname        TEXT,
-    company_name    TEXT,
-    email_address   TEXT        NOT NULL,
-    phone_number    TEXT        NOT NULL,
-    adrline1        TEXT        NOT NULL,
-    adrline2        TEXT,
-    postalcode      TEXT        NOT NULL,
-    city            TEXT        NOT NULL,
-    country         TEXT        NOT NULL CHECK (country IN ('DE', 'AT', 'CH')),
-    enabled         BOOLEAN     NOT NULL DEFAULT false,
-    activation_date TIMESTAMPTZ,
-    created         TIMESTAMPTZ NOT NULL DEFAULT now(),
-    modified        TIMESTAMPTZ NOT NULL DEFAULT now()
+    customer_id       INT         NOT NULL,
+    customer_number   TEXT        NOT NULL,
+    user_id           INT         NOT NULL,
+    firstname         TEXT,
+    lastname          TEXT,
+    company_name      TEXT,
+    email_address     TEXT        NOT NULL,
+    phone_number      TEXT        NOT NULL,
+    adrline1          TEXT        NOT NULL,
+    adrline2          TEXT,
+    postalcode        TEXT        NOT NULL,
+    city              TEXT        NOT NULL,
+    country           TEXT        NOT NULL CHECK (country IN ('DE', 'AT', 'CH')),
+    enabled           BOOLEAN     NOT NULL DEFAULT false,
+    under_observation BOOLEAN     NOT NULL DEFAULT false,
+    activation_date   TIMESTAMPTZ,
+    created           TIMESTAMPTZ NOT NULL DEFAULT now(),
+    modified          TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 ALTER TABLE app.customer
