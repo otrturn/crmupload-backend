@@ -49,8 +49,8 @@ CREATE TABLE IF NOT EXISTS app.customer
     city              TEXT        NOT NULL,
     country           TEXT        NOT NULL CHECK (country IN ('DE', 'AT', 'CH')),
     enabled           BOOLEAN     NOT NULL DEFAULT false,
-    under_observation BOOLEAN     NOT NULL DEFAULT false,
     activation_date   TIMESTAMPTZ,
+    under_observation BOOLEAN     NOT NULL DEFAULT false,
     created           TIMESTAMPTZ NOT NULL DEFAULT now(),
     modified          TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -106,9 +106,13 @@ CREATE INDEX IF NOT EXISTS idx_customer_activation_customer
 -- ****************************************************************************************************
 CREATE TABLE IF NOT EXISTS app.customer_product
 (
-    customer_id INT  NOT NULL,
-    product     TEXT NOT NULL,
-    CONSTRAINT chk_customer_product_produc CHECK (product IN ('crm-upload', 'duplicate-check')),
+    customer_id     INT         NOT NULL,
+    product         TEXT        NOT NULL,
+    enabled         BOOLEAN     NOT NULL DEFAULT false,
+    activation_date TIMESTAMPTZ,
+    created         TIMESTAMPTZ NOT NULL DEFAULT now(),
+    modified        TIMESTAMPTZ NOT NULL DEFAULT now()
+        CONSTRAINT chk_customer_product_produc CHECK (product IN ('crm-upload', 'duplicate-check')),
     CONSTRAINT pk_customer_product
         PRIMARY KEY (customer_id, product)
 );
@@ -252,8 +256,9 @@ CREATE TABLE IF NOT EXISTS app.duplicate_check_observation
     created            TIMESTAMPTZ NOT NULL DEFAULT now(),
     modified           TIMESTAMPTZ NOT NULL DEFAULT now(),
     CONSTRAINT chk_duplicate_check_observation_source_system CHECK (source_system IN ('Lexware', 'Bexio', 'MyExcel')),
-    CONSTRAINT chk_duplicate_check_observation_status CHECK (status IN ('new', 'verifying', 'verified', 'duplicate-checking',
-                                                            'duplicate-checked', 'finalising', 'done', 'failed'))
+    CONSTRAINT chk_duplicate_check_observation_status CHECK (status IN
+                                                             ('new', 'verifying', 'verified', 'duplicate-checking',
+                                                              'duplicate-checked', 'finalising', 'done', 'failed'))
 );
 
 ALTER TABLE app.duplicate_check_observation

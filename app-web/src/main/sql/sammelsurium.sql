@@ -39,6 +39,11 @@ set enabled= true,
     activation_date=now();
 commit;
 
+update app.customer_product
+set enabled= true,
+    activation_date=now();
+commit;
+
 update app.customer
 set under_observation= true;
 commit;

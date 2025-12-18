@@ -103,9 +103,17 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
                           AND dc.status NOT IN ('done', 'failed')
                     ) AS has_open_duplicate_checks;""";
 
-    private static final String SQL_UPDATE_ENABLED = """
+    private static final String SQL_UPDATE_CUSTOMER_TO_ENABLED = """
             UPDATE app.customer
-               SET enabled = :enabled,
+               SET enabled = true,
+                   activation_date = now(),
+                   modified = now()
+             WHERE customer_id = :customerId
+            """;
+
+    private static final String SQL_UPDATE_CUSTOMER_PRODUCTS_TO_ENABLED = """
+            UPDATE app.customer_product
+               SET enabled = true,
                    activation_date = now(),
                    modified = now()
              WHERE customer_id = :customerId
@@ -392,17 +400,32 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
     }
 
     @Override
-    public void setEnabled(final long customerId, final boolean enabled) {
-        MapSqlParameterSource params = new MapSqlParameterSource().addValue(LITERAL_CUSTOMER_ID_CAMELCASE, customerId).addValue(LITERAL_ENABLED, enabled);
+    public void setCustomerToEnabled(final long customerId) {
+        MapSqlParameterSource params = new MapSqlParameterSource().addValue(LITERAL_CUSTOMER_ID_CAMELCASE, customerId);
 
         try {
-            int updated = jdbc.update(SQL_UPDATE_ENABLED, params);
+            int updated = jdbc.update(SQL_UPDATE_CUSTOMER_TO_ENABLED, params);
             if (updated == 0) {
                 throw new IllegalStateException("No customer found for customerId=" + customerId);
             }
         } catch (DataAccessException ex) {
             log.error(String.format("Failed to update enabled flag for customerId=%d", customerId), ex);
             throw new IllegalStateException("Could not update enabled flag for customer " + customerId, ex);
+        }
+    }
+
+    @Override
+    public void setCustomerProductsToEnabled(final long customerId) {
+        MapSqlParameterSource params = new MapSqlParameterSource().addValue(LITERAL_CUSTOMER_ID_CAMELCASE, customerId);
+
+        try {
+            int updated = jdbc.update(SQL_UPDATE_CUSTOMER_PRODUCTS_TO_ENABLED, params);
+            if (updated == 0) {
+                throw new IllegalStateException("No customer found for customerId=" + customerId);
+            }
+        } catch (DataAccessException ex) {
+            log.error(String.format("Failed to update enabled flag for customerId=%d", customerId), ex);
+            throw new IllegalStateException("Could not update enabled flag for customer products " + customerId, ex);
         }
     }
 

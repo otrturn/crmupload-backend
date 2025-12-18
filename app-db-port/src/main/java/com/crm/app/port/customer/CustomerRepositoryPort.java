@@ -25,7 +25,9 @@ public interface CustomerRepositoryPort {
 
     boolean isHasOpenDuplicateChecksByCustomerId(long customerId);
 
-    void setEnabled(long customerId, boolean enabled);
+    void setCustomerToEnabled(long customerId);
+
+    void setCustomerProductsToEnabled(long customerId);
 
     CustomerProfile getCustomer(String emailAddress);
 

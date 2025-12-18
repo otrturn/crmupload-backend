@@ -29,7 +29,9 @@ public class CustomerActivationService {
 
         long customerId = customerIdOpt.get();
 
-        customerRepository.setEnabled(customerId, true);
+        customerRepository.setCustomerToEnabled(customerId);
+
+        customerRepository.setCustomerProductsToEnabled(customerId);
 
         activationRepository.markTokenUsed(token);
 
