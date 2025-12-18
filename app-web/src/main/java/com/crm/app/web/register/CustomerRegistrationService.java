@@ -1,8 +1,8 @@
 package com.crm.app.web.register;
 
+import com.crm.app.dto.Customer;
 import com.crm.app.dto.RegisterRequest;
 import com.crm.app.dto.RegisterResponse;
-import com.crm.app.dto.Customer;
 import com.crm.app.port.customer.CustomerRepositoryPort;
 import com.crm.app.web.activation.CustomerActivationService;
 import com.crm.app.web.error.CustomerAlreadyExistsException;

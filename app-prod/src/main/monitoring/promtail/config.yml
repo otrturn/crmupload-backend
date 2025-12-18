@@ -16,7 +16,7 @@ scrape_configs:
 
     relabel_configs:
       # Containername (ohne Slash)
-      - source_labels: [__meta_docker_container_name]
+      - source_labels: [ __meta_docker_container_name ]
         regex: "/(.*)"
         target_label: container
 
@@ -25,12 +25,12 @@ scrape_configs:
         replacement: prod
 
       # Optional: Service-Name (hilfreich in Grafana)
-      - source_labels: [__meta_docker_container_name]
+      - source_labels: [ __meta_docker_container_name ]
         regex: "/(crmupload-[^_]+).*"
         target_label: service
         replacement: "$1"
 
       # gpu-prod explizit ausschließen
-      - source_labels: [__meta_docker_container_name]
+      - source_labels: [ __meta_docker_container_name ]
         regex: "/crmupload-worker-duplicate-check-gpu-prod"
         action: drop

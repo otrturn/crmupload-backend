@@ -41,6 +41,7 @@ docker ps --format "table {{.ID}}\t{{.Image}}\t{{.RunningFor}}\t{{.Status}}\t{{.
 ```
 
 # Copy to server
+
 ```
 scp ./backup_prod_db.sh ralf@10.10.0.1:/opt/crmupload-deploy/backup
 ```

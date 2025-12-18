@@ -1,8 +1,8 @@
 package com.crm.app.worker_duplicate_check.process;
 
+import com.crm.app.dto.Customer;
 import com.crm.app.dto.DuplicateCheckContent;
 import com.crm.app.dto.DuplicateCheckEntry;
-import com.crm.app.dto.Customer;
 import com.crm.app.port.customer.CustomerRepositoryPort;
 import com.crm.app.port.customer.DuplicateCheckRepositoryPort;
 import com.crm.app.worker_common.util.WorkerUtil;

@@ -1,7 +1,6 @@
 package com.crm.app.adapter.jdbc.customer;
 
 import com.crm.app.dto.*;
-import com.crm.app.dto.Customer;
 import com.crm.app.port.customer.CustomerRepositoryPort;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;

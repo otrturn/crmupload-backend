@@ -28,6 +28,7 @@ docker network create monitoring
 ```
 
 # Reset
+
 ```
 docker compose -f docker.compose.monitoring.dev.yml down
 
@@ -41,6 +42,7 @@ docker compose -f docker.compose.monitoring.dev.yml up -d
 ```
 
 # Monitoring config kopieren
+
 ```
 rsync -av --progress \
 --exclude='data/' \

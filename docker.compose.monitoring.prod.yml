@@ -7,7 +7,7 @@ services:
       - ./monitoring/loki/config.yml:/etc/loki/config.yml:ro
       - ./monitoring/loki/data:/loki
     restart: unless-stopped
-    networks: [monitoring]
+    networks: [ monitoring ]
 
   promtail:
     image: grafana/promtail:latest
@@ -19,7 +19,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./monitoring/promtail/positions:/positions
     restart: unless-stopped
-    networks: [monitoring]
+    networks: [ monitoring ]
 
   grafana:
     image: grafana/grafana:latest
@@ -30,7 +30,7 @@ services:
       - ./monitoring/grafana/data:/var/lib/grafana
       - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
     restart: unless-stopped
-    networks: [monitoring]
+    networks: [ monitoring ]
 
 networks:
   monitoring:
