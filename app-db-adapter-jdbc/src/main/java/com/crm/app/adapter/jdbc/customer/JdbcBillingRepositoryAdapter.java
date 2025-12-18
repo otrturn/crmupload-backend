@@ -1,6 +1,5 @@
 package com.crm.app.adapter.jdbc.customer;
 
-import com.crm.app.dto.Customer;
 import com.crm.app.dto.CustomerBillingData;
 import com.crm.app.dto.CustomerProduct;
 import com.crm.app.dto.InvoiceRecord;
@@ -189,29 +188,29 @@ public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
         String billingMetaJson = toBillingMetaJson(products);
 
         String sql = """
-        INSERT INTO app.customer_billing (
-            customer_id,
-            invoice_no,
-            tax_value,
-            tax_amount,
-            net_amount,
-            amount,
-            billing_meta,
-            invoice_image,
-            submitted_to_billing
-        )
-        VALUES (
-            :customerId,
-            :invoiceNo,
-            :taxValue,
-            :taxAmount,
-            :netAmount,
-            :amount,
-            :billingMeta::jsonb,
-            :invoiceImage,
-            NULL
-        )
-        """;
+                INSERT INTO app.customer_billing (
+                    customer_id,
+                    invoice_no,
+                    tax_value,
+                    tax_amount,
+                    net_amount,
+                    amount,
+                    billing_meta,
+                    invoice_image,
+                    submitted_to_billing
+                )
+                VALUES (
+                    :customerId,
+                    :invoiceNo,
+                    :taxValue,
+                    :taxAmount,
+                    :netAmount,
+                    :amount,
+                    :billingMeta::jsonb,
+                    :invoiceImage,
+                    NULL
+                )
+                """;
 
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue(LITERAL_CUSTOMER_ID_CAMELCASE, invoiceRecord.getCustomerBillingData().customerId())

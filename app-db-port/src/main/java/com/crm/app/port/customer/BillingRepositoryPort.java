@@ -1,6 +1,5 @@
 package com.crm.app.port.customer;
 
-import com.crm.app.dto.Customer;
 import com.crm.app.dto.CustomerBillingData;
 import com.crm.app.dto.InvoiceRecord;
 

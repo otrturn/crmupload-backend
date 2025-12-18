@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 
 @Getter
@@ -12,10 +13,10 @@ public class InvoiceRecord {
     private CustomerBillingData customerBillingData;
     private Customer customer;
     private String invoiceNo;
-    private double taxValue;
-    private double taxAmount;
-    private double netAmount;
-    private double amount;
+    private BigDecimal taxValue;
+    private BigDecimal taxAmount;
+    private BigDecimal netAmount;
+    private BigDecimal amount;
     private byte[] invoiceImage;
 
     @Override

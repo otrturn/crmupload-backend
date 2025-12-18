@@ -34,7 +34,8 @@ select *
 from app.customer_billing
 order by customer_id;
 
-delete from app.customer_billing;
+delete
+from app.customer_billing;
 commit;
 
 update app.customer
