@@ -1,21 +1,17 @@
 services:
-
   loki:
     image: grafana/loki:latest
-    container_name: dev-loki
-    ports:
-      - "127.0.0.1:3100:3100"
+    container_name: prod-loki
     command: -config.file=/etc/loki/config.yml
     volumes:
       - ./monitoring/loki/config.yml:/etc/loki/config.yml:ro
       - ./monitoring/loki/data:/loki
     restart: unless-stopped
-    networks:
-      - crmuploadnet
+    networks: [monitoring]
 
   promtail:
     image: grafana/promtail:latest
-    container_name: dev-promtail
+    container_name: prod-promtail
     command: -config.file=/etc/promtail/config.yml
     volumes:
       - ./monitoring/promtail/config.yml:/etc/promtail/config.yml:ro
@@ -23,21 +19,19 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./monitoring/promtail/positions:/positions
     restart: unless-stopped
-    networks:
-      - crmuploadnet
+    networks: [monitoring]
 
   grafana:
     image: grafana/grafana:latest
-    container_name: dev-grafana
+    container_name: prod-grafana
     ports:
       - "127.0.0.1:3000:3000"
     volumes:
       - ./monitoring/grafana/data:/var/lib/grafana
       - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
     restart: unless-stopped
-    networks:
-      - crmuploadnet
+    networks: [monitoring]
 
 networks:
-  crmuploadnet:
+  monitoring:
     external: true
