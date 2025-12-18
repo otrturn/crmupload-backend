@@ -15,5 +15,5 @@ public interface BillingRepositoryPort {
 
     long nextInvoiceNo();
 
-    void insertInvoiceRecord(CustomerBillingData customerBillingData, Customer customer, InvoiceRecord invoiceRecord);
+    void insertInvoiceRecord(InvoiceRecord invoiceRecord);
 }

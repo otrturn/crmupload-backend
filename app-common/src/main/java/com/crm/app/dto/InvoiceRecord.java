@@ -9,6 +9,8 @@ import java.util.Arrays;
 @Getter
 @Setter
 public class InvoiceRecord {
+    private CustomerBillingData customerBillingData;
+    private Customer customer;
     private String invoiceNo;
     double taxValue;
     double taxAmount;

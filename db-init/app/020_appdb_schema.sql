@@ -289,7 +289,6 @@ CREATE SEQUENCE app.sequence_customer_billing
     NO MAXVALUE
     CACHE 1;
 
-
 CREATE TABLE IF NOT EXISTS app.customer_billing
 (
     customer_id         INT         NOT NULL,

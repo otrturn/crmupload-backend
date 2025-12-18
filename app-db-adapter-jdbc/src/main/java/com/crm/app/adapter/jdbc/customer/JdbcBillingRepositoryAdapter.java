@@ -168,8 +168,8 @@ public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
     }
 
     @Override
-    public void insertInvoiceRecord(CustomerBillingData customerBillingData, Customer customer, InvoiceRecord invoiceRecord) {
-        List<String> productCodes = customerBillingData.products().stream()
+    public void insertInvoiceRecord( InvoiceRecord invoiceRecord) {
+        List<String> productCodes = invoiceRecord.getCustomerBillingData().products().stream()
                 .map(CustomerProduct::product)
                 .filter(p -> p != null && !p.isBlank())
                 .map(String::trim)
@@ -205,7 +205,7 @@ public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
                 """;
 
         MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue(LITERAL_CUSTOMER_ID_CAMELCASE, customerBillingData.customerId())
+                .addValue(LITERAL_CUSTOMER_ID_CAMELCASE, invoiceRecord.getCustomerBillingData().customerId())
                 .addValue(LITERAL_INVOICE_NO_CAMELCASE, invoiceRecord.getInvoiceNo())
                 .addValue(LITERAL_TAX_VALUE_CAMELCASE, invoiceRecord.getTaxValue())
                 .addValue(LITERAL_TAX_AMOUNT_CAMELCASE, invoiceRecord.getTaxAmount())
