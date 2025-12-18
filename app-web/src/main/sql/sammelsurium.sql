@@ -15,6 +15,9 @@ from app.customer;
 select upload_id, customer_id, source_system, crm_system, status
 from app.crm_upload;
 
+select upload_id, customer_id, source_system, crm_system, status
+from app.crm_upload_observation;
+
 select duplicate_check_id, customer_id, source_system, status
 from app.duplicate_check
 order by duplicate_check_id desc;
@@ -34,6 +37,10 @@ order by customer_id;
 update app.customer
 set enabled= true,
     activation_date=now();
+commit;
+
+update app.customer
+set under_observation= true;
 commit;
 
 update app.crm_upload

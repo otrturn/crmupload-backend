@@ -28,6 +28,11 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
                     "(upload_id, customer_id, source_system, crm_system, crm_url, crm_customer_id, api_key, content, status) " +
                     "VALUES (:uploadId, :customerId, :sourceSystem, :crmSystem, :crmUrl, :crmCustomerId, :apiKey, :content, :status)";
 
+    private static final String SQL_INSERT_CRM_UPLOAD_OBSERVATION =
+            "INSERT INTO app.crm_upload_observation " +
+                    "(upload_id, customer_id, source_system, crm_system, crm_url, crm_customer_id, api_key, content, status) " +
+                    "VALUES (:uploadId, :customerId, :sourceSystem, :crmSystem, :crmUrl, :crmCustomerId, :apiKey, :content, :status)";
+
     private static final String SQL_CLAIM_NEXT_CRM_UPLOADS = """
             UPDATE app.crm_upload cu
                SET status = 'processing'
@@ -193,9 +198,8 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
                 log.debug(String.format("Inserted customer upload: uploadId=%d, customerId=%d, crmCustomerId=%s, status=%s", crmUploadRequest.getUploadId(), crmUploadRequest.getCustomerId(), crmUploadRequest.getCrmCustomerId(), STATUS_CRM_UPLOAD_NEW));
             }
 
-            if ( isUnderObservationByCustomerId(crmUploadRequest.getCustomerId()))
-            {
-                // @TODO
+            if (isUnderObservationByCustomerId(crmUploadRequest.getCustomerId())) {
+                jdbcTemplate.update(SQL_INSERT_CRM_UPLOAD_OBSERVATION, params);
             }
         } catch (DataAccessException ex) {
             log.error(String.format("Failed to insert customer upload for uploadId=%d, customerId=%d, crmCustomerId=%s", crmUploadRequest.getUploadId(), crmUploadRequest.getCustomerId(), crmUploadRequest.getCrmCustomerId()), ex);

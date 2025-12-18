@@ -28,6 +28,11 @@ public class JdbcDuplicateCheckRepositoryAdapter implements DuplicateCheckReposi
                     "(duplicate_check_id, customer_id, source_system, content, status) " +
                     "VALUES (:duplicateCheckId, :customerId, :sourceSystem, :content, :status)";
 
+    private static final String SQL_INSERT_DUPLICATE_CHECK_OBSERVATION =
+            "INSERT INTO app.duplicate_check_observation " +
+                    "(duplicate_check_id, customer_id, source_system, content, status) " +
+                    "VALUES (:duplicateCheckId, :customerId, :sourceSystem, :content, :status)";
+
     private static final String SQL_CLAIM_NEXT_DUPLICATE_CHECK_IDS_FOR_VERIFICATION = """
             UPDATE app.duplicate_check dc
                SET status = 'verifying'
@@ -210,9 +215,8 @@ public class JdbcDuplicateCheckRepositoryAdapter implements DuplicateCheckReposi
                 log.debug(String.format("Inserted duplicate-check: duplicateCheckId=%d, customerId=%d, status=%s", duplicateCheckRequest.getDuplicateCheckId(), duplicateCheckRequest.getCustomerId(), STATUS_DUPLICATE_CHECK_NEW));
             }
 
-            if ( isUnderObservationByCustomerId(duplicateCheckRequest.getCustomerId()))
-            {
-                // @TODO
+            if (isUnderObservationByCustomerId(duplicateCheckRequest.getCustomerId())) {
+                jdbcTemplate.update(SQL_INSERT_DUPLICATE_CHECK_OBSERVATION, params);
             }
 
         } catch (DataAccessException ex) {
