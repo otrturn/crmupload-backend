@@ -67,9 +67,3 @@ update app.customer_billing
 set submitted_to_billing=null;
 commit;
 
-SELECT customer_id
-FROM app.customer_billing
-WHERE submitted_to_billing IS NULL
-  AND product = 'crm-upload'
-  AND status = 'new-subscription'
-    FOR UPDATE SKIP LOCKED;

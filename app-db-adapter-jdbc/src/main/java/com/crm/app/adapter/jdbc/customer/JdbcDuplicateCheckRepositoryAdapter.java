@@ -20,7 +20,7 @@ public class JdbcDuplicateCheckRepositoryAdapter implements DuplicateCheckReposi
 
     private static final String SEQUENCE_DUPLICATE_CHECK_ID = "app.sequence_duplicate_check";
 
-    private static final String SQL_DUPLICATE_CHECK_ID =
+    private static final String SQL_SEQUENCE_DUPLICATE_CHECK_ID =
             "SELECT nextval('" + SEQUENCE_DUPLICATE_CHECK_ID + "')";
 
     private static final String SQL_INSERT_DUPLICATE_CHECK =
@@ -176,7 +176,7 @@ public class JdbcDuplicateCheckRepositoryAdapter implements DuplicateCheckReposi
     @Override
     public long nextDuplicateCheckId() {
         try {
-            final Long nextId = jdbcTemplate.queryForObject(SQL_DUPLICATE_CHECK_ID, new MapSqlParameterSource(), Long.class);
+            final Long nextId = jdbcTemplate.queryForObject(SQL_SEQUENCE_DUPLICATE_CHECK_ID, new MapSqlParameterSource(), Long.class);
 
             final Long nonNullNextId = Objects.requireNonNull(nextId, "Sequence " + SEQUENCE_DUPLICATE_CHECK_ID + " returned null");
 

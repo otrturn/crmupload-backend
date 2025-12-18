@@ -282,26 +282,37 @@ ALTER TABLE app.duplicate_check_observation
 -- ****************************************************************************************************
 -- customer_billing
 -- ****************************************************************************************************
+CREATE SEQUENCE app.sequence_customer_billing
+    START WITH 1
+    INCREMENT BY 1
+    MINVALUE 1
+    NO MAXVALUE
+    CACHE 1;
+
 
 CREATE TABLE IF NOT EXISTS app.customer_billing
 (
-    customer_id           INT         NOT NULL,
-    product               TEXT        NOT NULL,
-    status                TEXT        NOT NULL DEFAULT 'new-subscription',
-    billing_meta          jsonb       NOT NULL DEFAULT '{}'::jsonb,
-    start_of_subscription TIMESTAMPTZ,
-    submitted_to_billing  TIMESTAMPTZ,
-    created               TIMESTAMPTZ NOT NULL DEFAULT now(),
-    modified              TIMESTAMPTZ NOT NULL DEFAULT now(),
-    CONSTRAINT chk_customer_billing_product CHECK (product IN ('crm-upload', 'duplicates')),
-    CONSTRAINT chk_customer_billing_status CHECK (status IN ('new-subscription', 'renewal'))
+    customer_id          INT         NOT NULL,
+    invoice_no           INT         NOT NULL,
+    billing_meta         jsonb       NOT NULL DEFAULT '{}'::jsonb,
+    invoice_image        BYTEA       NOT NULL,
+    submitted_to_billing TIMESTAMPTZ,
+    created              TIMESTAMPTZ NOT NULL DEFAULT now(),
+    modified             TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+ALTER TABLE app.customer_billing
+    ADD CONSTRAINT uq_customer_billing_invoice_no UNIQUE (invoice_no);
 
 ALTER TABLE app.customer_billing
     ADD CONSTRAINT fk_customer_billing_customer_id
         FOREIGN KEY (customer_id)
             REFERENCES app.customer (customer_id)
             ON DELETE RESTRICT;
+
+CREATE INDEX IF NOT EXISTS idx_customer_billing_products
+    ON app.customer_billing
+        USING gin ((billing_meta -> 'products'));
 
 -- ****************************************************************************************************
 -- page_visits

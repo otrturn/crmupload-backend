@@ -1,29 +1,44 @@
 package com.crm.app.adapter.jdbc.customer;
 
+import com.crm.app.dto.Customer;
 import com.crm.app.dto.CustomerBillingData;
 import com.crm.app.dto.CustomerProduct;
+import com.crm.app.dto.InvoiceRecord;
 import com.crm.app.port.customer.BillingRepositoryPort;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.util.*;
 
 @Repository
 @Slf4j
 public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
 
+    private static final String SEQUENCE_INVOICE_NO = "app.sequence_customer_billing";
+    private static final String SQL_INVOICE_NO =
+            "SELECT nextval('" + SEQUENCE_INVOICE_NO + "')";
+
     private static final String LITERAL_CUSTOMER_ID = "customer_id";
     private static final String LITERAL_CUSTOMER_ID_CAMELCASE = "customerId";
     private static final String LITERAL_PRODUCT = "product";
     private static final String LITERAL_ACTIVATION_DATE = "activation_date";
+    private static final String LITERAL_INVOICE_NO_CAMELCASE = "invoiceNo";
+    private static final String LITERAL_BILLING_META_CAMELCASE = "billingMeta";
+    private static final String LITERAL_INVOICE_IMAGE_CAMELCASE = "invoiceImage";
 
     private final NamedParameterJdbcTemplate jdbc;
+    private final ObjectMapper objectMapper;
 
-    public JdbcBillingRepositoryAdapter(NamedParameterJdbcTemplate jdbc) {
+    public JdbcBillingRepositoryAdapter(NamedParameterJdbcTemplate jdbc, ObjectMapper objectMapper) {
         this.jdbc = jdbc;
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -128,5 +143,71 @@ public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
             String product,
             Timestamp activationDate
     ) {
+    }
+
+    @Override
+    public long nextInvoiceNo() {
+        try {
+            final Long nextId = jdbc.queryForObject(SQL_INVOICE_NO, new MapSqlParameterSource(), Long.class);
+
+            final Long nonNullNextId = Objects.requireNonNull(nextId, "Sequence " + SEQUENCE_INVOICE_NO + " returned null");
+
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("Generated next invoiceNo id: %d", nonNullNextId));
+            }
+
+            return nonNullNextId;
+        } catch (DataAccessException ex) {
+            log.error(String.format("Failed to obtain next invoiceNo id from sequence %s", SEQUENCE_INVOICE_NO), ex);
+            throw new IllegalStateException("Could not retrieve next invoiceNo id", ex);
+        }
+    }
+
+    @Override
+    public void insertInvoiceRecord(CustomerBillingData customerBillingData, Customer customer, InvoiceRecord invoiceRecord) {
+        List<String> productCodes = customerBillingData.products().stream()
+                .map(CustomerProduct::product)
+                .filter(p -> p != null && !p.isBlank())
+                .map(String::trim)
+                .map(String::toUpperCase)
+                .distinct()
+                .toList();
+
+        String billingMetaJson = toBillingMetaJson(productCodes);
+
+        String sql = """
+                INSERT INTO app.customer_billing (
+                    customer_id,
+                    invoice_no,
+                    billing_meta,
+                    invoice_image,
+                    submitted_to_billing
+                )
+                VALUES (
+                    :customerId,
+                    :invoiceNo,
+                    :billingMeta::jsonb,
+                    :invoiceImage,
+                    NULL
+                )
+                """;
+
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue(LITERAL_CUSTOMER_ID_CAMELCASE, customerBillingData.customerId())
+                .addValue(LITERAL_INVOICE_NO_CAMELCASE, invoiceRecord.invoiceNo())
+                .addValue(LITERAL_BILLING_META_CAMELCASE, billingMetaJson, Types.OTHER)
+                .addValue(LITERAL_INVOICE_IMAGE_CAMELCASE, invoiceRecord.invoiceImage());
+
+        jdbc.update(sql, params);
+    }
+
+    private String toBillingMetaJson(List<String> productsUpper) {
+        Map<String, Object> meta = new LinkedHashMap<>();
+        meta.put("products", productsUpper);
+        try {
+            return objectMapper.writeValueAsString(meta);
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException("Failed to serialize billing_meta JSON", e);
+        }
     }
 }
