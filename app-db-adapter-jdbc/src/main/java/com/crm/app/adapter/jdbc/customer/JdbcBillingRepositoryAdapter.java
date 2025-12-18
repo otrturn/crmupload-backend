@@ -1,6 +1,5 @@
 package com.crm.app.adapter.jdbc.customer;
 
-import com.crm.app.dto.Customer;
 import com.crm.app.dto.CustomerBillingData;
 import com.crm.app.dto.CustomerProduct;
 import com.crm.app.port.customer.BillingRepositoryPort;
@@ -9,12 +8,8 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.sql.Array;
-import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Repository
 @Slf4j
@@ -32,7 +27,7 @@ public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
     }
 
     @Override
-    public Optional<CustomerBillingData> getCustomerActiveProductsByCustomerId(long customerId) {
+    public Optional<CustomerBillingData> getCustomerProductsByCustomerId(long customerId) {
 
         String sql = """
                 SELECT
@@ -79,9 +74,62 @@ public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
         return Optional.of(new CustomerBillingData(cid, products));
     }
 
+    @Override
+    public List<CustomerBillingData> getCustomersWithProducts() {
+        String sql = """
+                SELECT
+                  cp.customer_id,
+                  cp.product,
+                  cp.activation_date
+                FROM app.customer_product cp
+                WHERE NOT EXISTS (
+                  SELECT 1
+                  FROM app.customer_billing cb
+                  WHERE cb.customer_id = cp.customer_id
+                    AND COALESCE(cb.billing_meta->'products', '[]'::jsonb)
+                        ? upper(cp.product)
+                )
+                ORDER BY cp.customer_id, cp.product
+                """;
+
+        MapSqlParameterSource params = new MapSqlParameterSource();
+
+        List<Row> rows = jdbc.query(sql, params, (rs, rowNum) ->
+                new Row(
+                        rs.getLong(LITERAL_CUSTOMER_ID),
+                        rs.getString(LITERAL_PRODUCT),
+                        rs.getTimestamp(LITERAL_ACTIVATION_DATE)
+                )
+        );
+
+        Map<Long, List<CustomerProduct>> grouped = new LinkedHashMap<>();
+
+        for (Row row : rows) {
+            grouped
+                    .computeIfAbsent(row.customerId(), k -> new ArrayList<>())
+                    .add(new CustomerProduct(
+                            row.product(),
+                            row.activationDate()
+                    ));
+        }
+
+        // Mapping auf CustomerBillingData
+        List<CustomerBillingData> result = new ArrayList<>();
+
+        for (Map.Entry<Long, List<CustomerProduct>> entry : grouped.entrySet()) {
+            result.add(new CustomerBillingData(
+                    entry.getKey(),
+                    entry.getValue()
+            ));
+        }
+
+        return result;
+    }
+
     private record Row(
             Long customerId,
             String product,
             Timestamp activationDate
-    ) {}
+    ) {
+    }
 }
