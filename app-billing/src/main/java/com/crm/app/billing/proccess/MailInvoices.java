@@ -8,14 +8,10 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class PerformBilling {
+public class MailInvoices {
     private final AppBillingConfig appBillingConfig;
 
-    public void generateBills() {
-        log.info("Generate bills ...");
-    }
-
-    public void mailBills() {
-        log.info("Mail bills ...");
+    public void mailInvoices() {
+        log.info("Mail invoices ...");
     }
 }

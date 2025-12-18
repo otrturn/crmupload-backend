@@ -1,7 +1,8 @@
 package com.crm.app.billing;
 
 import com.crm.app.adapter.jdbc.config.AppDataSourceProperties;
-import com.crm.app.billing.proccess.PerformBilling;
+import com.crm.app.billing.proccess.GenerateInvoices;
+import com.crm.app.billing.proccess.MailInvoices;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
@@ -16,7 +17,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 @RequiredArgsConstructor
 public class AppBillingApplication implements CommandLineRunner, ExitCodeGenerator {
 
-    private final PerformBilling performBilling;
+    private final GenerateInvoices generateInvoices;
+    private final MailInvoices mailInvoices;
 
     public static void main(String[] args) {
         SpringApplication app = new SpringApplication(AppBillingApplication.class);
@@ -32,9 +34,9 @@ public class AppBillingApplication implements CommandLineRunner, ExitCodeGenerat
         }
         log.info("Starte Batch-Prozess…");
         switch (args[0]) {
-            case "--generateBills" -> performBilling.generateBills();
+            case "--generateInvoices" -> generateInvoices.generateInvoices();
 
-            case "--mailBills" -> performBilling.mailBills();
+            case "--mailInvoices" -> mailInvoices.mailInvoices();
 
             default -> log.error(String.format("Unknown command %s", args[0]));
         }
