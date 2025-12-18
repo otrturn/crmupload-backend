@@ -38,7 +38,6 @@ public class RegisterCustomers {
                 log.info(String.format("Response %d: %s", i, response));
 
             } catch (Exception ex) {
-                System.err.println(String.format("Error in request %d: %s", i, ex.getMessage()));
                 log.error(String.format("Error in request %d: %s", i, ex.getMessage()), ex);
             }
         }
