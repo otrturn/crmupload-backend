@@ -29,6 +29,7 @@ public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
     private static final String LITERAL_CUSTOMER_ID_CAMELCASE = "customerId";
     private static final String LITERAL_PRODUCT = "product";
     private static final String LITERAL_ACTIVATION_DATE = "activation_date";
+    private static final String LITERAL_ACTIVATION_DATE_CAMELCASE = "activationDate";
     private static final String LITERAL_INVOICE_NO_CAMELCASE = "invoiceNo";
     private static final String LITERAL_BILLING_META_CAMELCASE = "billingMeta";
     private static final String LITERAL_INVOICE_IMAGE_CAMELCASE = "invoiceImage";
@@ -104,9 +105,9 @@ public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
                 WHERE NOT EXISTS (
                   SELECT 1
                   FROM app.customer_billing cb
-                  WHERE cb.customer_id = cp.customer_id
-                    AND COALESCE(cb.billing_meta->'products', '[]'::jsonb)
-                        @> to_jsonb(ARRAY[upper(cp.product)])::jsonb
+                    WHERE cb.customer_id = cp.customer_id
+                      AND COALESCE(cb.billing_meta->'products', '[]'::jsonb)
+                          @> jsonb_build_array(jsonb_build_object('product', upper(cp.product)))
                 )
                 ORDER BY cp.customer_id, cp.product
                 """;
@@ -168,41 +169,49 @@ public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
     }
 
     @Override
-    public void insertInvoiceRecord( InvoiceRecord invoiceRecord) {
-        List<String> productCodes = invoiceRecord.getCustomerBillingData().products().stream()
-                .map(CustomerProduct::product)
-                .filter(p -> p != null && !p.isBlank())
-                .map(String::trim)
-                .map(String::toUpperCase)
-                .distinct()
+    public void insertInvoiceRecord(InvoiceRecord invoiceRecord) {
+
+        List<CustomerProduct> products = invoiceRecord.getCustomerBillingData().products().stream()
+                .filter(p -> p != null && p.getProduct() != null && !p.getProduct().isBlank())
+                .map(p -> {
+                    CustomerProduct copy = new CustomerProduct(
+                            p.getProduct().trim().toUpperCase(),
+                            p.getActivationDate()
+                    );
+                    copy.setTaxValue(p.getTaxValue());
+                    copy.setTaxAmount(p.getTaxAmount());
+                    copy.setNetAmount(p.getNetAmount());
+                    copy.setAmount(p.getAmount());
+                    return copy;
+                })
                 .toList();
 
-        String billingMetaJson = toBillingMetaJson(productCodes);
+        String billingMetaJson = toBillingMetaJson(products);
 
         String sql = """
-                    INSERT INTO app.customer_billing (
-                        customer_id,
-                        invoice_no,
-                        tax_value,
-                        tax_amount,
-                        net_amount,
-                        amount,
-                        billing_meta,
-                        invoice_image,
-                        submitted_to_billing
-                    )
-                    VALUES (
-                        :customerId,
-                        :invoiceNo,
-                        :taxValue,
-                        :taxAmount,
-                        :netAmount,
-                        :amount,
-                        :billingMeta::jsonb,
-                        :invoiceImage,
-                        NULL
-                    )
-                """;
+        INSERT INTO app.customer_billing (
+            customer_id,
+            invoice_no,
+            tax_value,
+            tax_amount,
+            net_amount,
+            amount,
+            billing_meta,
+            invoice_image,
+            submitted_to_billing
+        )
+        VALUES (
+            :customerId,
+            :invoiceNo,
+            :taxValue,
+            :taxAmount,
+            :netAmount,
+            :amount,
+            :billingMeta::jsonb,
+            :invoiceImage,
+            NULL
+        )
+        """;
 
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue(LITERAL_CUSTOMER_ID_CAMELCASE, invoiceRecord.getCustomerBillingData().customerId())
@@ -217,9 +226,24 @@ public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
         jdbc.update(sql, params);
     }
 
-    private String toBillingMetaJson(List<String> productsUpper) {
+    private String toBillingMetaJson(List<CustomerProduct> products) {
         Map<String, Object> meta = new LinkedHashMap<>();
-        meta.put("products", productsUpper);
+
+        List<Map<String, Object>> productObjects = products.stream()
+                .map(p -> {
+                    Map<String, Object> m = new LinkedHashMap<>();
+                    m.put(LITERAL_PRODUCT, p.getProduct());                 // z.B. "CRM-UPLOAD"
+                    m.put(LITERAL_ACTIVATION_DATE_CAMELCASE, p.getActivationDate());   // Timestamp -> ISO via Jackson
+                    m.put(LITERAL_TAX_VALUE_CAMELCASE, p.getTaxValue());
+                    m.put(LITERAL_TAX_AMOUNT_CAMELCASE, p.getTaxAmount());
+                    m.put(LITERAL_NET_AMOUNT_CAMELCASE, p.getNetAmount());
+                    m.put(LITERAL_AMOUNT_CAMELCASE, p.getAmount());
+                    return m;
+                })
+                .toList();
+
+        meta.put("products", productObjects);
+
         try {
             return objectMapper.writeValueAsString(meta);
         } catch (JsonProcessingException e) {

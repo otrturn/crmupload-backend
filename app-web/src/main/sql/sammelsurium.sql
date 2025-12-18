@@ -34,6 +34,9 @@ select *
 from app.customer_billing
 order by customer_id;
 
+delete from app.customer_billing;
+commit;
+
 update app.customer
 set enabled= true,
     activation_date=now();
