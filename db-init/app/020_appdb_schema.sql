@@ -136,9 +136,9 @@ CREATE TABLE IF NOT EXISTS app.crm_upload
 (
     upload_id       INT         NOT NULL,
     customer_id     INT         NOT NULL,
-    crm_customer_id TEXT,
     source_system   TEXT,
     crm_system      TEXT,
+    crm_customer_id TEXT,
     crm_url         TEXT,
     api_key         TEXT,
     content         BYTEA,
@@ -161,6 +161,45 @@ ALTER TABLE app.crm_upload
     ADD CONSTRAINT fk_crm_upload_customer_id
         FOREIGN KEY (customer_id)
             REFERENCES app.customer (customer_id)
+            ON DELETE RESTRICT;
+
+-- ****************************************************************************************************
+-- crm_upload_observation
+-- ****************************************************************************************************
+CREATE TABLE IF NOT EXISTS app.crm_upload_observation
+(
+    upload_id       INT         NOT NULL,
+    customer_id     INT         NOT NULL,
+    source_system   TEXT,
+    crm_system      TEXT,
+    crm_customer_id TEXT,
+    crm_url         TEXT,
+    api_key         TEXT,
+    content         BYTEA,
+    status          TEXT        NOT NULL DEFAULT 'new',
+    created         TIMESTAMPTZ NOT NULL DEFAULT now(),
+    modified        TIMESTAMPTZ NOT NULL DEFAULT now(),
+    CONSTRAINT chk_crm_upload_observation_source_system CHECK (source_system IN ('Lexware', 'Bexio', 'MyExcel')),
+    CONSTRAINT chk_crm_upload_observation_crm_system CHECK (crm_system IN ('EspoCRM', 'Pipedrive')),
+    CONSTRAINT chk_crm_upload_observation_status CHECK (status IN ('new', 'processing', 'done', 'failed'))
+);
+
+ALTER TABLE app.crm_upload_observation
+    ADD CONSTRAINT uq_crm_upload_observation_upload_id UNIQUE (upload_id);
+
+CREATE INDEX idx_crm_upload_observation_customer_id
+    ON app.crm_upload_observation (customer_id);
+
+ALTER TABLE app.crm_upload_observation
+    ADD CONSTRAINT fk_crm_upload_observation_customer_id
+        FOREIGN KEY (customer_id)
+            REFERENCES app.customer (customer_id)
+            ON DELETE RESTRICT;
+
+ALTER TABLE app.crm_upload_observation
+    ADD CONSTRAINT fk_crm_upload_observation_upload_id
+        FOREIGN KEY (upload_id)
+            REFERENCES app.crm_upload (upload_id)
             ON DELETE RESTRICT;
 
 -- ****************************************************************************************************
@@ -189,7 +228,7 @@ CREATE TABLE IF NOT EXISTS app.duplicate_check
 );
 
 ALTER TABLE app.duplicate_check
-    ADD CONSTRAINT uq_duplicate_check_upload_id UNIQUE (duplicate_check_id);
+    ADD CONSTRAINT uq_duplicate_check_duplicate_check_id UNIQUE (duplicate_check_id);
 
 CREATE INDEX idx_duplicate_check_customer_id
     ON app.duplicate_check (customer_id);
@@ -198,6 +237,41 @@ ALTER TABLE app.duplicate_check
     ADD CONSTRAINT fk_duplicate_check_customer_id
         FOREIGN KEY (customer_id)
             REFERENCES app.customer (customer_id)
+            ON DELETE RESTRICT;
+
+-- ****************************************************************************************************
+-- duplicate_check_observation
+-- ****************************************************************************************************
+CREATE TABLE IF NOT EXISTS app.duplicate_check_observation
+(
+    duplicate_check_id INT         NOT NULL,
+    customer_id        INT         NOT NULL,
+    source_system      TEXT,
+    content            BYTEA,
+    status             TEXT        NOT NULL DEFAULT 'new',
+    created            TIMESTAMPTZ NOT NULL DEFAULT now(),
+    modified           TIMESTAMPTZ NOT NULL DEFAULT now(),
+    CONSTRAINT chk_duplicate_check_observation_source_system CHECK (source_system IN ('Lexware', 'Bexio', 'MyExcel')),
+    CONSTRAINT chk_duplicate_check_observation_status CHECK (status IN ('new', 'verifying', 'verified', 'duplicate-checking',
+                                                            'duplicate-checked', 'finalising', 'done', 'failed'))
+);
+
+ALTER TABLE app.duplicate_check_observation
+    ADD CONSTRAINT uq_duplicate_check_observation_duplicate_check_id UNIQUE (duplicate_check_id);
+
+CREATE INDEX idx_duplicate_checkk_observation_customer_id
+    ON app.duplicate_check_observation (customer_id);
+
+ALTER TABLE app.duplicate_check_observation
+    ADD CONSTRAINT fk_duplicate_check_observation_customer_id
+        FOREIGN KEY (customer_id)
+            REFERENCES app.customer (customer_id)
+            ON DELETE RESTRICT;
+
+ALTER TABLE app.duplicate_check_observation
+    ADD CONSTRAINT fk_duplicate_check_observation_duplicate_check_id
+        FOREIGN KEY (duplicate_check_id)
+            REFERENCES app.duplicate_check (duplicate_check_id)
             ON DELETE RESTRICT;
 
 -- ****************************************************************************************************

@@ -17,7 +17,11 @@ from app.crm_upload;
 
 select duplicate_check_id, customer_id, source_system, status
 from app.duplicate_check
-order by duplicate_check desc;
+order by duplicate_check_id desc;
+
+select duplicate_check_id, customer_id, source_system, status
+from app.duplicate_check_observation
+order by duplicate_check_id desc;
 
 select *
 from app.customer_product
@@ -26,8 +30,6 @@ order by customer_id;
 select *
 from app.customer_billing
 order by customer_id;
-
-call app.export_billing();
 
 update app.customer
 set enabled= true,
