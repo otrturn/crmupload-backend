@@ -10,8 +10,8 @@ sudo chmod -R 777 ./monitoring/grafana/data
 sudo chmod -R 777 ./monitoring/grafana/provisioning/datasources
 
 mkdir -p ./monitoring/promtail/positions
-touch ./monitoring/promtail/positions/positions.yml
-chmod 644 ./monitoring/promtail/positions/positions.yml
+touch ./monitoring/promtail/positions/positions.yaml
+chmod 644 ./monitoring/promtail/positions/positions.yaml
 ```
 
 # Betrieb
@@ -38,4 +38,13 @@ rm -rf monitoring/grafana/data
 # !!! -> Verzeichnisse anlegen !!!
 
 docker compose -f docker.compose.monitoring.dev.yml up -d
+```
+
+# Monitoring config kopieren
+```
+rsync -av --progress \
+--exclude='data/' \
+--exclude='positions/' \
+monitoring/ \
+ralf@10.10.0.1:/opt/crmupload-deploy/monitoring
 ```

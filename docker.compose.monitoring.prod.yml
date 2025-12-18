@@ -25,7 +25,7 @@ services:
     image: grafana/grafana:latest
     container_name: prod-grafana
     ports:
-      - "127.0.0.1:3000:3000"
+      - "10.10.0.1:3000:3000"
     volumes:
       - ./monitoring/grafana/data:/var/lib/grafana
       - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
