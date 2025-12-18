@@ -5,6 +5,7 @@ import com.crm.app.dto.DuplicateCheckRequest;
 import com.crm.app.port.customer.DuplicateCheckRepositoryPort;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -94,7 +95,23 @@ public class JdbcDuplicateCheckRepositoryAdapter implements DuplicateCheckReposi
              WHERE duplicate_check_id = :duplicateCheckId
             """;
 
+    private static final String SQL_MARK_DUPLICATE_CHECK_FAILED_KEEP_CONTENT = """
+            UPDATE app.duplicate_check
+               SET status = 'failed',
+                   last_error = :error,
+                   modified = now()
+             WHERE duplicate_check_id = :duplicateCheckId
+            """;
+
     private static final String SQL_MARK_DUPLICATE_CHECK_DONE = """
+            UPDATE app.duplicate_check
+               SET status = 'done',
+                   content = NULL,
+                   modified = now()
+             WHERE duplicate_check_id = :duplicateCheckId
+            """;
+
+    private static final String SQL_MARK_DUPLICATE_CHECK_DONE_KEEP_CONTENT = """
             UPDATE app.duplicate_check
                SET status = 'done',
                    content = NULL,
@@ -111,6 +128,15 @@ public class JdbcDuplicateCheckRepositoryAdapter implements DuplicateCheckReposi
              WHERE duplicate_check_id = ANY(ARRAY[:duplicateCheckIds])
             """;
 
+    private static final String SQL_FIND_UNDER_OBSERVATION_BY_DUPLICATE_CHECK_ID = """
+            SELECT
+            c.under_observation as under_observation
+            FROM app.duplicate_check dc
+            JOIN app.customer c
+            ON c.customer_id =dc.customer_id
+            WHERE dc.duplicate_check_id =:duplicate_check_id
+            """;
+
     private static final String LITERAL_DUPLICATE_CHECK_ID = "duplicate_check_id";
     private static final String LITERAL_CUSTOMER_ID = "customer_id";
     private static final String LITERAL_SOURCE_SYSTEM = "source_system";
@@ -123,6 +149,8 @@ public class JdbcDuplicateCheckRepositoryAdapter implements DuplicateCheckReposi
     private static final String LITERAL_CUSTOMER_ID_CAMELCASE = "customerId";
     private static final String LITERAL_SOURCE_SYSTEM_CAMELCASE = "sourceSystem";
     private static final String LITERAL_DUPLICATE_CHECK_IDS_CAMELCASE = "duplicateCheckIds";
+
+    private static final String LITERAL_NO_CUSTOMER_FOR_DUPLICATE_CHECK_ID = "No customer found for duplicateCheckId '%d'";
 
     private static final String STATUS_DUPLICATE_CHECK_NEW = "new";
 
@@ -213,45 +241,53 @@ public class JdbcDuplicateCheckRepositoryAdapter implements DuplicateCheckReposi
     }
 
     @Override
-    public void markDuplicateCheckVerified(final long uploadId, byte[] content) {
-        final MapSqlParameterSource params = new MapSqlParameterSource().addValue(LITERAL_DUPLICATE_CHECK_ID_CAMELCASE, uploadId).addValue(LITERAL_CONTENT, content);
+    public void markDuplicateCheckVerified(final long duplicateCheckId, byte[] content) {
+        final MapSqlParameterSource params = new MapSqlParameterSource().addValue(LITERAL_DUPLICATE_CHECK_ID_CAMELCASE, duplicateCheckId).addValue(LITERAL_CONTENT, content);
         try {
             jdbcTemplate.update(SQL_MARK_DUPLICATE_CHECK_VERIFIED, params);
         } catch (DataAccessException ex) {
-            log.error(String.format("Failed to mark duplicate check %d as verified", uploadId), ex);
+            log.error(String.format("Failed to mark duplicate check %d as verified", duplicateCheckId), ex);
             throw new IllegalStateException("Could not mark duplicate check as checked", ex);
         }
     }
 
     @Override
-    public void markDuplicateCheckChecked(final long uploadId, byte[] content) {
-        final MapSqlParameterSource params = new MapSqlParameterSource().addValue(LITERAL_DUPLICATE_CHECK_ID_CAMELCASE, uploadId).addValue(LITERAL_CONTENT, content);
+    public void markDuplicateCheckChecked(final long duplicateCheckId, byte[] content) {
+        final MapSqlParameterSource params = new MapSqlParameterSource().addValue(LITERAL_DUPLICATE_CHECK_ID_CAMELCASE, duplicateCheckId).addValue(LITERAL_CONTENT, content);
         try {
             jdbcTemplate.update(SQL_MARK_DUPLICATE_CHECK_CHECKED, params);
         } catch (DataAccessException ex) {
-            log.error(String.format("Failed to mark duplicate check %d as checked", uploadId), ex);
+            log.error(String.format("Failed to mark duplicate check %d as checked", duplicateCheckId), ex);
             throw new IllegalStateException("Could not mark duplicate check as checked", ex);
         }
     }
 
     @Override
-    public void markDuplicateCheckFailed(final long uploadId, final String errorMessage) {
-        final MapSqlParameterSource params = new MapSqlParameterSource().addValue(LITERAL_DUPLICATE_CHECK_ID_CAMELCASE, uploadId).addValue(LITERAL_ERROR, errorMessage);
+    public void markDuplicateCheckFailed(final long duplicateCheckId, final String errorMessage) {
+        final MapSqlParameterSource params = new MapSqlParameterSource().addValue(LITERAL_DUPLICATE_CHECK_ID_CAMELCASE, duplicateCheckId).addValue(LITERAL_ERROR, errorMessage);
         try {
-            jdbcTemplate.update(SQL_MARK_DUPLICATE_CHECK_FAILED, params);
+            if (isUnderObservationByDuplicateCheckId(duplicateCheckId)) {
+                jdbcTemplate.update(SQL_MARK_DUPLICATE_CHECK_FAILED_KEEP_CONTENT, params);
+            } else {
+                jdbcTemplate.update(SQL_MARK_DUPLICATE_CHECK_FAILED, params);
+            }
         } catch (DataAccessException ex) {
-            log.error(String.format("Failed to mark duplicate check %d as failed", uploadId), ex);
+            log.error(String.format("Failed to mark duplicate check %d as failed", duplicateCheckId), ex);
             throw new IllegalStateException("Could not mark duplicate check as failed", ex);
         }
     }
 
     @Override
-    public void markDuplicateCheckDone(final long uploadId) {
-        final MapSqlParameterSource params = new MapSqlParameterSource().addValue(LITERAL_DUPLICATE_CHECK_ID_CAMELCASE, uploadId);
+    public void markDuplicateCheckDone(final long duplicateCheckId) {
+        final MapSqlParameterSource params = new MapSqlParameterSource().addValue(LITERAL_DUPLICATE_CHECK_ID_CAMELCASE, duplicateCheckId);
         try {
-            jdbcTemplate.update(SQL_MARK_DUPLICATE_CHECK_DONE, params);
+            if (isUnderObservationByDuplicateCheckId(duplicateCheckId)) {
+                jdbcTemplate.update(SQL_MARK_DUPLICATE_CHECK_DONE_KEEP_CONTENT, params);
+            } else {
+                jdbcTemplate.update(SQL_MARK_DUPLICATE_CHECK_DONE, params);
+            }
         } catch (DataAccessException ex) {
-            log.error(String.format("Failed to mark duplicate check %d as done", uploadId), ex);
+            log.error(String.format("Failed to mark duplicate check %d as done", duplicateCheckId), ex);
             throw new IllegalStateException("Could not mark duplicate check as done", ex);
         }
     }
@@ -278,6 +314,28 @@ public class JdbcDuplicateCheckRepositoryAdapter implements DuplicateCheckReposi
         } catch (DataAccessException ex) {
             log.error(String.format("Failed to load duplicate-check for ids=%s", String.valueOf(duplicateCheckIds)), ex);
             throw new IllegalStateException("Could not load customer duplicate-check", ex);
+        }
+    }
+
+    @Override
+    public boolean isUnderObservationByDuplicateCheckId(long duplicateCheckId) {
+        MapSqlParameterSource params = new MapSqlParameterSource(LITERAL_DUPLICATE_CHECK_ID, duplicateCheckId);
+
+        try {
+            Boolean underObservation = jdbcTemplate.queryForObject(SQL_FIND_UNDER_OBSERVATION_BY_DUPLICATE_CHECK_ID, params, Boolean.class);
+
+            if (underObservation == null) {
+                throw new IllegalStateException("Column under_observation is null for customer with duplicateCheckId '%d'".formatted(duplicateCheckId));
+            }
+
+            log.debug(String.format("Customer '%d' under_observation=%s", duplicateCheckId, underObservation));
+            return underObservation;
+        } catch (EmptyResultDataAccessException ex) {
+            log.warn(String.format(LITERAL_NO_CUSTOMER_FOR_DUPLICATE_CHECK_ID, duplicateCheckId));
+            throw new IllegalStateException("No customer found for duplicateCheckId '" + duplicateCheckId + "'", ex);
+        } catch (DataAccessException ex) {
+            log.error(String.format("Failed to read under_observation flag for customer '%d'", duplicateCheckId), ex);
+            throw new IllegalStateException("Could not read under_observation flag for duplicateCheckId '" + duplicateCheckId + "'", ex);
         }
     }
 }

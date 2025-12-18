@@ -12,7 +12,7 @@ from app.user_account;
 select *
 from app.customer;
 
-select *
+select upload_id, customer_id, source_system, crm_system, status
 from app.crm_upload;
 
 select duplicate_check_id, customer_id, source_system, status

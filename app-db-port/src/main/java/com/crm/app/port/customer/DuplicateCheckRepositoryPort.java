@@ -25,4 +25,7 @@ public interface DuplicateCheckRepositoryPort {
     void markDuplicateCheckDone(long uploadId);
 
     List<DuplicateCheckContent> findDuplicateChecksByIds(List<Long> duplicateCheckIds);
+
+    boolean isUnderObservationByDuplicateCheckId(long duplicateCheckId);
+
 }

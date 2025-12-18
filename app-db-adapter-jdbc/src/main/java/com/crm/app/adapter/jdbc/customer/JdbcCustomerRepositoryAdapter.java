@@ -65,12 +65,6 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
     private static final String SQL_FIND_ENABLED_BY_CUSTOMER_ID =
             "SELECT enabled FROM app.customer WHERE customer_id = :customer_id";
 
-    private static final String SQL_FIND_UNDER_OBSERVATION_BY_EMAIL =
-            "SELECT under_observation FROM app.customer WHERE email_address = :email_address";
-
-    private static final String SQL_FIND_UNDER_OBSERVATION_BY_CUSTOMER_ID =
-            "SELECT under_observation FROM app.customer WHERE customer_id = :customer_id";
-
     private static final String SQL_FIND_HAS_OPEN_CRM_UPLOADS_BY_EMAIL =
             """
                     SELECT EXISTS (
@@ -394,50 +388,6 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
         } catch (DataAccessException ex) {
             log.error(String.format(LITERAL_FILE_READ_FAILED, String.valueOf(customerId)), ex);
             throw new IllegalStateException("Could not read file pending for customer '" + customerId + "'", ex);
-        }
-    }
-
-    @Override
-    public boolean isUnderObservationByEmail(String emailAddress) {
-        MapSqlParameterSource params = new MapSqlParameterSource(LITERAL_EMAIL_ADDRESS, emailAddress);
-
-        try {
-            Boolean enabled = jdbc.queryForObject(SQL_FIND_UNDER_OBSERVATION_BY_EMAIL, params, Boolean.class);
-
-            if (enabled == null) {
-                throw new IllegalStateException("Column under_observation is null for customer with email '%s'".formatted(emailAddress));
-            }
-
-            log.debug(String.format("Customer '%s' under_observation=%s", emailAddress, enabled));
-            return enabled;
-        } catch (EmptyResultDataAccessException ex) {
-            log.warn(String.format(LITERAL_NO_CUSTOMER_FOR_EMAIL, emailAddress));
-            throw new IllegalStateException("No customer found for email '" + emailAddress + "'", ex);
-        } catch (DataAccessException ex) {
-            log.error(String.format("Failed to read under_observation flag for customer '%s'", emailAddress), ex);
-            throw new IllegalStateException("Could not read under_observation flag for customer '" + emailAddress + "'", ex);
-        }
-    }
-
-    @Override
-    public boolean isUnderObservationByCustomerId(long customerId) {
-        MapSqlParameterSource params = new MapSqlParameterSource(LITERAL_CUSTOMER_ID, customerId);
-
-        try {
-            Boolean enabled = jdbc.queryForObject(SQL_FIND_UNDER_OBSERVATION_BY_CUSTOMER_ID, params, Boolean.class);
-
-            if (enabled == null) {
-                throw new IllegalStateException("Column under_observation is null for customer with customerId '%d'".formatted(customerId));
-            }
-
-            log.debug(String.format("Customer '%d' under_observation=%s", customerId, enabled));
-            return enabled;
-        } catch (EmptyResultDataAccessException ex) {
-            log.warn(String.format(LITERAL_NO_CUSTOMER_FOR_CUSTOMER_ID, customerId));
-            throw new IllegalStateException("No customer found for customerId '" + customerId + "'", ex);
-        } catch (DataAccessException ex) {
-            log.error(String.format("Failed to read under_observation flag for customer '%d'", customerId), ex);
-            throw new IllegalStateException("Could not read under_observation flag for customerId '" + customerId + "'", ex);
         }
     }
 

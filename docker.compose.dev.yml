@@ -113,7 +113,7 @@ services:
   # --------------------------------------------------------------
   # MAILPIT (SMTP debugging)
   # --------------------------------------------------------------
-  mailpit:
+  crmupload-mailpit:
     image: axllent/mailpit:latest
     container_name: crmupload-mailpit
     ports:

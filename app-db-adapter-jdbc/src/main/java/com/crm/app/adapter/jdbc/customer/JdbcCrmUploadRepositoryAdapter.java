@@ -5,6 +5,7 @@ import com.crm.app.dto.CrmUploadRequest;
 import com.crm.app.port.customer.CrmUploadRepositoryPort;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -51,11 +52,27 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
              WHERE upload_id = :uploadId
             """;
 
+    private static final String SQL_MARK_CRM_UPLOAD_DONE_KEEP_CONTENT = """
+            UPDATE app.crm_upload
+               SET status = 'done',
+                   last_error = NULL,
+                   modified = now()
+             WHERE upload_id = :uploadId
+            """;
+
     private static final String SQL_MARK_CRM_UPLOAD_FAILED = """
             UPDATE app.crm_upload
                SET status = 'failed',
                    content = NULL,
                    api_key = NULL,
+                   last_error = :error,
+                   modified = now()
+             WHERE upload_id = :uploadId
+            """;
+
+    private static final String SQL_MARK_CRM_UPLOAD_FAILED_KEEP_CONTENT = """
+            UPDATE app.crm_upload
+               SET status = 'failed',
                    last_error = :error,
                    modified = now()
              WHERE upload_id = :uploadId
@@ -73,6 +90,17 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
               FROM app.crm_upload
              WHERE upload_id = ANY(ARRAY[:uploadIds])
             """;
+
+    private static final String SQL_FIND_UNDER_OBSERVATION_BY_UPLOAD_ID = """
+            SELECT
+            c.under_observation as under_observation
+            FROM app.crm_upload cu
+            JOIN app.customer c
+            ON c.customer_id =cu.customer_id
+            WHERE cu.upload_id =:upload_id
+            """;
+
+    private static final String LITERAL_NO_CUSTOMER_FOR_UPLOAD_ID = "No customer found for uploadId '%d'";
 
     private static final String STATUS_CRM_UPLOAD_NEW = "new";
 
@@ -177,7 +205,11 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
     public void markUploadDone(final long uploadId) {
         final MapSqlParameterSource params = new MapSqlParameterSource().addValue(LITERAL_UPLOAD_ID_CAMELCASE, uploadId);
         try {
-            jdbcTemplate.update(SQL_MARK_CRM_UPLOAD_DONE, params);
+            if (isUnderObservationByUploadId(uploadId)) {
+                jdbcTemplate.update(SQL_MARK_CRM_UPLOAD_DONE_KEEP_CONTENT, params);
+            } else {
+                jdbcTemplate.update(SQL_MARK_CRM_UPLOAD_DONE, params);
+            }
         } catch (DataAccessException ex) {
             log.error(String.format("Failed to mark upload %d as done", uploadId), ex);
             throw new IllegalStateException("Could not mark upload as done", ex);
@@ -188,7 +220,11 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
     public void markUploadFailed(final long uploadId, final String errorMessage) {
         final MapSqlParameterSource params = new MapSqlParameterSource().addValue(LITERAL_UPLOAD_ID_CAMELCASE, uploadId).addValue(LITERAL_ERROR, errorMessage);
         try {
-            jdbcTemplate.update(SQL_MARK_CRM_UPLOAD_FAILED, params);
+            if (isUnderObservationByUploadId(uploadId)) {
+                jdbcTemplate.update(SQL_MARK_CRM_UPLOAD_FAILED_KEEP_CONTENT, params);
+            } else {
+                jdbcTemplate.update(SQL_MARK_CRM_UPLOAD_FAILED, params);
+            }
         } catch (DataAccessException ex) {
             log.error(String.format("Failed to mark upload %d as failed", uploadId), ex);
             throw new IllegalStateException("Could not mark upload as failed", ex);
@@ -221,6 +257,28 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
         } catch (DataAccessException ex) {
             log.error(String.format("Failed to load crm_upload for ids=%s", String.valueOf(uploadIds)), ex);
             throw new IllegalStateException("Could not load customer uploads", ex);
+        }
+    }
+
+    @Override
+    public boolean isUnderObservationByUploadId(long uploadId) {
+        MapSqlParameterSource params = new MapSqlParameterSource(LITERAL_UPLOAD_ID, uploadId);
+
+        try {
+            Boolean underObservation = jdbcTemplate.queryForObject(SQL_FIND_UNDER_OBSERVATION_BY_UPLOAD_ID, params, Boolean.class);
+
+            if (underObservation == null) {
+                throw new IllegalStateException("Column under_observation is null for customer with uploadId '%d'".formatted(uploadId));
+            }
+
+            log.debug(String.format("Customer '%d' under_observation=%s", uploadId, underObservation));
+            return underObservation;
+        } catch (EmptyResultDataAccessException ex) {
+            log.warn(String.format(LITERAL_NO_CUSTOMER_FOR_UPLOAD_ID, uploadId));
+            throw new IllegalStateException("No customer found for uploadId '" + uploadId + "'", ex);
+        } catch (DataAccessException ex) {
+            log.error(String.format("Failed to read under_observation flag for customer '%d'", uploadId), ex);
+            throw new IllegalStateException("Could not read under_observation flag for uploadId '" + uploadId + "'", ex);
         }
     }
 }

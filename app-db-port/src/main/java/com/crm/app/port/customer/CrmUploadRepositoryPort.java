@@ -20,4 +20,6 @@ public interface CrmUploadRepositoryPort {
 
     List<CrmUploadContent> findUploadsByIds(List<Long> uploadIds);
 
+    boolean isUnderObservationByUploadId(long uploadId);
+
 }
