@@ -1,7 +1,7 @@
 package com.crm.app.worker_duplicate_check_gpu.process;
 
 import com.crm.app.dto.DuplicateCheckContent;
-import com.crm.app.port.customer.Customer;
+import com.crm.app.dto.Customer;
 import com.crm.app.port.customer.CustomerRepositoryPort;
 import com.crm.app.port.customer.DuplicateCheckRepositoryPort;
 import com.crm.app.util.AccountNameEmbeddingNormalizer;

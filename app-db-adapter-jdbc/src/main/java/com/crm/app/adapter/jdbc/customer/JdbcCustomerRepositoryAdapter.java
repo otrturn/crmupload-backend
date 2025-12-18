@@ -1,7 +1,7 @@
 package com.crm.app.adapter.jdbc.customer;
 
 import com.crm.app.dto.*;
-import com.crm.app.port.customer.Customer;
+import com.crm.app.dto.Customer;
 import com.crm.app.port.customer.CustomerRepositoryPort;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
@@ -46,7 +46,6 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
     private static final String LITERAL_CRM_URL = "crm_url";
     private static final String LITERAL_CRM_CUSTOMER_ID = "crm_customer_id";
     private static final String LITERAL_PRODUCT = "product";
-    private static final String LITERAL_ENABLED = "enabled";
     private static final String LITERAL_PASSWORD = "password";
     private static final String LITERAL_TS = "ts";
     private static final String LITERAL_STATUS = "status";

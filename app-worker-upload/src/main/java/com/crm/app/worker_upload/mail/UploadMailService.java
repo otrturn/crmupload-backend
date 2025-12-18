@@ -1,7 +1,7 @@
 package com.crm.app.worker_upload.mail;
 
 import com.crm.app.dto.CrmUploadContent;
-import com.crm.app.port.customer.Customer;
+import com.crm.app.dto.Customer;
 import com.crmmacher.error.ErrMsg;
 import com.crmmacher.espo.dto.EspoEntityPool;
 import jakarta.mail.MessagingException;

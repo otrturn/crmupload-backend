@@ -1,7 +1,7 @@
 package com.crm.app.worker_duplicate_check.mail;
 
 import com.crm.app.dto.DuplicateCheckContent;
-import com.crm.app.port.customer.Customer;
+import com.crm.app.dto.Customer;
 import com.crmmacher.error.ErrMsg;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;

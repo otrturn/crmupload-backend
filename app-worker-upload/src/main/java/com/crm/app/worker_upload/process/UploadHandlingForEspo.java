@@ -2,7 +2,7 @@ package com.crm.app.worker_upload.process;
 
 import com.crm.app.dto.CrmUploadContent;
 import com.crm.app.port.customer.CrmUploadRepositoryPort;
-import com.crm.app.port.customer.Customer;
+import com.crm.app.dto.Customer;
 import com.crm.app.worker_common.util.WorkerUtil;
 import com.crm.app.worker_upload.mail.UploadMailService;
 import com.crmmacher.config.BaseCtx;
