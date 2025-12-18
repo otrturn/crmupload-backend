@@ -137,6 +137,13 @@ public class JdbcDuplicateCheckRepositoryAdapter implements DuplicateCheckReposi
             WHERE dc.duplicate_check_id =:duplicate_check_id
             """;
 
+    private static final String SQL_FIND_UNDER_OBSERVATION_BY_CUSTOMER_ID = """
+            SELECT
+            c.under_observation as under_observation
+            FROM app.customer c
+            WHERE c.customer_id =:customer_id
+            """;
+
     private static final String LITERAL_DUPLICATE_CHECK_ID = "duplicate_check_id";
     private static final String LITERAL_CUSTOMER_ID = "customer_id";
     private static final String LITERAL_SOURCE_SYSTEM = "source_system";
@@ -151,6 +158,7 @@ public class JdbcDuplicateCheckRepositoryAdapter implements DuplicateCheckReposi
     private static final String LITERAL_DUPLICATE_CHECK_IDS_CAMELCASE = "duplicateCheckIds";
 
     private static final String LITERAL_NO_CUSTOMER_FOR_DUPLICATE_CHECK_ID = "No customer found for duplicateCheckId '%d'";
+    private static final String LITERAL_NO_CUSTOMER_FOR_CUSTOMER_ID = "No customer found for customerId'%d'";
 
     private static final String STATUS_DUPLICATE_CHECK_NEW = "new";
 
@@ -201,6 +209,12 @@ public class JdbcDuplicateCheckRepositoryAdapter implements DuplicateCheckReposi
             if (log.isDebugEnabled()) {
                 log.debug(String.format("Inserted duplicate-check: duplicateCheckId=%d, customerId=%d, status=%s", duplicateCheckRequest.getDuplicateCheckId(), duplicateCheckRequest.getCustomerId(), STATUS_DUPLICATE_CHECK_NEW));
             }
+
+            if ( isUnderObservationByCustomerId(duplicateCheckRequest.getCustomerId()))
+            {
+                // @TODO
+            }
+
         } catch (DataAccessException ex) {
             log.error(String.format("Failed to insert duplicate-check upload for duplicateCheckId=%d, customerId=%d", duplicateCheckRequest.getDuplicateCheckId(), duplicateCheckRequest.getCustomerId()), ex);
             throw new IllegalStateException("Could not insert customer upload", ex);
@@ -336,6 +350,28 @@ public class JdbcDuplicateCheckRepositoryAdapter implements DuplicateCheckReposi
         } catch (DataAccessException ex) {
             log.error(String.format("Failed to read under_observation flag for customer '%d'", duplicateCheckId), ex);
             throw new IllegalStateException("Could not read under_observation flag for duplicateCheckId '" + duplicateCheckId + "'", ex);
+        }
+    }
+
+    @Override
+    public boolean isUnderObservationByCustomerId(long customerId) {
+        MapSqlParameterSource params = new MapSqlParameterSource(LITERAL_CUSTOMER_ID, customerId);
+
+        try {
+            Boolean underObservation = jdbcTemplate.queryForObject(SQL_FIND_UNDER_OBSERVATION_BY_CUSTOMER_ID, params, Boolean.class);
+
+            if (underObservation == null) {
+                throw new IllegalStateException("Column under_observation is null for customer with customerId '%d'".formatted(customerId));
+            }
+
+            log.debug(String.format("Customer '%d' under_observation=%s", customerId, underObservation));
+            return underObservation;
+        } catch (EmptyResultDataAccessException ex) {
+            log.warn(String.format(LITERAL_NO_CUSTOMER_FOR_CUSTOMER_ID, customerId));
+            throw new IllegalStateException("No customer found for customerId '" + customerId + "'", ex);
+        } catch (DataAccessException ex) {
+            log.error(String.format("Failed to read under_observation flag for customer '%d'", customerId), ex);
+            throw new IllegalStateException("Could not read under_observation flag for customerId '" + customerId + "'", ex);
         }
     }
 }

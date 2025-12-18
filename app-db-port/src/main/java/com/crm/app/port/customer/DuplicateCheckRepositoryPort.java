@@ -28,4 +28,5 @@ public interface DuplicateCheckRepositoryPort {
 
     boolean isUnderObservationByDuplicateCheckId(long duplicateCheckId);
 
+    boolean isUnderObservationByCustomerId(long customerId);
 }
