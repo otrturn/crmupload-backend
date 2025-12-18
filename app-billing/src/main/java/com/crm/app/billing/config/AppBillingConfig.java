@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties(prefix = "app.billing")
 @Slf4j
-
 public class AppBillingConfig {
     private String workdir;
 

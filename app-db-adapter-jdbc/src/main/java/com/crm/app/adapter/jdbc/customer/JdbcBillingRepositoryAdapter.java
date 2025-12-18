@@ -197,7 +197,7 @@ public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
                     amount,
                     billing_meta,
                     invoice_image,
-                    submitted_to_billing
+                    submitted_to_agency
                 )
                 VALUES (
                     :customerId,
@@ -214,7 +214,7 @@ public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
 
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue(LITERAL_CUSTOMER_ID_CAMELCASE, invoiceRecord.getCustomerBillingData().customerId())
-                .addValue(LITERAL_INVOICE_NO_CAMELCASE, invoiceRecord.getInvoiceNo())
+                .addValue(LITERAL_INVOICE_NO_CAMELCASE, invoiceRecord.getInvoiceNoText())
                 .addValue(LITERAL_TAX_VALUE_CAMELCASE, invoiceRecord.getTaxValue())
                 .addValue(LITERAL_TAX_AMOUNT_CAMELCASE, invoiceRecord.getTaxAmount())
                 .addValue(LITERAL_NET_AMOUNT_CAMELCASE, invoiceRecord.getNetAmount())

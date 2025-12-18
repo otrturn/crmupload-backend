@@ -1,0 +1,221 @@
+package com.crm.app.billing.proccess;
+
+import com.crm.app.billing.config.AppBillingConfig;
+import com.crm.app.billing.error.BillingGeneratePDFException;
+import com.crm.app.billing.util.BillingUtils;
+import com.crm.app.dto.InvoiceRecord;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDDocumentInformation;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
+import org.springframework.stereotype.Component;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+
+import static com.crm.app.dto.Customer.getFullname;
+
+@Slf4j
+@Component
+public class GeneratePDF {
+
+    private final AppBillingConfig appBillingConfig;
+
+    private static final String NAME_OF_COMPANY = "Ralf Scholler";
+    private static final String STREET_OF_COMPANY = "Am Dorfplatz 6";
+    private static final String ZIP_CITY_OF_COMPANY = "57610 Ingelbach";
+    private static final String TAX_NUMBER_OF_COMPANY = "Steuernummer 003/867/30663";
+    private static final String VAT_ID_NUMBER_OF_COMPANY = "USt-Id-Nummer DE 244 3344 16";
+    private static final String FORMAT_TWO_DECIMALS = "€%.2f";
+
+    public GeneratePDF(AppBillingConfig appBillingConfig) {
+        this.appBillingConfig = appBillingConfig;
+    }
+
+    public byte[] generatePDFForCustomer(InvoiceRecord invoiceRecord) throws BillingGeneratePDFException {
+        try (PDDocument document = new PDDocument()) {
+            PDPage page = new PDPage(PDRectangle.A4);
+            document.addPage(page);
+            setDocumentHeaderInformation(document, invoiceRecord);
+
+            PDPageContentStream contentStream = new PDPageContentStream(document, page);
+            setPageFooter(contentStream);
+            setCustomerAddress(contentStream, invoiceRecord);
+            setInvoiceHeader(contentStream, invoiceRecord);
+            setBankInformation(contentStream);
+
+            contentStream.close();
+            document.save(appBillingConfig.getWorkdir() + "/" + String.format("Rechnung_%06d.pdf", invoiceRecord.getInvoiceNo()));
+            return toPdfBytes(document);
+        } catch (IOException e) {
+            log.error("generatePDFForCustomer", e);
+            throw new BillingGeneratePDFException("generatePDFForCustomer", e);
+        }
+    }
+
+    private void setDocumentHeaderInformation(PDDocument document, InvoiceRecord invoiceRecord) {
+        PDDocumentInformation pdd = document.getDocumentInformation();
+        pdd.setAuthor(NAME_OF_COMPANY);
+        pdd.setTitle("Rechnung " + invoiceRecord.getInvoiceNoText() + " für " + getFullname(invoiceRecord.getCustomer()));
+        pdd.setCreator(NAME_OF_COMPANY);
+        pdd.setSubject("Rechnung " + invoiceRecord.getInvoiceNoText() + " für " + getFullname(invoiceRecord.getCustomer()));
+        Calendar date = new GregorianCalendar();
+        date.setTime(new Date());
+        pdd.setCreationDate(date);
+    }
+
+    private void setPageFooter(PDPageContentStream contentStream) throws IOException {
+        contentStream.beginText();
+        contentStream.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD), 8);
+        contentStream.newLineAtOffset(30, 30);
+        contentStream.showText(NAME_OF_COMPANY);
+        contentStream.endText();
+
+        contentStream.beginText();
+        contentStream.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD), 8);
+        contentStream.newLineAtOffset(180, 30);
+        contentStream.showText(STREET_OF_COMPANY);
+        contentStream.endText();
+
+        contentStream.beginText();
+        contentStream.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD), 8);
+        contentStream.newLineAtOffset(380, 30);
+        contentStream.showText(TAX_NUMBER_OF_COMPANY);
+        contentStream.endText();
+
+        contentStream.beginText();
+        contentStream.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD), 8);
+        contentStream.newLineAtOffset(180, 20);
+        contentStream.showText(ZIP_CITY_OF_COMPANY);
+        contentStream.endText();
+
+        contentStream.beginText();
+        contentStream.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD), 8);
+        contentStream.newLineAtOffset(380, 20);
+        contentStream.showText(VAT_ID_NUMBER_OF_COMPANY);
+        contentStream.endText();
+
+    }
+
+    private void setCustomerAddress(PDPageContentStream contentStream, InvoiceRecord invoiceRecord) throws IOException {
+        int y = 800;
+        contentStream.beginText();
+        contentStream.setFont(new PDType1Font(Standard14Fonts.FontName.TIMES_ROMAN), 12);
+        contentStream.newLineAtOffset(30, y);
+        contentStream.showText(getFullname(invoiceRecord.getCustomer()));
+        contentStream.endText();
+        y -= 15;
+
+        contentStream.beginText();
+        contentStream.setFont(new PDType1Font(Standard14Fonts.FontName.TIMES_ROMAN), 12);
+        contentStream.newLineAtOffset(30, y);
+        contentStream.showText(invoiceRecord.getCustomer().adrline1());
+        contentStream.endText();
+        y -= 15;
+
+        if (invoiceRecord.getCustomer().adrline2() != null && !invoiceRecord.getCustomer().adrline2().isEmpty()) {
+            contentStream.beginText();
+            contentStream.setFont(new PDType1Font(Standard14Fonts.FontName.TIMES_ROMAN), 12);
+            contentStream.newLineAtOffset(30, y);
+            contentStream.showText(invoiceRecord.getCustomer().adrline2());
+            contentStream.endText();
+            y -= 15;
+        }
+
+        contentStream.beginText();
+        contentStream.setFont(new PDType1Font(Standard14Fonts.FontName.TIMES_ROMAN), 12);
+        contentStream.newLineAtOffset(30, y);
+        contentStream.showText(invoiceRecord.getCustomer().postalcode() + " " + invoiceRecord.getCustomer().city());
+        contentStream.endText();
+    }
+
+    private void setInvoiceHeader(PDPageContentStream contentStream, InvoiceRecord invoiceRecord) throws IOException {
+        int y = 700;
+
+        contentStream.beginText();
+        contentStream.setFont(new PDType1Font(Standard14Fonts.FontName.TIMES_ROMAN), 12);
+        contentStream.newLineAtOffset(30, y);
+        contentStream.showText("Rechnungsnummer");
+        contentStream.endText();
+        contentStream.beginText();
+        contentStream.setFont(new PDType1Font(Standard14Fonts.FontName.TIMES_ROMAN), 12);
+        contentStream.newLineAtOffset(150, y);
+        contentStream.showText(invoiceRecord.getInvoiceNoText());
+        contentStream.endText();
+
+        y -= 20;
+
+        contentStream.beginText();
+        contentStream.setFont(new PDType1Font(Standard14Fonts.FontName.TIMES_ROMAN), 12);
+        contentStream.newLineAtOffset(30, y);
+        contentStream.showText("Rechnungsdatum");
+        contentStream.endText();
+        contentStream.beginText();
+        contentStream.setFont(new PDType1Font(Standard14Fonts.FontName.TIMES_ROMAN), 12);
+        contentStream.newLineAtOffset(150, y);
+        contentStream.showText(BillingUtils.dateAsText(invoiceRecord.getBillingdate()));
+        contentStream.endText();
+
+        y -= 20;
+
+        contentStream.beginText();
+        contentStream.setFont(new PDType1Font(Standard14Fonts.FontName.TIMES_ROMAN), 12);
+        contentStream.newLineAtOffset(30, y);
+        contentStream.showText("Verwendungszweck");
+        contentStream.endText();
+        contentStream.beginText();
+        contentStream.setFont(new PDType1Font(Standard14Fonts.FontName.TIMES_ROMAN), 12);
+        contentStream.newLineAtOffset(150, y);
+        contentStream.showText(invoiceRecord.getInvoiceNoText() + " oder " + invoiceRecord.getCustomer().customerNumber());
+        contentStream.endText();
+
+    }
+
+    private void setBankInformation(PDPageContentStream contentStream) throws IOException {
+        int y = 480;
+
+        contentStream.beginText();
+        contentStream.setFont(new PDType1Font(Standard14Fonts.FontName.TIMES_ROMAN), 12);
+        contentStream.newLineAtOffset(30, y);
+        contentStream.showText("Bitte überweisen Sie den Rechnungsbetrag an");
+        contentStream.endText();
+
+        y -= 20;
+
+        contentStream.beginText();
+        contentStream.setFont(new PDType1Font(Standard14Fonts.FontName.TIMES_ROMAN), 12);
+        contentStream.newLineAtOffset(60, y);
+        contentStream.showText("Raiffeisenbank Grävenwiesbach eG");
+        contentStream.endText();
+
+        y -= 20;
+
+        contentStream.beginText();
+        contentStream.setFont(new PDType1Font(Standard14Fonts.FontName.TIMES_ROMAN), 12);
+        contentStream.newLineAtOffset(60, y);
+        contentStream.showText(NAME_OF_COMPANY);
+        contentStream.endText();
+
+        y -= 20;
+
+        contentStream.beginText();
+        contentStream.setFont(new PDType1Font(Standard14Fonts.FontName.TIMES_ROMAN), 12);
+        contentStream.newLineAtOffset(60, y);
+        contentStream.showText("IBAN DE59 5006 9345 0100 0362 77");
+        contentStream.endText();
+    }
+
+    private byte[] toPdfBytes(PDDocument document) throws IOException {
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            document.save(out);
+            return out.toByteArray();
+        }
+    }
+}

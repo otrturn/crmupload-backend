@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -23,6 +24,7 @@ public class GenerateInvoices {
     private final AppBillingConfig appBillingConfig;
     private final BillingRepositoryPort billingRepositoryPort;
     private final CustomerRepositoryPort customerRepositoryPort;
+    private final GeneratePDF generatePDF;
 
     private static final String LITERAL_NO_CUSTOMER_FOR_CUSTOMER_ID = "No customer found for customerId '%s'";
 
@@ -35,13 +37,15 @@ public class GenerateInvoices {
                 Optional<Customer> customer = customerRepositoryPort.findCustomerByCustomerId(customerBillingData.customerId());
                 if (customer.isPresent()) {
                     long invoiceNo = billingRepositoryPort.nextInvoiceNo();
-                    byte[] invoiceImage = new byte[10];
 
                     InvoiceRecord invoiceRecord = new InvoiceRecord();
                     invoiceRecord.setCustomerBillingData(customerBillingData);
                     invoiceRecord.setCustomer(customer.get());
-                    invoiceRecord.setInvoiceNo(String.format("%03d.%03d", invoiceNo / 1000, invoiceNo % 1000));
+                    invoiceRecord.setInvoiceNo(invoiceNo);
+                    invoiceRecord.setBillingdate(Instant.now());
+                    invoiceRecord.setInvoiceNoText(String.format("%03d.%03d", invoiceNo / 1000, invoiceNo % 1000));
                     setItemPrices(invoiceRecord);
+                    byte[] invoiceImage = generatePDF.generatePDFForCustomer(invoiceRecord);
                     invoiceRecord.setInvoiceImage(invoiceImage);
 
                     billingRepositoryPort.insertInvoiceRecord(invoiceRecord);

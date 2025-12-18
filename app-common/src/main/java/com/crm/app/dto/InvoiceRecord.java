@@ -5,6 +5,7 @@ import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Arrays;
 
 @Getter
@@ -12,7 +13,9 @@ import java.util.Arrays;
 public class InvoiceRecord {
     private CustomerBillingData customerBillingData;
     private Customer customer;
-    private String invoiceNo;
+    private long invoiceNo;
+    private Instant billingdate;
+    private String invoiceNoText;
     private BigDecimal taxValue;
     private BigDecimal taxAmount;
     private BigDecimal netAmount;
@@ -23,20 +26,20 @@ public class InvoiceRecord {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof InvoiceRecord other)) return false;
-        return java.util.Objects.equals(invoiceNo, other.invoiceNo)
+        return java.util.Objects.equals(invoiceNoText, other.invoiceNoText)
                 && Arrays.equals(invoiceImage, other.invoiceImage);
     }
 
     @Override
     public int hashCode() {
-        int result = java.util.Objects.hash(invoiceNo);
+        int result = java.util.Objects.hash(invoiceNoText);
         result = 31 * result + Arrays.hashCode(invoiceImage);
         return result;
     }
 
     public @NotNull String toString() {
         return "InvoiceRecord[" +
-                "invoiceNo=" + invoiceNo +
+                "invoiceNo=" + invoiceNoText +
                 ", invoiceImage=" + (invoiceImage == null ? "null" : ("byte[" + invoiceImage.length + "]")) +
                 ']';
     }

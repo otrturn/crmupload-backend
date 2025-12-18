@@ -46,8 +46,8 @@ public class AppBulkTool implements CommandLineRunner, ExitCodeGenerator {
         log.info("Starte Batch-Prozess…");
         switch (args[0]) {
             case "--registerCustomer" -> {
-                RegisterRequest request = new RegisterRequest("Ralf", "Scholler", null, "ralf@test.de", "01702934959",
-                        "Am Dorfplatz 6", null, "57610", "Ingelbach", "DE", "test123",
+                RegisterRequest request = new RegisterRequest("Jürgen", "Becker", null, "ralf@test.de", "01702934959",
+                        "Teichgarten 17", null, "60333", "Frankfurt", "DE", "test123",
                         List.of(AppConstants.PRODUCT_CRM_UPLOAD, AppConstants.PRODUCT_DUPLICATE_CHECK));
                 registerCustomers.process(10, request);
             }
