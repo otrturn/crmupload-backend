@@ -2,7 +2,6 @@ package com.crm.app.billing.proccess;
 
 import com.crm.app.billing.config.AppBillingConfig;
 import com.crm.app.billing.error.BillingGeneratePDFException;
-import com.crm.app.billing.util.BillingUtils;
 import com.crm.app.dto.Customer;
 import com.crm.app.dto.CustomerProduct;
 import com.crm.app.dto.InvoiceRecord;
@@ -237,7 +236,7 @@ public class GeneratePDF {
             font = new PDType1Font(Standard14Fonts.FontName.TIMES_ROMAN);
             contentStream.setFont(font, 12);
             text = String.format(FORMAT_TWO_DECIMALS, customerProduct.getNetAmount());
-            textWidth = BillingUtils.getTextWidth(font, 12, text);
+            textWidth = getTextWidth(font, 12, text);
             contentStream.newLineAtOffset(500 - textWidth, y);
             contentStream.showText(text);
             contentStream.endText();
@@ -255,7 +254,7 @@ public class GeneratePDF {
         font = new PDType1Font(Standard14Fonts.FontName.TIMES_ROMAN);
         contentStream.setFont(font, 12);
         text = String.format(FORMAT_TWO_DECIMALS, invoiceRecord.getNetAmount());
-        textWidth = BillingUtils.getTextWidth(font, 12, text);
+        textWidth = getTextWidth(font, 12, text);
         contentStream.newLineAtOffset(500 - textWidth, y);
         contentStream.showText(text);
         contentStream.endText();
@@ -271,7 +270,7 @@ public class GeneratePDF {
         font = new PDType1Font(Standard14Fonts.FontName.TIMES_ROMAN);
         contentStream.setFont(font, 12);
         text = String.format(FORMAT_TWO_DECIMALS, invoiceRecord.getTaxAmount());
-        textWidth = BillingUtils.getTextWidth(font, 12, text);
+        textWidth = getTextWidth(font, 12, text);
         contentStream.newLineAtOffset(500 - textWidth, y);
         contentStream.showText(text);
         contentStream.endText();
@@ -287,7 +286,7 @@ public class GeneratePDF {
         font = new PDType1Font(Standard14Fonts.FontName.TIMES_BOLD);
         contentStream.setFont(font, 12);
         text = String.format(FORMAT_TWO_DECIMALS, invoiceRecord.getAmount());
-        textWidth = BillingUtils.getTextWidth(font, 12, text);
+        textWidth = getTextWidth(font, 12, text);
         contentStream.newLineAtOffset(500 - textWidth, y);
         contentStream.showText(text);
         contentStream.endText();
@@ -390,4 +389,9 @@ public class GeneratePDF {
             return out.toByteArray();
         }
     }
+    public static float getTextWidth(PDType1Font font, int fontSize,
+                                     String text) throws IOException {
+        return (font.getStringWidth(text) / 1000.0f) * fontSize;
+    }
+
 }
