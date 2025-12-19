@@ -15,7 +15,7 @@ from app.duplicate_check
 group by status
 order by tag, status;
 
-SELECT count(*)
+SELECT count(distinct cp.customer_id)
 FROM app.customer_product cp
 WHERE NOT EXISTS (SELECT 1
                   FROM app.customer_invoice ci

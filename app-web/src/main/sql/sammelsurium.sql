@@ -66,8 +66,3 @@ FROM app.crm_upload cu
               ON c.customer_id = cu.customer_id
 WHERE c.email_address = 'ralf+0@test.de'
 ORDER BY cu.created DESC;
-
-update app.customer_invoice
-set submitted_to_billing=null;
-commit;
-
