@@ -50,6 +50,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
     private static final String LITERAL_STATUS = "status";
     private static final String LITERAL_USER_ID = "user_id";
     private static final String LITERAL_ACTIVATION_DATE = "activation_date";
+    private static final String LITERAL_ACTIVATION_DATE_CAMELCASE = "activationDate";
 
     private static final String LITERAL_NO_CUSTOMER_FOR_EMAIL = "No customer found for email '%s'";
     private static final String LITERAL_NO_CUSTOMER_FOR_CUSTOMER_ID = "No customer found for customerId '%s'";
@@ -160,7 +161,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
     private static final String SQL_FIND_CUSTOMER_ID_BY_EMAIL =
             "SELECT c.customer_id FROM app.customer c WHERE c.email_address = :email_address";
 
-    private static final String SQL_CUSTOMER_FIND_BY_CUSTOMER_ID = """
+    private static final String SQL_FIND_CUSTOMER_BY_CUSTOMER_ID = """
             SELECT customer_id,
                    customer_number,
                    user_id,
@@ -173,7 +174,8 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
                    adrline2,
                    postalcode,
                    city,
-                   country
+                   country,
+                   activation_date
               FROM app.customer
              WHERE customer_id = :customerId
             """;
@@ -492,7 +494,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
                 rs.getString(LITERAL_POSTALCODE),
                 rs.getString(LITERAL_CITY),
                 rs.getString(LITERAL_COUNTRY),
-                rs.getTimestamp(LITERAL_ACTIVATION_DATE)
+                rs.getTimestamp(LITERAL_ACTIVATION_DATE_CAMELCASE)
         );
     }
 
@@ -509,7 +511,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
                 rs.getString(LITERAL_POSTALCODE),
                 rs.getString(LITERAL_CITY),
                 rs.getString(LITERAL_COUNTRY),
-                rs.getTimestamp(LITERAL_ACTIVATION_DATE)
+                rs.getTimestamp(LITERAL_ACTIVATION_DATE_CAMELCASE)
         );
     }
 
@@ -654,7 +656,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
         MapSqlParameterSource params = new MapSqlParameterSource().addValue(LITERAL_CUSTOMER_ID_CAMELCASE, customerId);
 
         try {
-            List<Customer> rows = jdbc.query(SQL_CUSTOMER_FIND_BY_CUSTOMER_ID, params, (rs, rowNum) -> new Customer(rs.getLong(LITERAL_CUSTOMER_ID), rs.getString(LITERAL_CUSTOMER_NUMBER), rs.getLong(LITERAL_USER_ID), rs.getString(LITERAL_FIRSTNAME), rs.getString(LITERAL_LASTNAME), rs.getString(LITERAL_COMPANY_NAME), rs.getString(LITERAL_EMAIL_ADDRESS), rs.getString(LITERAL_PHONE_NUMBER), rs.getString(LITERAL_ADRLINE1), rs.getString(LITERAL_ADRLINE2), rs.getString(LITERAL_POSTALCODE), rs.getString(LITERAL_CITY), rs.getString(LITERAL_COUNTRY), null));
+            List<Customer> rows = jdbc.query(SQL_FIND_CUSTOMER_BY_CUSTOMER_ID, params, (rs, rowNum) -> new Customer(rs.getLong(LITERAL_CUSTOMER_ID), rs.getString(LITERAL_CUSTOMER_NUMBER), rs.getLong(LITERAL_USER_ID), rs.getString(LITERAL_FIRSTNAME), rs.getString(LITERAL_LASTNAME), rs.getString(LITERAL_COMPANY_NAME), rs.getString(LITERAL_EMAIL_ADDRESS), rs.getString(LITERAL_PHONE_NUMBER), rs.getString(LITERAL_ADRLINE1), rs.getString(LITERAL_ADRLINE2), rs.getString(LITERAL_POSTALCODE), rs.getString(LITERAL_CITY), rs.getString(LITERAL_COUNTRY), null, rs.getTimestamp(LITERAL_ACTIVATION_DATE)));
 
             if (rows.isEmpty()) {
                 return Optional.empty();
@@ -668,7 +670,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
 
             List<String> products = loadActiveProductsForCustomer(customerId);
 
-            Customer enrichedCustomer = new Customer(customer.customerId(), customer.customerNumber(), customer.userId(), customer.firstname(), customer.lastname(), customer.companyName(), customer.emailAddress(), customer.phoneNumber(), customer.adrline1(), customer.adrline2(), customer.postalcode(), customer.city(), customer.country(), products);
+            Customer enrichedCustomer = new Customer(customer.customerId(), customer.customerNumber(), customer.userId(), customer.firstname(), customer.lastname(), customer.companyName(), customer.emailAddress(), customer.phoneNumber(), customer.adrline1(), customer.adrline2(), customer.postalcode(), customer.city(), customer.country(), products, customer.activationDate());
 
             return Optional.of(enrichedCustomer);
 

@@ -53,7 +53,8 @@ public class CustomerRegistrationService {
                 request.postalcode(),
                 request.city(),
                 request.country(),
-                request.products()
+                request.products(),
+                null
         );
 
         customerRepository.insertCustomer(customer);

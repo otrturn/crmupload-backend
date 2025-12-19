@@ -1,5 +1,6 @@
 package com.crm.app.dto;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 public record Customer(
@@ -16,7 +17,8 @@ public record Customer(
         String postalcode,
         String city,
         String country,
-        List<String> products
+        List<String> products,
+        Timestamp activationDate
 ) {
 
     public static String getFullname(Customer customer) {
