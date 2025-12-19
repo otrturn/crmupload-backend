@@ -36,6 +36,8 @@ public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
     private static final String LITERAL_TAX_AMOUNT_CAMELCASE = "taxAmount";
     private static final String LITERAL_NET_AMOUNT_CAMELCASE = "netAmount";
     private static final String LITERAL_AMOUNT_CAMELCASE = "amount";
+    private static final String LITERAL_BILLING_DATE_CAMELCASE="billingDate";
+    private static final String LITERAL_DUE_DATE_CAMELCASE="dueDate";
 
     private final NamedParameterJdbcTemplate jdbc;
     private final ObjectMapper objectMapper;
@@ -191,6 +193,8 @@ public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
                 INSERT INTO app.customer_billing (
                     customer_id,
                     invoice_no,
+                    billing_date,
+                    due_date,
                     tax_value,
                     tax_amount,
                     net_amount,
@@ -202,6 +206,8 @@ public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
                 VALUES (
                     :customerId,
                     :invoiceNo,
+                    :billingDate,
+                    :dueDate,
                     :taxValue,
                     :taxAmount,
                     :netAmount,
@@ -215,6 +221,8 @@ public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue(LITERAL_CUSTOMER_ID_CAMELCASE, invoiceRecord.getCustomerBillingData().customerId())
                 .addValue(LITERAL_INVOICE_NO_CAMELCASE, invoiceRecord.getInvoiceNoText())
+                .addValue(LITERAL_BILLING_DATE_CAMELCASE, invoiceRecord.getBillingDate())
+                .addValue(LITERAL_DUE_DATE_CAMELCASE, invoiceRecord.getDueDate())
                 .addValue(LITERAL_TAX_VALUE_CAMELCASE, invoiceRecord.getTaxValue())
                 .addValue(LITERAL_TAX_AMOUNT_CAMELCASE, invoiceRecord.getTaxAmount())
                 .addValue(LITERAL_NET_AMOUNT_CAMELCASE, invoiceRecord.getNetAmount())
