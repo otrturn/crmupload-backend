@@ -41,7 +41,7 @@ public class CustomerRegistrationService {
         int year = Year.now(ZoneId.of("Europe/Berlin")).getValue();
         Customer customer = new Customer(
                 customerId,
-                String.format("KD.%04d.%06d", year, customerId),
+                String.format("KD-%04d-%06d", year, customerId),
                 accountResult.userId(),
                 request.firstname(),
                 request.lastname(),

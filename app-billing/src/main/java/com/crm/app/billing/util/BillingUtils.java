@@ -3,9 +3,6 @@ package com.crm.app.billing.util;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 
 import java.io.IOException;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 
 public class BillingUtils {
 
@@ -28,14 +25,6 @@ public class BillingUtils {
             case 4, 6, 9, 11 -> day == 30;
             default -> false;
         };
-    }
-
-    public static String dateAsText(Instant timestamp) {
-        DateTimeFormatter formatter =
-                DateTimeFormatter.ofPattern("dd.MM.yyyy")
-                        .withZone(ZoneId.of("Europe/Berlin"));
-
-        return formatter.format(timestamp);
     }
 
     public static float getTextWidth(PDType1Font font, int fontSize,

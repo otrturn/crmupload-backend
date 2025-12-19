@@ -5,7 +5,7 @@ import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
-import java.time.Instant;
+import java.sql.Timestamp;
 import java.util.Arrays;
 
 @Getter
@@ -14,7 +14,8 @@ public class InvoiceRecord {
     private CustomerBillingData customerBillingData;
     private Customer customer;
     private long invoiceNo;
-    private Instant billingdate;
+    private Timestamp billingDate;
+    private Timestamp dueDate;
     private String invoiceNoText;
     private BigDecimal taxValue;
     private BigDecimal taxAmount;

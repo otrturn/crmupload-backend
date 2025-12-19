@@ -39,6 +39,7 @@ public class GeneratePDF {
     private static final String TAX_NUMBER_OF_COMPANY = "Steuernummer 003/867/30663";
     private static final String VAT_ID_NUMBER_OF_COMPANY = "USt-Id-Nummer DE 244 3344 16";
     private static final String FORMAT_TWO_DECIMALS = "€%.2f";
+    private static final String DATE_FORMAT = "dd.MM.yyyy";
 
     public GeneratePDF(AppBillingConfig appBillingConfig) {
         this.appBillingConfig = appBillingConfig;
@@ -56,7 +57,7 @@ public class GeneratePDF {
             setInvoiceHeader(contentStream, invoiceRecord);
             setInvoiceIntroduction(contentStream, invoiceRecord);
             setInvoicePositions(contentStream, invoiceRecord);
-            setBankInformation(contentStream);
+            setBankInformation(contentStream, invoiceRecord);
             setInvoiceFinish(contentStream);
 
             contentStream.close();
@@ -168,7 +169,10 @@ public class GeneratePDF {
         contentStream.beginText();
         contentStream.setFont(new PDType1Font(Standard14Fonts.FontName.TIMES_ROMAN), 12);
         contentStream.newLineAtOffset(150, y);
-        contentStream.showText(BillingUtils.dateAsText(invoiceRecord.getBillingdate()));
+        contentStream.showText(DateTimeFormatter
+                .ofPattern(DATE_FORMAT)
+                .withZone(ZoneId.systemDefault())
+                .format(invoiceRecord.getBillingDate().toInstant()));
         contentStream.endText();
 
         y -= 20;
@@ -181,7 +185,7 @@ public class GeneratePDF {
         contentStream.beginText();
         contentStream.setFont(new PDType1Font(Standard14Fonts.FontName.TIMES_ROMAN), 12);
         contentStream.newLineAtOffset(150, y);
-        contentStream.showText(invoiceRecord.getInvoiceNoText() + " oder " + invoiceRecord.getCustomer().customerNumber());
+        contentStream.showText("Rechnung " + invoiceRecord.getInvoiceNoText());
         contentStream.endText();
 
     }
@@ -199,9 +203,9 @@ public class GeneratePDF {
         contentStream.beginText();
         contentStream.setFont(new PDType1Font(Standard14Fonts.FontName.TIMES_ROMAN), 12);
         contentStream.newLineAtOffset(30, y);
-        contentStream.showText(String.format("Ihre Produkte wurden am %s erfolgreich aktiviert.",
+        contentStream.showText(String.format("die genannten Leistungen wurden am %s erbracht.",
                 DateTimeFormatter
-                        .ofPattern("dd.MM.yyyy")
+                        .ofPattern(DATE_FORMAT)
                         .withZone(ZoneId.systemDefault())
                         .format(invoiceRecord.getCustomer().activationDate().toInstant())));
         contentStream.endText();
@@ -225,7 +229,7 @@ public class GeneratePDF {
             contentStream.beginText();
             contentStream.setFont(new PDType1Font(Standard14Fonts.FontName.TIMES_BOLD), 12);
             contentStream.newLineAtOffset(30, y);
-            contentStream.showText(customerProduct.getProduct());
+            contentStream.showText(CustomerProduct.getProductTranslated(customerProduct.getProduct()));
             contentStream.endText();
 
             contentStream.beginText();
@@ -260,7 +264,6 @@ public class GeneratePDF {
         contentStream.beginText();
         contentStream.setFont(new PDType1Font(Standard14Fonts.FontName.TIMES_ROMAN), 12);
         contentStream.newLineAtOffset(30, y);
-        System.out.println("TV=" + invoiceRecord.getTaxValue());
         contentStream.showText(String.format("MwSt. (%.0f%%)", invoiceRecord.getTaxValue().multiply(BigDecimal.valueOf(100))));
         contentStream.endText();
         contentStream.beginText();
@@ -289,7 +292,7 @@ public class GeneratePDF {
         contentStream.endText();
     }
 
-    private void setBankInformation(PDPageContentStream contentStream) throws IOException {
+    private void setBankInformation(PDPageContentStream contentStream, InvoiceRecord invoiceRecord) throws IOException {
         int y = 380;
 
         contentStream.beginText();
@@ -320,6 +323,18 @@ public class GeneratePDF {
         contentStream.setFont(new PDType1Font(Standard14Fonts.FontName.TIMES_ROMAN), 12);
         contentStream.newLineAtOffset(60, y);
         contentStream.showText("IBAN DE59 5006 9345 0100 0362 77");
+        contentStream.endText();
+
+        y -= 30;
+
+        contentStream.beginText();
+        contentStream.setFont(new PDType1Font(Standard14Fonts.FontName.TIMES_ROMAN), 12);
+        contentStream.newLineAtOffset(30, y);
+        contentStream.showText(String.format("Zahlbar bis zum %s ohne Abzug.",
+                DateTimeFormatter
+                        .ofPattern(DATE_FORMAT)
+                        .withZone(ZoneId.systemDefault())
+                        .format(invoiceRecord.getDueDate().toInstant())));
         contentStream.endText();
     }
 
