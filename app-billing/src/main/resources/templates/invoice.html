@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="de" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8" />
+    <meta charset="UTF-8"/>
     <title th:text="'Rechnung ' + ${invoice.invoiceNo}">Rechnung</title>
 
     <!-- Externes CSS für openhtmltopdf / Flying Saucer -->
-    <link rel="stylesheet" href="invoice.css" />
+    <link rel="stylesheet" href="invoice.css"/>
 </head>
 
 <body>
@@ -79,8 +79,8 @@
 
 <table class="items">
     <colgroup>
-        <col class="col-desc" />
-        <col class="col-amount" />
+        <col class="col-desc"/>
+        <col class="col-amount"/>
     </colgroup>
     <thead>
     <tr>
@@ -104,6 +104,11 @@
 <!-- TOTALS                -->
 <!-- ===================== -->
 <table class="totals">
+    <colgroup>
+        <col class="col-label"/>
+        <col class="col-value"/>
+    </colgroup>
+    <tbody>
     <tr>
         <td class="label">Zwischensumme (Netto)</td>
         <td class="value" th:text="${totals.netFormatted}">400,00 €</td>
@@ -118,6 +123,7 @@
         <td class="label">Rechnungsbetrag (Brutto)</td>
         <td class="value" th:text="${totals.grossFormatted}">476,00 €</td>
     </tr>
+    </tbody>
 </table>
 
 <!-- ===================== -->

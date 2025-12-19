@@ -4,27 +4,45 @@
 
     @bottom-center {
         content: "support@crmupload.de · www.crmupload.de";
-        font-size: 9pt;
+        font-family: "DejaVu Sans", sans-serif;
+        font-size: 9.5pt;
+        font-weight: normal;
     }
-
-    /* Seite x von y entfernen */
-    /* @bottom-right { content: "Seite " counter(page) " von " counter(pages); font-size: 9pt; } */
 }
 
 body {
-    font-family: "Liberation Sans", sans-serif;
+    font-family: "DejaVu Sans", sans-serif;
     font-size: 11pt;
     line-height: 1.35;
 }
 
-.header { margin-bottom: 16px; }
-.issuer-line { font-size: 10pt; }
-.muted { color: #444; }
-.small { font-size: 9.5pt; }
+.header {
+    margin-bottom: 16px;
+}
 
-.mt-8 { margin-top: 8px; }
-.mt-12 { margin-top: 12px; }
-.mt-18 { margin-top: 18px; }
+.issuer-line {
+    font-size: 10pt;
+}
+
+.muted {
+    color: #444;
+}
+
+.small {
+    font-size: 9.5pt;
+}
+
+.mt-8 {
+    margin-top: 8px;
+}
+
+.mt-12 {
+    margin-top: 12px;
+}
+
+.mt-18 {
+    margin-top: 18px;
+}
 
 .block-title {
     font-weight: bold;
@@ -57,7 +75,8 @@ body {
 .meta-left .meta-value {
     padding: 2px 0;
     vertical-align: top;
-    overflow-wrap: anywhere; /* darf umbrechen, Nummer bleibt per .nobr stabil */
+    white-space: normal;
+    word-wrap: break-word;
 }
 
 /* ------------------------------
@@ -67,20 +86,30 @@ body {
     width: 100%;
     border-collapse: collapse;
     margin-top: 10px;
-    table-layout: fixed;  /* entscheidend fürs Alignment */
+    table-layout: fixed; /* entscheidend fürs Alignment */
 }
 
-.items thead { display: table-header-group; }
-.items tfoot { display: table-footer-group; }
+.items thead {
+    display: table-header-group;
+}
+
+.items tfoot {
+    display: table-footer-group;
+}
 
 /* colgroup widths */
-.items col.col-desc { width: auto; }
-.items col.col-amount { width: 140px; }
+.items col.col-desc {
+    width: auto;
+}
+
+.items col.col-amount {
+    width: 140px;
+}
 
 .items th,
 .items td {
     padding: 6px;
-    border: none;         /* horizontale Linien weg */
+    border: none; /* horizontale Linien weg */
 }
 
 .items th {
@@ -92,16 +121,14 @@ body {
 .items td.amount {
     text-align: right;
     white-space: nowrap;
-    overflow-wrap: normal;
-    word-break: normal;
-    hyphens: none;
-    font-variant-numeric: tabular-nums;
+    word-wrap: normal;
     letter-spacing: 0;
 }
 
 /* lange Leistungsnamen dürfen umbrechen, aber nicht die Preis-Spalte drücken */
 .items td:first-child {
-    overflow-wrap: break-word;
+    white-space: normal;
+    word-wrap: break-word;
 }
 
 tr {
@@ -110,6 +137,8 @@ tr {
 
 /* ------------------------------
    TOTALS
+   -> exakt gleiche rechte Spalte wie .items (140px)
+   -> exakt gleiche Innenabstände rechts (6px), damit Beträge fluchten
    ------------------------------ */
 .totals {
     width: 100%;
@@ -118,23 +147,35 @@ tr {
     table-layout: fixed;
 }
 
-.totals td {
-    padding: 3px 0;
+.totals col.col-label {
+    width: auto;
 }
 
+.totals col.col-value {
+    width: 140px;
+}
+
+/* WICHTIG: gleiche padding wie bei .items */
+.totals td {
+    padding: 6px; /* statt 3px 0 */
+    border: none;
+}
+
+/* Label rechts, aber mit identischem Abstand zur Value-Spalte */
 .totals .label {
     text-align: right;
-    padding-right: 10px;
+    padding-right: 10px; /* wie bei dir, bleibt ok */
+    white-space: normal;
+    word-wrap: break-word;
 }
 
 .totals .value {
-    width: 140px;
     text-align: right;
     white-space: nowrap;
-    overflow-wrap: normal;
-    word-break: normal;
-    hyphens: none;
-    font-variant-numeric: tabular-nums;
+    word-wrap: normal;
+
+    /* sorgt dafür, dass der Betrag exakt wie in .items 6px vom rechten Rand steht */
+    padding-right: 6px;
 }
 
 .totals .grand td {

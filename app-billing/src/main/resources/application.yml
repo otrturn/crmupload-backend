@@ -10,3 +10,7 @@ app:
 spring:
   main:
     web-application-type: none
+
+logging:
+  level:
+    org.apache.pdfbox.pdmodel.font: ERROR

@@ -10,8 +10,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+import com.openhtmltopdf.outputdevice.helper.BaseRendererBuilder;
 
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.nio.file.Files;
@@ -51,10 +53,12 @@ public class GeneratePdfWithHtmlTemplate {
     /**
      * Rendert invoice.html via Thymeleaf und erzeugt daraus ein PDF (byte[]),
      * kompatibel zu deinem bisherigen Ablauf (Speichern im workdir + Rückgabe byte[]).
-     *
+     * <p>
      * Voraussetzungen:
      * - src/main/resources/templates/invoice.html
      * - src/main/resources/css/invoice.css (wird über baseUrl eingebunden)
+     * - src/main/resources/fonts/DejaVuSans.ttf
+     * - src/main/resources/fonts/DejaVuSans-Bold.ttf
      */
     public byte[] generatePDFForCustomer(InvoiceRecord invoiceRecord) throws BillingGeneratePDFException {
         try {
@@ -68,8 +72,27 @@ public class GeneratePdfWithHtmlTemplate {
             try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
                 PdfRendererBuilder builder = new PdfRendererBuilder();
 
-                // Base-URL muss auf den Ordner zeigen, in dem invoice.css liegt.
-                // In invoice.html steht: <link rel="stylesheet" href="invoice.css"/>
+                // ------------------------------------------------------------
+                // FONT EMBEDDING (revisionssicher + entfernt PDFBox "Symbol"-Fallback)
+                // ------------------------------------------------------------
+                // DejaVu Sans deckt Umlaute + € zuverlässig ab und wird eingebettet.
+                builder.useFont(() -> resource("/fonts/DejaVuSans.ttf"),
+                        "DejaVu Sans", 400, BaseRendererBuilder.FontStyle.NORMAL, true);
+
+                builder.useFont(() -> resource("/fonts/DejaVuSans-Bold.ttf"),
+                        "DejaVu Sans", 700, BaseRendererBuilder.FontStyle.NORMAL, true);
+
+                // WICHTIG: Base-14 "Symbol" auf echten TTF-Font mappen
+                // -> verhindert: "Using fallback font LiberationSans for base font Symbol"
+                builder.useFont(() -> resource("/fonts/DejaVuSans.ttf"),
+                        "Symbol", 400, BaseRendererBuilder.FontStyle.NORMAL, true);
+
+                // Optional (falls irgendwo "ZapfDingbats" auftaucht, gleiche Idee)
+                // builder.useFont(() -> resource("/fonts/DejaVuSans.ttf"),
+
+                // ------------------------------------------------------------
+                // CSS base URL: Ordner, in dem invoice.css liegt
+                // ------------------------------------------------------------
                 URL cssBase = getClass().getResource("/css/");
                 if (cssBase == null) {
                     throw new IllegalStateException("CSS base URL not found: /css/ (expected under src/main/resources/css/)");
@@ -82,7 +105,10 @@ public class GeneratePdfWithHtmlTemplate {
 
                 byte[] pdfBytes = out.toByteArray();
 
-                Files.write(Path.of(appBillingConfig.getWorkdir(), String.format("Rechnung_%06d.pdf", invoiceRecord.getInvoiceNo())), pdfBytes);
+                Files.write(
+                        Path.of(appBillingConfig.getWorkdir(), String.format("Rechnung_%06d.pdf", invoiceRecord.getInvoiceNo())),
+                        pdfBytes
+                );
 
                 return pdfBytes;
             }
@@ -90,6 +116,14 @@ public class GeneratePdfWithHtmlTemplate {
             log.error("generatePDFForCustomer (HTML Template)", e);
             throw new BillingGeneratePDFException("generatePDFForCustomer (HTML Template)", e);
         }
+    }
+
+    private static InputStream resource(String classpathLocation) {
+        InputStream in = GeneratePdfWithHtmlTemplate.class.getResourceAsStream(classpathLocation);
+        if (in == null) {
+            throw new IllegalStateException("Font resource not found on classpath: " + classpathLocation);
+        }
+        return in;
     }
 
     private Map<String, Object> buildModel(InvoiceRecord invoiceRecord) {

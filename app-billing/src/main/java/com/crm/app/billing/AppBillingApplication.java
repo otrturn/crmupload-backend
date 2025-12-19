@@ -3,8 +3,10 @@ package com.crm.app.billing;
 import com.crm.app.adapter.jdbc.config.AppDataSourceProperties;
 import com.crm.app.billing.proccess.GenerateInvoices;
 import com.crm.app.billing.proccess.MailInvoices;
+import com.openhtmltopdf.util.XRLog;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.ExitCodeGenerator;
 import org.springframework.boot.SpringApplication;
@@ -16,6 +18,14 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 @EnableConfigurationProperties({AppDataSourceProperties.class})
 @RequiredArgsConstructor
 public class AppBillingApplication implements CommandLineRunner, ExitCodeGenerator {
+
+    static {
+        SLF4JBridgeHandler.removeHandlersForRootLogger();
+        SLF4JBridgeHandler.install();
+
+        XRLog.setLoggingEnabled(false);
+
+    }
 
     private final GenerateInvoices generateInvoices;
     private final MailInvoices mailInvoices;

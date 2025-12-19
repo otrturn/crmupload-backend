@@ -28,7 +28,6 @@ public class GenerateInvoices {
     private final AppBillingConfig appBillingConfig;
     private final BillingRepositoryPort billingRepositoryPort;
     private final CustomerRepositoryPort customerRepositoryPort;
-    private final GeneratePDF generatePDF;
     private final GeneratePdfWithHtmlTemplate generatePdfWithHtmlTemplate;
 
     public void generateInvoices() {
