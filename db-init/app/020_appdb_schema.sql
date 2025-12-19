@@ -291,8 +291,8 @@ CREATE SEQUENCE app.sequence_customer_invoice
 
 CREATE TABLE IF NOT EXISTS app.customer_invoice
 (
+    invoice_id           TEXT        NOT NULL,
     customer_id          INT         NOT NULL,
-    invoice_no           TEXT        NOT NULL,
     invoice_date         TIMESTAMPTZ NOT NULL,
     invoice_due_date     TIMESTAMPTZ NOT NULL,
     invoice_mailing_date TIMESTAMPTZ,
@@ -308,7 +308,7 @@ CREATE TABLE IF NOT EXISTS app.customer_invoice
 );
 
 ALTER TABLE app.customer_invoice
-    ADD CONSTRAINT uq_customer_invoice_invoice_no UNIQUE (invoice_no);
+    ADD CONSTRAINT uq_customer_invoice_invoice_id UNIQUE (invoice_id);
 
 ALTER TABLE app.customer_invoice
     ADD CONSTRAINT fk_customer_invoice_customer_id

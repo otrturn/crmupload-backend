@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
@@ -30,27 +31,34 @@ public class GenerateInvoices {
     private final CustomerRepositoryPort customerRepositoryPort;
     private final GeneratePdfWithHtmlTemplate generatePdfWithHtmlTemplate;
 
+    private static final String DURATION_FORMAT_STRING = "Duration: %02d:%02d:%02d";
+
     public void generateInvoices() {
         log.info("Generate invoices ...");
         try {
+            Instant start = Instant.now();
             List<CustomerInvoiceData> customerInvoiceDataList = billingRepositoryPort.getCustomersWithProducts();
             log.info(String.format("%d costumers found", customerInvoiceDataList.size()));
+            Duration duration = Duration.between(start, Instant.now());
+            log.info(String.format(DURATION_FORMAT_STRING, duration.toHours(), duration.toMinutesPart(), duration.toSecondsPart()));
+
+            start = Instant.now();
             for (CustomerInvoiceData customerInvoiceData : customerInvoiceDataList) {
                 Optional<Customer> customer = customerRepositoryPort.findCustomerByCustomerId(customerInvoiceData.customerId());
                 if (customer.isPresent()) {
-                    long invoiceNo = billingRepositoryPort.nextInvoiceNo();
+                    long invoiceId = billingRepositoryPort.nextInvoiceId();
 
                     InvoiceRecord invoiceRecord = new InvoiceRecord();
                     invoiceRecord.setCustomerInvoiceData(customerInvoiceData);
                     invoiceRecord.setCustomer(customer.get());
-                    invoiceRecord.setInvoiceNo(invoiceNo);
+                    invoiceRecord.setInvoiceId(invoiceId);
                     invoiceRecord.setInvoiceDate(Timestamp.from(Instant.now()));
                     invoiceRecord.setInvoiceDueDate(Timestamp.from(
                             invoiceRecord.getInvoiceDate().toInstant()
                                     .atZone(ZoneId.systemDefault())
                                     .plusDays(10)
                                     .toInstant()));
-                    invoiceRecord.setInvoiceNoAsText(createInvoiceNumber(invoiceNo));
+                    invoiceRecord.setInvoiceNo(createInvoiceNumber(invoiceId));
                     setItemPrices(invoiceRecord);
                     byte[] invoiceImage = generatePdfWithHtmlTemplate.generatePDFForCustomer(invoiceRecord);
                     invoiceRecord.setInvoiceImage(invoiceImage);
@@ -60,6 +68,9 @@ public class GenerateInvoices {
                     log.error(String.format("Customer not found for customerId=%d", customerInvoiceData.customerId()));
                 }
             }
+            log.info(String.format("%d invoices generated", customerInvoiceDataList.size()));
+            duration = Duration.between(start, Instant.now());
+            log.info(String.format(DURATION_FORMAT_STRING, duration.toHours(), duration.toMinutesPart(), duration.toSecondsPart()));
         } catch (Exception e) {
             log.error("generateInvoices failed", e);
         }

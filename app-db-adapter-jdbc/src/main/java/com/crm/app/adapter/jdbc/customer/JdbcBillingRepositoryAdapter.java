@@ -20,16 +20,16 @@ import java.util.*;
 @Slf4j
 public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
 
-    private static final String SEQUENCE_INVOICE_NO = "app.sequence_customer_invoice";
-    private static final String SQL_INVOICE_NO =
-            "SELECT nextval('" + SEQUENCE_INVOICE_NO + "')";
+    private static final String SEQUENCE_INVOICE_ID = "app.sequence_customer_invoice";
+    private static final String SQL_INVOICE_ID =
+            "SELECT nextval('" + SEQUENCE_INVOICE_ID + "')";
 
+    private static final String LITERAL_INVOICE_ID_CAMELCASE = "invoiceId";
     private static final String LITERAL_CUSTOMER_ID = "customer_id";
     private static final String LITERAL_CUSTOMER_ID_CAMELCASE = "customerId";
     private static final String LITERAL_PRODUCT = "product";
     private static final String LITERAL_ACTIVATION_DATE = "activation_date";
     private static final String LITERAL_ACTIVATION_DATE_CAMELCASE = "activationDate";
-    private static final String LITERAL_INVOICE_NO_CAMELCASE = "invoiceNo";
     private static final String LITERAL_INVOICE_META_CAMELCASE = "invoiceMeta";
     private static final String LITERAL_INVOICE_IMAGE_CAMELCASE = "invoiceImage";
     private static final String LITERAL_TAX_VALUE_CAMELCASE = "taxValue";
@@ -152,20 +152,20 @@ public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
     }
 
     @Override
-    public long nextInvoiceNo() {
+    public long nextInvoiceId() {
         try {
-            final Long nextId = jdbc.queryForObject(SQL_INVOICE_NO, new MapSqlParameterSource(), Long.class);
+            final Long nextId = jdbc.queryForObject(SQL_INVOICE_ID, new MapSqlParameterSource(), Long.class);
 
-            final Long nonNullNextId = Objects.requireNonNull(nextId, "Sequence " + SEQUENCE_INVOICE_NO + " returned null");
+            final Long nonNullNextId = Objects.requireNonNull(nextId, "Sequence " + SEQUENCE_INVOICE_ID + " returned null");
 
             if (log.isDebugEnabled()) {
-                log.debug(String.format("Generated next invoiceNo id: %d", nonNullNextId));
+                log.debug(String.format("Generated next invoiceId id: %d", nonNullNextId));
             }
 
             return nonNullNextId;
         } catch (DataAccessException ex) {
-            log.error(String.format("Failed to obtain next invoiceNo id from sequence %s", SEQUENCE_INVOICE_NO), ex);
-            throw new IllegalStateException("Could not retrieve next invoiceNo id", ex);
+            log.error(String.format("Failed to obtain next invoiceId id from sequence %s", SEQUENCE_INVOICE_ID), ex);
+            throw new IllegalStateException("Could not retrieve next invoiceId id", ex);
         }
     }
 
@@ -191,8 +191,8 @@ public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
 
         String sql = """
                 INSERT INTO app.customer_invoice (
+                    invoice_id,
                     customer_id,
-                    invoice_no,
                     invoice_date,
                     invoice_due_date,
                     tax_value,
@@ -204,8 +204,8 @@ public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
                     submitted_to_agency
                 )
                 VALUES (
+                    :invoiceId,
                     :customerId,
-                    :invoiceNo,
                     :invoiceDate,
                     :invoiceDueDate,
                     :taxValue,
@@ -219,8 +219,8 @@ public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
                 """;
 
         MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue(LITERAL_INVOICE_ID_CAMELCASE, invoiceRecord.getInvoiceId())
                 .addValue(LITERAL_CUSTOMER_ID_CAMELCASE, invoiceRecord.getCustomerInvoiceData().customerId())
-                .addValue(LITERAL_INVOICE_NO_CAMELCASE, invoiceRecord.getInvoiceNoAsText())
                 .addValue(LITERAL_INVOICE_DATE_CAMELCASE, invoiceRecord.getInvoiceDate())
                 .addValue(LITERAL_INVOICE_DUE_DATE_CAMELCASE, invoiceRecord.getInvoiceDueDate())
                 .addValue(LITERAL_TAX_VALUE_CAMELCASE, invoiceRecord.getTaxValue())

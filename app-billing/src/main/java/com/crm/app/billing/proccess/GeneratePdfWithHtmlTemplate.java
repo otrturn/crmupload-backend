@@ -5,12 +5,12 @@ import com.crm.app.billing.error.BillingGeneratePDFException;
 import com.crm.app.dto.Customer;
 import com.crm.app.dto.CustomerProduct;
 import com.crm.app.dto.InvoiceRecord;
+import com.openhtmltopdf.outputdevice.helper.BaseRendererBuilder;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
-import com.openhtmltopdf.outputdevice.helper.BaseRendererBuilder;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -106,7 +106,7 @@ public class GeneratePdfWithHtmlTemplate {
                 byte[] pdfBytes = out.toByteArray();
 
                 Files.write(
-                        Path.of(appBillingConfig.getWorkdir(), String.format("Rechnung_%06d.pdf", invoiceRecord.getInvoiceNo())),
+                        Path.of(appBillingConfig.getWorkdir(), String.format("Rechnung_%06d.pdf", invoiceRecord.getInvoiceId())),
                         pdfBytes
                 );
 
@@ -157,7 +157,7 @@ public class GeneratePdfWithHtmlTemplate {
         // -------- invoice --------
         Map<String, Object> invoice = new LinkedHashMap<>();
         invoice.put("customerNumber", c.customerNumber());
-        invoice.put("invoiceNo", invoiceRecord.getInvoiceNoAsText());
+        invoice.put("invoiceNo", invoiceRecord.getInvoiceNo());
         invoice.put("invoiceDate", df.format(invoiceRecord.getInvoiceDate().toInstant()));
         invoice.put("serviceDate", df.format(c.activationDate().toInstant()));
         invoice.put("dueDate", df.format(invoiceRecord.getInvoiceDueDate().toInstant()));

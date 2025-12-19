@@ -13,10 +13,10 @@ import java.util.Arrays;
 public class InvoiceRecord {
     private CustomerInvoiceData customerInvoiceData;
     private Customer customer;
-    private long invoiceNo;
+    private long invoiceId;
     private Timestamp invoiceDate;
     private Timestamp invoiceDueDate;
-    private String invoiceNoAsText;
+    private String invoiceNo;
     private BigDecimal taxValue;
     private BigDecimal taxAmount;
     private BigDecimal netAmount;
@@ -27,20 +27,20 @@ public class InvoiceRecord {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof InvoiceRecord other)) return false;
-        return java.util.Objects.equals(invoiceNoAsText, other.invoiceNoAsText)
+        return java.util.Objects.equals(invoiceNo, other.invoiceNo)
                 && Arrays.equals(invoiceImage, other.invoiceImage);
     }
 
     @Override
     public int hashCode() {
-        int result = java.util.Objects.hash(invoiceNoAsText);
+        int result = java.util.Objects.hash(invoiceNo);
         result = 31 * result + Arrays.hashCode(invoiceImage);
         return result;
     }
 
     public @NotNull String toString() {
         return "InvoiceRecord[" +
-                "invoiceNo=" + invoiceNoAsText +
+                "invoiceId=" + invoiceId +
                 ", invoiceImage=" + (invoiceImage == null ? "null" : ("byte[" + invoiceImage.length + "]")) +
                 ']';
     }

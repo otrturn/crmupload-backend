@@ -12,7 +12,7 @@ public interface BillingRepositoryPort {
 
     List<CustomerInvoiceData> getCustomersWithProducts();
 
-    long nextInvoiceNo();
+    long nextInvoiceId();
 
     void insertInvoiceRecord(InvoiceRecord invoiceRecord);
 }
