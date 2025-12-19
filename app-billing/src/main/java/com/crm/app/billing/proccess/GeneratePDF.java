@@ -73,9 +73,9 @@ public class GeneratePDF {
     private void setDocumentHeaderInformation(PDDocument document, InvoiceRecord invoiceRecord) {
         PDDocumentInformation pdd = document.getDocumentInformation();
         pdd.setAuthor(NAME_OF_COMPANY);
-        pdd.setTitle(LITERAL_RECHNUNG + invoiceRecord.getInvoiceNoText() + " für " + getFullname(invoiceRecord.getCustomer()));
+        pdd.setTitle(LITERAL_RECHNUNG + invoiceRecord.getInvoiceNoAsText() + " für " + getFullname(invoiceRecord.getCustomer()));
         pdd.setCreator(NAME_OF_COMPANY);
-        pdd.setSubject(LITERAL_RECHNUNG + invoiceRecord.getInvoiceNoText() + " für " + getFullname(invoiceRecord.getCustomer()));
+        pdd.setSubject(LITERAL_RECHNUNG + invoiceRecord.getInvoiceNoAsText() + " für " + getFullname(invoiceRecord.getCustomer()));
         Calendar date = new GregorianCalendar();
         date.setTime(new Date());
         pdd.setCreationDate(date);
@@ -157,7 +157,7 @@ public class GeneratePDF {
         contentStream.beginText();
         contentStream.setFont(new PDType1Font(Standard14Fonts.FontName.TIMES_ROMAN), 12);
         contentStream.newLineAtOffset(150, y);
-        contentStream.showText(invoiceRecord.getInvoiceNoText());
+        contentStream.showText(invoiceRecord.getInvoiceNoAsText());
         contentStream.endText();
 
         y -= 20;
@@ -173,7 +173,7 @@ public class GeneratePDF {
         contentStream.showText(DateTimeFormatter
                 .ofPattern(DATE_FORMAT)
                 .withZone(ZoneId.systemDefault())
-                .format(invoiceRecord.getBillingDate().toInstant()));
+                .format(invoiceRecord.getInvoiceDate().toInstant()));
         contentStream.endText();
 
         y -= 20;
@@ -186,7 +186,7 @@ public class GeneratePDF {
         contentStream.beginText();
         contentStream.setFont(new PDType1Font(Standard14Fonts.FontName.TIMES_ROMAN), 12);
         contentStream.newLineAtOffset(150, y);
-        contentStream.showText(LITERAL_RECHNUNG + invoiceRecord.getInvoiceNoText());
+        contentStream.showText(LITERAL_RECHNUNG + invoiceRecord.getInvoiceNoAsText());
         contentStream.endText();
 
     }
@@ -226,7 +226,7 @@ public class GeneratePDF {
         String text;
         float textWidth;
 
-        for (CustomerProduct customerProduct : invoiceRecord.getCustomerBillingData().products()) {
+        for (CustomerProduct customerProduct : invoiceRecord.getCustomerInvoiceData().products()) {
             contentStream.beginText();
             contentStream.setFont(new PDType1Font(Standard14Fonts.FontName.TIMES_BOLD), 12);
             contentStream.newLineAtOffset(30, y);
@@ -335,7 +335,7 @@ public class GeneratePDF {
                 DateTimeFormatter
                         .ofPattern(DATE_FORMAT)
                         .withZone(ZoneId.systemDefault())
-                        .format(invoiceRecord.getDueDate().toInstant())));
+                        .format(invoiceRecord.getInvoideDueDate().toInstant())));
         contentStream.endText();
     }
 

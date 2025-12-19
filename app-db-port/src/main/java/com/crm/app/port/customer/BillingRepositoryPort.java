@@ -1,6 +1,6 @@
 package com.crm.app.port.customer;
 
-import com.crm.app.dto.CustomerBillingData;
+import com.crm.app.dto.CustomerInvoiceData;
 import com.crm.app.dto.InvoiceRecord;
 
 import java.util.List;
@@ -8,9 +8,9 @@ import java.util.Optional;
 
 public interface BillingRepositoryPort {
 
-    Optional<CustomerBillingData> getCustomerProductsByCustomerId(long customerId);
+    Optional<CustomerInvoiceData> getCustomerProductsByCustomerId(long customerId);
 
-    List<CustomerBillingData> getCustomersWithProducts();
+    List<CustomerInvoiceData> getCustomersWithProducts();
 
     long nextInvoiceNo();
 

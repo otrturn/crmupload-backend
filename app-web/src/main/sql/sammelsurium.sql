@@ -31,11 +31,11 @@ from app.customer_product
 order by customer_id;
 
 select *
-from app.customer_billing
+from app.customer_invoice
 order by customer_id;
 
 delete
-from app.customer_billing;
+from app.customer_invoice;
 commit;
 
 update app.customer
@@ -67,7 +67,7 @@ FROM app.crm_upload cu
 WHERE c.email_address = 'ralf+0@test.de'
 ORDER BY cu.created DESC;
 
-update app.customer_billing
+update app.customer_invoice
 set submitted_to_billing=null;
 commit;
 

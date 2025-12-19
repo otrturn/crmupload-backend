@@ -1,6 +1,6 @@
 package com.crm.app.adapter.jdbc.customer;
 
-import com.crm.app.dto.CustomerBillingData;
+import com.crm.app.dto.CustomerInvoiceData;
 import com.crm.app.dto.CustomerProduct;
 import com.crm.app.dto.InvoiceRecord;
 import com.crm.app.port.customer.BillingRepositoryPort;
@@ -20,7 +20,7 @@ import java.util.*;
 @Slf4j
 public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
 
-    private static final String SEQUENCE_INVOICE_NO = "app.sequence_customer_billing";
+    private static final String SEQUENCE_INVOICE_NO = "app.sequence_customer_invoice";
     private static final String SQL_INVOICE_NO =
             "SELECT nextval('" + SEQUENCE_INVOICE_NO + "')";
 
@@ -30,14 +30,14 @@ public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
     private static final String LITERAL_ACTIVATION_DATE = "activation_date";
     private static final String LITERAL_ACTIVATION_DATE_CAMELCASE = "activationDate";
     private static final String LITERAL_INVOICE_NO_CAMELCASE = "invoiceNo";
-    private static final String LITERAL_BILLING_META_CAMELCASE = "billingMeta";
+    private static final String LITERAL_INVOICE_META_CAMELCASE = "invoiceMeta";
     private static final String LITERAL_INVOICE_IMAGE_CAMELCASE = "invoiceImage";
     private static final String LITERAL_TAX_VALUE_CAMELCASE = "taxValue";
     private static final String LITERAL_TAX_AMOUNT_CAMELCASE = "taxAmount";
     private static final String LITERAL_NET_AMOUNT_CAMELCASE = "netAmount";
     private static final String LITERAL_AMOUNT_CAMELCASE = "amount";
-    private static final String LITERAL_BILLING_DATE_CAMELCASE = "billingDate";
-    private static final String LITERAL_DUE_DATE_CAMELCASE = "dueDate";
+    private static final String LITERAL_INVOICE_DATE_CAMELCASE = "invoiceDate";
+    private static final String LITERAL_INVOICE_DUE_DATE_CAMELCASE = "invoiceDueDate";
 
     private final NamedParameterJdbcTemplate jdbc;
     private final ObjectMapper objectMapper;
@@ -48,7 +48,7 @@ public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
     }
 
     @Override
-    public Optional<CustomerBillingData> getCustomerProductsByCustomerId(long customerId) {
+    public Optional<CustomerInvoiceData> getCustomerProductsByCustomerId(long customerId) {
 
         String sql = """
                 SELECT
@@ -59,9 +59,9 @@ public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
                 WHERE cp.customer_id = :customerId
                   AND NOT EXISTS (
                     SELECT 1
-                    FROM app.customer_billing cb
+                    FROM app.customer_invoice cb
                     WHERE cb.customer_id = cp.customer_id
-                      AND COALESCE(cb.billing_meta->'products', '[]'::jsonb)
+                      AND COALESCE(cb.invoice_meta->'products', '[]'::jsonb)
                           ? upper(cp.product)
                   )
                 ORDER BY cp.product
@@ -92,11 +92,11 @@ public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
             ));
         }
 
-        return Optional.of(new CustomerBillingData(cid, products));
+        return Optional.of(new CustomerInvoiceData(cid, products));
     }
 
     @Override
-    public List<CustomerBillingData> getCustomersWithProducts() {
+    public List<CustomerInvoiceData> getCustomersWithProducts() {
         String sql = """
                 SELECT
                   cp.customer_id,
@@ -105,9 +105,9 @@ public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
                 FROM app.customer_product cp
                 WHERE NOT EXISTS (
                   SELECT 1
-                  FROM app.customer_billing cb
+                  FROM app.customer_invoice cb
                     WHERE cb.customer_id = cp.customer_id
-                      AND COALESCE(cb.billing_meta->'products', '[]'::jsonb)
+                      AND COALESCE(cb.invoice_meta->'products', '[]'::jsonb)
                           @> jsonb_build_array(jsonb_build_object('product', upper(cp.product)))
                 )
                 ORDER BY cp.customer_id, cp.product
@@ -132,10 +132,10 @@ public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
         }
 
         // Mapping auf CustomerBillingData
-        List<CustomerBillingData> result = new ArrayList<>();
+        List<CustomerInvoiceData> result = new ArrayList<>();
 
         for (Map.Entry<Long, List<CustomerProduct>> entry : grouped.entrySet()) {
-            result.add(new CustomerBillingData(
+            result.add(new CustomerInvoiceData(
                     entry.getKey(),
                     entry.getValue()
             ));
@@ -172,7 +172,7 @@ public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
     @Override
     public void insertInvoiceRecord(InvoiceRecord invoiceRecord) {
 
-        List<CustomerProduct> products = invoiceRecord.getCustomerBillingData().products().stream()
+        List<CustomerProduct> products = invoiceRecord.getCustomerInvoiceData().products().stream()
                 .filter(p -> p != null && p.getProduct() != null && !p.getProduct().isBlank())
                 .map(p -> {
                     CustomerProduct copy = new CustomerProduct(
@@ -190,44 +190,44 @@ public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
         String billingMetaJson = toBillingMetaJson(products);
 
         String sql = """
-                INSERT INTO app.customer_billing (
+                INSERT INTO app.customer_invoice (
                     customer_id,
                     invoice_no,
-                    billing_date,
-                    due_date,
+                    invoice_date,
+                    invoice_due_date,
                     tax_value,
                     tax_amount,
                     net_amount,
                     amount,
-                    billing_meta,
+                    invoice_meta,
                     invoice_image,
                     submitted_to_agency
                 )
                 VALUES (
                     :customerId,
                     :invoiceNo,
-                    :billingDate,
-                    :dueDate,
+                    :invoiceDate,
+                    :invoiceDueDate,
                     :taxValue,
                     :taxAmount,
                     :netAmount,
                     :amount,
-                    :billingMeta::jsonb,
+                    :invoiceMeta::jsonb,
                     :invoiceImage,
                     NULL
                 )
                 """;
 
         MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue(LITERAL_CUSTOMER_ID_CAMELCASE, invoiceRecord.getCustomerBillingData().customerId())
-                .addValue(LITERAL_INVOICE_NO_CAMELCASE, invoiceRecord.getInvoiceNoText())
-                .addValue(LITERAL_BILLING_DATE_CAMELCASE, invoiceRecord.getBillingDate())
-                .addValue(LITERAL_DUE_DATE_CAMELCASE, invoiceRecord.getDueDate())
+                .addValue(LITERAL_CUSTOMER_ID_CAMELCASE, invoiceRecord.getCustomerInvoiceData().customerId())
+                .addValue(LITERAL_INVOICE_NO_CAMELCASE, invoiceRecord.getInvoiceNoAsText())
+                .addValue(LITERAL_INVOICE_DATE_CAMELCASE, invoiceRecord.getInvoiceDate())
+                .addValue(LITERAL_INVOICE_DUE_DATE_CAMELCASE, invoiceRecord.getInvoideDueDate())
                 .addValue(LITERAL_TAX_VALUE_CAMELCASE, invoiceRecord.getTaxValue())
                 .addValue(LITERAL_TAX_AMOUNT_CAMELCASE, invoiceRecord.getTaxAmount())
                 .addValue(LITERAL_NET_AMOUNT_CAMELCASE, invoiceRecord.getNetAmount())
                 .addValue(LITERAL_AMOUNT_CAMELCASE, invoiceRecord.getAmount())
-                .addValue(LITERAL_BILLING_META_CAMELCASE, billingMetaJson, Types.OTHER)
+                .addValue(LITERAL_INVOICE_META_CAMELCASE, billingMetaJson, Types.OTHER)
                 .addValue(LITERAL_INVOICE_IMAGE_CAMELCASE, invoiceRecord.getInvoiceImage());
 
         jdbc.update(sql, params);
@@ -254,7 +254,7 @@ public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
         try {
             return objectMapper.writeValueAsString(meta);
         } catch (JsonProcessingException e) {
-            throw new IllegalStateException("Failed to serialize billing_meta JSON", e);
+            throw new IllegalStateException("Failed to serialize invoice_meta JSON", e);
         }
     }
 }

@@ -280,22 +280,22 @@ ALTER TABLE app.duplicate_check_observation
             ON DELETE RESTRICT;
 
 -- ****************************************************************************************************
--- customer_billing
+-- customer_invoice
 -- ****************************************************************************************************
-CREATE SEQUENCE app.sequence_customer_billing
+CREATE SEQUENCE app.sequence_customer_invoice
     START WITH 1
     INCREMENT BY 1
     MINVALUE 1
     NO MAXVALUE
     CACHE 1;
 
-CREATE TABLE IF NOT EXISTS app.customer_billing
+CREATE TABLE IF NOT EXISTS app.customer_invoice
 (
     customer_id         INT         NOT NULL,
     invoice_no          TEXT        NOT NULL,
-    billing_date        TIMESTAMPTZ NOT NULL,
-    due_date            TIMESTAMPTZ NOT NULL,
-    billing_meta        jsonb       NOT NULL DEFAULT '{}'::jsonb,
+    invoice_date        TIMESTAMPTZ NOT NULL,
+    invoice_due_date    TIMESTAMPTZ NOT NULL,
+    invoice_meta        jsonb       NOT NULL DEFAULT '{}'::jsonb,
     invoice_image       BYTEA       NOT NULL,
     submitted_to_agency TIMESTAMPTZ,
     tax_value           NUMERIC     NOT NULL,
@@ -306,18 +306,18 @@ CREATE TABLE IF NOT EXISTS app.customer_billing
     modified            TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-ALTER TABLE app.customer_billing
-    ADD CONSTRAINT uq_customer_billing_invoice_no UNIQUE (invoice_no);
+ALTER TABLE app.customer_invoice
+    ADD CONSTRAINT uq_customer_invoice_invoice_no UNIQUE (invoice_no);
 
-ALTER TABLE app.customer_billing
-    ADD CONSTRAINT fk_customer_billing_customer_id
+ALTER TABLE app.customer_invoice
+    ADD CONSTRAINT fk_customer_invoice_customer_id
         FOREIGN KEY (customer_id)
             REFERENCES app.customer (customer_id)
             ON DELETE RESTRICT;
 
-CREATE INDEX IF NOT EXISTS idx_customer_billing_products
-    ON app.customer_billing
-        USING gin ((billing_meta -> 'products'));
+CREATE INDEX IF NOT EXISTS idx_customer_invoice_products
+    ON app.customer_invoice
+        USING gin ((invoice_meta -> 'products'));
 
 -- ****************************************************************************************************
 -- page_visits

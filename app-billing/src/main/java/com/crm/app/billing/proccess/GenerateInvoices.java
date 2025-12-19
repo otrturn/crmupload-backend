@@ -3,7 +3,7 @@ package com.crm.app.billing.proccess;
 import com.crm.app.billing.config.AppBillingConfig;
 import com.crm.app.billing.util.BillingRules;
 import com.crm.app.dto.Customer;
-import com.crm.app.dto.CustomerBillingData;
+import com.crm.app.dto.CustomerInvoiceData;
 import com.crm.app.dto.CustomerProduct;
 import com.crm.app.dto.InvoiceRecord;
 import com.crm.app.port.customer.BillingRepositoryPort;
@@ -34,32 +34,32 @@ public class GenerateInvoices {
     public void generateInvoices() {
         log.info("Generate invoices ...");
         try {
-            List<CustomerBillingData> customerBillingDataList = billingRepositoryPort.getCustomersWithProducts();
-            log.info(String.format("%d costumers found", customerBillingDataList.size()));
-            for (CustomerBillingData customerBillingData : customerBillingDataList) {
-                Optional<Customer> customer = customerRepositoryPort.findCustomerByCustomerId(customerBillingData.customerId());
+            List<CustomerInvoiceData> customerInvoiceDataList = billingRepositoryPort.getCustomersWithProducts();
+            log.info(String.format("%d costumers found", customerInvoiceDataList.size()));
+            for (CustomerInvoiceData customerInvoiceData : customerInvoiceDataList) {
+                Optional<Customer> customer = customerRepositoryPort.findCustomerByCustomerId(customerInvoiceData.customerId());
                 if (customer.isPresent()) {
                     long invoiceNo = billingRepositoryPort.nextInvoiceNo();
 
                     int year = Year.now(ZoneId.of("Europe/Berlin")).getValue();
                     InvoiceRecord invoiceRecord = new InvoiceRecord();
-                    invoiceRecord.setCustomerBillingData(customerBillingData);
+                    invoiceRecord.setCustomerInvoiceData(customerInvoiceData);
                     invoiceRecord.setCustomer(customer.get());
                     invoiceRecord.setInvoiceNo(invoiceNo);
-                    invoiceRecord.setBillingDate(Timestamp.from(Instant.now()));
-                    invoiceRecord.setDueDate(Timestamp.from(
-                            invoiceRecord.getBillingDate().toInstant()
+                    invoiceRecord.setInvoiceDate(Timestamp.from(Instant.now()));
+                    invoiceRecord.setInvoideDueDate(Timestamp.from(
+                            invoiceRecord.getInvoiceDate().toInstant()
                                     .atZone(ZoneId.systemDefault())
                                     .plusDays(10)
                                     .toInstant()));
-                    invoiceRecord.setInvoiceNoText(String.format("%04d-%06d", year, invoiceNo));
+                    invoiceRecord.setInvoiceNoAsText(String.format("%04d-%06d", year, invoiceNo));
                     setItemPrices(invoiceRecord);
                     byte[] invoiceImage = generatePDF.generatePDFForCustomer(invoiceRecord);
                     invoiceRecord.setInvoiceImage(invoiceImage);
 
                     billingRepositoryPort.insertInvoiceRecord(invoiceRecord);
                 } else {
-                    log.error(String.format("Customer not found for customerId=%d", customerBillingData.customerId()));
+                    log.error(String.format("Customer not found for customerId=%d", customerInvoiceData.customerId()));
                 }
             }
         } catch (Exception e) {
@@ -69,7 +69,7 @@ public class GenerateInvoices {
 
     private void setItemPrices(InvoiceRecord invoiceRecord) {
 
-        List<CustomerProduct> products = invoiceRecord.getCustomerBillingData().products();
+        List<CustomerProduct> products = invoiceRecord.getCustomerInvoiceData().products();
         BigDecimal price = products.size() == 1 ? BigDecimal.valueOf(250) : BigDecimal.valueOf(200);
         BigDecimal taxValue = new BigDecimal("0.19");
 
