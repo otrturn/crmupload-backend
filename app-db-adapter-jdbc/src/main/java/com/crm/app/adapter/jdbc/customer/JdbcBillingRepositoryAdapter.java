@@ -36,8 +36,8 @@ public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
     private static final String LITERAL_TAX_AMOUNT_CAMELCASE = "taxAmount";
     private static final String LITERAL_NET_AMOUNT_CAMELCASE = "netAmount";
     private static final String LITERAL_AMOUNT_CAMELCASE = "amount";
-    private static final String LITERAL_BILLING_DATE_CAMELCASE="billingDate";
-    private static final String LITERAL_DUE_DATE_CAMELCASE="dueDate";
+    private static final String LITERAL_BILLING_DATE_CAMELCASE = "billingDate";
+    private static final String LITERAL_DUE_DATE_CAMELCASE = "dueDate";
 
     private final NamedParameterJdbcTemplate jdbc;
     private final ObjectMapper objectMapper;

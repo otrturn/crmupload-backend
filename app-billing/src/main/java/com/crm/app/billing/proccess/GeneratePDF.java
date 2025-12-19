@@ -40,6 +40,7 @@ public class GeneratePDF {
     private static final String VAT_ID_NUMBER_OF_COMPANY = "USt-Id-Nummer DE 244 3344 16";
     private static final String FORMAT_TWO_DECIMALS = "€%.2f";
     private static final String DATE_FORMAT = "dd.MM.yyyy";
+    private static final String LITERAL_RECHNUNG = "Rechnung ";
 
     public GeneratePDF(AppBillingConfig appBillingConfig) {
         this.appBillingConfig = appBillingConfig;
@@ -72,9 +73,9 @@ public class GeneratePDF {
     private void setDocumentHeaderInformation(PDDocument document, InvoiceRecord invoiceRecord) {
         PDDocumentInformation pdd = document.getDocumentInformation();
         pdd.setAuthor(NAME_OF_COMPANY);
-        pdd.setTitle("Rechnung " + invoiceRecord.getInvoiceNoText() + " für " + getFullname(invoiceRecord.getCustomer()));
+        pdd.setTitle(LITERAL_RECHNUNG + invoiceRecord.getInvoiceNoText() + " für " + getFullname(invoiceRecord.getCustomer()));
         pdd.setCreator(NAME_OF_COMPANY);
-        pdd.setSubject("Rechnung " + invoiceRecord.getInvoiceNoText() + " für " + getFullname(invoiceRecord.getCustomer()));
+        pdd.setSubject(LITERAL_RECHNUNG + invoiceRecord.getInvoiceNoText() + " für " + getFullname(invoiceRecord.getCustomer()));
         Calendar date = new GregorianCalendar();
         date.setTime(new Date());
         pdd.setCreationDate(date);
@@ -185,7 +186,7 @@ public class GeneratePDF {
         contentStream.beginText();
         contentStream.setFont(new PDType1Font(Standard14Fonts.FontName.TIMES_ROMAN), 12);
         contentStream.newLineAtOffset(150, y);
-        contentStream.showText("Rechnung " + invoiceRecord.getInvoiceNoText());
+        contentStream.showText(LITERAL_RECHNUNG + invoiceRecord.getInvoiceNoText());
         contentStream.endText();
 
     }
