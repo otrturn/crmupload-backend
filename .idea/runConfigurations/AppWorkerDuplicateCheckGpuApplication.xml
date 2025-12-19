@@ -1,0 +1,9 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="AppWorkerDuplicateCheckGpuApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+    <module name="app-worker-duplicate-check-gpu" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="com.crm.app.worker_duplicate_check_gpu.AppWorkerDuplicateCheckGpuApplication" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

@@ -48,54 +48,6 @@ public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
     }
 
     @Override
-    public Optional<CustomerInvoiceData> getCustomerProductsByCustomerId(long customerId) {
-
-        String sql = """
-                SELECT
-                  cp.customer_id,
-                  cp.product,
-                  cp.activation_date
-                FROM app.customer_product cp
-                WHERE cp.customer_id = :customerId
-                  AND NOT EXISTS (
-                    SELECT 1
-                    FROM app.customer_invoice cb
-                    WHERE cb.customer_id = cp.customer_id
-                      AND COALESCE(cb.invoice_meta->'products', '[]'::jsonb)
-                          ? upper(cp.product)
-                  )
-                ORDER BY cp.product
-                """;
-
-        MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue(LITERAL_CUSTOMER_ID_CAMELCASE, customerId);
-
-        List<Row> rows = jdbc.query(sql, params, (rs, rowNum) ->
-                new Row(
-                        rs.getLong(LITERAL_CUSTOMER_ID),
-                        rs.getString(LITERAL_PRODUCT),
-                        rs.getTimestamp(LITERAL_ACTIVATION_DATE)
-                )
-        );
-
-        if (rows.isEmpty()) {
-            return Optional.empty();
-        }
-
-        Long cid = rows.get(0).customerId();
-        List<CustomerProduct> products = new ArrayList<>();
-
-        for (Row r : rows) {
-            products.add(new CustomerProduct(
-                    r.product(),
-                    r.activationDate()
-            ));
-        }
-
-        return Optional.of(new CustomerInvoiceData(cid, products));
-    }
-
-    @Override
     public List<CustomerInvoiceData> getCustomersWithProducts() {
         String sql = """
                 SELECT
@@ -103,12 +55,17 @@ public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
                   cp.product,
                   cp.activation_date
                 FROM app.customer_product cp
+                JOIN app.customer c
+                  ON c.customer_id = cp.customer_id
+                 AND c.activation_date IS NOT NULL
                 WHERE NOT EXISTS (
                   SELECT 1
                   FROM app.customer_invoice ci
-                    WHERE ci.customer_id = cp.customer_id
-                      AND COALESCE(ci.invoice_meta->'products', '[]'::jsonb)
-                          @> jsonb_build_array(jsonb_build_object('product', upper(cp.product)))
+                  WHERE ci.customer_id = cp.customer_id
+                    AND COALESCE(ci.invoice_meta->'products', '[]'::jsonb)
+                        @> jsonb_build_array(
+                               jsonb_build_object('product', upper(cp.product))
+                           )
                 )
                 ORDER BY cp.customer_id, cp.product
                 """;

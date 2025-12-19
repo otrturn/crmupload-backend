@@ -15,10 +15,4 @@ from app.duplicate_check
 group by status
 order by tag, status;
 
-SELECT count(distinct cp.customer_id)
-FROM app.customer_product cp
-WHERE NOT EXISTS (SELECT 1
-                  FROM app.customer_invoice ci
-                  WHERE ci.customer_id = cp.customer_id
-                    AND COALESCE(ci.invoice_meta -> 'products', '[]'::jsonb)
-                      @> jsonb_build_array(jsonb_build_object('product', upper(cp.product))));
+SELECT * FROM app.kpi_open_products_revenue();

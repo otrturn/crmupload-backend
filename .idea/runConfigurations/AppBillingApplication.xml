@@ -1,0 +1,16 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="AppBillingApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+    <module name="app-billing" />
+    <option name="PROGRAM_PARAMETERS" value="--generateInvoices" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="com.crm.app.billing.AppBillingApplication" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="com.crm.app.billing.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
