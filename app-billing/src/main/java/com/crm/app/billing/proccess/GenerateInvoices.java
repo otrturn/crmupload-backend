@@ -15,10 +15,11 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.time.Year;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
+
+import static com.crm.app.util.IdentityNumberCreator.createInvoiceNumber;
 
 @Slf4j
 @Service
@@ -41,7 +42,6 @@ public class GenerateInvoices {
                 if (customer.isPresent()) {
                     long invoiceNo = billingRepositoryPort.nextInvoiceNo();
 
-                    int year = Year.now(ZoneId.of("Europe/Berlin")).getValue();
                     InvoiceRecord invoiceRecord = new InvoiceRecord();
                     invoiceRecord.setCustomerInvoiceData(customerInvoiceData);
                     invoiceRecord.setCustomer(customer.get());
@@ -52,7 +52,7 @@ public class GenerateInvoices {
                                     .atZone(ZoneId.systemDefault())
                                     .plusDays(10)
                                     .toInstant()));
-                    invoiceRecord.setInvoiceNoAsText(String.format("%04d-%06d", year, invoiceNo));
+                    invoiceRecord.setInvoiceNoAsText(createInvoiceNumber(invoiceNo));
                     setItemPrices(invoiceRecord);
                     byte[] invoiceImage = generatePDF.generatePDFForCustomer(invoiceRecord);
                     invoiceRecord.setInvoiceImage(invoiceImage);

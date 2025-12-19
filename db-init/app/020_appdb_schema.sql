@@ -291,19 +291,20 @@ CREATE SEQUENCE app.sequence_customer_invoice
 
 CREATE TABLE IF NOT EXISTS app.customer_invoice
 (
-    customer_id         INT         NOT NULL,
-    invoice_no          TEXT        NOT NULL,
-    invoice_date        TIMESTAMPTZ NOT NULL,
-    invoice_due_date    TIMESTAMPTZ NOT NULL,
-    invoice_meta        jsonb       NOT NULL DEFAULT '{}'::jsonb,
-    invoice_image       BYTEA       NOT NULL,
-    submitted_to_agency TIMESTAMPTZ,
-    tax_value           NUMERIC     NOT NULL,
-    tax_amount          NUMERIC     NOT NULL,
-    net_amount          NUMERIC     NOT NULL,
-    amount              NUMERIC     NOT NULL,
-    created             TIMESTAMPTZ NOT NULL DEFAULT now(),
-    modified            TIMESTAMPTZ NOT NULL DEFAULT now()
+    customer_id          INT         NOT NULL,
+    invoice_no           TEXT        NOT NULL,
+    invoice_date         TIMESTAMPTZ NOT NULL,
+    invoice_due_date     TIMESTAMPTZ NOT NULL,
+    invoice_mailing_date TIMESTAMPTZ,
+    invoice_meta         jsonb       NOT NULL DEFAULT '{}'::jsonb,
+    invoice_image        BYTEA       NOT NULL,
+    submitted_to_agency  TIMESTAMPTZ,
+    tax_value            NUMERIC     NOT NULL,
+    tax_amount           NUMERIC     NOT NULL,
+    net_amount           NUMERIC     NOT NULL,
+    amount               NUMERIC     NOT NULL,
+    created              TIMESTAMPTZ NOT NULL DEFAULT now(),
+    modified             TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 ALTER TABLE app.customer_invoice

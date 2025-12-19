@@ -12,8 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Year;
-import java.time.ZoneId;
+import static com.crm.app.util.IdentityNumberCreator.createCustomerNumber;
 
 @Service
 @RequiredArgsConstructor
@@ -38,10 +37,9 @@ public class CustomerRegistrationService {
 
         long customerId = customerRepository.nextCustomerId();
 
-        int year = Year.now(ZoneId.of("Europe/Berlin")).getValue();
         Customer customer = new Customer(
                 customerId,
-                String.format("KD-%04d-%06d", year, customerId),
+                createCustomerNumber(customerId),
                 accountResult.userId(),
                 request.firstname(),
                 request.lastname(),

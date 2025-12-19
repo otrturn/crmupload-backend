@@ -146,7 +146,20 @@ public class GeneratePDF {
     }
 
     private void setInvoiceHeader(PDPageContentStream contentStream, InvoiceRecord invoiceRecord) throws IOException {
-        int y = 700;
+        int y = 710;
+
+        contentStream.beginText();
+        contentStream.setFont(new PDType1Font(Standard14Fonts.FontName.TIMES_ROMAN), 12);
+        contentStream.newLineAtOffset(30, y);
+        contentStream.showText("Kundennummer");
+        contentStream.endText();
+        contentStream.beginText();
+        contentStream.setFont(new PDType1Font(Standard14Fonts.FontName.TIMES_ROMAN), 12);
+        contentStream.newLineAtOffset(150, y);
+        contentStream.showText(invoiceRecord.getCustomer().customerNumber());
+        contentStream.endText();
+
+        y -= 20;
 
         contentStream.beginText();
         contentStream.setFont(new PDType1Font(Standard14Fonts.FontName.TIMES_ROMAN), 12);
@@ -389,6 +402,7 @@ public class GeneratePDF {
             return out.toByteArray();
         }
     }
+
     public static float getTextWidth(PDType1Font font, int fontSize,
                                      String text) throws IOException {
         return (font.getStringWidth(text) / 1000.0f) * fontSize;
