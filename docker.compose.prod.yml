@@ -38,7 +38,7 @@ services:
     networks:
       - crmuploadnet
     environment:
-      SPRING_PROFILES_ACTIVE: dev
+      SPRING_PROFILES_ACTIVE: prod
 
   # --------------------------------------------------------------
   # BACKGROUND WORKER / BATCH PROCESSOR
@@ -55,7 +55,7 @@ services:
     volumes:
       - ./tmp:/data/tmp                # ersetzt /home/ralf/tmp
     environment:
-      SPRING_PROFILES_ACTIVE: dev
+      SPRING_PROFILES_ACTIVE: prod
 
   crmupload-worker-duplicate-check:
     image: ghcr.io/otrturn/crmupload-worker-duplicate-check:prod
@@ -69,7 +69,7 @@ services:
     volumes:
       - ./tmp:/data/tmp                # ersetzt /home/ralf/tmp
     environment:
-      SPRING_PROFILES_ACTIVE: dev
+      SPRING_PROFILES_ACTIVE: prod
 
   # --------------------------------------------------------------
   # MAILPIT (SMTP debugging)
@@ -83,6 +83,47 @@ services:
     restart: unless-stopped
     networks:
       - crmuploadnet
+
+  # --------------------------------------------------------------
+  # BILLING (one-shot batch jobs)
+  # --------------------------------------------------------------
+  crmupload-billing-generate:
+    image: crmupload-billing
+    build:
+      context: ./app-billing
+      dockerfile: Dockerfile
+    container_name: crmupload-billing-generate
+    command:
+      - --generateInvoices
+    restart: "no"
+    networks:
+      - crmuploadnet
+    depends_on:
+      app-db:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+    volumes:
+      - ./tmp:/data/tmp
+
+  crmupload-billing-mail:
+    image: crmupload-billing
+    build:
+      context: ./app-billing
+      dockerfile: Dockerfile
+    container_name: crmupload-billing-mail
+    command:
+      - --mailInvoices
+    restart: "no"
+    networks:
+      - crmuploadnet
+    depends_on:
+      app-db:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+    volumes:
+      - ./tmp:/data/tmp
 
 networks:
   crmuploadnet:

@@ -1,6 +1,6 @@
 if [ "X"${1} == Xall ]
 then
-    dockdev build crmupload-web crmupload-worker-upload crmupload-worker-duplicate-check crmupload-worker-duplicate-check-gpu-dev crmupload-worker-duplicate-check-gpu-prod
+    dockdev build crmupload-web crmupload-worker-upload crmupload-worker-duplicate-check crmupload-worker-duplicate-check-gpu-dev crmupload-billing-generate crmupload-billing-mail crmupload-worker-duplicate-check-gpu-prod
 else
-    dockdev build crmupload-web crmupload-worker-upload crmupload-worker-duplicate-check crmupload-worker-duplicate-check-gpu-dev
+    dockdev build crmupload-web crmupload-worker-upload crmupload-worker-duplicate-check crmupload-worker-duplicate-check-gpu-dev crmupload-billing-generate crmupload-billing-mail
 fi
