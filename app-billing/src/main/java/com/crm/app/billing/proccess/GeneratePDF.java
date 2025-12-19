@@ -347,7 +347,7 @@ public class GeneratePDF {
                 DateTimeFormatter
                         .ofPattern(DATE_FORMAT)
                         .withZone(ZoneId.systemDefault())
-                        .format(invoiceRecord.getInvoideDueDate().toInstant())));
+                        .format(invoiceRecord.getInvoiceDueDate().toInstant())));
         contentStream.endText();
     }
 

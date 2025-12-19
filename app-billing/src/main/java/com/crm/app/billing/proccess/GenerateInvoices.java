@@ -29,8 +29,7 @@ public class GenerateInvoices {
     private final BillingRepositoryPort billingRepositoryPort;
     private final CustomerRepositoryPort customerRepositoryPort;
     private final GeneratePDF generatePDF;
-
-    private static final String LITERAL_NO_CUSTOMER_FOR_CUSTOMER_ID = "No customer found for customerId '%s'";
+    private final GeneratePdfWithHtmlTemplate generatePdfWithHtmlTemplate;
 
     public void generateInvoices() {
         log.info("Generate invoices ...");
@@ -47,14 +46,14 @@ public class GenerateInvoices {
                     invoiceRecord.setCustomer(customer.get());
                     invoiceRecord.setInvoiceNo(invoiceNo);
                     invoiceRecord.setInvoiceDate(Timestamp.from(Instant.now()));
-                    invoiceRecord.setInvoideDueDate(Timestamp.from(
+                    invoiceRecord.setInvoiceDueDate(Timestamp.from(
                             invoiceRecord.getInvoiceDate().toInstant()
                                     .atZone(ZoneId.systemDefault())
                                     .plusDays(10)
                                     .toInstant()));
                     invoiceRecord.setInvoiceNoAsText(createInvoiceNumber(invoiceNo));
                     setItemPrices(invoiceRecord);
-                    byte[] invoiceImage = generatePDF.generatePDFForCustomer(invoiceRecord);
+                    byte[] invoiceImage = generatePdfWithHtmlTemplate.generatePDFForCustomer(invoiceRecord);
                     invoiceRecord.setInvoiceImage(invoiceImage);
 
                     billingRepositoryPort.insertInvoiceRecord(invoiceRecord);

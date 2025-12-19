@@ -222,7 +222,7 @@ public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
                 .addValue(LITERAL_CUSTOMER_ID_CAMELCASE, invoiceRecord.getCustomerInvoiceData().customerId())
                 .addValue(LITERAL_INVOICE_NO_CAMELCASE, invoiceRecord.getInvoiceNoAsText())
                 .addValue(LITERAL_INVOICE_DATE_CAMELCASE, invoiceRecord.getInvoiceDate())
-                .addValue(LITERAL_INVOICE_DUE_DATE_CAMELCASE, invoiceRecord.getInvoideDueDate())
+                .addValue(LITERAL_INVOICE_DUE_DATE_CAMELCASE, invoiceRecord.getInvoiceDueDate())
                 .addValue(LITERAL_TAX_VALUE_CAMELCASE, invoiceRecord.getTaxValue())
                 .addValue(LITERAL_TAX_AMOUNT_CAMELCASE, invoiceRecord.getTaxAmount())
                 .addValue(LITERAL_NET_AMOUNT_CAMELCASE, invoiceRecord.getNetAmount())

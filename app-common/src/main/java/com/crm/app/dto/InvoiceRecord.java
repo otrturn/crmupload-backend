@@ -15,7 +15,7 @@ public class InvoiceRecord {
     private Customer customer;
     private long invoiceNo;
     private Timestamp invoiceDate;
-    private Timestamp invoideDueDate;
+    private Timestamp invoiceDueDate;
     private String invoiceNoAsText;
     private BigDecimal taxValue;
     private BigDecimal taxAmount;

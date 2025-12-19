@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title th:text="'Rechnung ' + ${invoice.invoiceNo}">Rechnung</title>
+
+    <!-- Externes CSS für openhtmltopdf / Flying Saucer -->
+    <link rel="stylesheet" href="invoice.css" />
+</head>
+
+<body>
+
+<!-- ===================== -->
+<!-- HEADER / ISSUER       -->
+<!-- ===================== -->
+<div class="header">
+    <div class="issuer-line">
+        <span th:text="${issuer.name}">Ralf Scholler</span>,
+        <span th:text="${issuer.street}">Am Dorfplatz 6</span>,
+        <span th:text="${issuer.zipCity}">57610 Ingelbach</span>
+    </div>
+    <div class="issuer-line muted">
+        <span th:text="${issuer.taxNumber}">Steuernummer 003/867/30663</span>
+        ·
+        <span th:text="'USt-IdNr. ' + ${issuer.vatId}">USt-IdNr. DE123456789</span>
+    </div>
+</div>
+
+<!-- ===================== -->
+<!-- CUSTOMER + META (LEFT)-->
+<!-- ===================== -->
+<div class="customer-block mt-18">
+    <div th:text="${customer.fullName}">Max Mustermann</div>
+    <div th:text="${customer.street}">Musterstraße 12</div>
+    <div th:text="${customer.zipCity}">12345 Musterstadt</div>
+
+    <table class="meta-left mt-12">
+        <tbody>
+        <tr>
+            <td class="meta-label">Kundennummer</td>
+            <td class="meta-value nobr" th:text="${invoice.customerNumber}">KD-2025-000001</td>
+        </tr>
+        <tr>
+            <td class="meta-label">Rechnungsnummer</td>
+            <td class="meta-value nobr" th:text="${invoice.invoiceNo}">RG-2025-000064</td>
+        </tr>
+        <tr>
+            <td class="meta-label">Rechnungsdatum</td>
+            <td class="meta-value nobr" th:text="${invoice.invoiceDate}">19.12.2025</td>
+        </tr>
+        <tr>
+            <td class="meta-label">Verwendungszweck</td>
+            <td class="meta-value">
+                Rechnung&#160;<span class="nobr" th:text="${invoice.invoiceNo}">RG-2025-000064</span>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- ===================== -->
+<!-- INTRO / SERVICE DATE  -->
+<!-- ===================== -->
+<div class="mt-18">
+    <div>
+        Sehr geehrte(r) <span th:text="${customer.fullName}">Max Mustermann</span>,
+    </div>
+    <div class="mt-8">
+        die genannten Leistungen wurden am
+        <span th:text="${invoice.serviceDate}">19.12.2025</span>
+        erbracht.
+    </div>
+</div>
+
+<!-- ===================== -->
+<!-- ITEMS TABLE           -->
+<!-- ===================== -->
+<div class="block-title mt-18">Ihre gekauften Produkte:</div>
+
+<table class="items">
+    <colgroup>
+        <col class="col-desc" />
+        <col class="col-amount" />
+    </colgroup>
+    <thead>
+    <tr>
+        <th>Leistung</th>
+        <th class="amount">Preis</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="it : ${items}">
+        <td th:text="${it.name}">
+            CRM-Upload – Import von Kundendaten in das CRM-System
+        </td>
+        <td class="amount" th:text="${it.priceFormatted}">
+            200,00 €
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<!-- ===================== -->
+<!-- TOTALS                -->
+<!-- ===================== -->
+<table class="totals">
+    <tr>
+        <td class="label">Zwischensumme (Netto)</td>
+        <td class="value" th:text="${totals.netFormatted}">400,00 €</td>
+    </tr>
+    <tr>
+        <td class="label">
+            MwSt. (<span th:text="${totals.taxRatePercent}">19</span>%)
+        </td>
+        <td class="value" th:text="${totals.taxFormatted}">76,00 €</td>
+    </tr>
+    <tr class="grand">
+        <td class="label">Rechnungsbetrag (Brutto)</td>
+        <td class="value" th:text="${totals.grossFormatted}">476,00 €</td>
+    </tr>
+</table>
+
+<!-- ===================== -->
+<!-- PAYMENT INFORMATION   -->
+<!-- ===================== -->
+<div class="mt-18">
+    <div>Bitte überweisen Sie den Rechnungsbetrag an:</div>
+    <div class="mt-8" th:text="${bank.name}">Raiffeisenbank Musterstadt</div>
+    <div th:text="${bank.accountName}">Ralf Scholler</div>
+    <div th:text="'IBAN ' + ${bank.iban}">
+        IBAN DE00 0000 0000 0000 0000 00
+    </div>
+</div>
+
+<!-- ===================== -->
+<!-- DUE DATE              -->
+<!-- ===================== -->
+<div class="mt-12" th:if="${invoice.dueDate != null}">
+    Zahlbar bis zum <span th:text="${invoice.dueDate}">29.12.2025</span>
+    ohne Abzug.
+</div>
+
+<!-- ===================== -->
+<!-- SUPPORT / FOOT TEXT   -->
+<!-- ===================== -->
+<div class="mt-18 small">
+    Falls Sie Fragen zu dieser Rechnung haben, wenden Sie sich bitte an
+    <span th:text="${issuer.supportEmail}">support&#64;crmupload.de</span>
+    und geben Sie dabei die Rechnungsnummer an.
+</div>
+
+<!-- ===================== -->
+<!-- SIGNATURE             -->
+<!-- ===================== -->
+<div class="mt-18">
+    <div>Viele Grüße</div>
+    <div>Ihr CRM-Upload-Team</div>
+    <div class="mt-8" th:text="${issuer.supportEmail}">support&#64;crmupload.de</div>
+    <div th:text="${issuer.website}">www.crmupload.de</div>
+</div>
+
+</body>
+</html>
