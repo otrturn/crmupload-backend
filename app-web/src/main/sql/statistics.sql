@@ -15,8 +15,13 @@ from app.duplicate_check
 group by status
 order by tag, status;
 
-select 'INSERT INTO app.page_visits (page_id, visited) VALUES'
-union all
-select '(''' || '' || '' || page_id || ''',''' || visited || '''),'
-from app.page_visits;
-
+SELECT
+    count(*)
+FROM app.customer_product cp
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM app.customer_invoice ci
+    WHERE ci.customer_id = cp.customer_id
+      AND COALESCE(ci.invoice_meta->'products', '[]'::jsonb)
+        @> jsonb_build_array(jsonb_build_object('product', upper(cp.product)))
+);

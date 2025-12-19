@@ -105,9 +105,9 @@ public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
                 FROM app.customer_product cp
                 WHERE NOT EXISTS (
                   SELECT 1
-                  FROM app.customer_invoice cb
-                    WHERE cb.customer_id = cp.customer_id
-                      AND COALESCE(cb.invoice_meta->'products', '[]'::jsonb)
+                  FROM app.customer_invoice ci
+                    WHERE ci.customer_id = cp.customer_id
+                      AND COALESCE(ci.invoice_meta->'products', '[]'::jsonb)
                           @> jsonb_build_array(jsonb_build_object('product', upper(cp.product)))
                 )
                 ORDER BY cp.customer_id, cp.product
