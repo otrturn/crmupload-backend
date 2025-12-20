@@ -42,6 +42,7 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
     private final CustomerRepositoryPort customerRepositoryPort;
     private final EmbeddingClientFactory clientFactory;
     private final DuplicateCheckGpuProperties properties;
+    private final CreateResultWorkbook createResultWorkbook;
 
     private static final String DURATION_FORMAT_STRING = "Duration: %02d:%02d:%02d";
 
@@ -63,7 +64,7 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
             duration = Duration.between(start, Instant.now());
             log.info(String.format(DURATION_FORMAT_STRING, duration.toHours(), duration.toMinutesPart(), duration.toSecondsPart()));
 
-            new CreateResultWorkbook().createResultWorkbook(duplicateCheckContent, companiesEmbedded);
+            createResultWorkbook.create(duplicateCheckContent, companiesEmbedded);
             Optional<Customer> customer = customerRepositoryPort.findCustomerByCustomerId(duplicateCheckContent.getCustomerId());
             if (customer.isPresent()) {
                 duplicateCheckRepositoryPort.markDuplicateCheckChecked(duplicateCheckContent.getDuplicateCheckId(), duplicateCheckContent.getContent());

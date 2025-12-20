@@ -1,6 +1,7 @@
 package com.crm.app.worker_duplicate_check_gpu.process;
 
 import com.crm.app.dto.DuplicateCheckContent;
+import com.crm.app.worker_duplicate_check_gpu.config.DuplicateCheckGpuProperties;
 import com.crm.app.worker_duplicate_check_gpu.dto.AddressMatchCategory;
 import com.crm.app.worker_duplicate_check_gpu.dto.CompanyEmbedded;
 import com.crm.app.worker_duplicate_check_gpu.dto.SimilarCompany;
@@ -8,6 +9,7 @@ import com.crm.app.worker_duplicate_check_gpu.error.WorkerDuplicateCheckGpuExcep
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.DefaultIndexedColorMap;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
@@ -23,7 +25,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CreateResultWorkbook {
 
-    public void createResultWorkbook(DuplicateCheckContent duplicateCheckContent, List<CompanyEmbedded> companiesEmbedded) {
+    private final DuplicateCheckGpuProperties properties;
+
+    public void create(DuplicateCheckContent duplicateCheckContent, List<CompanyEmbedded> companiesEmbedded) {
         try (Workbook workbook = new XSSFWorkbook();
              ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
 
@@ -47,6 +51,12 @@ public class CreateResultWorkbook {
             XSSFCellStyle cellStyleHeaderCellLightGreen = (XSSFCellStyle) workbook.createCellStyle();
             cellStyleHeaderCellLightGreen.setFillForegroundColor(IndexedColors.LIGHT_TURQUOISE.index);
             cellStyleHeaderCellLightGreen.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+            XSSFCellStyle cellStyleCentered = (XSSFCellStyle) workbook.createCellStyle();
+            cellStyleCentered.setAlignment(HorizontalAlignment.CENTER);
+            cellStyleCentered.setVerticalAlignment(VerticalAlignment.CENTER);
+            cellStyleCentered.setFillForegroundColor(IndexedColors.GOLD.index);
+            cellStyleCentered.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
             Sheet sheet = workbook.createSheet("Dubletten");
             int rowIdx = 0;
@@ -81,7 +91,28 @@ public class CreateResultWorkbook {
             cell.setCellValue("Land");
             cell.setCellStyle(cellStyleHeaderCell);
 
+            if (properties.isPerformAddressAnalysis()) {
+                cell = row.createCell(6, CellType.STRING);
+                cell.setCellValue("Ähnlichkeit");
+                cell.setCellStyle(cellStyleCentered);
+                sheet.addMergedRegion(new CellRangeAddress(0, 0, 6, 7));
+            }
+
             rowIdx++;
+
+            if (properties.isPerformAddressAnalysis()) {
+                row = sheet.createRow(rowIdx);
+
+                cell = row.createCell(6, CellType.STRING);
+                cell.setCellValue("Firma");
+                cell.setCellStyle(cellStyleCentered);
+
+                cell = row.createCell(7, CellType.STRING);
+                cell.setCellValue("Adresse");
+                cell.setCellStyle(cellStyleCentered);
+
+                rowIdx++;
+            }
 
             int idxFirstRowOfGroup;
             int idxLastRowOfGroup;
