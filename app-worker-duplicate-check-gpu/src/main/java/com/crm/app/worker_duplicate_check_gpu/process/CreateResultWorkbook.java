@@ -1,7 +1,9 @@
 package com.crm.app.worker_duplicate_check_gpu.process;
 
 import com.crm.app.dto.DuplicateCheckContent;
+import com.crm.app.worker_duplicate_check_gpu.dto.AddressMatchCategory;
 import com.crm.app.worker_duplicate_check_gpu.dto.CompanyEmbedded;
+import com.crm.app.worker_duplicate_check_gpu.dto.SimilarCompany;
 import com.crm.app.worker_duplicate_check_gpu.error.WorkerDuplicateCheckGpuException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +17,6 @@ import org.springframework.stereotype.Component;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @Component
@@ -109,11 +110,11 @@ public class CreateResultWorkbook {
                     idxFirstRowOfGroup = rowIdx;
                     idxLastRowOfGroup = rowIdx;
 
-                    for (Map.Entry<CompanyEmbedded.SimilarCompany, Double> similarCompanyEntry : companyEmbedded.getSimilarCompanies().entrySet()) {
+                    for (SimilarCompany similarCompany : companyEmbedded.getSimilarCompanies()) {
                         idxLastRowOfGroup = rowIdx;
 
                         row = sheet.createRow(rowIdx);
-                        CompanyEmbedded companyEmbeddedSimilar = similarCompanyEntry.getKey().getCompanyEmbedded();
+                        CompanyEmbedded companyEmbeddedSimilar = similarCompany.getCompanyEmbedded();
 
                         cell = row.createCell(1, CellType.STRING);
                         cell.setCellValue(companyEmbeddedSimilar.getAccountName());
@@ -130,6 +131,8 @@ public class CreateResultWorkbook {
 
                         cell = row.createCell(5, CellType.STRING);
                         cell.setCellValue(companyEmbeddedSimilar.getCountry());
+
+                        markRowWithMatchType(similarCompany, row);
 
                         rowIdx++;
                     }
@@ -151,23 +154,18 @@ public class CreateResultWorkbook {
     }
 
     @SuppressWarnings("squid:S1194")
-    private static void markRowWithMatchType(Map.Entry<CompanyEmbedded.SimilarCompany, Double> similarCompanyEntry, Row row) {
+    private static void markRowWithMatchType(SimilarCompany similarCompany, Row row) {
         Cell cell;
-        switch (similarCompanyEntry.getKey().getMatchType()) {
-            case ACCOUNT_NAME -> {
-                cell = row.createCell(6, CellType.STRING);
-                cell.setCellValue("X");
-            }
-            case ADDRESS -> {
-                cell = row.createCell(7, CellType.STRING);
-                cell.setCellValue("X");
-            }
-            case ACCOUNT_NAME_AND_ADDRESS -> {
-                cell = row.createCell(6, CellType.STRING);
-                cell.setCellValue("X");
-                cell = row.createCell(7, CellType.STRING);
-                cell.setCellValue("X");
-            }
+        if (similarCompany.getMatchType().isAccountNameMatch()) {
+            cell = row.createCell(6, CellType.STRING);
+            cell.setCellValue("Wahrscheinlich");
+        }
+        if (similarCompany.getMatchType().getAddressMatchCategory().equals(AddressMatchCategory.MATCH)) {
+            cell = row.createCell(7, CellType.STRING);
+            cell.setCellValue("Wahrscheinlich");
+        } else if (similarCompany.getMatchType().getAddressMatchCategory().equals(AddressMatchCategory.POSSIBLE)) {
+            cell = row.createCell(7, CellType.STRING);
+            cell.setCellValue("Möglich");
         }
     }
 }

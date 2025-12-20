@@ -5,12 +5,13 @@ import com.crm.app.dto.DuplicateCheckContent;
 import com.crm.app.port.customer.CustomerRepositoryPort;
 import com.crm.app.port.customer.DuplicateCheckRepositoryPort;
 import com.crm.app.util.AccountNameEmbeddingNormalizer;
-import com.crm.app.util.AddressEmbeddingNormalizer;
 import com.crm.app.util.EmbeddingUtils;
 import com.crm.app.worker_common.util.WorkerUtil;
 import com.crm.app.worker_duplicate_check_gpu.config.DuplicateCheckGpuProperties;
+import com.crm.app.worker_duplicate_check_gpu.dto.AddressMatchCategory;
 import com.crm.app.worker_duplicate_check_gpu.dto.CompanyEmbedded;
 import com.crm.app.worker_duplicate_check_gpu.dto.EmbeddingMatchType;
+import com.crm.app.worker_duplicate_check_gpu.dto.SimilarCompany;
 import com.crm.app.worker_duplicate_check_gpu.error.WorkerDuplicateCheckGpuEmbeddingException;
 import com.ki.rag.embedding.client.embed.EmbeddingClient;
 import com.ki.rag.embedding.client.embed.EmbeddingClientFactory;
@@ -92,11 +93,9 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
                 companyEmbedded.setCountry(getCellValue(row.getCell(WorkerUtil.IDX_COUNTRY)));
                 companyEmbedded.setEmailAddress(getCellValue(row.getCell(WorkerUtil.IDX_EMAIL_ADDRESS)));
                 companyEmbedded.setPhoneNumber(getCellValue(row.getCell(WorkerUtil.IDX_PHONE_NUMBER)));
+
                 companyEmbedded.setVectorsAccountName(client.embedMany(List.of(companyEmbedded.getNormalisedAccountName())));
-                if (properties.isPerformAddressAnalysis()) {
-                    companyEmbedded.setNormalisedAddress(AddressEmbeddingNormalizer.normalize(companyEmbedded.getStreet(), companyEmbedded.getCity()));
-                    companyEmbedded.setVectorsAddress(client.embedMany(List.of(companyEmbedded.getNormalisedAddress())));
-                }
+
                 companiesEmbedded.add(companyEmbedded);
                 idx++;
             }
@@ -115,53 +114,42 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
                 CompanyEmbedded b = companiesEmbedded.get(j);
 
                 if (postalCodeAreaEqual(a, b)) {
-                    MatchResult match;
+                    EmbeddingMatchType embeddingMatchType;
                     if (properties.isPerformAddressAnalysis()) {
-                        match = evaluateMatchWithAddress(a, b);
+                        embeddingMatchType = evaluateMatchWithAddress(a, b);
                     } else {
-                        match = evaluateMatchAccountNameOnly(a, b);
+                        embeddingMatchType = evaluateMatchAccountNameOnly(a, b);
                     }
 
-                    if (match.isMatch()) {
-                        a.getSimilarCompanies().put(
-                                new CompanyEmbedded.SimilarCompany(match.type(), b),
-                                match.score()
-                        );
-                    }
+                    if (entryMatches(embeddingMatchType))
+                        a.getSimilarCompanies().add(new SimilarCompany(embeddingMatchType, b));
                 }
             }
         }
     }
 
-    private MatchResult evaluateMatchAccountNameOnly(CompanyEmbedded a, CompanyEmbedded b) {
-        double nameSim = cosineAccountName(a, b);
+    private boolean entryMatches(EmbeddingMatchType embeddingMatchType) {
+        return embeddingMatchType.isAccountNameMatch()
+                || embeddingMatchType.getAddressMatchCategory().equals(AddressMatchCategory.POSSIBLE)
+                || embeddingMatchType.getAddressMatchCategory().equals(AddressMatchCategory.MATCH);
+    }
 
-        if (nameSim < properties.getCosineSimilarityThresholdAccountName()) {
-            return MatchResult.noMatch();
-        }
-
-        return MatchResult.match(
-                EmbeddingMatchType.ACCOUNT_NAME,
-                nameSim
-        );
+    private EmbeddingMatchType evaluateMatchAccountNameOnly(CompanyEmbedded a, CompanyEmbedded b) {
+        return cosineAccountName(a, b) < properties.getCosineSimilarityThresholdAccountName() ?
+                new EmbeddingMatchType(false, AddressMatchCategory.NO_MATCH) :
+                new EmbeddingMatchType(true, AddressMatchCategory.NO_MATCH);
     }
 
     @SuppressWarnings("squid:S1194")
-    private MatchResult evaluateMatchWithAddress(CompanyEmbedded a, CompanyEmbedded b) {
+    private EmbeddingMatchType evaluateMatchWithAddress(CompanyEmbedded a, CompanyEmbedded b) {
         double nameSim = cosineAccountName(a, b);
         boolean nameMatch = nameSim >= properties.getCosineSimilarityThresholdAccountName();
 
-        double addressSim = cosineAddress(a, b);
-        boolean addressMatch = addressSim >= properties.getCosineSimilarityThresholdAddress();
+        AddressMatcher.AddressKey addressKeyA = AddressMatcher.of(a.getStreet(), a.getCity());
+        AddressMatcher.AddressKey addressKeyB = AddressMatcher.of(b.getStreet(), b.getCity());
+        AddressMatcher.MatchResult addressMatchResult = AddressMatcher.match(addressKeyA, addressKeyB);
 
-        if (!nameMatch && !addressMatch) {
-            return MatchResult.noMatch();
-        }
-
-        EmbeddingMatchType type = resolveMatchType(nameMatch, addressMatch);
-        double score = resolveScore(nameMatch, addressMatch, nameSim, addressSim);
-
-        return MatchResult.match(type, score);
+        return new EmbeddingMatchType(nameMatch, addressMatchResult.category());
     }
 
     private double cosineAccountName(CompanyEmbedded a, CompanyEmbedded b) {
@@ -169,40 +157,6 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
                 a.getVectorsAccountName().get(0),
                 b.getVectorsAccountName().get(0)
         );
-    }
-
-    private double cosineAddress(CompanyEmbedded a, CompanyEmbedded b) {
-        return EmbeddingUtils.cosineSim(
-                a.getVectorsAddress().get(0),
-                b.getVectorsAddress().get(0)
-        );
-    }
-
-    private EmbeddingMatchType resolveMatchType(boolean nameMatch, boolean addressMatch) {
-        if (nameMatch && addressMatch) {
-            return EmbeddingMatchType.ACCOUNT_NAME_AND_ADDRESS;
-        }
-        return nameMatch ? EmbeddingMatchType.ACCOUNT_NAME : EmbeddingMatchType.ADDRESS;
-    }
-
-    private double resolveScore(boolean nameMatch, boolean addressMatch, double nameSim, double addressSim) {
-        if (nameMatch && addressMatch) {
-            return Math.max(nameSim, addressSim); // oder min/avg – je nach gewünschter Logik
-        }
-        return nameMatch ? nameSim : addressSim;
-    }
-
-    /**
-     * kleines Result-Objekt, damit die Hauptmethode flach bleibt
-     */
-    private record MatchResult(boolean isMatch, EmbeddingMatchType type, double score) {
-        static MatchResult noMatch() {
-            return new MatchResult(false, null, 0.0);
-        }
-
-        static MatchResult match(EmbeddingMatchType type, double score) {
-            return new MatchResult(true, type, score);
-        }
     }
 
     private boolean postalCodeAreaEqual(CompanyEmbedded companyEmbedded1, CompanyEmbedded companyEmbedded2) {

@@ -1,5 +1,7 @@
 package com.crm.app.worker_duplicate_check_gpu.process;
 
+import com.crm.app.worker_duplicate_check_gpu.dto.AddressMatchCategory;
+
 import java.text.Normalizer;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -7,23 +9,23 @@ import java.util.regex.Pattern;
 
 public final class AddressMatcher {
 
-    public enum MatchCategory { NO_MATCH, POSSIBLE, MATCH }
-
     public record AddressKey(
             String streetNorm,
             String cityNorm,
             String houseCore,
             String houseSuffix,
             String houseRangeEnd
-    ) {}
+    ) {
+    }
 
     public record MatchResult(
-            MatchCategory category,
+            AddressMatchCategory category,
             double score,
             double citySim,
             double streetSim,
             double houseSim
-    ) {}
+    ) {
+    }
 
     /**
      * Tuning/Schwellenwerte.
@@ -33,7 +35,8 @@ public final class AddressMatcher {
             double cityGate,              // wenn kleiner -> sofort NO_MATCH
             double matchThreshold,        // ab hier MATCH
             double possibleThreshold,     // ab hier POSSIBLE, darunter NO_MATCH
-            double strongStreetIfHouseMissing, // wenn nur eine Hausnummer vorhanden: MATCH nur, wenn streetSim >= dieser Wert
+            double strongStreetIfHouseMissing,
+            // wenn nur eine Hausnummer vorhanden: MATCH nur, wenn streetSim >= dieser Wert
             double wHouse,
             double wStreet,
             double wCity
@@ -66,7 +69,8 @@ public final class AddressMatcher {
             "unter", "ober", "obere", "untere", "hinter", "vor", "vorm", "neben"
     );
 
-    private AddressMatcher() {}
+    private AddressMatcher() {
+    }
 
     public static AddressKey of(String streetAndHouseNo, String city) {
         String line = normalizeStreetLine(streetAndHouseNo);
@@ -108,7 +112,7 @@ public final class AddressMatcher {
         );
 
         if (citySim < cfg.cityGate()) {
-            return new MatchResult(MatchCategory.NO_MATCH, 0.0, clamp01(citySim), 0.0, 0.0);
+            return new MatchResult(AddressMatchCategory.NO_MATCH, 0.0, clamp01(citySim), 0.0, 0.0);
         }
 
         // 2) House similarity (harter Anker)
@@ -117,7 +121,7 @@ public final class AddressMatcher {
         boolean aHasHouse = !isBlank(a.houseCore());
         boolean bHasHouse = !isBlank(b.houseCore());
         if (aHasHouse && bHasHouse && houseSim == 0.0) {
-            return new MatchResult(MatchCategory.NO_MATCH, 0.0, clamp01(citySim), 0.0, 0.0);
+            return new MatchResult(AddressMatchCategory.NO_MATCH, 0.0, clamp01(citySim), 0.0, 0.0);
         }
 
         // 3) Street similarity
@@ -128,14 +132,14 @@ public final class AddressMatcher {
         score = clamp01(score);
 
         // 5) Kategorie
-        MatchCategory cat;
-        if (score >= cfg.matchThreshold()) cat = MatchCategory.MATCH;
-        else if (score >= cfg.possibleThreshold()) cat = MatchCategory.POSSIBLE;
-        else cat = MatchCategory.NO_MATCH;
+        AddressMatchCategory cat;
+        if (score >= cfg.matchThreshold()) cat = AddressMatchCategory.MATCH;
+        else if (score >= cfg.possibleThreshold()) cat = AddressMatchCategory.POSSIBLE;
+        else cat = AddressMatchCategory.NO_MATCH;
 
         // 6) Extra-Schutz: einseitig fehlende Hausnummer => MATCH nur bei sehr starker Straße
-        if (cat == MatchCategory.MATCH && (aHasHouse ^ bHasHouse) && streetSim < cfg.strongStreetIfHouseMissing()) {
-            cat = MatchCategory.POSSIBLE;
+        if (cat == AddressMatchCategory.MATCH && (aHasHouse ^ bHasHouse) && streetSim < cfg.strongStreetIfHouseMissing()) {
+            cat = AddressMatchCategory.POSSIBLE;
         }
 
         return new MatchResult(cat, score, clamp01(citySim), clamp01(streetSim), clamp01(houseSim));
@@ -345,7 +349,9 @@ public final class AddressMatcher {
                         prev[j - 1] + cost
                 );
             }
-            int[] tmp = prev; prev = curr; curr = tmp;
+            int[] tmp = prev;
+            prev = curr;
+            curr = tmp;
         }
         return prev[m];
     }
@@ -446,7 +452,7 @@ public final class AddressMatcher {
         return (
                 (double) matches / len1
                         + (double) matches / len2
-                        + ( matches - t) / matches
+                        + (matches - t) / matches
         ) / 3.0;
     }
 
@@ -463,7 +469,8 @@ public final class AddressMatcher {
         return jaro + prefixLen * scaling * (1.0 - jaro);
     }
 
-    private record MatchData(int matches, int transpositions) {}
+    private record MatchData(int matches, int transpositions) {
+    }
 
     // ---- utils ----
 

@@ -3,7 +3,7 @@ app:
     poll-interval-ms: 10000
     batch-size: 5
     cosineSimilarityThresholdAccountName: 0.85
-    cosineSimilarityThresholdAddress: 0.82
+    performAddressAnalysis: true
   embedding:
     models:
       tei-bge-m3:

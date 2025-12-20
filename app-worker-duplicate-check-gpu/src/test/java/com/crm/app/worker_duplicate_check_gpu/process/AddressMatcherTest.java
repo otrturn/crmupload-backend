@@ -1,5 +1,6 @@
 package com.crm.app.worker_duplicate_check_gpu.process;
 
+import com.crm.app.worker_duplicate_check_gpu.dto.AddressMatchCategory;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -12,7 +13,7 @@ class AddressMatcherTest {
         var b = AddressMatcher.of("Hauptstraße 5", "Köln");
 
         var r = AddressMatcher.match(a, b);
-        assertEquals(AddressMatcher.MatchCategory.MATCH, r.category());
+        assertEquals(AddressMatchCategory.MATCH, r.category());
         assertTrue(r.score() >= 0.95);
     }
 
@@ -22,7 +23,7 @@ class AddressMatcherTest {
         var b = AddressMatcher.of("Hauptstraße 5 A", "Koeln");
 
         var r = AddressMatcher.match(a, b);
-        assertEquals(AddressMatcher.MatchCategory.MATCH, r.category());
+        assertEquals(AddressMatchCategory.MATCH, r.category());
         assertTrue(r.houseSim() >= 0.70);
         assertTrue(r.citySim() >= 0.90);
     }
@@ -33,7 +34,7 @@ class AddressMatcherTest {
         var b = AddressMatcher.of("Bahnhofstr 14", "Muenchen");
 
         var r = AddressMatcher.match(a, b);
-        assertEquals(AddressMatcher.MatchCategory.NO_MATCH, r.category());
+        assertEquals(AddressMatchCategory.NO_MATCH, r.category());
     }
 
     @Test
@@ -43,8 +44,8 @@ class AddressMatcherTest {
 
         var r = AddressMatcher.match(a, b);
         // je nach Schreibvariante kann das MATCH oder POSSIBLE werden – beides ok
-        assertTrue(r.category() == AddressMatcher.MatchCategory.MATCH
-                || r.category() == AddressMatcher.MatchCategory.POSSIBLE);
+        assertTrue(r.category() == AddressMatchCategory.MATCH
+                || r.category() == AddressMatchCategory.POSSIBLE);
         assertTrue(r.houseSim() >= 0.70);
     }
 
@@ -55,8 +56,8 @@ class AddressMatcherTest {
 
         var r = AddressMatcher.match(a, b);
         assertTrue(r.citySim() >= 0.90);
-        assertTrue(r.category() == AddressMatcher.MatchCategory.MATCH
-                || r.category() == AddressMatcher.MatchCategory.POSSIBLE);
+        assertTrue(r.category() == AddressMatchCategory.MATCH
+                || r.category() == AddressMatchCategory.POSSIBLE);
     }
 
     @Test
@@ -66,7 +67,7 @@ class AddressMatcherTest {
 
         var r = AddressMatcher.match(a, b);
         // je nach Daten willst du hier eher POSSIBLE als NO_MATCH
-        assertNotEquals(AddressMatcher.MatchCategory.NO_MATCH, r.category());
+        assertNotEquals(AddressMatchCategory.NO_MATCH, r.category());
     }
 
     @Test
@@ -76,8 +77,8 @@ class AddressMatcherTest {
 
         var r = AddressMatcher.match(a, b);
         // wegen einseitig fehlender Hausnummer: nicht direkt MATCH (Default)
-        assertTrue(r.category() == AddressMatcher.MatchCategory.POSSIBLE
-                || r.category() == AddressMatcher.MatchCategory.NO_MATCH);
+        assertTrue(r.category() == AddressMatchCategory.POSSIBLE
+                || r.category() == AddressMatchCategory.NO_MATCH);
     }
 
     @Test
@@ -86,7 +87,7 @@ class AddressMatcherTest {
         var b = AddressMatcher.of("Hauptstraße 5", "Berlin");
 
         var r = AddressMatcher.match(a, b);
-        assertEquals(AddressMatcher.MatchCategory.NO_MATCH, r.category());
+        assertEquals(AddressMatchCategory.NO_MATCH, r.category());
     }
 
     @Test
@@ -104,6 +105,6 @@ class AddressMatcherTest {
 
         var r = AddressMatcher.match(a, b, strict);
         // strenger Config: eher NO_MATCH/POSSIBLE
-        assertNotEquals(AddressMatcher.MatchCategory.MATCH, r.category());
+        assertNotEquals(AddressMatchCategory.MATCH, r.category());
     }
 }

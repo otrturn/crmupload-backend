@@ -1,7 +1,16 @@
 package com.crm.app.worker_duplicate_check_gpu.dto;
 
-public enum EmbeddingMatchType {
-    ACCOUNT_NAME,
-    ADDRESS,
-    ACCOUNT_NAME_AND_ADDRESS
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+public class EmbeddingMatchType {
+    boolean accountNameMatch;
+    AddressMatchCategory addressMatchCategory;
+
+    public EmbeddingMatchType(boolean accountNameMatch, AddressMatchCategory addressMatchCategory) {
+        this.accountNameMatch = accountNameMatch;
+        this.addressMatchCategory = addressMatchCategory;
+    }
 }
