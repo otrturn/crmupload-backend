@@ -20,10 +20,10 @@ echo ">>> Uploading deployment files ..."
 RSYNC_SSH="ssh -p ${DEPLOY_PORT}"
 
 # Zum Debuggen einmal explizit zeigen, was das Ziel ist:
-echo ">>> rsync target for db-init: ${DEPLOY_SERVER}:${REMOTE_DIR}/db-init/"
+#echo ">>> rsync target for db-init: ${DEPLOY_SERVER}:${REMOTE_DIR}/db-init/"
 
-rsync -avz -e "${RSYNC_SSH}" ./db-init/ \
-  "${DEPLOY_SERVER}:${REMOTE_DIR}/db-init/"
+#rsync -avz -e "${RSYNC_SSH}" ./db-init/ \
+#  "${DEPLOY_SERVER}:${REMOTE_DIR}/db-init/"
 
 rsync -avz -e "${RSYNC_SSH}" ./${DEPLOY_COMPOSE_FILE} \
   "${DEPLOY_SERVER}:${REMOTE_DIR}/${DEPLOY_COMPOSE_FILE}"

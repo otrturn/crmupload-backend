@@ -76,3 +76,11 @@ docker buildx build \
   app-billing/ \
   --push
 
+echo ">>> Docker build+push crmupload-flyway (multi-arch)..."
+docker buildx build \
+  --platform linux/amd64,linux/arm64/v8 \
+  -t ghcr.io/${GHCR_USER}/crmupload-flyway:prod \
+  -f app-flyway/Dockerfile \
+  . \
+  --push
+
