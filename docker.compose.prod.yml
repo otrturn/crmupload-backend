@@ -14,7 +14,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./app-db-data:/var/lib/postgresql/data
-      - ./db-init/app:/docker-entrypoint-initdb.d:ro
+      # - ./db-init/app:/docker-entrypoint-initdb.d:ro   # <- weg: Flyway übernimmt
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U appuser -d crmupload-appdb" ]
       interval: 10s
@@ -24,16 +24,36 @@ services:
       - crmuploadnet
 
   # --------------------------------------------------------------
+  # FLYWAY (one-shot migration job) - SQLs sind IM Image (GHCR)
+  # --------------------------------------------------------------
+  crmupload-flyway:
+    image: ghcr.io/otrturn/crmupload-flyway:prod
+    container_name: crmupload-flyway
+    command: migrate
+    restart: "no"
+    depends_on:
+      app-db:
+        condition: service_healthy
+    networks:
+      - crmuploadnet
+    environment:
+      FLYWAY_URL: jdbc:postgresql://crmupload-db:5432/crmupload-appdb
+      FLYWAY_USER: appuser
+      FLYWAY_PASSWORD: apppass
+      FLYWAY_DEFAULT_SCHEMA: app
+      FLYWAY_VALIDATE_MIGRATION_NAMING: "true"
+
+  # --------------------------------------------------------------
   # BACKEND WEB API
   # --------------------------------------------------------------
   crmupload-web:
     image: ghcr.io/otrturn/crmupload-web:prod
     container_name: crmupload-web
     depends_on:
-      app-db:
-        condition: service_healthy
+      crmupload-flyway:
+        condition: service_completed_successfully
     ports:
-      - "127.0.0.1:8086:8086"          # nur auf localhost! Nginx reverse-proxy
+      - "127.0.0.1:8086:8086"   # nur auf localhost!
     restart: unless-stopped
     networks:
       - crmuploadnet
@@ -47,13 +67,13 @@ services:
     image: ghcr.io/otrturn/crmupload-worker-upload:prod
     container_name: crmupload-worker-upload
     depends_on:
-      app-db:
-        condition: service_healthy
+      crmupload-flyway:
+        condition: service_completed_successfully
     restart: unless-stopped
     networks:
       - crmuploadnet
     volumes:
-      - ./tmp:/data/tmp                # ersetzt /home/ralf/tmp
+      - ./tmp:/data/tmp
     environment:
       SPRING_PROFILES_ACTIVE: prod
 
@@ -61,13 +81,13 @@ services:
     image: ghcr.io/otrturn/crmupload-worker-duplicate-check:prod
     container_name: crmupload-worker-duplicate-check
     depends_on:
-      app-db:
-        condition: service_healthy
+      crmupload-flyway:
+        condition: service_completed_successfully
     restart: unless-stopped
     networks:
       - crmuploadnet
     volumes:
-      - ./tmp:/data/tmp                # ersetzt /home/ralf/tmp
+      - ./tmp:/data/tmp
     environment:
       SPRING_PROFILES_ACTIVE: prod
 
@@ -81,8 +101,7 @@ services:
       - "${MAILPIT_SMTP_PORT:-1025}:1025"
       - "${MAILPIT_HTTP_PORT:-8025}:8025"
     restart: unless-stopped
-    networks:
-      - crmuploadnet
+    networks: [ crmuploadnet ]
 
   # --------------------------------------------------------------
   # BILLING (one-shot batch jobs)
@@ -90,12 +109,13 @@ services:
   crmupload-billing-generate:
     image: ghcr.io/otrturn/crmupload-billing:prod
     container_name: crmupload-billing-generate
-    command: ["--generateInvoices"]
+    command: [ "--generateInvoices" ]
     restart: "no"
-    networks: [ crmuploadnet ]
     depends_on:
-      app-db:
-        condition: service_healthy
+      crmupload-flyway:
+        condition: service_completed_successfully
+    networks:
+      - crmuploadnet
     environment:
       SPRING_PROFILES_ACTIVE: prod
     volumes:
@@ -104,16 +124,17 @@ services:
   crmupload-billing-mail:
     image: ghcr.io/otrturn/crmupload-billing:prod
     container_name: crmupload-billing-mail
-    command: ["--mailInvoices"]
+    command: [ "--mailInvoices" ]
     restart: "no"
-    networks: [ crmuploadnet ]
     depends_on:
-      app-db:
-        condition: service_healthy
+      crmupload-flyway:
+        condition: service_completed_successfully
+    networks:
+      - crmuploadnet
     environment:
       SPRING_PROFILES_ACTIVE: prod
     volumes:
-      - /tmp:/data/tmp
+      - ./tmp:/data/tmp
 
 networks:
   crmuploadnet:

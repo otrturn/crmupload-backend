@@ -56,4 +56,5 @@ update app.crm_upload
 set status= 'new';
 commit;
 
-SELECT * FROM app.kpi_open_products_revenue();
+SELECT *
+FROM app.kpi_open_products_revenue();

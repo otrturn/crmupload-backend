@@ -3,11 +3,15 @@ then
     remove-web.sh
     remove-wrk-dup.sh
     remove-wrk-gpu-dev.sh
-    remove-wrk-gpu-prod.sh
     remove-wrk-upload.sh
+    remove-billing.sh
+    remove-wrk-gpu-prod.sh
+    remove-flyway.sh
 else
     remove-web.sh
     remove-wrk-dup.sh
     remove-wrk-gpu-dev.sh
     remove-wrk-upload.sh
+    remove-billing.sh
+    remove-flyway.sh
 fi

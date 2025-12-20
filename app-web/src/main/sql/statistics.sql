@@ -15,4 +15,5 @@ from app.duplicate_check
 group by status
 order by tag, status;
 
-SELECT * FROM app.kpi_open_products_revenue();
+SELECT *
+FROM app.kpi_open_products_revenue();
