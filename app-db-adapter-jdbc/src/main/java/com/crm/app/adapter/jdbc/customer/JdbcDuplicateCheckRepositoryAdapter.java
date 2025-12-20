@@ -87,6 +87,9 @@ public class JdbcDuplicateCheckRepositoryAdapter implements DuplicateCheckReposi
             UPDATE app.duplicate_check
                SET status = 'duplicate-checked',
                    content = :content,
+                   statistics =
+                       COALESCE(statistics, '{}'::jsonb)
+                       || COALESCE(NULLIF(:statistics, ''), '{}')::jsonb,
                    modified = now()
              WHERE duplicate_check_id = :duplicateCheckId
             """;
@@ -96,6 +99,9 @@ public class JdbcDuplicateCheckRepositoryAdapter implements DuplicateCheckReposi
                SET status = 'failed',
                    content = NULL,
                    last_error = :error,
+                   statistics =
+                       COALESCE(statistics, '{}'::jsonb)
+                       || COALESCE(NULLIF(:statistics, ''), '{}')::jsonb,
                    modified = now()
              WHERE duplicate_check_id = :duplicateCheckId
             """;
@@ -104,6 +110,9 @@ public class JdbcDuplicateCheckRepositoryAdapter implements DuplicateCheckReposi
             UPDATE app.duplicate_check
                SET status = 'failed',
                    last_error = :error,
+                   statistics =
+                       COALESCE(statistics, '{}'::jsonb)
+                       || COALESCE(NULLIF(:statistics, ''), '{}')::jsonb,
                    modified = now()
              WHERE duplicate_check_id = :duplicateCheckId
             """;
@@ -164,6 +173,7 @@ public class JdbcDuplicateCheckRepositoryAdapter implements DuplicateCheckReposi
 
     private static final String LITERAL_NO_CUSTOMER_FOR_DUPLICATE_CHECK_ID = "No customer found for duplicateCheckId '%d'";
     private static final String LITERAL_NO_CUSTOMER_FOR_CUSTOMER_ID = "No customer found for customerId'%d'";
+    private static final String LITERAL_STATISTICS = "statistics";
 
     private static final String STATUS_DUPLICATE_CHECK_NEW = "new";
 
@@ -270,8 +280,10 @@ public class JdbcDuplicateCheckRepositoryAdapter implements DuplicateCheckReposi
     }
 
     @Override
-    public void markDuplicateCheckChecked(final long duplicateCheckId, byte[] content) {
-        final MapSqlParameterSource params = new MapSqlParameterSource().addValue(LITERAL_DUPLICATE_CHECK_ID_CAMELCASE, duplicateCheckId).addValue(LITERAL_CONTENT, content);
+    public void markDuplicateCheckChecked(final long duplicateCheckId, byte[] content, final String statisticsJson) {
+        final MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue(LITERAL_DUPLICATE_CHECK_ID_CAMELCASE, duplicateCheckId).addValue(LITERAL_CONTENT, content)
+                .addValue(LITERAL_STATISTICS, statisticsJson);
         try {
             jdbcTemplate.update(SQL_MARK_DUPLICATE_CHECK_CHECKED, params);
         } catch (DataAccessException ex) {
@@ -281,8 +293,11 @@ public class JdbcDuplicateCheckRepositoryAdapter implements DuplicateCheckReposi
     }
 
     @Override
-    public void markDuplicateCheckFailed(final long duplicateCheckId, final String errorMessage) {
-        final MapSqlParameterSource params = new MapSqlParameterSource().addValue(LITERAL_DUPLICATE_CHECK_ID_CAMELCASE, duplicateCheckId).addValue(LITERAL_ERROR, errorMessage);
+    public void markDuplicateCheckFailed(final long duplicateCheckId, final String errorMessage, final String statisticsJson) {
+        final MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue(LITERAL_DUPLICATE_CHECK_ID_CAMELCASE, duplicateCheckId)
+                .addValue(LITERAL_ERROR, errorMessage)
+                .addValue(LITERAL_STATISTICS, statisticsJson);
         try {
             if (isUnderObservationByDuplicateCheckId(duplicateCheckId)) {
                 jdbcTemplate.update(SQL_MARK_DUPLICATE_CHECK_FAILED_KEEP_CONTENT, params);
@@ -297,7 +312,8 @@ public class JdbcDuplicateCheckRepositoryAdapter implements DuplicateCheckReposi
 
     @Override
     public void markDuplicateCheckDone(final long duplicateCheckId) {
-        final MapSqlParameterSource params = new MapSqlParameterSource().addValue(LITERAL_DUPLICATE_CHECK_ID_CAMELCASE, duplicateCheckId);
+        final MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue(LITERAL_DUPLICATE_CHECK_ID_CAMELCASE, duplicateCheckId);
         try {
             if (isUnderObservationByDuplicateCheckId(duplicateCheckId)) {
                 jdbcTemplate.update(SQL_MARK_DUPLICATE_CHECK_DONE_KEEP_CONTENT, params);

@@ -53,6 +53,9 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
                    content = NULL,
                    api_key = NULL,
                    last_error = NULL,
+                   statistics =
+                       COALESCE(statistics, '{}'::jsonb)
+                       || COALESCE(NULLIF(:statistics, ''), '{}')::jsonb,
                    modified = now()
              WHERE upload_id = :uploadId
             """;
@@ -61,6 +64,9 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
             UPDATE app.crm_upload
                SET status = 'done',
                    last_error = NULL,
+                   statistics =
+                       COALESCE(statistics, '{}'::jsonb)
+                       || COALESCE(NULLIF(:statistics, ''), '{}')::jsonb,
                    modified = now()
              WHERE upload_id = :uploadId
             """;
@@ -71,6 +77,9 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
                    content = NULL,
                    api_key = NULL,
                    last_error = :error,
+                   statistics =
+                       COALESCE(statistics, '{}'::jsonb)
+                       || COALESCE(NULLIF(:statistics, ''), '{}')::jsonb,
                    modified = now()
              WHERE upload_id = :uploadId
             """;
@@ -79,6 +88,9 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
             UPDATE app.crm_upload
                SET status = 'failed',
                    last_error = :error,
+                   statistics =
+                       COALESCE(statistics, '{}'::jsonb)
+                       || COALESCE(NULLIF(:statistics, ''), '{}')::jsonb,
                    modified = now()
              WHERE upload_id = :uploadId
             """;
@@ -131,6 +143,7 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
     private static final String LITERAL_STATUS = "status";
     private static final String LITERAL_ERROR = "error";
     private static final String LITERAL_LIMIT = "limit";
+    private static final String LITERAL_STATISTICS = "statistics";
 
     // camelCase-Parameter → *_CAMELCASE
     private static final String LITERAL_UPLOAD_ID_CAMELCASE = "uploadId";
@@ -219,8 +232,10 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
     }
 
     @Override
-    public void markUploadDone(final long uploadId) {
-        final MapSqlParameterSource params = new MapSqlParameterSource().addValue(LITERAL_UPLOAD_ID_CAMELCASE, uploadId);
+    public void markUploadDone(final long uploadId, final String statisticsJson) {
+        final MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue(LITERAL_UPLOAD_ID_CAMELCASE, uploadId)
+                .addValue(LITERAL_STATISTICS, statisticsJson);
         try {
             if (isUnderObservationByUploadId(uploadId)) {
                 jdbcTemplate.update(SQL_MARK_CRM_UPLOAD_DONE_KEEP_CONTENT, params);
@@ -234,8 +249,10 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
     }
 
     @Override
-    public void markUploadFailed(final long uploadId, final String errorMessage) {
-        final MapSqlParameterSource params = new MapSqlParameterSource().addValue(LITERAL_UPLOAD_ID_CAMELCASE, uploadId).addValue(LITERAL_ERROR, errorMessage);
+    public void markUploadFailed(final long uploadId, final String errorMessage, final String statisticsJson) {
+        final MapSqlParameterSource params = new MapSqlParameterSource().addValue(LITERAL_UPLOAD_ID_CAMELCASE, uploadId)
+                .addValue(LITERAL_ERROR, errorMessage)
+                .addValue(LITERAL_STATISTICS, statisticsJson);
         try {
             if (isUnderObservationByUploadId(uploadId)) {
                 jdbcTemplate.update(SQL_MARK_CRM_UPLOAD_FAILED_KEEP_CONTENT, params);

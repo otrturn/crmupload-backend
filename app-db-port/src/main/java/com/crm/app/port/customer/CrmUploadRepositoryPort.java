@@ -14,9 +14,9 @@ public interface CrmUploadRepositoryPort {
 
     List<Long> claimNextUploads(int limit);
 
-    void markUploadDone(long uploadId);
+    void markUploadDone(long uploadId, String statisticsJson);
 
-    void markUploadFailed(long uploadId, String errorMessage);
+    void markUploadFailed(long uploadId, String errorMessage, String statisticsJson);
 
     List<CrmUploadContent> findUploadsByIds(List<Long> uploadIds);
 

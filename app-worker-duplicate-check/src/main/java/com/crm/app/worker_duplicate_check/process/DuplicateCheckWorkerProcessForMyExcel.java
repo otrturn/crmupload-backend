@@ -5,12 +5,15 @@ import com.crm.app.dto.DuplicateCheckContent;
 import com.crm.app.dto.DuplicateCheckEntry;
 import com.crm.app.port.customer.CustomerRepositoryPort;
 import com.crm.app.port.customer.DuplicateCheckRepositoryPort;
+import com.crm.app.worker_common.dto.StatisticsError;
 import com.crm.app.worker_common.util.WorkerUtil;
 import com.crm.app.worker_duplicate_check.mail.DuplicatecheckMailService;
 import com.crmmacher.error.ErrMsg;
 import com.crmmacher.espo.importer.my_excel.config.MyExcelCtx;
 import com.crmmacher.my_excel.dto.MyExcelAccount;
 import com.crmmacher.my_excel.reader.MyExcelReadAccounts;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -30,6 +33,10 @@ public class DuplicateCheckWorkerProcessForMyExcel {
 
     private final MyExcelCtx myExcelCtx;
 
+    private static final Gson GSON = new GsonBuilder()
+            .serializeNulls()
+            .create();
+
     public void processDuplicateCheckForVerification(DuplicateCheckContent duplicateCheckContent) {
         log.info(String.format("Processing crm_upload for MyExcel duplicateCheckId=%d sourceSysten=%s", duplicateCheckContent.getDuplicateCheckId(), duplicateCheckContent.getSourceSystem()));
         try {
@@ -46,7 +53,9 @@ public class DuplicateCheckWorkerProcessForMyExcel {
                     duplicateCheckRepositoryPort.markDuplicateCheckVerified(duplicateCheckContent.getDuplicateCheckId(), duplicateCheckContent.getContent());
                 } else {
                     duplicatecheckMailService.sendErrorMail(customer.get(), duplicateCheckContent, errors, WorkerUtil.markExcelFile(duplicateCheckContent.getContent(), errors));
-                    duplicateCheckRepositoryPort.markDuplicateCheckFailed(duplicateCheckContent.getDuplicateCheckId(), "Verification failed");
+                    StatisticsError statisticsError = new StatisticsError();
+                    statisticsError.setFromErrMsg(errors);
+                    duplicateCheckRepositoryPort.markDuplicateCheckFailed(duplicateCheckContent.getDuplicateCheckId(), "Verification failed", GSON.toJson(statisticsError));
                 }
             } else {
                 log.error(String.format("Customer not found for customerId=%d", duplicateCheckContent.getCustomerId()));

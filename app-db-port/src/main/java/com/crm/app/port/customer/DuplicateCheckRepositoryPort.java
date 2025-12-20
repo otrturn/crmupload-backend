@@ -18,9 +18,9 @@ public interface DuplicateCheckRepositoryPort {
 
     void markDuplicateCheckVerified(long uploadId, byte[] content);
 
-    void markDuplicateCheckChecked(long uploadId, byte[] content);
+    void markDuplicateCheckChecked(long uploadId, byte[] content, String statisticsJson);
 
-    void markDuplicateCheckFailed(long uploadId, String errorMessage);
+    void markDuplicateCheckFailed(long uploadId, String errorMessage, String statisticsJson);
 
     void markDuplicateCheckDone(long uploadId);
 

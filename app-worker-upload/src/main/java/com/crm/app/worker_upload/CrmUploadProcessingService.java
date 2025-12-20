@@ -7,6 +7,8 @@ import com.crm.app.port.customer.CrmUploadRepositoryPort;
 import com.crm.app.worker_upload.process.UploadWorkerProcessForBexio;
 import com.crm.app.worker_upload.process.UploadWorkerProcessForLexware;
 import com.crm.app.worker_upload.process.UploadWorkerProcessForMyExcel;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,10 @@ public class CrmUploadProcessingService {
     private static final String UNKNOWN_SOURCE_SYSTEM = "Unknown sourceSystem: ";
     private static final String ERROR_MSG = "Unknown crmSystem '%s' for uploadId=%d";
 
+    private static final Gson GSON = new GsonBuilder()
+            .serializeNulls()
+            .create();
+
     @Transactional
     public void processSingleUpload(CrmUploadContent upload) {
         SourceSystem sourceSystem = SourceSystem.fromString(upload.getSourceSystem());
@@ -37,7 +43,7 @@ public class CrmUploadProcessingService {
             case MYEXCEL -> handleMyExcel(upload, crmSystem);
             default -> {
                 log.error(String.format(ERROR_MSG, upload.getCrmSystem(), upload.getUploadId()));
-                repository.markUploadFailed(upload.getUploadId(), UNKNOWN_SOURCE_SYSTEM + upload.getSourceSystem());
+                repository.markUploadFailed(upload.getUploadId(), UNKNOWN_SOURCE_SYSTEM + upload.getSourceSystem(), GSON.toJson(UNKNOWN_SOURCE_SYSTEM + upload.getSourceSystem()));
             }
         }
     }
@@ -49,8 +55,8 @@ public class CrmUploadProcessingService {
                 // TODO: implement
             }
             default -> {
-                log.warn(String.format(ERROR_MSG, upload.getCrmSystem(), upload.getUploadId()));
-                repository.markUploadFailed(upload.getUploadId(), UNKNOWN_CRM_SYSTEM + upload.getCrmSystem());
+                log.error(String.format(ERROR_MSG, upload.getCrmSystem(), upload.getUploadId()));
+                repository.markUploadFailed(upload.getUploadId(), UNKNOWN_CRM_SYSTEM + upload.getCrmSystem(), GSON.toJson(UNKNOWN_SOURCE_SYSTEM + upload.getSourceSystem()));
             }
         }
     }
@@ -62,8 +68,8 @@ public class CrmUploadProcessingService {
                 // TODO: implement
             }
             default -> {
-                log.warn(String.format(ERROR_MSG, upload.getCrmSystem(), upload.getUploadId()));
-                repository.markUploadFailed(upload.getUploadId(), UNKNOWN_CRM_SYSTEM + upload.getCrmSystem());
+                log.error(String.format(ERROR_MSG, upload.getCrmSystem(), upload.getUploadId()));
+                repository.markUploadFailed(upload.getUploadId(), UNKNOWN_CRM_SYSTEM + upload.getCrmSystem(), GSON.toJson(UNKNOWN_SOURCE_SYSTEM + upload.getSourceSystem()));
             }
         }
     }
@@ -76,7 +82,7 @@ public class CrmUploadProcessingService {
             }
             default -> {
                 log.warn(String.format(ERROR_MSG, upload.getCrmSystem(), upload.getUploadId()));
-                repository.markUploadFailed(upload.getUploadId(), UNKNOWN_CRM_SYSTEM + upload.getCrmSystem());
+                repository.markUploadFailed(upload.getUploadId(), UNKNOWN_CRM_SYSTEM + upload.getCrmSystem(), GSON.toJson(UNKNOWN_SOURCE_SYSTEM + upload.getSourceSystem()));
             }
         }
     }

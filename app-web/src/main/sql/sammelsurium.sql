@@ -12,13 +12,13 @@ from app.user_account;
 select *
 from app.customer;
 
-select upload_id, customer_id, source_system, crm_system, status
+select upload_id, customer_id, source_system, crm_system, statistics, status
 from app.crm_upload;
 
 select upload_id, customer_id, source_system, crm_system, status
 from app.crm_upload_observation;
 
-select duplicate_check_id, customer_id, source_system, status
+select duplicate_check_id, customer_id, source_system, statistics, status
 from app.duplicate_check
 order by duplicate_check_id desc;
 

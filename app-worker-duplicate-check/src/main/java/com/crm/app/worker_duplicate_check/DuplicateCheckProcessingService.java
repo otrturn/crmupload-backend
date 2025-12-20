@@ -9,6 +9,8 @@ import com.crm.app.worker_duplicate_check.mail.DuplicatecheckMailService;
 import com.crm.app.worker_duplicate_check.process.DuplicateCheckWorkerProcessForBexio;
 import com.crm.app.worker_duplicate_check.process.DuplicateCheckWorkerProcessForLexware;
 import com.crm.app.worker_duplicate_check.process.DuplicateCheckWorkerProcessForMyExcel;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -30,6 +32,10 @@ public class DuplicateCheckProcessingService {
 
     private static final String UNKNOWN_SOURCE_SYSTEM = "Unknown sourceSystem: ";
 
+    private static final Gson GSON = new GsonBuilder()
+            .serializeNulls()
+            .create();
+
     @Transactional
     public void processSingleDuplicateCheckForVerification(DuplicateCheckContent duplicateCheckContent) {
         SourceSystem sourceSystem = SourceSystem.fromString(duplicateCheckContent.getSourceSystem());
@@ -42,8 +48,9 @@ public class DuplicateCheckProcessingService {
             case MYEXCEL ->
                     duplicateCheckWorkerProcessForMyExcel.processDuplicateCheckForVerification(duplicateCheckContent);
             default -> {
-                log.warn(String.format("Unknown sourceSystem '%s' for duplicateCheckId=%d", duplicateCheckContent.getSourceSystem(), duplicateCheckContent.getDuplicateCheckId()));
-                duplicateCheckRepositoryPort.markDuplicateCheckFailed(duplicateCheckContent.getDuplicateCheckId(), UNKNOWN_SOURCE_SYSTEM + duplicateCheckContent.getSourceSystem());
+                String msg = String.format("Unknown sourceSystem '%s' for duplicateCheckId=%d", duplicateCheckContent.getSourceSystem(), duplicateCheckContent.getDuplicateCheckId());
+                log.warn(msg);
+                duplicateCheckRepositoryPort.markDuplicateCheckFailed(duplicateCheckContent.getDuplicateCheckId(), UNKNOWN_SOURCE_SYSTEM + duplicateCheckContent.getSourceSystem(), GSON.toJson(UNKNOWN_SOURCE_SYSTEM + duplicateCheckContent.getSourceSystem()));
             }
         }
     }

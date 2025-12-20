@@ -3,7 +3,9 @@ package com.crm.app.worker_upload.process;
 import com.crm.app.dto.CrmUploadContent;
 import com.crm.app.dto.Customer;
 import com.crm.app.port.customer.CrmUploadRepositoryPort;
+import com.crm.app.worker_common.dto.StatisticsError;
 import com.crm.app.worker_common.util.WorkerUtil;
+import com.crm.app.worker_upload.dto.StatisticsUploadEspo;
 import com.crm.app.worker_upload.mail.UploadMailService;
 import com.crmmacher.config.BaseCtx;
 import com.crmmacher.error.ErrMsg;
@@ -17,6 +19,8 @@ import com.crmmacher.espo.storage_handler.add.error.EspoValidationException;
 import com.crmmacher.espo.storage_handler.get.GetAccountFromEspo;
 import com.crmmacher.espo.storage_handler.get.GetContactFromEspo;
 import com.crmmacher.espo.storage_handler.get.GetLeadFromEspo;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -38,6 +42,10 @@ public class UploadHandlingForEspo {
 
     private static final String DURATION_FORMAT_STRING = "Duration: %02d:%02d:%02d";
 
+    private static final Gson GSON = new GsonBuilder()
+            .serializeNulls()
+            .create();
+
     public void processForEspo(CrmUploadContent upload, byte[] excelBytes, List<ErrMsg> errors, Customer customer, EspoEntityPool espoEntityPoolForReceived) {
         EspoEntityPool espoEntityPoolForLoad = new EspoEntityPool();
         EspoEntityPool espoEntityPoolForAdd = new EspoEntityPool();
@@ -54,15 +62,20 @@ public class UploadHandlingForEspo {
                 addEntitiesToEspo(baseCtx, espoEntityPoolForAdd);
                 logStatistics(espoEntityPoolForReceived, espoEntityPoolForAdd, espoEntityPoolForIgnore);
 
-                repository.markUploadDone(upload.getUploadId());
+                String statisticsJson = GSON.toJson(setStatistics(espoEntityPoolForLoad, espoEntityPoolForReceived, espoEntityPoolForAdd, espoEntityPoolForIgnore));
+                repository.markUploadDone(upload.getUploadId(), statisticsJson);
                 uploadMailService.sendSuccessMailForEspo(customer, upload, espoEntityPoolForAdd, espoEntityPoolForIgnore);
             } catch (EspoValidationException e) {
-                repository.markUploadFailed(upload.getUploadId(), "ESPO Validation failed[" + e.getMessage() + "]");
+                String msg = "ESPO Validation failed[" + e.getMessage() + "]";
+                repository.markUploadFailed(upload.getUploadId(), msg, GSON.toJson(msg));
             } catch (Exception e) {
-                repository.markUploadFailed(upload.getUploadId(), "ESPO Handling failed[" + e.getMessage() + "]");
+                String msg = "ESPO Handling failed[" + e.getMessage() + "]";
+                repository.markUploadFailed(upload.getUploadId(), msg, GSON.toJson(msg));
             }
         } else {
-            repository.markUploadFailed(upload.getUploadId(), "Validation failed");
+            StatisticsError statisticsError = new StatisticsError();
+            statisticsError.setFromErrMsg(errors);
+            repository.markUploadFailed(upload.getUploadId(), "Validation failed", GSON.toJson(statisticsError));
             WorkerUtil.markExcelFile(excelBytes, errors);
             uploadMailService.sendErrorMailForEspo(customer, upload, errors, WorkerUtil.markExcelFile(excelBytes, errors));
         }
@@ -144,7 +157,22 @@ public class UploadHandlingForEspo {
         log.info(msg);
         msg = String.format("Leads ignored %d", espoEntityPoolForIgnore.getLeads().size());
         log.info(msg);
+    }
 
+    private StatisticsUploadEspo setStatistics(EspoEntityPool espoEntityPoolForLoad, EspoEntityPool espoEntityPoolForReceived, EspoEntityPool espoEntityPoolForAdd, EspoEntityPool espoEntityPoolForIgnore) {
+        StatisticsUploadEspo statisticsUploadEspo = new StatisticsUploadEspo();
+
+        statisticsUploadEspo.setNAccountsInCrm(espoEntityPoolForLoad.getAccounts().size());
+        statisticsUploadEspo.setNAccountsReceived(espoEntityPoolForReceived.getAccounts().size());
+        statisticsUploadEspo.setNAccountsAdded(espoEntityPoolForAdd.getAccounts().size());
+        statisticsUploadEspo.setNAccountsIgnored(espoEntityPoolForIgnore.getAccounts().size());
+
+        statisticsUploadEspo.setNContactsInCrm(espoEntityPoolForLoad.getContacts().size());
+        statisticsUploadEspo.setNContactsReceived(espoEntityPoolForReceived.getContacts().size());
+        statisticsUploadEspo.setNContactsAdded(espoEntityPoolForAdd.getContacts().size());
+        statisticsUploadEspo.setNContactsIgnored(espoEntityPoolForIgnore.getContacts().size());
+
+        return statisticsUploadEspo;
     }
 
 }

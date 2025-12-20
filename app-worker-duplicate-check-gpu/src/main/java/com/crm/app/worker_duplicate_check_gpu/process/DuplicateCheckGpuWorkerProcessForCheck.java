@@ -8,11 +8,10 @@ import com.crm.app.util.AccountNameEmbeddingNormalizer;
 import com.crm.app.util.EmbeddingUtils;
 import com.crm.app.worker_common.util.WorkerUtil;
 import com.crm.app.worker_duplicate_check_gpu.config.DuplicateCheckGpuProperties;
-import com.crm.app.worker_duplicate_check_gpu.dto.AddressMatchCategory;
-import com.crm.app.worker_duplicate_check_gpu.dto.CompanyEmbedded;
-import com.crm.app.worker_duplicate_check_gpu.dto.EmbeddingMatchType;
-import com.crm.app.worker_duplicate_check_gpu.dto.SimilarCompany;
+import com.crm.app.worker_duplicate_check_gpu.dto.*;
 import com.crm.app.worker_duplicate_check_gpu.error.WorkerDuplicateCheckGpuEmbeddingException;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.ki.rag.embedding.client.embed.EmbeddingClient;
 import com.ki.rag.embedding.client.embed.EmbeddingClientFactory;
 import lombok.RequiredArgsConstructor;
@@ -46,6 +45,10 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
 
     private static final String DURATION_FORMAT_STRING = "Duration: %02d:%02d:%02d";
 
+    private static final Gson GSON = new GsonBuilder()
+            .serializeNulls()
+            .create();
+
     public void processDuplicateCheckForCheck(DuplicateCheckContent duplicateCheckContent) {
         log.info(String.format("processDuplicateCheckForCheck for %d %s", duplicateCheckContent.getDuplicateCheckId(), duplicateCheckContent.getSourceSystem()));
         try {
@@ -67,7 +70,7 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
             createResultWorkbook.create(duplicateCheckContent, companiesEmbedded);
             Optional<Customer> customer = customerRepositoryPort.findCustomerByCustomerId(duplicateCheckContent.getCustomerId());
             if (customer.isPresent()) {
-                duplicateCheckRepositoryPort.markDuplicateCheckChecked(duplicateCheckContent.getDuplicateCheckId(), duplicateCheckContent.getContent());
+                duplicateCheckRepositoryPort.markDuplicateCheckChecked(duplicateCheckContent.getDuplicateCheckId(), duplicateCheckContent.getContent(), GSON.toJson(setStatistics(companiesEmbedded)));
             } else {
                 log.error(String.format("Customer not found for customerId=%d", duplicateCheckContent.getCustomerId()));
             }
@@ -168,4 +171,31 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
         return cell != null ? cell.getStringCellValue() : "";
     }
 
+    private StatisticsDuplicateCheck setStatistics(List<CompanyEmbedded> companiesEmbedded) {
+        StatisticsDuplicateCheck statisticsDuplicateCheck = new StatisticsDuplicateCheck();
+        statisticsDuplicateCheck.setNEntries(companiesEmbedded.size());
+        long accountNameMatches = 0;
+        long possibleAddressMatches = 0;
+        long addressMatches = 0;
+
+        for (CompanyEmbedded company : companiesEmbedded) {
+            for (SimilarCompany similar : company.getSimilarCompanies()) {
+                EmbeddingMatchType mt = similar.getMatchType();
+
+                if (mt.isAccountNameMatch()) {
+                    accountNameMatches++;
+                }
+
+                if (mt.getAddressMatchCategory() == AddressMatchCategory.POSSIBLE) {
+                    possibleAddressMatches++;
+                } else if (mt.getAddressMatchCategory() == AddressMatchCategory.MATCH) {
+                    addressMatches++;
+                }
+            }
+        }
+        statisticsDuplicateCheck.setNDuplicateAccountNames(accountNameMatches);
+        statisticsDuplicateCheck.setNAddressesPossible(possibleAddressMatches);
+        statisticsDuplicateCheck.setNAddressesMatch(addressMatches);
+        return statisticsDuplicateCheck;
+    }
 }
