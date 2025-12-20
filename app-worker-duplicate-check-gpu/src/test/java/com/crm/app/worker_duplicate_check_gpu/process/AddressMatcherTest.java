@@ -1,0 +1,109 @@
+package com.crm.app.worker_duplicate_check_gpu.process;
+
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class AddressMatcherTest {
+
+    @Test
+    void exactSame_shouldMatch() {
+        var a = AddressMatcher.of("Hauptstraße 5", "Köln");
+        var b = AddressMatcher.of("Hauptstraße 5", "Köln");
+
+        var r = AddressMatcher.match(a, b);
+        assertEquals(AddressMatcher.MatchCategory.MATCH, r.category());
+        assertTrue(r.score() >= 0.95);
+    }
+
+    @Test
+    void umlautAndStrAbbrev_shouldMatch() {
+        var a = AddressMatcher.of("Hauptstr. 5a", "Köln");
+        var b = AddressMatcher.of("Hauptstraße 5 A", "Koeln");
+
+        var r = AddressMatcher.match(a, b);
+        assertEquals(AddressMatcher.MatchCategory.MATCH, r.category());
+        assertTrue(r.houseSim() >= 0.70);
+        assertTrue(r.citySim() >= 0.90);
+    }
+
+    @Test
+    void houseNumberDifferent_sameStreetCity_shouldNoMatch() {
+        var a = AddressMatcher.of("Bahnhofstraße 12", "München");
+        var b = AddressMatcher.of("Bahnhofstr 14", "Muenchen");
+
+        var r = AddressMatcher.match(a, b);
+        assertEquals(AddressMatcher.MatchCategory.NO_MATCH, r.category());
+    }
+
+    @Test
+    void houseNumberRange_shouldBePossibleOrMatch() {
+        var a = AddressMatcher.of("Bahnhofstraße 12-14", "München");
+        var b = AddressMatcher.of("Bahnhofstr 13", "Muenchen");
+
+        var r = AddressMatcher.match(a, b);
+        // je nach Schreibvariante kann das MATCH oder POSSIBLE werden – beides ok
+        assertTrue(r.category() == AddressMatcher.MatchCategory.MATCH
+                || r.category() == AddressMatcher.MatchCategory.POSSIBLE);
+        assertTrue(r.houseSim() >= 0.70);
+    }
+
+    @Test
+    void cityAbbrev_shouldNotFailGate() {
+        var a = AddressMatcher.of("Zeil 10", "Frankfurt am Main");
+        var b = AddressMatcher.of("Zeil 10", "Frankfurt a. M.");
+
+        var r = AddressMatcher.match(a, b);
+        assertTrue(r.citySim() >= 0.90);
+        assertTrue(r.category() == AddressMatcher.MatchCategory.MATCH
+                || r.category() == AddressMatcher.MatchCategory.POSSIBLE);
+    }
+
+    @Test
+    void districtVsCity_shouldBePossibleNotNoMatch() {
+        var a = AddressMatcher.of("Hauptstraße 5", "Köln");
+        var b = AddressMatcher.of("Hauptstr 5", "Köln-Porz");
+
+        var r = AddressMatcher.match(a, b);
+        // je nach Daten willst du hier eher POSSIBLE als NO_MATCH
+        assertNotEquals(AddressMatcher.MatchCategory.NO_MATCH, r.category());
+    }
+
+    @Test
+    void missingHouseNumber_oneSide_shouldUsuallyBePossible() {
+        var a = AddressMatcher.of("Hauptstraße", "Köln");
+        var b = AddressMatcher.of("Hauptstraße 5", "Köln");
+
+        var r = AddressMatcher.match(a, b);
+        // wegen einseitig fehlender Hausnummer: nicht direkt MATCH (Default)
+        assertTrue(r.category() == AddressMatcher.MatchCategory.POSSIBLE
+                || r.category() == AddressMatcher.MatchCategory.NO_MATCH);
+    }
+
+    @Test
+    void differentCity_shouldNoMatchEvenIfStreetLooksSimilar() {
+        var a = AddressMatcher.of("Hauptstraße 5", "Köln");
+        var b = AddressMatcher.of("Hauptstraße 5", "Berlin");
+
+        var r = AddressMatcher.match(a, b);
+        assertEquals(AddressMatcher.MatchCategory.NO_MATCH, r.category());
+    }
+
+    @Test
+    void config_canMakeItStricter_againstFalsePositives() {
+        var strict = new AddressMatcher.MatchConfig(
+                0.92, // cityGate strenger
+                0.90, // MATCH strenger
+                0.84, // POSSIBLE strenger
+                0.95, // house missing -> street muss extrem stark sein
+                0.45, 0.35, 0.20
+        );
+
+        var a = AddressMatcher.of("Hauptstraße", "Köln");
+        var b = AddressMatcher.of("Hauptstr. 5", "Koeln");
+
+        var r = AddressMatcher.match(a, b, strict);
+        // strenger Config: eher NO_MATCH/POSSIBLE
+        assertNotEquals(AddressMatcher.MatchCategory.MATCH, r.category());
+    }
+}
