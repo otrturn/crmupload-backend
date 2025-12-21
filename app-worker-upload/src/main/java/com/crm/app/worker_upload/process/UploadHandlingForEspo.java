@@ -70,8 +70,8 @@ public class UploadHandlingForEspo {
                 logStatistics(espoEntityPoolForReceived, espoEntityPoolForAdd, espoEntityPoolForIgnore);
 
                 StatisticsUploadEspo statisticsUploadEspo = setStatistics(espoEntityPoolForLoad, espoEntityPoolForReceived, espoEntityPoolForAdd, espoEntityPoolForIgnore);
-                statisticsUploadEspo.setnSecondsForEspoLoad(durationEspoLoad.getSeconds());
-                statisticsUploadEspo.setnSecondsForEspoUpload(durationEspoUpLoad.getSeconds());
+                statisticsUploadEspo.setNSecondsForEspoLoad(durationEspoLoad.getSeconds());
+                statisticsUploadEspo.setNSecondsForEspoUpload(durationEspoUpLoad.getSeconds());
                 String statisticsJson = GSON.toJson(statisticsUploadEspo);
 
                 repository.markUploadDone(upload.getUploadId(), statisticsJson);
