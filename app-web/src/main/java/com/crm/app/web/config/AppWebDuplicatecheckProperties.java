@@ -4,11 +4,10 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-@ConfigurationProperties(prefix = "app.activation")
+@ConfigurationProperties(prefix = "app.duplicate-check")
 @Getter
 @Setter
-public class AppWebProperties {
-    private String baseUrl;
-    private String uri;
+public class AppWebDuplicatecheckProperties {
+    private String excelSampleFile;
 }
 

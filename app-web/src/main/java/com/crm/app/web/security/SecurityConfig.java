@@ -36,6 +36,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/login", "/auth/test", "/auth/register-customer").permitAll()
                         .requestMatchers(HttpMethod.PUT, "/api/maintenance/page-visited/**").permitAll()
+                        .requestMatchers(
+                                "/api/duplicate-check/downloads/help/**",
+                                "/favicon.ico"
+                        ).permitAll()
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().permitAll()
                 );

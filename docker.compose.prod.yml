@@ -59,6 +59,8 @@ services:
       - crmuploadnet
     environment:
       SPRING_PROFILES_ACTIVE: prod
+    volumes:
+      - /opt/crmupload-deploy/downloads:/data/generated:ro
 
   # --------------------------------------------------------------
   # BACKGROUND WORKER / BATCH PROCESSOR

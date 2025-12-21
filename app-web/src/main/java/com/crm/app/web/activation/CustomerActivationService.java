@@ -3,7 +3,7 @@ package com.crm.app.web.activation;
 import com.crm.app.dto.CustomerProfile;
 import com.crm.app.port.customer.CustomerActivationRepositoryPort;
 import com.crm.app.port.customer.CustomerRepositoryPort;
-import com.crm.app.web.config.AppWebProperties;
+import com.crm.app.web.config.AppWebActivationProperties;
 import com.crm.app.web.mail.ActivationMailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,7 +18,7 @@ public class CustomerActivationService {
     private final CustomerActivationRepositoryPort activationRepository;
     private final CustomerRepositoryPort customerRepository;
     private final ActivationMailService activationMailService;
-    private final AppWebProperties appWebProperties;
+    private final AppWebActivationProperties appWebActivationProperties;
 
     @Transactional
     public boolean activateByToken(String token) {
@@ -45,7 +45,7 @@ public class CustomerActivationService {
     public void sendActivationEmail(String emailAddress, String name, Long customerId) {
         String activationToken = activationRepository.createActivationToken(customerId);
 
-        String activationLink = appWebProperties.getBaseUrl() + appWebProperties.getUri() + "?token=" + activationToken;
+        String activationLink = appWebActivationProperties.getBaseUrl() + appWebActivationProperties.getUri() + "?token=" + activationToken;
 
         activationMailService.sendActivationMail(emailAddress, name, activationLink);
     }

@@ -65,6 +65,8 @@ services:
       - crmuploadnet
     environment:
       SPRING_PROFILES_ACTIVE: dev
+    volumes:
+      - /home/ralf/espocrm-demo/generated:/data/generated:ro
 
   # --------------------------------------------------------------
   # BACKGROUND WORKER / BATCH PROCESSOR
