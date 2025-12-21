@@ -7,6 +7,7 @@ import com.crm.app.dto.CrmUploadRequest;
 import com.crm.app.port.customer.CrmUploadRepositoryPort;
 import com.crm.app.port.customer.CustomerRepositoryPort;
 import com.crm.app.web.error.CustomerNotFoundException;
+import com.crm.app.web.error.UploadAlreadyInProgressException;
 import com.crm.app.web.error.UploadNotAllowedException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,7 +47,7 @@ public class CrmUploadService {
             throw new UploadNotAllowedException(String.format("processUpload: Customer %s does not have product [%s]", emailAddress, AppConstants.PRODUCT_CRM_UPLOAD));
         }
         if (hasOpenCrmUploads) {
-            throw new UploadNotAllowedException(String.format("processUpload: Customer %s has open uploads", emailAddress));
+            throw new UploadAlreadyInProgressException(String.format("processUpload: Customer %s has open uploads", emailAddress));
         }
         if (crmUploadInfo.isPresent() && (!crmUploadInfo.get().getCrmSystem().equals(crmSystem != null ? crmSystem : "") || !crmUploadInfo.get().getCrmCustomerId().equals(crmCustomerId != null ? crmCustomerId : ""))) {
             throw new UploadNotAllowedException(String.format("processUpload: crmSystem/crmCustomerId %s/%s [%s][%s] for customer %d invalid",

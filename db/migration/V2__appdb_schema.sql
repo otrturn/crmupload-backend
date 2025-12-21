@@ -91,9 +91,10 @@ ALTER TABLE app.customer
 CREATE TABLE IF NOT EXISTS app.customer_acknowledgement
 (
     customer_id                     INT         NOT NULL,
-    is_entrepreneur                 BOOLEAN     NOT NULL DEFAULT false,
-    request_immediate_service_start BOOLEAN     NOT NULL DEFAULT false,
-    acknowledge_withdrawal_loss     BOOLEAN     NOT NULL DEFAULT false,
+    agb_accepted                    BOOLEAN     NOT NULL,
+    is_entrepreneur                 BOOLEAN     NOT NULL,
+    request_immediate_service_start BOOLEAN     NOT NULL,
+    acknowledge_withdrawal_loss     BOOLEAN     NOT NULL,
     terms_version                   TEXT        NOT NULL,
     consents_at                     TIMESTAMPTZ NOT NULL DEFAULT now(),
     ip_address                      TEXT        NOT NULL,

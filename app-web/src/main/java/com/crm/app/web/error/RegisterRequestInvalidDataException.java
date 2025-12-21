@@ -1,8 +1,10 @@
 package com.crm.app.web.error;
 
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+@Getter
 @ResponseStatus(HttpStatus.BAD_REQUEST)
 public class RegisterRequestInvalidDataException extends RuntimeException {
 
@@ -13,7 +15,4 @@ public class RegisterRequestInvalidDataException extends RuntimeException {
         this.errorCode = "REGISTER_INVALID_DATA";
     }
 
-    public String getErrorCode() {
-        return errorCode;
-    }
 }

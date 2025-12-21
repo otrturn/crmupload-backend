@@ -6,6 +6,7 @@ import com.crm.app.dto.RegisterRequest;
 import com.crm.app.dto.RegisterResponse;
 import com.crm.app.port.customer.CustomerRepositoryPort;
 import com.crm.app.web.activation.CustomerActivationService;
+import com.crm.app.web.error.CustomerAcknowledgementInvalidException;
 import com.crm.app.web.error.CustomerAlreadyExistsException;
 import com.crm.app.web.validation.RegisterRequestValidator;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,18 @@ public class CustomerRegistrationService {
             throw new CustomerAlreadyExistsException("Customer with email already exists: " + emailAddress);
         }
 
+        if (!request.agb_accepted()
+                || !request.is_entrepreneur()
+                || !request.request_immediate_service_start()
+                || !request.acknowledge_withdrawal_loss()) {
+            String msg = String.format(
+                    "Customer with email %s -> invalid acknowledgement information [agb_accepted][is_entrepreneur][request_immediate_service_start][acknowledge_withdrawal_loss] [%s][%s][%s][%s]",
+                    emailAddress, request.agb_accepted(), request.is_entrepreneur(), request.request_immediate_service_start(), !request.acknowledge_withdrawal_loss());
+            throw new CustomerAcknowledgementInvalidException(msg);
+        }
+
+        // @TODO Terms checken
+
         UserAccountRegistrationResult accountResult =
                 userAccountRegistrationService.registerUserAccount(emailAddress, request.password());
 
@@ -59,6 +72,7 @@ public class CustomerRegistrationService {
         customerRepository.insertCustomer(customer);
 
         CustomerAcknowledgement customerAcknowledgement = new CustomerAcknowledgement(customerId,
+                request.agb_accepted(),
                 request.is_entrepreneur(),
                 request.request_immediate_service_start(),
                 request.acknowledge_withdrawal_loss(),

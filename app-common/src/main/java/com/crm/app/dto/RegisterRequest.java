@@ -6,6 +6,7 @@ public record RegisterRequest(String firstname, String lastname, String company_
                               String phone_number,
                               String adrline1, String adrline2, String postalcode, String city, String country,
                               String password, List<String> products,
+                              boolean agb_accepted,
                               boolean is_entrepreneur,
                               boolean request_immediate_service_start,
                               boolean acknowledge_withdrawal_loss,
