@@ -58,7 +58,8 @@ public class RegisterCustomers {
                 base.city(),
                 base.country(),
                 base.password(),
-                List.of(AppConstants.PRODUCT_CRM_UPLOAD, AppConstants.PRODUCT_DUPLICATE_CHECK)
+                List.of(AppConstants.PRODUCT_CRM_UPLOAD, AppConstants.PRODUCT_DUPLICATE_CHECK),
+                true, true, true, "21.12.2025"
         );
     }
 }

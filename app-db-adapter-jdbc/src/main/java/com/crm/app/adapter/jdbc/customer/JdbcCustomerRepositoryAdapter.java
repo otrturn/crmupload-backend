@@ -58,6 +58,13 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
     private static final String LITERAL_CUSTOMER_HAS_OPEN_DUPLICATE_CHECKS = "Customer '%s' hasOpenDuplicateChecks=%s";
     private static final String LITERAL_FILE_READ_FAILED = "Failed to read file pending for customer '%s'";
 
+    private static final String LITERAL_IS_ENTREPRENEUR_CAMELCASE = "isEntrepreneur";
+    private static final String LITERAL_REQUEST_IMMEDIATE_SERVICE_START_CAMELCASE = "requestImmediateServiceStart";
+    private static final String LITERAL_ACKNOWLEDGE_WITHDRAWAL_LOSS_CAMELCASE = "acknowledgeWithdrawalLoss";
+    private static final String LITERAL_TERMS_VERSION_CAMELCASE = "termsVersion";
+    private static final String LITERAL_IP_ADDRESS_CAMELCASE = "ipAddress";
+    private static final String LITERAL_USER_AGENT_CAMELCASE = "userAgent";
+
     private static final String SQL_FIND_ENABLED_BY_EMAIL =
             "SELECT enabled FROM app.customer WHERE email_address = :email_address";
 
@@ -266,6 +273,41 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
                 jdbc.update(SQL_INSERT_CUSTOMER_PRODUCT, productParams);
             }
         }
+    }
+
+    @Override
+    public void insertCustomerAcknowledgement(CustomerAcknowledgement customerAcknowledgement) {
+        String sql = """
+            INSERT INTO app.customer_acknowledgement (
+                customer_id,
+                is_entrepreneur,
+                request_immediate_service_start,
+                acknowledge_withdrawal_loss,
+                terms_version,
+                ip_address,
+                userAgent
+            )
+            VALUES (
+                :customerId,
+                :isEntrepreneur,
+                :requestImmediateServiceStart,
+                :acknowledgeWithdrawalLoss,
+                :termsVersion,
+                :ipAddress,
+                :userAgent
+            )
+            """;
+
+        var params = new MapSqlParameterSource()
+                .addValue(LITERAL_CUSTOMER_ID_CAMELCASE, customerAcknowledgement.customerId())
+                .addValue(LITERAL_IS_ENTREPRENEUR_CAMELCASE, customerAcknowledgement.isEntrepreneur())
+                .addValue(LITERAL_REQUEST_IMMEDIATE_SERVICE_START_CAMELCASE, customerAcknowledgement.requestImmediateServiceStart())
+                .addValue(LITERAL_ACKNOWLEDGE_WITHDRAWAL_LOSS_CAMELCASE, customerAcknowledgement.acknowledgeWithdrawalLoss())
+                .addValue(LITERAL_TERMS_VERSION_CAMELCASE, customerAcknowledgement.termsVersion())
+                .addValue(LITERAL_IP_ADDRESS_CAMELCASE, customerAcknowledgement.ipAddress())
+                .addValue(LITERAL_USER_AGENT_CAMELCASE, customerAcknowledgement.userAgent());
+
+        jdbc.update(sql, params);
     }
 
     @Override

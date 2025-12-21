@@ -1,6 +1,7 @@
 package com.crm.app.web.register;
 
 import com.crm.app.dto.Customer;
+import com.crm.app.dto.CustomerAcknowledgement;
 import com.crm.app.dto.RegisterRequest;
 import com.crm.app.dto.RegisterResponse;
 import com.crm.app.port.customer.CustomerRepositoryPort;
@@ -56,6 +57,17 @@ public class CustomerRegistrationService {
         );
 
         customerRepository.insertCustomer(customer);
+
+        CustomerAcknowledgement customerAcknowledgement = new CustomerAcknowledgement(customerId,
+                request.is_entrepreneur(),
+                request.request_immediate_service_start(),
+                request.acknowledge_withdrawal_loss(),
+                request.terms_version(),
+                "0.0.0.0",
+                "user-agent"
+                );
+
+        customerRepository.insertCustomerAcknowledgement(customerAcknowledgement);
 
         customerActivationService.sendActivationEmail(
                 emailAddress,

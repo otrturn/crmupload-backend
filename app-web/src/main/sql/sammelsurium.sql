@@ -12,6 +12,9 @@ from app.user_account;
 select *
 from app.customer;
 
+select *
+from app.customer_acknowledgement;
+
 select upload_id, customer_id, source_system, crm_system, statistics, status
 from app.crm_upload
 order by upload_id desc;

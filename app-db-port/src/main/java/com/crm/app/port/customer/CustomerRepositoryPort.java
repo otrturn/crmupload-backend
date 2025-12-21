@@ -13,6 +13,8 @@ public interface CustomerRepositoryPort {
 
     void insertCustomer(Customer customer);
 
+    void insertCustomerAcknowledgement(CustomerAcknowledgement customerAcknowledgement);
+
     boolean isEnabledByEmail(String emailAddress);
 
     boolean isEnabledByCustomerId(long customerId);

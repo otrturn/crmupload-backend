@@ -85,6 +85,30 @@ ALTER TABLE app.customer
             ON DELETE RESTRICT;
 
 -- ****************************************************************************************************
+-- customer_acknowledgement
+-- ****************************************************************************************************
+
+CREATE TABLE IF NOT EXISTS app.customer_acknowledgement
+(
+    customer_id                     INT         NOT NULL,
+    is_entrepreneur                 BOOLEAN     NOT NULL DEFAULT false,
+    request_immediate_service_start BOOLEAN     NOT NULL DEFAULT false,
+    acknowledge_withdrawal_loss     BOOLEAN     NOT NULL DEFAULT false,
+    terms_version                   TEXT        NOT NULL,
+    consents_at                     TIMESTAMPTZ NOT NULL DEFAULT now(),
+    ip_address                      TEXT        NOT NULL DEFAULT '0.0.0.0.',
+    userAgent                       TEXT        NOT NULL DEFAULT 'user-agent',
+    created                         TIMESTAMPTZ NOT NULL DEFAULT now(),
+    modified                        TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+ALTER TABLE app.customer_acknowledgement
+    ADD CONSTRAINT fk_customer_acknowledgement_customer_id
+        FOREIGN KEY (customer_id)
+            REFERENCES app.customer (customer_id)
+            ON DELETE RESTRICT;
+
+-- ****************************************************************************************************
 -- customer_activation
 -- ****************************************************************************************************
 
@@ -100,6 +124,12 @@ CREATE TABLE IF NOT EXISTS app.customer_activation
 
 CREATE INDEX IF NOT EXISTS idx_customer_activation_customer
     ON app.customer_activation (customer_id);
+
+ALTER TABLE app.customer_activation
+    ADD CONSTRAINT fk_customer_activation_customer_id
+        FOREIGN KEY (customer_id)
+            REFERENCES app.customer (customer_id)
+            ON DELETE RESTRICT;
 
 -- ****************************************************************************************************
 -- customer_product
