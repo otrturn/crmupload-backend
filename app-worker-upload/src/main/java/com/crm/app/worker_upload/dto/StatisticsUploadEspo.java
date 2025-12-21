@@ -14,4 +14,6 @@ public class StatisticsUploadEspo {
     long nContactsReceived = 0;
     long nContactsAdded = 0;
     long nContactsIgnored = 0;
+    long nSecondsForEspoLoad = 0;
+    long nSecondsForEspoUpload = 0;
 }

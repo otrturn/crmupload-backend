@@ -13,7 +13,8 @@ select *
 from app.customer;
 
 select upload_id, customer_id, source_system, crm_system, statistics, status
-from app.crm_upload;
+from app.crm_upload
+order by upload_id desc;
 
 select upload_id, customer_id, source_system, crm_system, status
 from app.crm_upload_observation;

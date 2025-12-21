@@ -57,12 +57,23 @@ public class UploadHandlingForEspo {
 
         if (!ErrMsg.containsErrors(errors)) {
             try {
+                Instant start = Instant.now();
                 loadEspo(baseCtx, espoEntityPoolForLoad);
+                Duration durationEspoLoad = Duration.between(start, Instant.now());
+
                 checkForAddOrIgnore(espoEntityPoolForLoad, espoEntityPoolForReceived, espoEntityPoolForAdd, espoEntityPoolForIgnore);
+
+                start = Instant.now();
                 addEntitiesToEspo(baseCtx, espoEntityPoolForAdd);
+                Duration durationEspoUpLoad = Duration.between(start, Instant.now());
+
                 logStatistics(espoEntityPoolForReceived, espoEntityPoolForAdd, espoEntityPoolForIgnore);
 
-                String statisticsJson = GSON.toJson(setStatistics(espoEntityPoolForLoad, espoEntityPoolForReceived, espoEntityPoolForAdd, espoEntityPoolForIgnore));
+                StatisticsUploadEspo statisticsUploadEspo = setStatistics(espoEntityPoolForLoad, espoEntityPoolForReceived, espoEntityPoolForAdd, espoEntityPoolForIgnore);
+                statisticsUploadEspo.setnSecondsForEspoLoad(durationEspoLoad.getSeconds());
+                statisticsUploadEspo.setnSecondsForEspoUpload(durationEspoUpLoad.getSeconds());
+                String statisticsJson = GSON.toJson(statisticsUploadEspo);
+
                 repository.markUploadDone(upload.getUploadId(), statisticsJson);
                 uploadMailService.sendSuccessMailForEspo(customer, upload, espoEntityPoolForAdd, espoEntityPoolForIgnore);
             } catch (EspoValidationException e) {
