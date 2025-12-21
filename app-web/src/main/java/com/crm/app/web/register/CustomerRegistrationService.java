@@ -24,7 +24,7 @@ public class CustomerRegistrationService {
     private final CustomerActivationService customerActivationService;
 
     @Transactional
-    public ResponseEntity<RegisterResponse> registerCustomer(RegisterRequest request) {
+    public ResponseEntity<RegisterResponse> registerCustomer(RegisterRequest request, String ipAddress, String userAgent) {
         String emailAddress = request.email_address();
 
         RegisterRequestValidator.assertValid(request);
@@ -63,9 +63,9 @@ public class CustomerRegistrationService {
                 request.request_immediate_service_start(),
                 request.acknowledge_withdrawal_loss(),
                 request.terms_version(),
-                "0.0.0.0",
-                "user-agent"
-                );
+                ipAddress,
+                userAgent
+        );
 
         customerRepository.insertCustomerAcknowledgement(customerAcknowledgement);
 

@@ -6,9 +6,12 @@ import com.crm.app.dto.RegisterRequest;
 import com.crm.app.dto.RegisterResponse;
 import com.crm.app.web.auth.AuthenticationService;
 import com.crm.app.web.register.CustomerRegistrationService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import static com.crm.app.web.util.WebUtils.extractClientIp;
 
 @RestController
 @RequestMapping("/auth")
@@ -31,8 +34,11 @@ public class AuthController {
     }
 
     @PostMapping("/register-customer")
-    public ResponseEntity<RegisterResponse> registerCustomer(@RequestBody RegisterRequest request) {
-        return customerRegistrationService.registerCustomer(request);
+    public ResponseEntity<RegisterResponse> registerCustomer(@RequestBody RegisterRequest request,
+                                                             HttpServletRequest httpRequest) {
+        String ipAddress = extractClientIp(httpRequest);
+        String userAgent = httpRequest.getHeader("User-Agent");
+        return customerRegistrationService.registerCustomer(request, ipAddress, userAgent);
     }
 
     @GetMapping("/test")

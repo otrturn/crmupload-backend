@@ -96,8 +96,8 @@ CREATE TABLE IF NOT EXISTS app.customer_acknowledgement
     acknowledge_withdrawal_loss     BOOLEAN     NOT NULL DEFAULT false,
     terms_version                   TEXT        NOT NULL,
     consents_at                     TIMESTAMPTZ NOT NULL DEFAULT now(),
-    ip_address                      TEXT        NOT NULL DEFAULT '0.0.0.0.',
-    userAgent                       TEXT        NOT NULL DEFAULT 'user-agent',
+    ip_address                      TEXT        NOT NULL,
+    userAgent                       TEXT        NOT NULL,
     created                         TIMESTAMPTZ NOT NULL DEFAULT now(),
     modified                        TIMESTAMPTZ NOT NULL DEFAULT now()
 );
