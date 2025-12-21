@@ -2,6 +2,8 @@ app:
   activation:
     base-url: http://crmupload.de
     uri: /auth/activate
+    allowed-terms-versions:
+      - 21.12.2025
   duplicate-check:
     excel-sample-file: /data/generated/Lexware_Generated_Duplicate_Check_00001.xlsx
     excel-sample-file-answer: /data/generated/Dublettenpruefung_Ergebnis_Lexware_20251221.xlsx

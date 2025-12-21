@@ -6,8 +6,10 @@ import com.crm.app.dto.RegisterRequest;
 import com.crm.app.dto.RegisterResponse;
 import com.crm.app.port.customer.CustomerRepositoryPort;
 import com.crm.app.web.activation.CustomerActivationService;
+import com.crm.app.web.config.AppWebActivationProperties;
 import com.crm.app.web.error.CustomerAcknowledgementInvalidException;
 import com.crm.app.web.error.CustomerAlreadyExistsException;
+import com.crm.app.web.error.CustomerTermsVersionInvalidException;
 import com.crm.app.web.validation.RegisterRequestValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +25,7 @@ public class CustomerRegistrationService {
     private final UserAccountRegistrationService userAccountRegistrationService;
     private final CustomerRepositoryPort customerRepository;
     private final CustomerActivationService customerActivationService;
+    private final AppWebActivationProperties appWebActivationProperties;
 
     @Transactional
     public ResponseEntity<RegisterResponse> registerCustomer(RegisterRequest request, String ipAddress, String userAgent) {
@@ -44,7 +47,13 @@ public class CustomerRegistrationService {
             throw new CustomerAcknowledgementInvalidException(msg);
         }
 
-        // @TODO Terms checken
+        if ( !appWebActivationProperties.getAllowedTermsVersions().contains(request.terms_version()))
+        {
+            String msg = String.format(
+                    "Customer with email %s -> invalid/unknown terms version %s",
+                    emailAddress, request.terms_version());
+            throw new CustomerTermsVersionInvalidException(msg);
+        }
 
         UserAccountRegistrationResult accountResult =
                 userAccountRegistrationService.registerUserAccount(emailAddress, request.password());

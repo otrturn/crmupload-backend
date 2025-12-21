@@ -160,7 +160,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(CustomerAcknowledgementInvalidException.class)
-    public ResponseEntity<ApiError> handleCustomerAcknowledgementInvalid(UploadNotAllowedException ex,
+    public ResponseEntity<ApiError> handleCustomerAcknowledgementInvalid(CustomerAcknowledgementInvalidException ex,
                                                                          HttpServletRequest request) {
         log.warn("Customer acknowledgement information invalid {}: {}", request.getRequestURI(), ex.getMessage());
         ApiError body = new ApiError(
@@ -170,6 +170,21 @@ public class GlobalExceptionHandler {
                 request.getRequestURI(),
                 Instant.now(),
                 "CUSTOMER_ACKNOWLEDGEMENT_INFORMATION_INVALID"
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+    }
+
+    @ExceptionHandler(CustomerTermsVersionInvalidException.class)
+    public ResponseEntity<ApiError> handleCustomerTermsVersionInvalid(CustomerTermsVersionInvalidException ex,
+                                                                      HttpServletRequest request) {
+        log.warn("Customer terms version invalid/unknown {}: {}", request.getRequestURI(), ex.getMessage());
+        ApiError body = new ApiError(
+                HttpStatus.CONFLICT.value(),
+                HttpStatus.CONFLICT.getReasonPhrase(),
+                ex.getMessage(),
+                request.getRequestURI(),
+                Instant.now(),
+                "CUSTOMER_TERMS_VERSION_INVALID"
         );
         return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
     }
