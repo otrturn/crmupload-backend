@@ -46,13 +46,21 @@ public class DuplicateCheckController {
     }
 
     @GetMapping("/duplicate-check/downloads/help/excel-sample")
-    public ResponseEntity<Resource> downloadExcelTemplate(HttpServletRequest request) throws IOException {
-        log.info("Download(1) " + appWebDuplicatecheckProperties.getExcelSampleFile());
+    public ResponseEntity<Resource> downloadExcelSample(HttpServletRequest request) throws IOException {
         Path path = Paths.get(appWebDuplicatecheckProperties.getExcelSampleFile());
         Resource resource = new UrlResource(path.toUri());
-        log.info("Download(2) " + resource);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"excel-sample.xlsx\"")
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(resource);
+    }
+
+    @GetMapping("/duplicate-check/downloads/help/excel-sample-answer")
+    public ResponseEntity<Resource> downloadExcelSampleAnswer(HttpServletRequest request) throws IOException {
+        Path path = Paths.get(appWebDuplicatecheckProperties.getExcelSampleFileAnswer());
+        Resource resource = new UrlResource(path.toUri());
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"excel-sample-answer.xlsx\"")
                 .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
                 .body(resource);
     }

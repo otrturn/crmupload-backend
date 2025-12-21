@@ -9,5 +9,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Setter
 public class AppWebDuplicatecheckProperties {
     private String excelSampleFile;
+    private String excelSampleFileAnswer;
 }
 
