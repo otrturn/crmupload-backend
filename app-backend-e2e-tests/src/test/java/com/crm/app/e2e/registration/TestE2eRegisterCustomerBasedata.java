@@ -15,13 +15,13 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ActiveProfiles("e2e")
-class TestE2eRegisterCustomerData extends E2eAbstract {
+class TestE2eRegisterCustomerBasedata extends E2eAbstract {
 
     @Autowired
     private E2eProperties e2eProperties;
 
     @Test
-    void registerCustomer_conflict_customerData() {
+    void registerCustomer_conflict_customerBasedata() {
 
         RegisterCustomerClient client = new RegisterCustomerClient(e2eProperties);
 
