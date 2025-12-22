@@ -8,7 +8,6 @@ import com.crm.app.e2e.client.RegisterResult;
 import com.crm.app.e2e.config.E2eProperties;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,7 +25,7 @@ class RegisterCustomerAlreadyExistsE2eTest extends AbstractE2eTest {
 
         RegisterRequest request = new RegisterRequest(
                 "Jürgen", "Becker", null,
-                "ralf+00@test.de", // eindeutig!
+                "ralf+00@test.de",
                 "01702934959",
                 "Teichgarten 17", null,
                 "60333", "Frankfurt", "DE",

@@ -3,7 +3,6 @@ package com.crm.app.e2e.smoke_tests;
 import com.crm.app.e2e.AbstractE2eTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.sql.Connection;

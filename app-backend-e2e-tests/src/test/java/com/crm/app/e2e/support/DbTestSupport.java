@@ -27,6 +27,7 @@ public final class DbTestSupport {
                 try {
                     connection.rollback();
                 } catch (Exception ignored) {
+                    // To be ignored
                 }
                 throw new IllegalStateException("Failed to execute SQL script: " + classpathLocation, e);
             } finally {

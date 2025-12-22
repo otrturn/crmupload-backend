@@ -9,7 +9,6 @@ import com.crm.app.e2e.config.E2eProperties;
 import com.crm.app.e2e.config.E2eTestConfig;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -29,7 +28,7 @@ class RegisterCustomerSuccessE2eTest extends AbstractE2eTest {
 
         RegisterRequest request = new RegisterRequest(
                 "Jürgen", "Becker", null,
-                "ralf+" + System.currentTimeMillis() + "@test.de", // eindeutig!
+                "ralf+" + System.currentTimeMillis() + "@test.de",
                 "01702934959",
                 "Teichgarten 17", null,
                 "60333", "Frankfurt", "DE",

@@ -33,7 +33,7 @@ class RegisterCustomerAcknowledgementE2eTest extends AbstractE2eTest {
 
         RegisterRequest baseRequest = new RegisterRequest(
                 "Jürgen", "Becker", null,
-                "ralf+" + System.currentTimeMillis() + "@test.de", // eindeutig!
+                "ralf+" + System.currentTimeMillis() + "@test.de",
                 "01702934959",
                 "Teichgarten 17", null,
                 "60333", "Frankfurt", "DE",
