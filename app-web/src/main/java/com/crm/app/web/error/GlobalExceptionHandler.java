@@ -266,7 +266,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(CrmUploadForbiddenUseException.class)
     public ResponseEntity<com.crm.app.dto.ApiError> handleCrmUploadForbiddenUse(CrmUploadForbiddenUseException ex,
-                                                                                    HttpServletRequest request) {
+                                                                                HttpServletRequest request) {
         log.warn("CRM-Upload forbidden use {}: {}", request.getRequestURI(), ex.getMessage());
         com.crm.app.dto.ApiError body = new com.crm.app.dto.ApiError(
                 HttpStatus.CONFLICT.value(),
