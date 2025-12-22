@@ -6,13 +6,13 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 @Getter
 @ResponseStatus(HttpStatus.BAD_REQUEST)
-public class RegisterRequestInvalidDataException extends RuntimeException {
+public class RegisterRequestInvalidCustomerDataException extends RuntimeException {
 
     private final String errorCode;
 
-    public RegisterRequestInvalidDataException(String message) {
+    public RegisterRequestInvalidCustomerDataException(String message) {
         super(message);
-        this.errorCode = "REGISTER_INVALID_DATA";
+        this.errorCode = "REGISTER_INVALID_CUSTOMER_DATA";
     }
 
 }

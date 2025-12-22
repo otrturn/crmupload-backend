@@ -16,8 +16,8 @@ import javax.sql.DataSource;
 
 @ActiveProfiles("e2e")
 @Execution(ExecutionMode.SAME_THREAD)
-@SpringBootTest(classes = TestE2eApplication.class)
-public abstract class AbstractE2eTest {
+@SpringBootTest(classes = E2eTestApplication.class)
+public abstract class E2eAbstract {
 
     @TestConfiguration
     static class E2eDataSourceTestConfig {

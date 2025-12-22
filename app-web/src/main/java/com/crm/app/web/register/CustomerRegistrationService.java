@@ -33,20 +33,16 @@ public class CustomerRegistrationService {
 
         RegisterRequestValidator.assertValid(request);
 
+        /*
+        Email Address
+         */
         if (customerRepository.emailExists(emailAddress)) {
             throw new CustomerAlreadyExistsException("Customer with email already exists: " + emailAddress);
         }
 
-        if (!request.agb_accepted()
-                || !request.is_entrepreneur()
-                || !request.request_immediate_service_start()
-                || !request.acknowledge_withdrawal_loss()) {
-            String msg = String.format(
-                    "Customer with email %s -> invalid acknowledgement information [agb_accepted][is_entrepreneur][request_immediate_service_start][acknowledge_withdrawal_loss] [%s][%s][%s][%s]",
-                    emailAddress, request.agb_accepted(), request.is_entrepreneur(), request.request_immediate_service_start(), !request.acknowledge_withdrawal_loss());
-            throw new CustomerAcknowledgementInvalidException(msg);
-        }
-
+        /*
+        Terms of service
+         */
         if (!appWebActivationProperties.getAllowedTermsVersions().contains(request.terms_version())) {
             String msg = String.format(
                     "Customer with email %s -> invalid/unknown terms version %s",

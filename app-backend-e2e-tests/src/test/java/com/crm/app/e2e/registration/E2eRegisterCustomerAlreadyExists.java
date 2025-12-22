@@ -2,7 +2,7 @@ package com.crm.app.e2e.registration;
 
 import com.crm.app.dto.AppConstants;
 import com.crm.app.dto.RegisterRequest;
-import com.crm.app.e2e.AbstractE2eTest;
+import com.crm.app.e2e.E2eAbstract;
 import com.crm.app.e2e.client.RegisterCustomerClient;
 import com.crm.app.e2e.client.RegisterResult;
 import com.crm.app.e2e.config.E2eProperties;
@@ -13,7 +13,7 @@ import org.springframework.test.context.ActiveProfiles;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ActiveProfiles("e2e")
-class RegisterCustomerAlreadyExistsE2eTest extends AbstractE2eTest {
+class E2eRegisterCustomerAlreadyExists extends E2eAbstract {
 
     @Autowired
     private E2eProperties e2eProperties;

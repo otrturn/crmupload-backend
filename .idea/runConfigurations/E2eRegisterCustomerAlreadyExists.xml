@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="RegisterCustomerTermsVersionE2eTest" type="JUnit" factoryName="JUnit" nameIsGenerated="true">
+  <configuration default="false" name="E2eRegisterCustomerAlreadyExists" type="JUnit" factoryName="JUnit" nameIsGenerated="true">
     <module name="app-backend-e2e-tests" />
     <extension name="coverage">
       <pattern>
@@ -8,7 +8,7 @@
       </pattern>
     </extension>
     <option name="PACKAGE_NAME" value="com.crm.app.e2e.registration" />
-    <option name="MAIN_CLASS_NAME" value="com.crm.app.e2e.registration.RegisterCustomerTermsVersionE2eTest" />
+    <option name="MAIN_CLASS_NAME" value="com.crm.app.e2e.registration.E2eRegisterCustomerAlreadyExists" />
     <option name="METHOD_NAME" value="" />
     <option name="TEST_OBJECT" value="class" />
     <option name="VM_PARAMETERS" value="-ea -XX:+EnableDynamicAgentLoading" />

@@ -1,6 +1,6 @@
 package com.crm.app.e2e.smoke_tests;
 
-import com.crm.app.e2e.AbstractE2eTest;
+import com.crm.app.e2e.E2eAbstract;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.test.context.ActiveProfiles;
@@ -12,7 +12,7 @@ import java.sql.Statement;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ActiveProfiles("e2e")
-class DatabaseSmokeE2eTest extends AbstractE2eTest {
+class E2eDatabaseSmoke extends E2eAbstract {
 
     @SpringBootApplication
     static class TestApp {

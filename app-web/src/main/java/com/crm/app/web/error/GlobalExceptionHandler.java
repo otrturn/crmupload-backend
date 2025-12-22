@@ -68,8 +68,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
     }
 
-    @ExceptionHandler(RegisterRequestInvalidDataException.class)
-    public ResponseEntity<com.crm.app.dto.ApiError> handleRegisterInvalid(RegisterRequestInvalidDataException ex,
+    @ExceptionHandler(RegisterRequestInvalidCustomerDataException.class)
+    public ResponseEntity<com.crm.app.dto.ApiError> handleRegisterInvalid(RegisterRequestInvalidCustomerDataException ex,
                                                                           HttpServletRequest request) {
         log.warn("Register validation error on {}: {}", request.getRequestURI(), ex.getMessage());
         com.crm.app.dto.ApiError body = new com.crm.app.dto.ApiError(
@@ -78,7 +78,7 @@ public class GlobalExceptionHandler {
                 ex.getMessage(),
                 request.getRequestURI(),
                 Instant.now(),
-                "REGISTER_INVALID_DATA"
+                "REGISTER_INVALID_CUSTOMER_DATA"
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
