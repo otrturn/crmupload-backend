@@ -1,11 +1,11 @@
-TRUNCATE TABLE app.customer_invoice;
-TRUNCATE TABLE app.duplicate_check_observation;
-TRUNCATE TABLE app.duplicate_check;
-TRUNCATE TABLE app.crm_upload_observation;
-TRUNCATE TABLE app.crm_upload;
-TRUNCATE TABLE app.customer_product;
-TRUNCATE TABLE app.customer_activation;
-TRUNCATE TABLE app.customer_acknowledgement;
-TRUNCATE TABLE app.customer;
-TRUNCATE TABLE app.user_account;
+TRUNCATE TABLE app.customer_invoice CASCADE;
+TRUNCATE TABLE app.duplicate_check_observation CASCADE;
+TRUNCATE TABLE app.duplicate_check CASCADE;
+TRUNCATE TABLE app.crm_upload_observation CASCADE;
+TRUNCATE TABLE app.crm_upload CASCADE;
+TRUNCATE TABLE app.customer_product CASCADE;
+TRUNCATE TABLE app.customer_activation CASCADE;
+TRUNCATE TABLE app.customer_acknowledgement CASCADE;
+TRUNCATE TABLE app.customer CASCADE;
+TRUNCATE TABLE app.user_account CASCADE;
 

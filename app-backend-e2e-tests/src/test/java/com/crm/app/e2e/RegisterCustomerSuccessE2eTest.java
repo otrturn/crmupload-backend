@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 @ActiveProfiles("e2e")
 @Import(E2eTestConfig.class)
-class RegisterCustomerSuccessE2eTest {
+class RegisterCustomerSuccessE2eTest extends AbstractE2eTest {
 
     @Autowired
     private E2eProperties e2eProperties;

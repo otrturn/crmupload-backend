@@ -5,19 +5,16 @@ import com.crm.app.dto.RegisterRequest;
 import com.crm.app.e2e.client.RegisterCustomerClient;
 import com.crm.app.e2e.client.RegisterResult;
 import com.crm.app.e2e.config.E2eProperties;
-import com.crm.app.e2e.config.E2eTestConfig;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @ActiveProfiles("e2e")
-@Import(E2eTestConfig.class)
-class RegisterCustomerAlreadyExistsE2eTest {
+class RegisterCustomerAlreadyExistsE2eTest extends AbstractE2eTest {
 
     @Autowired
     private E2eProperties e2eProperties;
