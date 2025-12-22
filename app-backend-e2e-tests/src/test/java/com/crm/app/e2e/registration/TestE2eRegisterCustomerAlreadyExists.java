@@ -24,14 +24,18 @@ class TestE2eRegisterCustomerAlreadyExists extends E2eAbstract {
 
         RegisterRequest request = baseRegisterRequest();
 
+        RegisterResult result;
+        RegisterResult.Success success;
+        RegisterResult.Failure failure;
+
         /*
         Register once
          */
-        RegisterResult result = client.register(request);
+        result = client.register(request);
 
         assertThat(result).isInstanceOf(RegisterResult.Success.class);
 
-        RegisterResult.Success success = (RegisterResult.Success) result;
+        success = (RegisterResult.Success) result;
         assertThat(success.response().token()).isNotBlank();
 
         /*
@@ -42,7 +46,7 @@ class TestE2eRegisterCustomerAlreadyExists extends E2eAbstract {
 
         assertThat(result).isInstanceOf(RegisterResult.Failure.class);
 
-        RegisterResult.Failure failure = (RegisterResult.Failure) result;
+        failure = (RegisterResult.Failure) result;
 
         assertThat(failure.error().status()).isEqualTo(409);
         assertThat(failure.error().code()).isEqualTo("CUSTOMER_ALREADY_EXISTS");

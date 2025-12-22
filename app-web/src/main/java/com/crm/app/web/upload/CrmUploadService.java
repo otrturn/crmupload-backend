@@ -39,10 +39,10 @@ public class CrmUploadService {
             throw new UploadNotAllowedException(String.format("processCrmUpload: Customer %s is not enabled", emailAddress));
         }
         if (!SourceSystem.availableSourceSystems().contains(sourceSystem != null ? sourceSystem : "")) {
-            throw new DuplicateCheckInvalidDataException(String.format("processCrmUpload: Customer %s unknown sourceSystem [%s]", emailAddress, sourceSystem));
+            throw new UploadInvalidDataException(String.format("processCrmUpload: Customer %s unknown sourceSystem [%s]", emailAddress, sourceSystem));
         }
         if (!CrmSystem.availableCrmSystems().contains(crmSystem != null ? crmSystem : "")) {
-            throw new DuplicateCheckInvalidDataException(String.format("processCrmUpload: Customer %s unknown crmSystem [%s]", emailAddress, crmSystem));
+            throw new UploadInvalidDataException(String.format("processCrmUpload: Customer %s unknown crmSystem [%s]", emailAddress, crmSystem));
         }
         if (!products.contains(AppConstants.PRODUCT_CRM_UPLOAD)) {
             throw new UploadInvalidDataException(String.format("processCrmUpload: Customer %s does not have product [%s]", emailAddress, AppConstants.PRODUCT_CRM_UPLOAD));

@@ -29,6 +29,10 @@ class TestE2eRegisterCustomerTermsVersion extends E2eAbstract {
 
         RegisterRequest baseRequest = baseRegisterRequest();
 
+        RegisterResult result;
+        RegisterResult.Success success;
+        RegisterResult.Failure failure;
+
         RegisterRequest termsVersionValid = new RegisterRequest(
                 baseRequest.firstname(),
                 baseRequest.lastname(),
@@ -52,11 +56,11 @@ class TestE2eRegisterCustomerTermsVersion extends E2eAbstract {
         /*
          * Terms version valid
          */
-        RegisterResult result = client.register(termsVersionValid);
+        result = client.register(termsVersionValid);
 
         assertThat(result).isInstanceOf(RegisterResult.Success.class);
 
-        RegisterResult.Success success = (RegisterResult.Success) result;
+        success = (RegisterResult.Success) result;
         assertThat(success.response().token()).isNotBlank();
 
         /*
@@ -87,7 +91,7 @@ class TestE2eRegisterCustomerTermsVersion extends E2eAbstract {
 
         assertThat(result).isInstanceOf(RegisterResult.Failure.class);
 
-        RegisterResult.Failure failure = (RegisterResult.Failure) result;
+        failure = (RegisterResult.Failure) result;
 
         assertThat(failure.error().status()).isEqualTo(409);
         assertThat(failure.error().code()).isEqualTo("CUSTOMER_TERMS_VERSION_INVALID");

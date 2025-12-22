@@ -169,7 +169,7 @@ public class GlobalExceptionHandler {
                 ex.getMessage(),
                 request.getRequestURI(),
                 Instant.now(),
-                "UPLOAD_NOT_ALLOWED"
+                "CRM_UPLOAD_NOT_ALLOWED"
         );
         return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
     }
@@ -184,7 +184,7 @@ public class GlobalExceptionHandler {
                 ex.getMessage(),
                 request.getRequestURI(),
                 Instant.now(),
-                "UPLOAD_ALREADY_IN_PROGRESS"
+                "CRM_UPLOAD_ALREADY_IN_PROGRESS"
         );
         return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
     }
@@ -199,7 +199,7 @@ public class GlobalExceptionHandler {
                 ex.getMessage(),
                 request.getRequestURI(),
                 Instant.now(),
-                "UPLOAD_INVALID_DATA"
+                "CRM_UPLOAD_INVALID_DATA"
         );
         return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
     }

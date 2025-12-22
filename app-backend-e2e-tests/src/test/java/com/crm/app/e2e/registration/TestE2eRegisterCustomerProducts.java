@@ -28,6 +28,9 @@ class TestE2eRegisterCustomerProducts extends E2eAbstract {
 
         RegisterRequest baseRequest = baseRegisterRequest();
 
+        RegisterResult result;
+        RegisterResult.Failure failure;
+
         /*
         Product NULL
          */
@@ -50,11 +53,11 @@ class TestE2eRegisterCustomerProducts extends E2eAbstract {
                 baseRequest.acknowledge_withdrawal_loss(),
                 baseRequest.terms_version()
         );
-        RegisterResult result = client.register(invalidDataRequest);
+        result = client.register(invalidDataRequest);
 
         assertThat(result).isInstanceOf(RegisterResult.Failure.class);
 
-        RegisterResult.Failure failure = (RegisterResult.Failure) result;
+        failure = (RegisterResult.Failure) result;
 
         assertThat(failure.error().status()).isEqualTo(400);
         assertThat(failure.error().code()).isEqualTo("REGISTER_INVALID_CUSTOMER_DATA");

@@ -30,6 +30,13 @@ class TestE2eLoginSuccess extends E2eAbstract {
         LoginClient loginClient = new LoginClient(e2eProperties);
         ActivationClient activationClient = new ActivationClient(e2eProperties);
 
+        RegisterResult registerResult;
+        LoginRequest loginRequest;
+        LoginResult loginResult;
+        LoginResult.Failure failure;
+        LoginResult.Success loginSuccess;
+        String token;
+
         /*
         Register
          */
@@ -54,7 +61,7 @@ class TestE2eLoginSuccess extends E2eAbstract {
                 baseRequest.terms_version()
         );
 
-        RegisterResult registerResult = registerClient.register(registerRequest);
+        registerResult = registerClient.register(registerRequest);
         assertThat(registerResult).isInstanceOf(RegisterResult.Success.class);
         RegisterResult.Success registrationSuccess = (RegisterResult.Success) registerResult;
         assertThat(registrationSuccess.response().token()).isNotBlank();
@@ -62,12 +69,12 @@ class TestE2eLoginSuccess extends E2eAbstract {
         /*
         Login, wrong password
          */
-        LoginRequest loginRequest = new LoginRequest(registerRequest.email_address(), "test321");
-        LoginResult loginResult = loginClient.login(loginRequest);
+        loginRequest = new LoginRequest(registerRequest.email_address(), "test321");
+        loginResult = loginClient.login(loginRequest);
 
         assertThat(loginResult).isInstanceOf(LoginResult.Failure.class);
 
-        LoginResult.Failure failure = (LoginResult.Failure) loginResult;
+        failure = (LoginResult.Failure) loginResult;
 
         assertThat(failure.error().status()).isEqualTo(401);
         assertThat(failure.error().code()).isEqualTo("AUTH_INVALID_CREDENTIALS");
@@ -80,14 +87,14 @@ class TestE2eLoginSuccess extends E2eAbstract {
         loginRequest = new LoginRequest(registerRequest.email_address(), registerRequest.password());
         loginResult = loginClient.login(loginRequest);
         assertThat(loginResult).isInstanceOf(LoginResult.Success.class);
-        LoginResult.Success loginSuccess = (LoginResult.Success) loginResult;
+        loginSuccess = (LoginResult.Success) loginResult;
         assertThat(loginSuccess.response().token()).isNotBlank();
         assertFalse(loginSuccess.response().enabled());
 
         /*
         Activate customer
          */
-        String token = CustomerHandling.getActivationToken(dataSource, registerRequest.email_address());
+        token = CustomerHandling.getActivationToken(dataSource, registerRequest.email_address());
         ActivationResult activationResult = activationClient.activate(token);
         assertThat(activationResult).isInstanceOf(ActivationResult.Success.class);
         ActivationResult.Success activationSuccess = (ActivationResult.Success) activationResult;

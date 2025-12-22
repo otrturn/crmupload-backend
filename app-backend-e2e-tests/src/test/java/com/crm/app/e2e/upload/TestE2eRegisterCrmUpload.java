@@ -38,10 +38,18 @@ class TestE2eRegisterCrmUpload extends E2eAbstract {
         LoginResult loginResult = loginClient.login(loginRequest);
         LoginResult.Success loginSuccess = (LoginResult.Success) loginResult;
 
-        String sourceSystem = "Lexware";
         CrmUploadClient uploadclient = new CrmUploadClient(e2eProperties);
-        Resource file = new ClassPathResource("files/Lexware_Generated_00001.xlsx");
-        CrmUploadResult uploadResult = uploadclient.upload(
+        String sourceSystem;
+        Resource file;
+        CrmUploadResult.Failure failure;
+        CrmUploadResult uploadResult;
+
+        /*
+        Wrong source system
+         */
+        sourceSystem = "LEXWARE";
+        file = new ClassPathResource("files/Lexware_Generated_00001.xlsx");
+        uploadResult = uploadclient.upload(
                 baseRequest.email_address(),
                 loginSuccess.response().token(),
                 sourceSystem,
@@ -51,8 +59,48 @@ class TestE2eRegisterCrmUpload extends E2eAbstract {
                 "7a124718fbcde7a4a096396cb61fa80e",
                 file
         );
-        //CrmUploadResult.Failure failure = (CrmUploadResult.Failure) uploadResult;
-        //System.out.println(failure.error().code());
+        failure = (CrmUploadResult.Failure) uploadResult;
+        Assertions.assertThat(failure.error().status()).isEqualTo(409);
+        Assertions.assertThat(failure.error().code()).isEqualTo("CRM_UPLOAD_INVALID_DATA");
+        Assertions.assertThat(failure.error().message()).isNotBlank();
+        Assertions.assertThat(failure.error().path()).isEqualTo("/api/crm-upload");
+
+        /*
+        Wrong crm system
+         */
+        sourceSystem = "Lexware";
+        file = new ClassPathResource("files/Lexware_Generated_00001.xlsx");
+        uploadResult = uploadclient.upload(
+                baseRequest.email_address(),
+                loginSuccess.response().token(),
+                sourceSystem,
+                "ESPOCRM",
+                "http://host.docker.internal:8080",
+                "CUST-123",
+                "7a124718fbcde7a4a096396cb61fa80e",
+                file
+        );
+        failure = (CrmUploadResult.Failure) uploadResult;
+        Assertions.assertThat(failure.error().status()).isEqualTo(409);
+        Assertions.assertThat(failure.error().code()).isEqualTo("CRM_UPLOAD_INVALID_DATA");
+        Assertions.assertThat(failure.error().message()).isNotBlank();
+        Assertions.assertThat(failure.error().path()).isEqualTo("/api/crm-upload");
+
+        /*
+        Correct request
+         */
+        sourceSystem = "Lexware";
+        file = new ClassPathResource("files/Lexware_Generated_00001.xlsx");
+        uploadResult = uploadclient.upload(
+                baseRequest.email_address(),
+                loginSuccess.response().token(),
+                sourceSystem,
+                "EspoCRM",
+                "http://host.docker.internal:8080",
+                "CUST-123",
+                "7a124718fbcde7a4a096396cb61fa80e",
+                file
+        );
 
         assertThat(uploadResult).isInstanceOf(CrmUploadResult.Success.class);
     }
