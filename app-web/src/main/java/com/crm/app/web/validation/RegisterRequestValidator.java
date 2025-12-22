@@ -58,7 +58,7 @@ public final class RegisterRequestValidator {
         }
 
         /*
-        Postcalcode
+        Postalcode
          */
         invalid = !CheckAddress.checkPostalCode(request.country(), request.postalcode());
 
@@ -72,7 +72,7 @@ public final class RegisterRequestValidator {
         }
 
         /*
-        phone number
+        Phone number
          */
         if (stringIsEmpty(request.phone_number())) {
             throw new RegisterRequestInvalidCustomerDataException(

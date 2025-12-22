@@ -13,7 +13,7 @@ import org.springframework.test.context.ActiveProfiles;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ActiveProfiles("e2e")
-class E2eRegisterCustomerAlreadyExists extends E2eAbstract {
+class TestE2eRegisterCustomerAlreadyExists extends E2eAbstract {
 
     @Autowired
     private E2eProperties e2eProperties;
@@ -23,20 +23,7 @@ class E2eRegisterCustomerAlreadyExists extends E2eAbstract {
 
         RegisterCustomerClient client = new RegisterCustomerClient(e2eProperties);
 
-        RegisterRequest request = new RegisterRequest(
-                "Jürgen", "Becker", null,
-                "ralf+00@test.de",
-                "01702934959",
-                "Teichgarten 17", null,
-                "60333", "Frankfurt", "DE",
-                "test123",
-                java.util.List.of(
-                        AppConstants.PRODUCT_CRM_UPLOAD,
-                        AppConstants.PRODUCT_DUPLICATE_CHECK
-                ),
-                true, true, true, true,
-                "21.12.2025"
-        );
+        RegisterRequest request = baseRequest();
 
         /*
         Register once

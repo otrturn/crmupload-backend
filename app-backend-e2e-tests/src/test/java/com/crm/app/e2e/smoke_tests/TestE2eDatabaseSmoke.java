@@ -12,7 +12,7 @@ import java.sql.Statement;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ActiveProfiles("e2e")
-class E2eDatabaseSmoke extends E2eAbstract {
+class TestE2eDatabaseSmoke extends E2eAbstract {
 
     @SpringBootApplication
     static class TestApp {

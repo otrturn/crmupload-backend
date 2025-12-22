@@ -21,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ActiveProfiles("e2e")
 @Import(E2eTestConfig.class)
 @Slf4j
-class E2eRegisterCustomerAcknowledgement extends E2eAbstract {
+class TestE2eRegisterCustomerAcknowledgement extends E2eAbstract {
 
     @Autowired
     private E2eProperties e2eProperties;
@@ -31,20 +31,7 @@ class E2eRegisterCustomerAcknowledgement extends E2eAbstract {
 
         RegisterCustomerClient client = new RegisterCustomerClient(e2eProperties);
 
-        RegisterRequest baseRequest = new RegisterRequest(
-                "Jürgen", "Becker", null,
-                "ralf+" + System.currentTimeMillis() + "@test.de",
-                "01702934959",
-                "Teichgarten 17", null,
-                "60333", "Frankfurt", "DE",
-                "test123",
-                java.util.List.of(
-                        AppConstants.PRODUCT_CRM_UPLOAD,
-                        AppConstants.PRODUCT_DUPLICATE_CHECK
-                ),
-                true, true, true, true,
-                "21.12.2025"
-        );
+        RegisterRequest baseRequest = baseRequest();
 
         List<RegisterRequest> requests = new ArrayList<>();
 

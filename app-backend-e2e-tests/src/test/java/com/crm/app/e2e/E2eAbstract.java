@@ -1,5 +1,7 @@
 package com.crm.app.e2e;
 
+import com.crm.app.dto.AppConstants;
+import com.crm.app.dto.RegisterRequest;
 import com.crm.app.e2e.support.DbTestSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.parallel.Execution;
@@ -36,4 +38,20 @@ public abstract class E2eAbstract {
         DbTestSupport.prepareDatabase(dataSource);
     }
 
+    public RegisterRequest baseRequest() {
+        return new RegisterRequest(
+                "Jürgen", "Becker", null,
+                "ralf+00@test.de",
+                "01702934959",
+                "Teichgarten 17", null,
+                "60333", "Frankfurt", "DE",
+                "test123",
+                java.util.List.of(
+                        AppConstants.PRODUCT_CRM_UPLOAD,
+                        AppConstants.PRODUCT_DUPLICATE_CHECK
+                ),
+                true, true, true, true,
+                "21.12.2025"
+        );
+    }
 }
