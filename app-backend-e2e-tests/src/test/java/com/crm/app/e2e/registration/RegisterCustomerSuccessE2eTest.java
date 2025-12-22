@@ -1,7 +1,8 @@
-package com.crm.app.e2e;
+package com.crm.app.e2e.registration;
 
 import com.crm.app.dto.AppConstants;
 import com.crm.app.dto.RegisterRequest;
+import com.crm.app.e2e.AbstractE2eTest;
 import com.crm.app.e2e.client.RegisterCustomerClient;
 import com.crm.app.e2e.client.RegisterResult;
 import com.crm.app.e2e.config.E2eProperties;
@@ -14,7 +15,6 @@ import org.springframework.test.context.ActiveProfiles;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
 @ActiveProfiles("e2e")
 @Import(E2eTestConfig.class)
 class RegisterCustomerSuccessE2eTest extends AbstractE2eTest {
