@@ -22,7 +22,7 @@ class TestE2eRegisterCustomerSuccess extends E2eAbstract {
     private E2eProperties e2eProperties;
 
     @Test
-    void registerCustomer_success() {
+    void registerCustomer_customerSuccess() {
 
         RegisterCustomerClient client = new RegisterCustomerClient(e2eProperties);
 

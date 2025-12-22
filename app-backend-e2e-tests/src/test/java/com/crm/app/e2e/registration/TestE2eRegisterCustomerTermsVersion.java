@@ -1,6 +1,5 @@
 package com.crm.app.e2e.registration;
 
-import com.crm.app.dto.AppConstants;
 import com.crm.app.dto.RegisterRequest;
 import com.crm.app.e2e.E2eAbstract;
 import com.crm.app.e2e.client.RegisterCustomerClient;
@@ -13,8 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ActiveProfiles("e2e")
@@ -26,11 +23,11 @@ class TestE2eRegisterCustomerTermsVersion extends E2eAbstract {
     private E2eProperties e2eProperties;
 
     @Test
-    void registerCustomer_success() {
+    void registerCustomer_customerTermsVersion() {
 
         RegisterCustomerClient client = new RegisterCustomerClient(e2eProperties);
 
-        RegisterRequest baseRequest =  baseRequest();
+        RegisterRequest baseRequest = baseRequest();
 
         RegisterRequest termsVersionValid = new RegisterRequest(
                 baseRequest.firstname(),
@@ -65,11 +62,12 @@ class TestE2eRegisterCustomerTermsVersion extends E2eAbstract {
         /*
          * Terms version invalid
          */
+        baseRequest = baseRequest();
         RegisterRequest termsVersionInvalid = new RegisterRequest(
                 baseRequest.firstname(),
                 baseRequest.lastname(),
                 baseRequest.company_name(),
-                "ralf+" + System.currentTimeMillis() + "@test.de",
+                baseRequest.email_address(),
                 baseRequest.phone_number(),
                 baseRequest.adrline1(),
                 baseRequest.adrline2(),

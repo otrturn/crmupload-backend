@@ -188,4 +188,19 @@ public class GlobalExceptionHandler {
         );
         return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
     }
+
+    @ExceptionHandler(CustomerProductInvalidException.class)
+    public ResponseEntity<com.crm.app.dto.ApiError> handleProductInvalid(CustomerProductInvalidException ex,
+                                                                         HttpServletRequest request) {
+        log.warn("Customer product invalid/unknown {}: {}", request.getRequestURI(), ex.getMessage());
+        com.crm.app.dto.ApiError body = new com.crm.app.dto.ApiError(
+                HttpStatus.CONFLICT.value(),
+                HttpStatus.CONFLICT.getReasonPhrase(),
+                ex.getMessage(),
+                request.getRequestURI(),
+                Instant.now(),
+                "CUSTOMER_PRODUCT_INVALID"
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+    }
 }

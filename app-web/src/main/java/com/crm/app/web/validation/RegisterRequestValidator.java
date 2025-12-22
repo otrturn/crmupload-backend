@@ -93,6 +93,20 @@ public final class RegisterRequestValidator {
                             emailAddress
                     )
             );
+
+        /*
+        Products
+         */
+        if (request.products() == null || request.products().isEmpty()) {
+            throw new RegisterRequestInvalidCustomerDataException(
+                    String.format(
+                            "registration: Customer %s no products",
+                            emailAddress
+                    )
+            );
+
+        }
+
         /*
         Acknowledgement
          */

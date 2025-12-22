@@ -21,7 +21,7 @@ class TestE2eRegisterCustomerData extends E2eAbstract {
     private E2eProperties e2eProperties;
 
     @Test
-    void registerCustomer_conflict_customerAlreadyExists() {
+    void registerCustomer_conflict_customerData() {
 
         RegisterCustomerClient client = new RegisterCustomerClient(e2eProperties);
 
@@ -30,11 +30,40 @@ class TestE2eRegisterCustomerData extends E2eAbstract {
         /*
         Email address
          */
+        RegisterRequest invalidDataRequest = new RegisterRequest(
+                baseRequest.firstname(),
+                baseRequest.lastname(),
+                baseRequest.company_name(),
+                null,
+                baseRequest.phone_number(),
+                baseRequest.adrline1(),
+                baseRequest.adrline2(),
+                baseRequest.postalcode(),
+                baseRequest.city(),
+                baseRequest.country(),
+                baseRequest.password(),
+                baseRequest.products(),
+                baseRequest.agb_accepted(),
+                baseRequest.is_entrepreneur(),
+                baseRequest.request_immediate_service_start(),
+                baseRequest.acknowledge_withdrawal_loss(),
+                baseRequest.terms_version()
+        );
+        RegisterResult result = client.register(invalidDataRequest);
+
+        assertThat(result).isInstanceOf(RegisterResult.Failure.class);
+
+        RegisterResult.Failure failure = (RegisterResult.Failure) result;
+
+        assertThat(failure.error().status()).isEqualTo(400);
+        assertThat(failure.error().code()).isEqualTo("REGISTER_INVALID_CUSTOMER_DATA");
+        assertThat(failure.error().message()).isNotBlank();
+        assertThat(failure.error().path()).isEqualTo("/auth/register-customer");
 
         /*
         Names
          */
-        RegisterRequest invalidDataRequest = new RegisterRequest(
+        invalidDataRequest = new RegisterRequest(
                 null,
                 null,
                 null,
@@ -54,11 +83,11 @@ class TestE2eRegisterCustomerData extends E2eAbstract {
                 baseRequest.terms_version()
         );
 
-        RegisterResult result = client.register(invalidDataRequest);
+        result = client.register(invalidDataRequest);
 
         assertThat(result).isInstanceOf(RegisterResult.Failure.class);
 
-        RegisterResult.Failure failure = (RegisterResult.Failure) result;
+        failure = (RegisterResult.Failure) result;
 
         assertThat(failure.error().status()).isEqualTo(400);
         assertThat(failure.error().code()).isEqualTo("REGISTER_INVALID_CUSTOMER_DATA");
@@ -68,7 +97,6 @@ class TestE2eRegisterCustomerData extends E2eAbstract {
         /*
         Address
          */
-
         for (RegisterRequest request : invalidAddressesRequests()) {
             result = client.register(request);
 

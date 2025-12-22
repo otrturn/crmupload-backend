@@ -1,14 +1,11 @@
 package com.crm.app.web.register;
 
-import com.crm.app.dto.Customer;
-import com.crm.app.dto.CustomerAcknowledgement;
-import com.crm.app.dto.RegisterRequest;
-import com.crm.app.dto.RegisterResponse;
+import com.crm.app.dto.*;
 import com.crm.app.port.customer.CustomerRepositoryPort;
 import com.crm.app.web.activation.CustomerActivationService;
 import com.crm.app.web.config.AppWebActivationProperties;
-import com.crm.app.web.error.CustomerAcknowledgementInvalidException;
 import com.crm.app.web.error.CustomerAlreadyExistsException;
+import com.crm.app.web.error.CustomerProductInvalidException;
 import com.crm.app.web.error.CustomerTermsVersionInvalidException;
 import com.crm.app.web.validation.RegisterRequestValidator;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +35,18 @@ public class CustomerRegistrationService {
          */
         if (customerRepository.emailExists(emailAddress)) {
             throw new CustomerAlreadyExistsException("Customer with email already exists: " + emailAddress);
+        }
+
+        /*
+        Products
+         */
+        for (String product : request.products()) {
+            if (!AppConstants.availableProducts().contains(product)) {
+                String msg = String.format(
+                        "Customer with email %s -> unknown product %s",
+                        emailAddress, product);
+                throw new CustomerProductInvalidException(msg);
+            }
         }
 
         /*
