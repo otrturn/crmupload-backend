@@ -24,7 +24,7 @@ class TestE2eLoginSuccess extends E2eAbstract {
     private E2eProperties e2eProperties;
 
     @Test
-    void registerCustomer_customerSuccess() {
+    void registerCustomer_loginSuccess() {
 
         RegisterCustomerClient registerClient = new RegisterCustomerClient(e2eProperties);
         LoginClient loginClient = new LoginClient(e2eProperties);

@@ -23,7 +23,7 @@ class TestE2eDuplicateCheck extends E2eAbstract {
     private E2eProperties e2eProperties;
 
     @Test
-    void registerCustomer_conflict_duplicate_check() {
+    void registerCustomer_conflict_DuplicateCheck() {
         RegisterRequest baseRequest = baseRegisterRequest();
         RegisterCustomerClient registerclient = new RegisterCustomerClient(e2eProperties);
         RegisterResult registerResult = registerclient.register(baseRequest);

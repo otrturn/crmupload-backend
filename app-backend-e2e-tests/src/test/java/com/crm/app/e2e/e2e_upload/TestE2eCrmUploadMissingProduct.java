@@ -23,7 +23,7 @@ class TestE2eCrmUploadMissingProduct extends E2eAbstract {
     private E2eProperties e2eProperties;
 
     @Test
-    void registerCustomer_conflict_crmUpload() {
+    void registerCustomer_conflict_crmUploadMissingProduct() {
         RegisterRequest baseRequest = baseRegisterRequest();
         RegisterRequest invalidRequest = new RegisterRequest(
                 baseRequest.firstname(),

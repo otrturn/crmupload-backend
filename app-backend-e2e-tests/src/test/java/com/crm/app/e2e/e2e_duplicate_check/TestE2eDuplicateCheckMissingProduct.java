@@ -23,7 +23,7 @@ class TestE2eDuplicateCheckMissingProduct extends E2eAbstract {
     private E2eProperties e2eProperties;
 
     @Test
-    void registerCustomer_conflict_duplicateCheck() {
+    void registerCustomer_conflict_DuplicateCheckMissingProduct() {
         RegisterRequest baseRequest = baseRegisterRequest();
         RegisterRequest invalidRequest = new RegisterRequest(
                 baseRequest.firstname(),

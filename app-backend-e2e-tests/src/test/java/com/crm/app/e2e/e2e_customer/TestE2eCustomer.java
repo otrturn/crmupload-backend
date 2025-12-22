@@ -1,4 +1,4 @@
-package com.crm.app.e2e.e2e_status;
+package com.crm.app.e2e.e2e_customer;
 
 import com.crm.app.dto.LoginRequest;
 import com.crm.app.dto.RegisterRequest;
@@ -13,22 +13,24 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ActiveProfiles("e2e")
 @Import(E2eTestConfig.class)
-class TestE2eGetCustomerStatus extends E2eAbstract {
+class TestE2eCustomer extends E2eAbstract {
 
     @Autowired
     private E2eProperties e2eProperties;
 
     @Test
-    void registerCustomer_customerGetStatus() {
+    void registerCustomer_customer() {
 
         RegisterCustomerClient registerClient = new RegisterCustomerClient(e2eProperties);
         LoginClient loginClient = new LoginClient(e2eProperties);
         ActivationClient activationClient = new ActivationClient(e2eProperties);
         CustomerStatusClient customerStatusClient = new CustomerStatusClient(e2eProperties);
+        CustomerMeClient customerMeClient = new CustomerMeClient(e2eProperties);
 
         RegisterResult registerResult;
         LoginRequest loginRequest;
@@ -37,6 +39,8 @@ class TestE2eGetCustomerStatus extends E2eAbstract {
         String token;
         CustomerStatusResult customerStatusResult;
         CustomerStatusResult.Success customerStatusSuccess;
+        CustomerMeResult customerMeResult;
+        CustomerMeResult.Success customerMeSuccess;
 
         /*
         Register
@@ -74,5 +78,14 @@ class TestE2eGetCustomerStatus extends E2eAbstract {
         assertThat(customerStatusResult).isInstanceOf(CustomerStatusResult.Success.class);
         customerStatusSuccess = (CustomerStatusResult.Success) customerStatusResult;
         assertTrue(customerStatusSuccess.response().enabled());
+
+        /*
+        Get Me
+         */
+        customerMeResult = customerMeClient.getMe(baseRequest.email_address(),loginSuccess.response().token());
+        assertThat(customerMeResult).isInstanceOf(CustomerMeResult.Success.class);
+        customerMeSuccess = (CustomerMeResult.Success) customerMeResult;
+        assertEquals(customerMeSuccess.response().firstname(),baseRequest.firstname());
+
     }
 }
