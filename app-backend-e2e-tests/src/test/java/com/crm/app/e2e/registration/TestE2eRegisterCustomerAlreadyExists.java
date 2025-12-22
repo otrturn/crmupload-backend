@@ -1,6 +1,5 @@
 package com.crm.app.e2e.registration;
 
-import com.crm.app.dto.AppConstants;
 import com.crm.app.dto.RegisterRequest;
 import com.crm.app.e2e.E2eAbstract;
 import com.crm.app.e2e.client.RegisterCustomerClient;
@@ -23,7 +22,7 @@ class TestE2eRegisterCustomerAlreadyExists extends E2eAbstract {
 
         RegisterCustomerClient client = new RegisterCustomerClient(e2eProperties);
 
-        RegisterRequest request = baseRequest();
+        RegisterRequest request = baseRegisterRequest();
 
         /*
         Register once

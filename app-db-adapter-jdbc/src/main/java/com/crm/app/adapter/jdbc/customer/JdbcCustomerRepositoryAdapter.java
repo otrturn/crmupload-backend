@@ -50,7 +50,6 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
     private static final String LITERAL_STATUS = "status";
     private static final String LITERAL_USER_ID = "user_id";
     private static final String LITERAL_ACTIVATION_DATE = "activation_date";
-    private static final String LITERAL_ACTIVATION_DATE_CAMELCASE = "activationDate";
 
     private static final String LITERAL_NO_CUSTOMER_FOR_EMAIL = "No customer found for email '%s'";
     private static final String LITERAL_NO_CUSTOMER_FOR_CUSTOMER_ID = "No customer found for customerId '%s'";
@@ -540,7 +539,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
                 rs.getString(LITERAL_POSTALCODE),
                 rs.getString(LITERAL_CITY),
                 rs.getString(LITERAL_COUNTRY),
-                rs.getTimestamp(LITERAL_ACTIVATION_DATE_CAMELCASE)
+                rs.getTimestamp(LITERAL_ACTIVATION_DATE)
         );
     }
 
@@ -557,7 +556,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
                 rs.getString(LITERAL_POSTALCODE),
                 rs.getString(LITERAL_CITY),
                 rs.getString(LITERAL_COUNTRY),
-                rs.getTimestamp(LITERAL_ACTIVATION_DATE_CAMELCASE)
+                rs.getTimestamp(LITERAL_ACTIVATION_DATE)
         );
     }
 

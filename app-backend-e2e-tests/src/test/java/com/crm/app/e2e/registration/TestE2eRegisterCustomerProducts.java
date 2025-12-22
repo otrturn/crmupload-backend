@@ -25,7 +25,7 @@ class TestE2eRegisterCustomerProducts extends E2eAbstract {
 
         RegisterCustomerClient client = new RegisterCustomerClient(e2eProperties);
 
-        RegisterRequest baseRequest = baseRequest();
+        RegisterRequest baseRequest = baseRegisterRequest();
 
         /*
         Product NULL

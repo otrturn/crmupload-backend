@@ -27,7 +27,7 @@ class TestE2eRegisterCustomerTermsVersion extends E2eAbstract {
 
         RegisterCustomerClient client = new RegisterCustomerClient(e2eProperties);
 
-        RegisterRequest baseRequest = baseRequest();
+        RegisterRequest baseRequest = baseRegisterRequest();
 
         RegisterRequest termsVersionValid = new RegisterRequest(
                 baseRequest.firstname(),
@@ -62,7 +62,7 @@ class TestE2eRegisterCustomerTermsVersion extends E2eAbstract {
         /*
          * Terms version invalid
          */
-        baseRequest = baseRequest();
+        baseRequest = baseRegisterRequest();
         RegisterRequest termsVersionInvalid = new RegisterRequest(
                 baseRequest.firstname(),
                 baseRequest.lastname(),

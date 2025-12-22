@@ -1,6 +1,5 @@
 package com.crm.app.e2e.registration;
 
-import com.crm.app.dto.AppConstants;
 import com.crm.app.dto.RegisterRequest;
 import com.crm.app.e2e.E2eAbstract;
 import com.crm.app.e2e.client.RegisterCustomerClient;
@@ -31,7 +30,7 @@ class TestE2eRegisterCustomerAcknowledgement extends E2eAbstract {
 
         RegisterCustomerClient client = new RegisterCustomerClient(e2eProperties);
 
-        RegisterRequest baseRequest = baseRequest();
+        RegisterRequest baseRequest = baseRegisterRequest();
 
         List<RegisterRequest> requests = new ArrayList<>();
 

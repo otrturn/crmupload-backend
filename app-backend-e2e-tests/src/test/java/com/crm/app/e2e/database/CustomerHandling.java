@@ -1,0 +1,22 @@
+package com.crm.app.e2e.database;
+
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+
+public class CustomerHandling {
+    public static String getActivationToken(DataSource dataSource, String emailAddress) {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement psUpdate = connection.prepareStatement("SELECT token from app.customer_activation WHERE customer_id = (SELECT customer_id from app.customer WHERE email_address=?)")) {
+            psUpdate.setString(1, emailAddress);
+            ResultSet rs = psUpdate.executeQuery();
+            if (rs.next()) {
+                return rs.getString(1);
+            }
+        } catch (Exception e) {
+            throw new IllegalStateException("getActivationToken failed", e);
+        }
+        return "";
+    }
+}

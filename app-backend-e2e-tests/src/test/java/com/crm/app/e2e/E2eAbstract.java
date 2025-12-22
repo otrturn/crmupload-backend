@@ -38,7 +38,7 @@ public abstract class E2eAbstract {
         DbTestSupport.prepareDatabase(dataSource);
     }
 
-    public RegisterRequest baseRequest() {
+    public RegisterRequest baseRegisterRequest() {
         return new RegisterRequest(
                 "Jürgen", "Becker", null,
                 "ralf+" + System.currentTimeMillis() + "@test.de",

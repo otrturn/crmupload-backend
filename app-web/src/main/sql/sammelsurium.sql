@@ -13,6 +13,13 @@ select *
 from app.customer;
 
 select *
+from app.customer_activation;
+
+SELECT token
+from app.customer_activation
+WHERE customer_id = (SELECT customer_id from app.customer WHERE email_address = 'ralf+00@test.de');
+
+select *
 from app.customer_acknowledgement;
 
 select upload_id, customer_id, source_system, crm_system, statistics, status

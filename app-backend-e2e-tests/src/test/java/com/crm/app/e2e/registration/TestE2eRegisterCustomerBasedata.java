@@ -25,7 +25,7 @@ class TestE2eRegisterCustomerBasedata extends E2eAbstract {
 
         RegisterCustomerClient client = new RegisterCustomerClient(e2eProperties);
 
-        RegisterRequest baseRequest = baseRequest();
+        RegisterRequest baseRequest = baseRegisterRequest();
 
         /*
         Email address
@@ -180,7 +180,7 @@ class TestE2eRegisterCustomerBasedata extends E2eAbstract {
 
     private List<RegisterRequest> invalidAddressesRequests() {
         List<RegisterRequest> result = new ArrayList<>();
-        RegisterRequest baseRequest = baseRequest();
+        RegisterRequest baseRequest = baseRegisterRequest();
 
         result.add(new RegisterRequest(
                 baseRequest.firstname(),
