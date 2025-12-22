@@ -1,7 +1,8 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="AppWorkerUploadApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
-    <module name="app-worker-upload" />
-    <option name="SPRING_BOOT_MAIN_CLASS" value="com.crm.app.worker_upload.AppWorkerUploadApplication" />
+  <configuration default="false" name="AppBulkLexwareToEspo" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <module name="app-tools" />
+    <option name="PROGRAM_PARAMETERS" value="--LexwareToEspo" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="com.crm.app.tools.AppBulkTool" />
     <extension name="net.ashald.envfile">
       <option name="IS_ENABLED" value="false" />
       <option name="IS_SUBST" value="false" />
