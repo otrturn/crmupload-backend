@@ -1,0 +1,19 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="TestE2eDuplicateCheck" type="JUnit" factoryName="JUnit" nameIsGenerated="true">
+    <module name="app-backend-e2e-tests" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="com.crm.app.e2e.duplicate_check.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <option name="PACKAGE_NAME" value="com.crm.app.e2e.duplicate_check" />
+    <option name="MAIN_CLASS_NAME" value="com.crm.app.e2e.duplicate_check.TestE2eDuplicateCheck" />
+    <option name="METHOD_NAME" value="" />
+    <option name="TEST_OBJECT" value="class" />
+    <option name="VM_PARAMETERS" value="-ea -XX:+EnableDynamicAgentLoading" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
