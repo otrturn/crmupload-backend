@@ -30,10 +30,11 @@ public class CrmUploadService {
         long customerId = customerRepositoryPort.findCustomerIdByEmail(emailAddress);
         log.info(String.format("processCrmUpload resolved customerId=%d for email=%s", customerId, emailAddress));
 
+        List<String> products = customerRepositoryPort.findActiveProductsByEmail(emailAddress);
+
         boolean enabled = customerRepositoryPort.isEnabledByCustomerId(customerId);
         boolean hasOpenCrmUploads = customerRepositoryPort.isHasOpenCrmUploadsByCustomerId(customerId);
         Optional<CrmUploadCoreInfo> crmUploadInfo = customerRepositoryPort.findLatestUploadByCustomerId(customerId);
-        List<String> products = customerRepositoryPort.findActiveProductsByEmail(emailAddress);
 
         if (!enabled) {
             throw new CrmUploadPermissionDeniedException(String.format("processCrmUpload: Customer %s is not enabled", emailAddress));
@@ -51,7 +52,7 @@ public class CrmUploadService {
             throw new CrmUploadAlreadyInProgressException(String.format("processCrmUpload: Customer %s has open uploads", emailAddress));
         }
         if (crmUploadInfo.isPresent() && (!crmUploadInfo.get().getCrmSystem().equals(crmSystem != null ? crmSystem : "") || !crmUploadInfo.get().getCrmCustomerId().equals(crmCustomerId != null ? crmCustomerId : ""))) {
-            throw new CrmUploadInvalidDataException(String.format("processCrmUpload: crmSystem/crmCustomerId %s/%s [%s][%s] for customer %d invalid",
+            throw new CrmUploadForbiddenUseException(String.format("processCrmUpload: crmSystem/crmCustomerId %s/%s [%s][%s] for customer %d invalid",
                     crmSystem,
                     crmCustomerId,
                     crmUploadInfo.get().getCrmSystem(),

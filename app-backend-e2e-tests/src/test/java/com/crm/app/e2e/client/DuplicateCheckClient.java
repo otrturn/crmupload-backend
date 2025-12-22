@@ -9,38 +9,30 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.WebClient;
 
-public class CrmUploadClient {
+public class DuplicateCheckClient {
 
     private final WebClient webClient;
 
-    public CrmUploadClient(E2eProperties props) {
+    public DuplicateCheckClient(E2eProperties props) {
         this.webClient = WebClient.builder()
                 .baseUrl(props.baseUrl())
                 .build();
     }
 
-    public CrmUploadResult crmUpload(
+    public CrmUploadResult duplicateCheck(
             String emailAddress,
             String loginToken,
             String sourceSystem,
-            String crmSystem,
-            String crmUrl,
-            String crmCustomerId,
-            String crmApiKey,
             Resource file
     ) {
 
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("emailAddress", emailAddress);
         body.add("sourceSystem", sourceSystem);
-        body.add("crmSystem", crmSystem);
-        body.add("crmUrl", crmUrl);
-        body.add("crmCustomerId", crmCustomerId);
-        body.add("crmApiKey", crmApiKey);
         body.add("file", file);
 
         return webClient.post()
-                .uri("/api/crm-upload")
+                .uri("/api/duplicate-check")
                 .headers(headers ->
                         headers.setBearerAuth(loginToken)
                 )
@@ -52,23 +44,23 @@ public class CrmUploadClient {
                                 .map(CrmUploadResult.Failure::new)
                                 .flatMap(f ->
                                         reactor.core.publisher.Mono.error(
-                                                new CrmUploadFailedException(f)
+                                                new DuplicateCheckFailedException(f)
                                         )
                                 )
                 )
                 .toBodilessEntity()
                 .map(r -> new CrmUploadResult.Success())
                 .map(CrmUploadResult.class::cast)
-                .onErrorResume(CrmUploadFailedException.class,
+                .onErrorResume(DuplicateCheckFailedException.class,
                         ex -> reactor.core.publisher.Mono.just(ex.result())
                 )
                 .block();
     }
 
-    private static class CrmUploadFailedException extends RuntimeException {
+    private static class DuplicateCheckFailedException extends RuntimeException {
         private final CrmUploadResult.Failure result;
 
-        CrmUploadFailedException(CrmUploadResult.Failure result) {
+        DuplicateCheckFailedException(CrmUploadResult.Failure result) {
             this.result = result;
         }
 

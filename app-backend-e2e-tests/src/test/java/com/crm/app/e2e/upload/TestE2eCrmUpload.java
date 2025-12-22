@@ -16,7 +16,7 @@ import org.springframework.test.context.ActiveProfiles;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @ActiveProfiles("e2e")
-class TestE2eRegisterCrmUpload extends E2eAbstract {
+class TestE2eCrmUpload extends E2eAbstract {
 
     @Autowired
     private E2eProperties e2eProperties;
@@ -49,7 +49,7 @@ class TestE2eRegisterCrmUpload extends E2eAbstract {
          */
         sourceSystem = "Lexware";
         file = new ClassPathResource("files/Lexware_Generated_00001.xlsx");
-        uploadResult = uploadclient.upload(
+        uploadResult = uploadclient.crmUpload(
                 baseRequest.email_address(),
                 loginSuccess.response().token(),
                 sourceSystem,
@@ -83,7 +83,7 @@ class TestE2eRegisterCrmUpload extends E2eAbstract {
          */
         sourceSystem = "LEXWARE";
         file = new ClassPathResource("files/Lexware_Generated_00001.xlsx");
-        uploadResult = uploadclient.upload(
+        uploadResult = uploadclient.crmUpload(
                 baseRequest.email_address(),
                 loginSuccess.response().token(),
                 sourceSystem,
@@ -104,7 +104,7 @@ class TestE2eRegisterCrmUpload extends E2eAbstract {
          */
         sourceSystem = "Lexware";
         file = new ClassPathResource("files/Lexware_Generated_00001.xlsx");
-        uploadResult = uploadclient.upload(
+        uploadResult = uploadclient.crmUpload(
                 baseRequest.email_address(),
                 loginSuccess.response().token(),
                 sourceSystem,
@@ -125,7 +125,7 @@ class TestE2eRegisterCrmUpload extends E2eAbstract {
          */
         sourceSystem = "Lexware";
         file = new ClassPathResource("files/Lexware_Generated_00001.xlsx");
-        uploadResult = uploadclient.upload(
+        uploadResult = uploadclient.crmUpload(
                 baseRequest.email_address(),
                 loginSuccess.response().token(),
                 sourceSystem,
@@ -143,7 +143,7 @@ class TestE2eRegisterCrmUpload extends E2eAbstract {
          */
         sourceSystem = "Lexware";
         file = new ClassPathResource("files/Lexware_Generated_00001.xlsx");
-        uploadResult = uploadclient.upload(
+        uploadResult = uploadclient.crmUpload(
                 baseRequest.email_address(),
                 loginSuccess.response().token(),
                 sourceSystem,

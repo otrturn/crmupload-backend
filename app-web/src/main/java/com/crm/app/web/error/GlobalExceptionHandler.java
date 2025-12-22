@@ -264,6 +264,21 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
     }
 
+    @ExceptionHandler(CrmUploadForbiddenUseException.class)
+    public ResponseEntity<com.crm.app.dto.ApiError> handleCrmUploadForbiddenUse(CrmUploadForbiddenUseException ex,
+                                                                                    HttpServletRequest request) {
+        log.warn("CRM-Upload forbidden use {}: {}", request.getRequestURI(), ex.getMessage());
+        com.crm.app.dto.ApiError body = new com.crm.app.dto.ApiError(
+                HttpStatus.CONFLICT.value(),
+                HttpStatus.CONFLICT.getReasonPhrase(),
+                ex.getMessage(),
+                request.getRequestURI(),
+                Instant.now(),
+                "CRM_UPLOAD_FORBIDDEN_USE"
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+    }
+
     @ExceptionHandler(CustomerAcknowledgementInvalidException.class)
     public ResponseEntity<com.crm.app.dto.ApiError> handleCustomerAcknowledgementInvalid(CustomerAcknowledgementInvalidException ex,
                                                                                          HttpServletRequest request) {
