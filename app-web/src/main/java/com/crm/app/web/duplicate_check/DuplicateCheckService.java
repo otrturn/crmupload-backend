@@ -6,10 +6,7 @@ import com.crm.app.dto.DuplicateCheckRequest;
 import com.crm.app.dto.SourceSystem;
 import com.crm.app.port.customer.CustomerRepositoryPort;
 import com.crm.app.port.customer.DuplicateCheckRepositoryPort;
-import com.crm.app.web.error.CustomerNotFoundException;
-import com.crm.app.web.error.DuplicateCheckAlreadyInProgressException;
-import com.crm.app.web.error.DuplicateCheckInvalidDataException;
-import com.crm.app.web.error.DuplicateCheckNotAllowedException;
+import com.crm.app.web.error.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -41,13 +38,13 @@ public class DuplicateCheckService {
         boolean hasOpenDuplicatechecks = customerRepositoryPort.isHasOpenDuplicateChecksByCustomerId(customerId);
 
         if (!enabled) {
-            throw new DuplicateCheckNotAllowedException(String.format("processDuplicateCheck: Customer %s is not enabled", emailAddress));
+            throw new DuplicateCheckPermissionDeniedException(String.format("processDuplicateCheck: Customer %s is not enabled", emailAddress));
         }
         if (!SourceSystem.availableSourceSystems().contains(sourceSystem != null ? sourceSystem : "")) {
             throw new DuplicateCheckInvalidDataException(String.format("processDuplicateCheck: Customer %s unknown sourceSystem [%s]", emailAddress, sourceSystem));
         }
         if (!products.contains(AppConstants.PRODUCT_DUPLICATE_CHECK)) {
-            throw new DuplicateCheckInvalidDataException(String.format("processDuplicateCheck: Customer %s does not have product [%s]", emailAddress, AppConstants.PRODUCT_DUPLICATE_CHECK));
+            throw new DuplicateCheckMissingProductException(String.format("processDuplicateCheck: Customer %s does not have product [%s]", emailAddress, AppConstants.PRODUCT_DUPLICATE_CHECK));
         }
         if (hasOpenDuplicatechecks) {
             throw new DuplicateCheckAlreadyInProgressException(String.format("processDuplicateCheck: Customer %s has open duplicate-check", emailAddress));

@@ -129,6 +129,21 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
     }
 
+    @ExceptionHandler(DuplicateCheckMissingProductException.class)
+    public ResponseEntity<com.crm.app.dto.ApiError> handleDuplicateCheckMissingProduct(DuplicateCheckMissingProductException ex,
+                                                                                       HttpServletRequest request) {
+        log.warn("Duplicate check missing product {}: {}", request.getRequestURI(), ex.getMessage());
+        com.crm.app.dto.ApiError body = new com.crm.app.dto.ApiError(
+                HttpStatus.CONFLICT.value(),
+                HttpStatus.CONFLICT.getReasonPhrase(),
+                ex.getMessage(),
+                request.getRequestURI(),
+                Instant.now(),
+                "DUPLICATE_CHECK_MISSING_PRODUCT"
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+    }
+
     @ExceptionHandler(DuplicateCheckAlreadyInProgressException.class)
     public ResponseEntity<com.crm.app.dto.ApiError> handleDuplicateCheckAlreadyInProgress(DuplicateCheckAlreadyInProgressException ex,
                                                                                           HttpServletRequest request) {
@@ -159,10 +174,25 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
     }
 
-    @ExceptionHandler(UploadNotAllowedException.class)
-    public ResponseEntity<com.crm.app.dto.ApiError> handleUploadNotAllowed(UploadNotAllowedException ex,
-                                                                           HttpServletRequest request) {
-        log.warn("Upload not allowed {}: {}", request.getRequestURI(), ex.getMessage());
+    @ExceptionHandler(DuplicateCheckPermissionDeniedException.class)
+    public ResponseEntity<com.crm.app.dto.ApiError> handleDuplicatecheckPermissionDenied(DuplicateCheckPermissionDeniedException ex,
+                                                                                         HttpServletRequest request) {
+        log.warn("Duplicate check permission denied {}: {}", request.getRequestURI(), ex.getMessage());
+        com.crm.app.dto.ApiError body = new com.crm.app.dto.ApiError(
+                HttpStatus.CONFLICT.value(),
+                HttpStatus.CONFLICT.getReasonPhrase(),
+                ex.getMessage(),
+                request.getRequestURI(),
+                Instant.now(),
+                "DUPLICATE_CHECK_PERMISSION_DENIED"
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+    }
+
+    @ExceptionHandler(CrmUploadNotAllowedException.class)
+    public ResponseEntity<com.crm.app.dto.ApiError> handleCrmUploadNotAllowed(CrmUploadNotAllowedException ex,
+                                                                              HttpServletRequest request) {
+        log.warn("CRM-Upload not allowed {}: {}", request.getRequestURI(), ex.getMessage());
         com.crm.app.dto.ApiError body = new com.crm.app.dto.ApiError(
                 HttpStatus.CONFLICT.value(),
                 HttpStatus.CONFLICT.getReasonPhrase(),
@@ -174,10 +204,25 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
     }
 
-    @ExceptionHandler(UploadAlreadyInProgressException.class)
-    public ResponseEntity<com.crm.app.dto.ApiError> handleUploadAlreadyInProgress(UploadAlreadyInProgressException ex,
+    @ExceptionHandler(CrmUploadMissingProductException.class)
+    public ResponseEntity<com.crm.app.dto.ApiError> handleCrmUploadMissingProduct(CrmUploadMissingProductException ex,
                                                                                   HttpServletRequest request) {
-        log.warn("Upload already in progress {}: {}", request.getRequestURI(), ex.getMessage());
+        log.warn("CRM-Upload missing product {}: {}", request.getRequestURI(), ex.getMessage());
+        com.crm.app.dto.ApiError body = new com.crm.app.dto.ApiError(
+                HttpStatus.CONFLICT.value(),
+                HttpStatus.CONFLICT.getReasonPhrase(),
+                ex.getMessage(),
+                request.getRequestURI(),
+                Instant.now(),
+                "CRM_UPLOAD_MISSING_PRODUCT"
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+    }
+
+    @ExceptionHandler(CrmUploadAlreadyInProgressException.class)
+    public ResponseEntity<com.crm.app.dto.ApiError> handleCrmUploadAlreadyInProgress(CrmUploadAlreadyInProgressException ex,
+                                                                                     HttpServletRequest request) {
+        log.warn("CRM-Upload already in progress {}: {}", request.getRequestURI(), ex.getMessage());
         com.crm.app.dto.ApiError body = new com.crm.app.dto.ApiError(
                 HttpStatus.CONFLICT.value(),
                 HttpStatus.CONFLICT.getReasonPhrase(),
@@ -189,10 +234,10 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
     }
 
-    @ExceptionHandler(UploadInvalidDataException.class)
-    public ResponseEntity<com.crm.app.dto.ApiError> handleUploadInvalidData(UploadInvalidDataException ex,
-                                                                            HttpServletRequest request) {
-        log.warn("Upload invalid data {}: {}", request.getRequestURI(), ex.getMessage());
+    @ExceptionHandler(CrmUploadInvalidDataException.class)
+    public ResponseEntity<com.crm.app.dto.ApiError> handleCrmUploadInvalidData(CrmUploadInvalidDataException ex,
+                                                                               HttpServletRequest request) {
+        log.warn("CRM-Upload invalid data {}: {}", request.getRequestURI(), ex.getMessage());
         com.crm.app.dto.ApiError body = new com.crm.app.dto.ApiError(
                 HttpStatus.CONFLICT.value(),
                 HttpStatus.CONFLICT.getReasonPhrase(),
@@ -200,6 +245,21 @@ public class GlobalExceptionHandler {
                 request.getRequestURI(),
                 Instant.now(),
                 "CRM_UPLOAD_INVALID_DATA"
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+    }
+
+    @ExceptionHandler(CrmUploadPermissionDeniedException.class)
+    public ResponseEntity<com.crm.app.dto.ApiError> handleCrmUploadPermissionDenied(CrmUploadPermissionDeniedException ex,
+                                                                                    HttpServletRequest request) {
+        log.warn("CRM-Upload permission denied {}: {}", request.getRequestURI(), ex.getMessage());
+        com.crm.app.dto.ApiError body = new com.crm.app.dto.ApiError(
+                HttpStatus.CONFLICT.value(),
+                HttpStatus.CONFLICT.getReasonPhrase(),
+                ex.getMessage(),
+                request.getRequestURI(),
+                Instant.now(),
+                "CRM_UPLOAD_PERMISSION_DENIED"
         );
         return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
     }

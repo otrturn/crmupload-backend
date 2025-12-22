@@ -29,7 +29,7 @@ class TestE2eRegisterCustomerAlreadyExists extends E2eAbstract {
         RegisterResult.Failure failure;
 
         /*
-        Register once
+         * Register once
          */
         result = client.register(request);
 
@@ -39,7 +39,7 @@ class TestE2eRegisterCustomerAlreadyExists extends E2eAbstract {
         assertThat(success.response().token()).isNotBlank();
 
         /*
-        Register twice
+         * Register twice
          */
 
         result = client.register(request);

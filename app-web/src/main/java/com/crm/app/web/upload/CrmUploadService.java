@@ -36,22 +36,22 @@ public class CrmUploadService {
         List<String> products = customerRepositoryPort.findActiveProductsByEmail(emailAddress);
 
         if (!enabled) {
-            throw new UploadNotAllowedException(String.format("processCrmUpload: Customer %s is not enabled", emailAddress));
+            throw new CrmUploadPermissionDeniedException(String.format("processCrmUpload: Customer %s is not enabled", emailAddress));
         }
         if (!SourceSystem.availableSourceSystems().contains(sourceSystem != null ? sourceSystem : "")) {
-            throw new UploadInvalidDataException(String.format("processCrmUpload: Customer %s unknown sourceSystem [%s]", emailAddress, sourceSystem));
+            throw new CrmUploadInvalidDataException(String.format("processCrmUpload: Customer %s unknown sourceSystem [%s]", emailAddress, sourceSystem));
         }
         if (!CrmSystem.availableCrmSystems().contains(crmSystem != null ? crmSystem : "")) {
-            throw new UploadInvalidDataException(String.format("processCrmUpload: Customer %s unknown crmSystem [%s]", emailAddress, crmSystem));
+            throw new CrmUploadInvalidDataException(String.format("processCrmUpload: Customer %s unknown crmSystem [%s]", emailAddress, crmSystem));
         }
         if (!products.contains(AppConstants.PRODUCT_CRM_UPLOAD)) {
-            throw new UploadInvalidDataException(String.format("processCrmUpload: Customer %s does not have product [%s]", emailAddress, AppConstants.PRODUCT_CRM_UPLOAD));
+            throw new CrmUploadMissingProductException(String.format("processCrmUpload: Customer %s does not have product [%s]", emailAddress, AppConstants.PRODUCT_CRM_UPLOAD));
         }
         if (hasOpenCrmUploads) {
-            throw new UploadAlreadyInProgressException(String.format("processCrmUpload: Customer %s has open uploads", emailAddress));
+            throw new CrmUploadAlreadyInProgressException(String.format("processCrmUpload: Customer %s has open uploads", emailAddress));
         }
         if (crmUploadInfo.isPresent() && (!crmUploadInfo.get().getCrmSystem().equals(crmSystem != null ? crmSystem : "") || !crmUploadInfo.get().getCrmCustomerId().equals(crmCustomerId != null ? crmCustomerId : ""))) {
-            throw new UploadInvalidDataException(String.format("processCrmUpload: crmSystem/crmCustomerId %s/%s [%s][%s] for customer %d invalid",
+            throw new CrmUploadInvalidDataException(String.format("processCrmUpload: crmSystem/crmCustomerId %s/%s [%s][%s] for customer %d invalid",
                     crmSystem,
                     crmCustomerId,
                     crmUploadInfo.get().getCrmSystem(),

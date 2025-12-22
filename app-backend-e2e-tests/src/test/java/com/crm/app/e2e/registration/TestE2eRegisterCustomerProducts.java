@@ -32,7 +32,7 @@ class TestE2eRegisterCustomerProducts extends E2eAbstract {
         RegisterResult.Failure failure;
 
         /*
-        Product NULL
+         * Product NULL
          */
         RegisterRequest invalidDataRequest = new RegisterRequest(
                 baseRequest.firstname(),
@@ -65,7 +65,7 @@ class TestE2eRegisterCustomerProducts extends E2eAbstract {
         assertThat(failure.error().path()).isEqualTo("/auth/register-customer");
 
         /*
-        Product Empty
+         * Product Empty
          */
         invalidDataRequest = new RegisterRequest(
                 baseRequest.firstname(),
@@ -98,7 +98,7 @@ class TestE2eRegisterCustomerProducts extends E2eAbstract {
         assertThat(failure.error().path()).isEqualTo("/auth/register-customer");
 
         /*
-        Product unknown
+         * Product unknown
          */
         invalidDataRequest = new RegisterRequest(
                 baseRequest.firstname(),
@@ -131,7 +131,7 @@ class TestE2eRegisterCustomerProducts extends E2eAbstract {
         assertThat(failure.error().path()).isEqualTo("/auth/register-customer");
 
         /*
-        Product multiple identical entries
+         * Product multiple identical entries
          */
         invalidDataRequest = new RegisterRequest(
                 baseRequest.firstname(),

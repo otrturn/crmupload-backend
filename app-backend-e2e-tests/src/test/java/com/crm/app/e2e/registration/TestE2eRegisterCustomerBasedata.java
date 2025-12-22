@@ -28,10 +28,10 @@ class TestE2eRegisterCustomerBasedata extends E2eAbstract {
         RegisterRequest baseRequest = baseRegisterRequest();
 
         RegisterResult result;
-        RegisterResult.Failure failure ;
+        RegisterResult.Failure failure;
 
         /*
-        Email address
+         * Email address
          */
         RegisterRequest invalidDataRequest = new RegisterRequest(
                 baseRequest.firstname(),
@@ -64,7 +64,7 @@ class TestE2eRegisterCustomerBasedata extends E2eAbstract {
         assertThat(failure.error().path()).isEqualTo("/auth/register-customer");
 
         /*
-        Names
+         * Names
          */
         invalidDataRequest = new RegisterRequest(
                 null,
@@ -98,7 +98,7 @@ class TestE2eRegisterCustomerBasedata extends E2eAbstract {
         assertThat(failure.error().path()).isEqualTo("/auth/register-customer");
 
         /*
-        Address
+         * Address
          */
         for (RegisterRequest request : invalidAddressesRequests()) {
             result = client.register(request);
@@ -114,7 +114,7 @@ class TestE2eRegisterCustomerBasedata extends E2eAbstract {
         }
 
         /*
-        Phone number
+         * Phone number
          */
         invalidDataRequest = new RegisterRequest(
                 baseRequest.firstname(),
@@ -147,7 +147,7 @@ class TestE2eRegisterCustomerBasedata extends E2eAbstract {
         assertThat(failure.error().path()).isEqualTo("/auth/register-customer");
 
         /*
-        Password
+         * Password
          */
         invalidDataRequest = new RegisterRequest(
                 baseRequest.firstname(),
