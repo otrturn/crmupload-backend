@@ -3,7 +3,6 @@ package com.crm.app.web;
 import com.crm.app.dto.*;
 import com.crm.app.web.customer.CustomerProfileService;
 import com.crm.app.web.duplicate_check.DuplicateCheckService;
-import com.crm.app.web.error.CustomerNotFoundException;
 import com.crm.app.web.upload.CrmUploadService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -60,11 +59,6 @@ public class CustomerController {
     public ResponseEntity<CustomerStatusResponse> getStatus(@PathVariable("emailAddress") String emailAddress) {
         CustomerStatusResponse response = customerProfileService.getStatus(emailAddress);
         return ResponseEntity.ok(response);
-    }
-
-    @ExceptionHandler(CustomerNotFoundException.class)
-    public ResponseEntity<Void> handleCustomerNotFound(CustomerNotFoundException ex) {
-        return ResponseEntity.notFound().build();
     }
 
     @GetMapping("/ping")
