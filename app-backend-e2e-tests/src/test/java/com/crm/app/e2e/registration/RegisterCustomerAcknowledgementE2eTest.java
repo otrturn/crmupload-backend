@@ -101,5 +101,31 @@ class RegisterCustomerAcknowledgementE2eTest extends AbstractE2eTest {
             assertThat(failure.error().path()).isEqualTo("/auth/register-customer");
         }
 
+        RegisterRequest allTrueRequest = new RegisterRequest(
+                baseRequest.firstname(),
+                baseRequest.lastname(),
+                baseRequest.company_name(),
+                baseRequest.email_address(),
+                baseRequest.phone_number(),
+                baseRequest.adrline1(),
+                baseRequest.adrline2(),
+                baseRequest.postalcode(),
+                baseRequest.city(),
+                baseRequest.country(),
+                baseRequest.password(),
+                baseRequest.products(),
+                true,
+                true,
+                true,
+                true,
+                baseRequest.terms_version()
+        );
+
+        RegisterResult result = client.register(allTrueRequest);
+
+        assertThat(result).isInstanceOf(RegisterResult.Success.class);
+
+        RegisterResult.Success success = (RegisterResult.Success) result;
+        assertThat(success.response().token()).isNotBlank();
     }
 }
