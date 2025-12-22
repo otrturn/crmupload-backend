@@ -1,4 +1,4 @@
-package com.crm.app.web.error;
+package com.crm.app.dto;
 
 import java.time.Instant;
 

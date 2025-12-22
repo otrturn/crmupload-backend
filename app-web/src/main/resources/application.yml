@@ -12,3 +12,4 @@ app:
     secret: "eine-lange-zufällige-zeichenkette-hier-eintragen-32+Zeichen"
     expiration-ms: 3600000   # 1 Stunde
 
+Fbs

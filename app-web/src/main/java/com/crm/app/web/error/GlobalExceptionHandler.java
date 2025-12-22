@@ -15,10 +15,10 @@ import java.time.Instant;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(IllegalStateException.class)
-    public ResponseEntity<ApiError> handleIllegalState(IllegalStateException ex,
-                                                       HttpServletRequest request) {
+    public ResponseEntity<com.crm.app.dto.ApiError> handleIllegalState(IllegalStateException ex,
+                                                                       HttpServletRequest request) {
         log.warn(String.format("Business error on %s: %s", request.getRequestURI(), ex.getMessage()));
-        ApiError body = new ApiError(
+        com.crm.app.dto.ApiError body = new com.crm.app.dto.ApiError(
                 HttpStatus.CONFLICT.value(),
                 HttpStatus.CONFLICT.getReasonPhrase(),
                 ex.getMessage(),
@@ -30,10 +30,10 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<ApiError> handleAuthentication(AuthenticationException ex,
-                                                         HttpServletRequest request) {
+    public ResponseEntity<com.crm.app.dto.ApiError> handleAuthentication(AuthenticationException ex,
+                                                                         HttpServletRequest request) {
         log.warn(String.format("Authentication failed on %s: %s", request.getRequestURI(), ex.getMessage()));
-        ApiError body = new ApiError(
+        com.crm.app.dto.ApiError body = new com.crm.app.dto.ApiError(
                 HttpStatus.UNAUTHORIZED.value(),
                 HttpStatus.UNAUTHORIZED.getReasonPhrase(),
                 "Invalid username or password",
@@ -45,8 +45,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiError> handleGeneric(Exception ex,
-                                                  HttpServletRequest request) {
+    public ResponseEntity<com.crm.app.dto.ApiError> handleGeneric(Exception ex,
+                                                                  HttpServletRequest request) {
         StackTraceElement origin = ex.getStackTrace().length > 0
                 ? ex.getStackTrace()[0]
                 : null;
@@ -57,7 +57,7 @@ public class GlobalExceptionHandler {
                 origin.getLineNumber())
                 : "unknown origin";
         log.error(String.format("Unexpected error on %s in %s", request.getRequestURI(), originInfo), ex);
-        ApiError body = new ApiError(
+        com.crm.app.dto.ApiError body = new com.crm.app.dto.ApiError(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
                 "Unexpected server error",
@@ -69,10 +69,10 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(RegisterRequestInvalidDataException.class)
-    public ResponseEntity<ApiError> handleRegisterInvalid(RegisterRequestInvalidDataException ex,
-                                                          HttpServletRequest request) {
+    public ResponseEntity<com.crm.app.dto.ApiError> handleRegisterInvalid(RegisterRequestInvalidDataException ex,
+                                                                          HttpServletRequest request) {
         log.warn("Register validation error on {}: {}", request.getRequestURI(), ex.getMessage());
-        ApiError body = new ApiError(
+        com.crm.app.dto.ApiError body = new com.crm.app.dto.ApiError(
                 HttpStatus.BAD_REQUEST.value(),
                 HttpStatus.BAD_REQUEST.getReasonPhrase(),
                 ex.getMessage(),
@@ -84,11 +84,11 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(CustomerAlreadyExistsException.class)
-    public ResponseEntity<ApiError> handleCustomerAlreadyExists(CustomerAlreadyExistsException ex,
-                                                                HttpServletRequest request) {
+    public ResponseEntity<com.crm.app.dto.ApiError> handleCustomerAlreadyExists(CustomerAlreadyExistsException ex,
+                                                                                HttpServletRequest request) {
         log.warn("Customer already exists on {}: {}", request.getRequestURI(), ex.getMessage());
 
-        ApiError body = new ApiError(
+        com.crm.app.dto.ApiError body = new com.crm.app.dto.ApiError(
                 HttpStatus.CONFLICT.value(),
                 HttpStatus.CONFLICT.getReasonPhrase(),
                 ex.getMessage(),
@@ -100,10 +100,10 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(CustomerNotFoundException.class)
-    public ResponseEntity<ApiError> handleNotFound(CustomerNotFoundException ex,
-                                                   HttpServletRequest request) {
+    public ResponseEntity<com.crm.app.dto.ApiError> handleNotFound(CustomerNotFoundException ex,
+                                                                   HttpServletRequest request) {
         log.warn("Customer not found {}: {}", request.getRequestURI(), ex.getMessage());
-        ApiError body = new ApiError(
+        com.crm.app.dto.ApiError body = new com.crm.app.dto.ApiError(
                 HttpStatus.CONFLICT.value(),
                 HttpStatus.CONFLICT.getReasonPhrase(),
                 ex.getMessage(),
@@ -115,10 +115,10 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(DuplicateCheckNotAllowedException.class)
-    public ResponseEntity<ApiError> handleDuplicateCheckNotAllowed(DuplicateCheckNotAllowedException ex,
-                                                                   HttpServletRequest request) {
+    public ResponseEntity<com.crm.app.dto.ApiError> handleDuplicateCheckNotAllowed(DuplicateCheckNotAllowedException ex,
+                                                                                   HttpServletRequest request) {
         log.warn("Duplicate check not allowed {}: {}", request.getRequestURI(), ex.getMessage());
-        ApiError body = new ApiError(
+        com.crm.app.dto.ApiError body = new com.crm.app.dto.ApiError(
                 HttpStatus.CONFLICT.value(),
                 HttpStatus.CONFLICT.getReasonPhrase(),
                 ex.getMessage(),
@@ -130,10 +130,10 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(UploadAlreadyInProgressException.class)
-    public ResponseEntity<ApiError> handleUploadAlreadyInProgress(UploadAlreadyInProgressException ex,
-                                                                  HttpServletRequest request) {
+    public ResponseEntity<com.crm.app.dto.ApiError> handleUploadAlreadyInProgress(UploadAlreadyInProgressException ex,
+                                                                                  HttpServletRequest request) {
         log.warn("Upload already in progress {}: {}", request.getRequestURI(), ex.getMessage());
-        ApiError body = new ApiError(
+        com.crm.app.dto.ApiError body = new com.crm.app.dto.ApiError(
                 HttpStatus.CONFLICT.value(),
                 HttpStatus.CONFLICT.getReasonPhrase(),
                 ex.getMessage(),
@@ -145,10 +145,10 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(UploadNotAllowedException.class)
-    public ResponseEntity<ApiError> handleUploadNotAllowed(UploadNotAllowedException ex,
-                                                           HttpServletRequest request) {
+    public ResponseEntity<com.crm.app.dto.ApiError> handleUploadNotAllowed(UploadNotAllowedException ex,
+                                                                           HttpServletRequest request) {
         log.warn("Upload not allowed {}: {}", request.getRequestURI(), ex.getMessage());
-        ApiError body = new ApiError(
+        com.crm.app.dto.ApiError body = new com.crm.app.dto.ApiError(
                 HttpStatus.CONFLICT.value(),
                 HttpStatus.CONFLICT.getReasonPhrase(),
                 ex.getMessage(),
@@ -160,10 +160,10 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(CustomerAcknowledgementInvalidException.class)
-    public ResponseEntity<ApiError> handleCustomerAcknowledgementInvalid(CustomerAcknowledgementInvalidException ex,
-                                                                         HttpServletRequest request) {
+    public ResponseEntity<com.crm.app.dto.ApiError> handleCustomerAcknowledgementInvalid(CustomerAcknowledgementInvalidException ex,
+                                                                                         HttpServletRequest request) {
         log.warn("Customer acknowledgement information invalid {}: {}", request.getRequestURI(), ex.getMessage());
-        ApiError body = new ApiError(
+        com.crm.app.dto.ApiError body = new com.crm.app.dto.ApiError(
                 HttpStatus.CONFLICT.value(),
                 HttpStatus.CONFLICT.getReasonPhrase(),
                 ex.getMessage(),
@@ -175,10 +175,10 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(CustomerTermsVersionInvalidException.class)
-    public ResponseEntity<ApiError> handleCustomerTermsVersionInvalid(CustomerTermsVersionInvalidException ex,
-                                                                      HttpServletRequest request) {
+    public ResponseEntity<com.crm.app.dto.ApiError> handleCustomerTermsVersionInvalid(CustomerTermsVersionInvalidException ex,
+                                                                                      HttpServletRequest request) {
         log.warn("Customer terms version invalid/unknown {}: {}", request.getRequestURI(), ex.getMessage());
-        ApiError body = new ApiError(
+        com.crm.app.dto.ApiError body = new com.crm.app.dto.ApiError(
                 HttpStatus.CONFLICT.value(),
                 HttpStatus.CONFLICT.getReasonPhrase(),
                 ex.getMessage(),

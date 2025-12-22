@@ -11,7 +11,8 @@
 
     <artifactId>app-backend-e2e-tests</artifactId>
     <packaging>jar</packaging>
-    <name>CRMUpload Backend E2E Tests</name>    <properties>
+    <name>CRMUpload Backend E2E Tests</name>
+    <properties>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -39,6 +40,12 @@
             <artifactId>postgresql</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.crmupload</groupId>
+            <artifactId>app-common</artifactId>
+            <version>1.0</version>
+            <scope>test</scope>
+        </dependency>
 
         <!-- Optional: HTTP E2E-Tests -->
         <!--
@@ -48,7 +55,10 @@
             <scope>test</scope>
         </dependency>
         -->
-
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
