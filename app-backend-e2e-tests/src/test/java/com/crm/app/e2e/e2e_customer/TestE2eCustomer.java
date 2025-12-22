@@ -74,7 +74,7 @@ class TestE2eCustomer extends E2eAbstract {
         /*
         Get status
          */
-        customerStatusResult = customerStatusClient.getStatus(baseRequest.email_address(),loginSuccess.response().token());
+        customerStatusResult = customerStatusClient.getStatus(baseRequest.email_address(), loginSuccess.response().token());
         assertThat(customerStatusResult).isInstanceOf(CustomerStatusResult.Success.class);
         customerStatusSuccess = (CustomerStatusResult.Success) customerStatusResult;
         assertTrue(customerStatusSuccess.response().enabled());
@@ -82,10 +82,10 @@ class TestE2eCustomer extends E2eAbstract {
         /*
         Get Me
          */
-        customerMeResult = customerMeClient.getMe(baseRequest.email_address(),loginSuccess.response().token());
+        customerMeResult = customerMeClient.getMe(baseRequest.email_address(), loginSuccess.response().token());
         assertThat(customerMeResult).isInstanceOf(CustomerMeResult.Success.class);
         customerMeSuccess = (CustomerMeResult.Success) customerMeResult;
-        assertEquals(customerMeSuccess.response().firstname(),baseRequest.firstname());
+        assertEquals(customerMeSuccess.response().firstname(), baseRequest.firstname());
 
     }
 }

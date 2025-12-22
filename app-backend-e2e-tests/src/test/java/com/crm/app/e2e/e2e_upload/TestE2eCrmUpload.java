@@ -146,7 +146,7 @@ class TestE2eCrmUpload extends E2eAbstract {
         /*
         Get status
          */
-        customerStatusResult = customerStatusClient.getStatus(baseRequest.email_address(),loginSuccess.response().token());
+        customerStatusResult = customerStatusClient.getStatus(baseRequest.email_address(), loginSuccess.response().token());
         Assertions.assertThat(customerStatusResult).isInstanceOf(CustomerStatusResult.Success.class);
         customerStatusSuccess = (CustomerStatusResult.Success) customerStatusResult;
         assertTrue(customerStatusSuccess.response().enabled());
