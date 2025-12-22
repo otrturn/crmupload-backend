@@ -1,5 +1,6 @@
 package com.crm.app.e2e.registration;
 
+import com.crm.app.dto.AppConstants;
 import com.crm.app.dto.RegisterRequest;
 import com.crm.app.e2e.E2eAbstract;
 import com.crm.app.e2e.client.RegisterCustomerClient;
@@ -109,6 +110,39 @@ class TestE2eRegisterCustomerProducts extends E2eAbstract {
                 baseRequest.country(),
                 baseRequest.password(),
                 List.of("helgoland"),
+                baseRequest.agb_accepted(),
+                baseRequest.is_entrepreneur(),
+                baseRequest.request_immediate_service_start(),
+                baseRequest.acknowledge_withdrawal_loss(),
+                baseRequest.terms_version()
+        );
+        result = client.register(invalidDataRequest);
+
+        assertThat(result).isInstanceOf(RegisterResult.Failure.class);
+
+        failure = (RegisterResult.Failure) result;
+
+        assertThat(failure.error().status()).isEqualTo(409);
+        assertThat(failure.error().code()).isEqualTo("CUSTOMER_PRODUCT_INVALID");
+        assertThat(failure.error().message()).isNotBlank();
+        assertThat(failure.error().path()).isEqualTo("/auth/register-customer");
+
+        /*
+        Product multiple identical entries
+         */
+        invalidDataRequest = new RegisterRequest(
+                baseRequest.firstname(),
+                baseRequest.lastname(),
+                baseRequest.company_name(),
+                baseRequest.email_address(),
+                baseRequest.phone_number(),
+                baseRequest.adrline1(),
+                baseRequest.adrline2(),
+                baseRequest.postalcode(),
+                baseRequest.city(),
+                baseRequest.country(),
+                baseRequest.password(),
+                List.of(AppConstants.PRODUCT_CRM_UPLOAD, AppConstants.PRODUCT_CRM_UPLOAD),
                 baseRequest.agb_accepted(),
                 baseRequest.is_entrepreneur(),
                 baseRequest.request_immediate_service_start(),

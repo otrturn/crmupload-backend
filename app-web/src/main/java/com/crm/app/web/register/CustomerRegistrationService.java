@@ -7,6 +7,7 @@ import com.crm.app.web.config.AppWebActivationProperties;
 import com.crm.app.web.error.CustomerAlreadyExistsException;
 import com.crm.app.web.error.CustomerProductInvalidException;
 import com.crm.app.web.error.CustomerTermsVersionInvalidException;
+import com.crm.app.web.error.RegisterRequestInvalidCustomerDataException;
 import com.crm.app.web.validation.RegisterRequestValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -47,6 +48,14 @@ public class CustomerRegistrationService {
                         emailAddress, product);
                 throw new CustomerProductInvalidException(msg);
             }
+        }
+
+        if (request.products().stream().distinct().count() != request.products().size()) {
+            throw new CustomerProductInvalidException(
+                    String.format(
+                            "registration: Customer %s invalid list of products",
+                            emailAddress
+                    ));
         }
 
         /*
