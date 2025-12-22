@@ -47,7 +47,7 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Optional: HTTP E2E-Tests -->
+       <!-- Optional: HTTP E2E-Tests -->
         <!--
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -58,6 +58,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webflux</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
