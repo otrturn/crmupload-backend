@@ -1,13 +1,10 @@
 package com.crm.app.web;
 
 import com.crm.app.dto.UploadResponse;
-import com.crm.app.web.error.UploadAlreadyInProgressException;
-import com.crm.app.web.error.UploadNotAllowedException;
 import com.crm.app.web.upload.CrmUploadService;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -39,28 +36,8 @@ public class CrmUploadController {
             @RequestParam("crmApiKey") @NotBlank String crmApiKey,
             @RequestPart("file") MultipartFile file
     ) {
-        uploadService.processUpload(emailAddress, sourceSystem, crmSystem, crmUrl, crmCustomerId, crmApiKey, file);
+        uploadService.processCrmUpload(emailAddress, sourceSystem, crmSystem, crmUrl, crmCustomerId, crmApiKey, file);
         return ResponseEntity.ok().build();
     }
 
-    @ExceptionHandler(UploadNotAllowedException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    public UploadResponse handleUploadNotAllowed(UploadNotAllowedException ex) {
-        log.warn(String.format("Upload not allowed: %s", ex.getMessage()));
-        return new UploadResponse(LITERAL_ERROR + ex.getMessage());
-    }
-
-    @ExceptionHandler(UploadAlreadyInProgressException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public UploadResponse handleUploadAlreadyInProgress(UploadAlreadyInProgressException ex) {
-        log.warn(String.format("Upload already in progress: %s", ex.getMessage()));
-        return new UploadResponse(LITERAL_ERROR + ex.getMessage());
-    }
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    @ResponseStatus(org.springframework.http.HttpStatus.BAD_REQUEST)
-    public UploadResponse handleIllegalArgument(IllegalArgumentException ex) {
-        log.warn(String.format("Bad request: %s", ex.getMessage()));
-        return new UploadResponse(LITERAL_ERROR + ex.getMessage());
-    }
 }

@@ -7,7 +7,6 @@ import com.crm.app.web.config.AppWebActivationProperties;
 import com.crm.app.web.error.CustomerAlreadyExistsException;
 import com.crm.app.web.error.CustomerProductInvalidException;
 import com.crm.app.web.error.CustomerTermsVersionInvalidException;
-import com.crm.app.web.error.RegisterRequestInvalidCustomerDataException;
 import com.crm.app.web.validation.RegisterRequestValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

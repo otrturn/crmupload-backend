@@ -3,8 +3,6 @@ package com.crm.app.web;
 import com.crm.app.dto.UploadResponse;
 import com.crm.app.web.config.AppWebDuplicatecheckProperties;
 import com.crm.app.web.duplicate_check.DuplicateCheckService;
-import com.crm.app.web.error.UploadAlreadyInProgressException;
-import com.crm.app.web.error.UploadNotAllowedException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -65,24 +62,4 @@ public class DuplicateCheckController {
                 .body(resource);
     }
 
-    @ExceptionHandler(UploadNotAllowedException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    public UploadResponse handleDuplicateCheckNotAllowed(UploadNotAllowedException ex) {
-        log.warn(String.format("Duplicate-Check not allowed: %s", ex.getMessage()));
-        return new UploadResponse(LITERAL_ERROR + ex.getMessage());
-    }
-
-    @ExceptionHandler(UploadAlreadyInProgressException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public UploadResponse handleDuplicateCheckAlreadyInProgress(UploadAlreadyInProgressException ex) {
-        log.warn(String.format("Upload already in progress: %s", ex.getMessage()));
-        return new UploadResponse(LITERAL_ERROR + ex.getMessage());
-    }
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public UploadResponse handleIllegalArgument(IllegalArgumentException ex) {
-        log.warn(String.format("Bad request: %s", ex.getMessage()));
-        return new UploadResponse(LITERAL_ERROR + ex.getMessage());
-    }
 }

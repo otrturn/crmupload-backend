@@ -16,7 +16,7 @@ import org.springframework.test.context.ActiveProfiles;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @ActiveProfiles("e2e")
-class TestE2eRegisterUpload extends E2eAbstract {
+class TestE2eRegisterCrmUpload extends E2eAbstract {
 
     @Autowired
     private E2eProperties e2eProperties;

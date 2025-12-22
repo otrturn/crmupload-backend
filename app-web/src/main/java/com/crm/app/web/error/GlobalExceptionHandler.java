@@ -129,17 +129,32 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
     }
 
-    @ExceptionHandler(UploadAlreadyInProgressException.class)
-    public ResponseEntity<com.crm.app.dto.ApiError> handleUploadAlreadyInProgress(UploadAlreadyInProgressException ex,
-                                                                                  HttpServletRequest request) {
-        log.warn("Upload already in progress {}: {}", request.getRequestURI(), ex.getMessage());
+    @ExceptionHandler(DuplicateCheckAlreadyInProgressException.class)
+    public ResponseEntity<com.crm.app.dto.ApiError> handleDuplicateCheckAlreadyInProgress(DuplicateCheckAlreadyInProgressException ex,
+                                                                                          HttpServletRequest request) {
+        log.warn("Duplicate check  already in progress {}: {}", request.getRequestURI(), ex.getMessage());
         com.crm.app.dto.ApiError body = new com.crm.app.dto.ApiError(
                 HttpStatus.CONFLICT.value(),
                 HttpStatus.CONFLICT.getReasonPhrase(),
                 ex.getMessage(),
                 request.getRequestURI(),
                 Instant.now(),
-                "UPLOAD_ALREADY_IN_PROGRESS"
+                "DUPLICATE_CHECK_ALREADY_IN_PROGRESS"
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+    }
+
+    @ExceptionHandler(DuplicateCheckInvalidDataException.class)
+    public ResponseEntity<com.crm.app.dto.ApiError> handleDuplicatecheckInvalidData(DuplicateCheckInvalidDataException ex,
+                                                                                    HttpServletRequest request) {
+        log.warn("Duplicate check invalid data {}: {}", request.getRequestURI(), ex.getMessage());
+        com.crm.app.dto.ApiError body = new com.crm.app.dto.ApiError(
+                HttpStatus.CONFLICT.value(),
+                HttpStatus.CONFLICT.getReasonPhrase(),
+                ex.getMessage(),
+                request.getRequestURI(),
+                Instant.now(),
+                "DUPLICATE_CHECK_INVALID_DATA"
         );
         return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
     }
@@ -155,6 +170,36 @@ public class GlobalExceptionHandler {
                 request.getRequestURI(),
                 Instant.now(),
                 "UPLOAD_NOT_ALLOWED"
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+    }
+
+    @ExceptionHandler(UploadAlreadyInProgressException.class)
+    public ResponseEntity<com.crm.app.dto.ApiError> handleUploadAlreadyInProgress(UploadAlreadyInProgressException ex,
+                                                                                  HttpServletRequest request) {
+        log.warn("Upload already in progress {}: {}", request.getRequestURI(), ex.getMessage());
+        com.crm.app.dto.ApiError body = new com.crm.app.dto.ApiError(
+                HttpStatus.CONFLICT.value(),
+                HttpStatus.CONFLICT.getReasonPhrase(),
+                ex.getMessage(),
+                request.getRequestURI(),
+                Instant.now(),
+                "UPLOAD_ALREADY_IN_PROGRESS"
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+    }
+
+    @ExceptionHandler(UploadInvalidDataException.class)
+    public ResponseEntity<com.crm.app.dto.ApiError> handleUploadInvalidData(UploadInvalidDataException ex,
+                                                                            HttpServletRequest request) {
+        log.warn("Upload invalid data {}: {}", request.getRequestURI(), ex.getMessage());
+        com.crm.app.dto.ApiError body = new com.crm.app.dto.ApiError(
+                HttpStatus.CONFLICT.value(),
+                HttpStatus.CONFLICT.getReasonPhrase(),
+                ex.getMessage(),
+                request.getRequestURI(),
+                Instant.now(),
+                "UPLOAD_INVALID_DATA"
         );
         return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
     }

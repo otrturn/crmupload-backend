@@ -1,6 +1,7 @@
 package com.crm.app.dto;
 
 import java.util.Arrays;
+import java.util.List;
 
 public enum SourceSystem {
 
@@ -28,5 +29,11 @@ public enum SourceSystem {
                 .findFirst()
                 .orElseThrow(() ->
                         new IllegalArgumentException("Unsupported CRM system: " + raw));
+    }
+
+    public static List<String> availableSourceSystems() {
+        return Arrays.stream(values())
+                .map(SourceSystem::value)
+                .toList();
     }
 }
