@@ -1,4 +1,4 @@
-package com.crm.app.e2e.login;
+package com.crm.app.e2e.e2e_login;
 
 import com.crm.app.dto.LoginRequest;
 import com.crm.app.dto.RegisterRequest;

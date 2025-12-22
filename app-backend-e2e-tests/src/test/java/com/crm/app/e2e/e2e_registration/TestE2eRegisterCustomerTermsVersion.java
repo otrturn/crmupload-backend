@@ -1,4 +1,4 @@
-package com.crm.app.e2e.registration;
+package com.crm.app.e2e.e2e_registration;
 
 import com.crm.app.dto.RegisterRequest;
 import com.crm.app.e2e.E2eAbstract;

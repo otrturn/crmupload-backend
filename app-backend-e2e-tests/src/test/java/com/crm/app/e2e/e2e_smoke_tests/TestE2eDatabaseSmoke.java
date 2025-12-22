@@ -1,4 +1,4 @@
-package com.crm.app.e2e.smoke_tests;
+package com.crm.app.e2e.e2e_smoke_tests;
 
 import com.crm.app.e2e.E2eAbstract;
 import org.junit.jupiter.api.Test;

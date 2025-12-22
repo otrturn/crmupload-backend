@@ -1,4 +1,4 @@
-package com.crm.app.e2e.upload;
+package com.crm.app.e2e.e2e_duplicate_check;
 
 import com.crm.app.dto.AppConstants;
 import com.crm.app.dto.LoginRequest;
@@ -17,13 +17,13 @@ import org.springframework.test.context.ActiveProfiles;
 import java.util.List;
 
 @ActiveProfiles("e2e")
-class TestE2eCrmUploadMissingProduct extends E2eAbstract {
+class TestE2eDuplicateCheckMissingProduct extends E2eAbstract {
 
     @Autowired
     private E2eProperties e2eProperties;
 
     @Test
-    void registerCustomer_conflict_crmUpload() {
+    void registerCustomer_conflict_duplicateCheck() {
         RegisterRequest baseRequest = baseRegisterRequest();
         RegisterRequest invalidRequest = new RegisterRequest(
                 baseRequest.firstname(),
@@ -37,7 +37,7 @@ class TestE2eCrmUploadMissingProduct extends E2eAbstract {
                 baseRequest.city(),
                 baseRequest.country(),
                 baseRequest.password(),
-                List.of(AppConstants.PRODUCT_DUPLICATE_CHECK),
+                List.of(AppConstants.PRODUCT_CRM_UPLOAD),
                 baseRequest.agb_accepted(),
                 baseRequest.is_entrepreneur(),
                 baseRequest.request_immediate_service_start(),
@@ -58,7 +58,7 @@ class TestE2eCrmUploadMissingProduct extends E2eAbstract {
         LoginResult loginResult = loginClient.login(loginRequest);
         LoginResult.Success loginSuccess = (LoginResult.Success) loginResult;
 
-        CrmUploadClient uploadclient = new CrmUploadClient(e2eProperties);
+        DuplicateCheckClient duplicateCheckClient = new DuplicateCheckClient(e2eProperties);
         String sourceSystem;
         Resource file;
         CrmUploadResult.Failure failure;
@@ -69,21 +69,17 @@ class TestE2eCrmUploadMissingProduct extends E2eAbstract {
          */
         sourceSystem = "Lexware";
         file = new ClassPathResource("files/Lexware_Generated_00001.xlsx");
-        uploadResult = uploadclient.crmUpload(
+        uploadResult = duplicateCheckClient.duplicateCheck(
                 invalidRequest.email_address(),
                 loginSuccess.response().token(),
                 sourceSystem,
-                "EspoCRM",
-                "http://host.docker.internal:8080",
-                "CUST-123",
-                "7a124718fbcde7a4a096396cb61fa80e",
                 file
         );
         failure = (CrmUploadResult.Failure) uploadResult;
         Assertions.assertThat(failure.error().status()).isEqualTo(409);
-        Assertions.assertThat(failure.error().code()).isEqualTo("CRM_UPLOAD_MISSING_PRODUCT");
+        Assertions.assertThat(failure.error().code()).isEqualTo("DUPLICATE_CHECK_MISSING_PRODUCT");
         Assertions.assertThat(failure.error().message()).isNotBlank();
-        Assertions.assertThat(failure.error().path()).isEqualTo("/api/crm-upload");
+        Assertions.assertThat(failure.error().path()).isEqualTo("/api/duplicate-check");
     }
 
 }

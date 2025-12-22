@@ -1,4 +1,4 @@
-package com.crm.app.e2e.duplicate_check;
+package com.crm.app.e2e.e2e_upload;
 
 import com.crm.app.dto.LoginRequest;
 import com.crm.app.dto.RegisterRequest;
@@ -14,15 +14,16 @@ import org.springframework.core.io.Resource;
 import org.springframework.test.context.ActiveProfiles;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ActiveProfiles("e2e")
-class TestE2eDuplicateCheck extends E2eAbstract {
+class TestE2eCrmUpload extends E2eAbstract {
 
     @Autowired
     private E2eProperties e2eProperties;
 
     @Test
-    void registerCustomer_conflict_duplicate_check() {
+    void registerCustomer_conflict_crmUpload() {
         RegisterRequest baseRequest = baseRegisterRequest();
         RegisterCustomerClient registerclient = new RegisterCustomerClient(e2eProperties);
         RegisterResult registerResult = registerclient.register(baseRequest);
@@ -32,13 +33,17 @@ class TestE2eDuplicateCheck extends E2eAbstract {
         LoginRequest loginRequest;
         LoginResult loginResult;
         LoginResult.Success loginSuccess;
+        CustomerStatusResult customerStatusResult;
+        CustomerStatusResult.Success customerStatusSuccess;
 
         loginClient = new LoginClient(e2eProperties);
         loginRequest = new LoginRequest(baseRequest.email_address(), baseRequest.password());
         loginResult = loginClient.login(loginRequest);
         loginSuccess = (LoginResult.Success) loginResult;
 
-        DuplicateCheckClient duplicateCheckClient = new DuplicateCheckClient(e2eProperties);
+        CrmUploadClient uploadclient = new CrmUploadClient(e2eProperties);
+        CustomerStatusClient customerStatusClient = new CustomerStatusClient(e2eProperties);
+
         String sourceSystem;
         Resource file;
         CrmUploadResult.Failure failure;
@@ -49,17 +54,21 @@ class TestE2eDuplicateCheck extends E2eAbstract {
          */
         sourceSystem = "Lexware";
         file = new ClassPathResource("files/Lexware_Generated_00001.xlsx");
-        uploadResult = duplicateCheckClient.duplicateCheck(
+        uploadResult = uploadclient.crmUpload(
                 baseRequest.email_address(),
                 loginSuccess.response().token(),
                 sourceSystem,
+                "EspoCRM",
+                "http://host.docker.internal:8080",
+                "CUST-123",
+                "7a124718fbcde7a4a096396cb61fa80e",
                 file
         );
         failure = (CrmUploadResult.Failure) uploadResult;
         Assertions.assertThat(failure.error().status()).isEqualTo(409);
-        Assertions.assertThat(failure.error().code()).isEqualTo("DUPLICATE_CHECK_PERMISSION_DENIED");
+        Assertions.assertThat(failure.error().code()).isEqualTo("CRM_UPLOAD_PERMISSION_DENIED");
         Assertions.assertThat(failure.error().message()).isNotBlank();
-        Assertions.assertThat(failure.error().path()).isEqualTo("/api/duplicate-check");
+        Assertions.assertThat(failure.error().path()).isEqualTo("/api/crm-upload");
 
         /*
          * Activate & login again
@@ -79,49 +88,91 @@ class TestE2eDuplicateCheck extends E2eAbstract {
          */
         sourceSystem = "LEXWARE";
         file = new ClassPathResource("files/Lexware_Generated_00001.xlsx");
-        uploadResult = duplicateCheckClient.duplicateCheck(
+        uploadResult = uploadclient.crmUpload(
                 baseRequest.email_address(),
                 loginSuccess.response().token(),
                 sourceSystem,
+                "EspoCRM",
+                "http://host.docker.internal:8080",
+                "CUST-123",
+                "7a124718fbcde7a4a096396cb61fa80e",
                 file
         );
         failure = (CrmUploadResult.Failure) uploadResult;
         Assertions.assertThat(failure.error().status()).isEqualTo(409);
-        Assertions.assertThat(failure.error().code()).isEqualTo("DUPLICATE_CHECK_INVALID_DATA");
+        Assertions.assertThat(failure.error().code()).isEqualTo("CRM_UPLOAD_INVALID_DATA");
         Assertions.assertThat(failure.error().message()).isNotBlank();
-        Assertions.assertThat(failure.error().path()).isEqualTo("/api/duplicate-check");
+        Assertions.assertThat(failure.error().path()).isEqualTo("/api/crm-upload");
+
+        /*
+         *  Wrong crm system
+         */
+        sourceSystem = "Lexware";
+        file = new ClassPathResource("files/Lexware_Generated_00001.xlsx");
+        uploadResult = uploadclient.crmUpload(
+                baseRequest.email_address(),
+                loginSuccess.response().token(),
+                sourceSystem,
+                "ESPOCRM",
+                "http://host.docker.internal:8080",
+                "CUST-123",
+                "7a124718fbcde7a4a096396cb61fa80e",
+                file
+        );
+        failure = (CrmUploadResult.Failure) uploadResult;
+        Assertions.assertThat(failure.error().status()).isEqualTo(409);
+        Assertions.assertThat(failure.error().code()).isEqualTo("CRM_UPLOAD_INVALID_DATA");
+        Assertions.assertThat(failure.error().message()).isNotBlank();
+        Assertions.assertThat(failure.error().path()).isEqualTo("/api/crm-upload");
 
         /*
          * Correct request
          */
         sourceSystem = "Lexware";
         file = new ClassPathResource("files/Lexware_Generated_00001.xlsx");
-        uploadResult = duplicateCheckClient.duplicateCheck(
+        uploadResult = uploadclient.crmUpload(
                 baseRequest.email_address(),
                 loginSuccess.response().token(),
                 sourceSystem,
+                "EspoCRM",
+                "http://host.docker.internal:8080",
+                "CUST-123",
+                "7a124718fbcde7a4a096396cb61fa80e",
                 file
         );
 
         assertThat(uploadResult).isInstanceOf(CrmUploadResult.Success.class);
 
         /*
+        Get status
+         */
+        customerStatusResult = customerStatusClient.getStatus(baseRequest.email_address(),loginSuccess.response().token());
+        Assertions.assertThat(customerStatusResult).isInstanceOf(CustomerStatusResult.Success.class);
+        customerStatusSuccess = (CustomerStatusResult.Success) customerStatusResult;
+        assertTrue(customerStatusSuccess.response().enabled());
+        assertTrue(customerStatusSuccess.response().hasOpenCrmUploads());
+
+        /*
          * Already in progress
          */
         sourceSystem = "Lexware";
         file = new ClassPathResource("files/Lexware_Generated_00001.xlsx");
-        uploadResult = duplicateCheckClient.duplicateCheck(
+        uploadResult = uploadclient.crmUpload(
                 baseRequest.email_address(),
                 loginSuccess.response().token(),
                 sourceSystem,
+                "EspoCRM",
+                "http://host.docker.internal:8080",
+                "CUST-123",
+                "7a124718fbcde7a4a096396cb61fa80e",
                 file
         );
 
         failure = (CrmUploadResult.Failure) uploadResult;
         Assertions.assertThat(failure.error().status()).isEqualTo(409);
-        Assertions.assertThat(failure.error().code()).isEqualTo("DUPLICATE_CHECK_ALREADY_IN_PROGRESS");
+        Assertions.assertThat(failure.error().code()).isEqualTo("CRM_UPLOAD_ALREADY_IN_PROGRESS");
         Assertions.assertThat(failure.error().message()).isNotBlank();
-        Assertions.assertThat(failure.error().path()).isEqualTo("/api/duplicate-check");
+        Assertions.assertThat(failure.error().path()).isEqualTo("/api/crm-upload");
     }
 
 }

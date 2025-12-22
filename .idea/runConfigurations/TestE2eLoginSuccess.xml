@@ -3,12 +3,12 @@
     <module name="app-backend-e2e-tests" />
     <extension name="coverage">
       <pattern>
-        <option name="PATTERN" value="com.crm.app.e2e.login.*" />
+        <option name="PATTERN" value="com.crm.app.e2e.e2e_login.*" />
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>
     <option name="PACKAGE_NAME" value="com.crm.app.e2e.login" />
-    <option name="MAIN_CLASS_NAME" value="com.crm.app.e2e.login.TestE2eLoginSuccess" />
+    <option name="MAIN_CLASS_NAME" value="com.crm.app.e2e.e2e_login.TestE2eLoginSuccess" />
     <option name="METHOD_NAME" value="" />
     <option name="TEST_OBJECT" value="class" />
     <option name="VM_PARAMETERS" value="-ea -XX:+EnableDynamicAgentLoading" />
