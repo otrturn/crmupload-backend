@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.crmupload</groupId>
+        <artifactId>crmupload-backend</artifactId>
+        <version>1.0</version>
+    </parent>
+
+    <artifactId>app-backend-e2e-tests</artifactId>
+    <packaging>jar</packaging>
+    <name>CRMUpload Backend E2E Tests</name>    <properties>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+
+        <!-- Spring Boot Test (JUnit5, AssertJ, etc.) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- DataSource + ScriptUtils -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- PostgreSQL Driver -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Optional: HTTP E2E-Tests -->
+        <!--
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <scope>test</scope>
+        </dependency>
+        -->
+
+    </dependencies>
+
+    <build>
+        <plugins>
+
+            <!--
+              Failsafe:
+              - E2E / Integration Tests
+              - läuft NICHT bei mvn test
+              - nur bei mvn verify
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>3.2.5</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                        <configuration>
+                            <!-- Testnamen-Konvention -->
+                            <includes>
+                                <include>**/*E2eTest.java</include>
+                                <include>**/*IT.java</include>
+                            </includes>
+
+                            <!-- Spring-Profil -->
+                            <systemPropertyVariables>
+                                <spring.profiles.active>e2e</spring.profiles.active>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!--
+              Surefire explizit deaktivieren,
+              damit hier KEINE normalen Unit-Tests laufen
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.5</version>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
+
+</project>

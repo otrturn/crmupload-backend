@@ -47,8 +47,7 @@ public class CustomerRegistrationService {
             throw new CustomerAcknowledgementInvalidException(msg);
         }
 
-        if ( !appWebActivationProperties.getAllowedTermsVersions().contains(request.terms_version()))
-        {
+        if (!appWebActivationProperties.getAllowedTermsVersions().contains(request.terms_version())) {
             String msg = String.format(
                     "Customer with email %s -> invalid/unknown terms version %s",
                     emailAddress, request.terms_version());

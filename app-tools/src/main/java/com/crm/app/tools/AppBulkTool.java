@@ -48,7 +48,7 @@ public class AppBulkTool implements CommandLineRunner, ExitCodeGenerator {
             case "--registerCustomer" -> {
                 RegisterRequest request = new RegisterRequest("Jürgen", "Becker", null, "ralf@test.de", "01702934959",
                         "Teichgarten 17", null, "60333", "Frankfurt", "DE", "test123",
-                        List.of(AppConstants.PRODUCT_CRM_UPLOAD, AppConstants.PRODUCT_DUPLICATE_CHECK),true, true,true,true,"21.12.2025");
+                        List.of(AppConstants.PRODUCT_CRM_UPLOAD, AppConstants.PRODUCT_DUPLICATE_CHECK), true, true, true, true, "21.12.2025");
                 registerCustomers.process(10, request);
             }
             case "--BexioToEspo" -> processBexio(TASK.TO_ESPO);

@@ -1,0 +1,6 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5436/crmupload-appdb
+    username: appuser
+    password: apppass
+    driver-class-name: org.postgresql.Driver
