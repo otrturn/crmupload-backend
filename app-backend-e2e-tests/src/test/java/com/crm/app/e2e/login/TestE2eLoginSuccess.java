@@ -14,6 +14,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ActiveProfiles("e2e")
 @Import(E2eTestConfig.class)
@@ -73,7 +74,6 @@ class TestE2eLoginSuccess extends E2eAbstract {
         assertThat(failure.error().message()).isNotBlank();
         assertThat(failure.error().path()).isEqualTo("/auth/login");
 
-
         /*
         Login, customer not yet enabled
          */
@@ -92,6 +92,15 @@ class TestE2eLoginSuccess extends E2eAbstract {
         assertThat(activationResult).isInstanceOf(ActivationResult.Success.class);
         ActivationResult.Success activationSuccess = (ActivationResult.Success) activationResult;
         assertThat(activationSuccess.response()).isNotBlank();
-        System.out.println("Response=" + activationSuccess.response());
+
+        /*
+        Login, customer enabled
+         */
+        loginRequest = new LoginRequest(registerRequest.email_address(), registerRequest.password());
+        loginResult = loginClient.login(loginRequest);
+        assertThat(loginResult).isInstanceOf(LoginResult.Success.class);
+        loginSuccess = (LoginResult.Success) loginResult;
+        assertThat(loginSuccess.response().token()).isNotBlank();
+        assertTrue(loginSuccess.response().enabled());
     }
 }
