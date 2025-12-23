@@ -6,6 +6,8 @@ import com.crm.app.dto.CustomerStatusResponse;
 import com.crm.app.dto.UpdatePasswordRequest;
 import com.crm.app.port.customer.CustomerRepositoryPort;
 import com.crm.app.web.error.CustomerNotFoundException;
+import com.crm.app.web.error.UpdateRequestInvalidCustomerDataException;
+import com.crm.app.web.validation.UpdateRequestValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,15 +27,25 @@ public class CustomerProfileService {
         return response;
     }
 
-    public void updateCustomerProfile(String email, CustomerProfile request) {
-        int rows = customerRepositoryPort.updateCustomerProfile(email, request);
+    public void updateCustomerProfile(String emailAddress, CustomerProfile request) {
+        UpdateRequestValidator.assertValid(request);
+        /*
+        Email Address
+         */
+        if (!customerRepositoryPort.emailExists(emailAddress)) {
+            throw new CustomerNotFoundException("Customer with email does not exists: " + emailAddress);
+        }
+        int rows = customerRepositoryPort.updateCustomerProfile(emailAddress, request);
         if (rows == 0) {
-            throw new CustomerNotFoundException(request.email_address());
+            throw new CustomerNotFoundException(emailAddress);
         }
     }
 
     public void updateCustomerPassword(String emailAddress, UpdatePasswordRequest request) {
 
+        if (request.password() == null || request.password().isBlank()) {
+            throw new UpdateRequestInvalidCustomerDataException(emailAddress);
+        }
         String hash = passwordEncoder.encode(request.password());
         UpdatePasswordRequest passwordHash = new UpdatePasswordRequest(hash);
         int rows = customerRepositoryPort.updateCustomerPassword(emailAddress, passwordHash);

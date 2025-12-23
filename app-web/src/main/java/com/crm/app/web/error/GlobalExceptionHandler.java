@@ -69,8 +69,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(RegisterRequestInvalidCustomerDataException.class)
-    public ResponseEntity<com.crm.app.dto.ApiError> handleRegisterInvalid(RegisterRequestInvalidCustomerDataException ex,
-                                                                          HttpServletRequest request) {
+    public ResponseEntity<com.crm.app.dto.ApiError> handleRegisterInvalidCustomerData(RegisterRequestInvalidCustomerDataException ex,
+                                                                                      HttpServletRequest request) {
         log.warn("Register validation error on {}: {}", request.getRequestURI(), ex.getMessage());
         com.crm.app.dto.ApiError body = new com.crm.app.dto.ApiError(
                 HttpStatus.BAD_REQUEST.value(),
@@ -79,6 +79,21 @@ public class GlobalExceptionHandler {
                 request.getRequestURI(),
                 Instant.now(),
                 "REGISTER_INVALID_CUSTOMER_DATA"
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+
+    @ExceptionHandler(UpdateRequestInvalidCustomerDataException.class)
+    public ResponseEntity<com.crm.app.dto.ApiError> handleUpdateInvalidCustomerData(UpdateRequestInvalidCustomerDataException ex,
+                                                                                    HttpServletRequest request) {
+        log.warn("Update validation error on {}: {}", request.getRequestURI(), ex.getMessage());
+        com.crm.app.dto.ApiError body = new com.crm.app.dto.ApiError(
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                ex.getMessage(),
+                request.getRequestURI(),
+                Instant.now(),
+                "UPDATE_INVALID_CUSTOMER_DATA"
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
