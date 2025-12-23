@@ -3,7 +3,7 @@ package com.crm.app.e2e.e2e_registration;
 import com.crm.app.dto.RegisterRequest;
 import com.crm.app.e2e.E2eAbstract;
 import com.crm.app.e2e.client.RegisterCustomerClient;
-import com.crm.app.e2e.client.RegisterResult;
+import com.crm.app.e2e.client.RegisterCustomerResult;
 import com.crm.app.e2e.config.E2eProperties;
 import com.crm.app.e2e.config.E2eTestConfig;
 import lombok.extern.slf4j.Slf4j;
@@ -29,9 +29,9 @@ class TestE2eRegisterCustomerTermsVersion extends E2eAbstract {
 
         RegisterRequest baseRequest = baseRegisterRequest();
 
-        RegisterResult result;
-        RegisterResult.Success success;
-        RegisterResult.Failure failure;
+        RegisterCustomerResult result;
+        RegisterCustomerResult.Success success;
+        RegisterCustomerResult.Failure failure;
 
         RegisterRequest termsVersionValid = new RegisterRequest(
                 baseRequest.firstname(),
@@ -58,9 +58,9 @@ class TestE2eRegisterCustomerTermsVersion extends E2eAbstract {
          */
         result = client.register(termsVersionValid);
 
-        assertThat(result).isInstanceOf(RegisterResult.Success.class);
+        assertThat(result).isInstanceOf(RegisterCustomerResult.Success.class);
 
-        success = (RegisterResult.Success) result;
+        success = (RegisterCustomerResult.Success) result;
         assertThat(success.response().token()).isNotBlank();
 
         /*
@@ -89,9 +89,9 @@ class TestE2eRegisterCustomerTermsVersion extends E2eAbstract {
 
         result = client.register(termsVersionInvalid);
 
-        assertThat(result).isInstanceOf(RegisterResult.Failure.class);
+        assertThat(result).isInstanceOf(RegisterCustomerResult.Failure.class);
 
-        failure = (RegisterResult.Failure) result;
+        failure = (RegisterCustomerResult.Failure) result;
 
         assertThat(failure.error().status()).isEqualTo(409);
         assertThat(failure.error().code()).isEqualTo("CUSTOMER_TERMS_VERSION_INVALID");

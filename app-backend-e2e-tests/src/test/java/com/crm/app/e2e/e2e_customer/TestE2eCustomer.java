@@ -1,5 +1,6 @@
 package com.crm.app.e2e.e2e_customer;
 
+import com.crm.app.dto.CustomerProfile;
 import com.crm.app.dto.LoginRequest;
 import com.crm.app.dto.RegisterRequest;
 import com.crm.app.e2e.E2eAbstract;
@@ -31,8 +32,9 @@ class TestE2eCustomer extends E2eAbstract {
         ActivationClient activationClient = new ActivationClient(e2eProperties);
         CustomerStatusClient customerStatusClient = new CustomerStatusClient(e2eProperties);
         CustomerMeClient customerMeClient = new CustomerMeClient(e2eProperties);
+        UpdateCustomerClient updateCustomerClient = new UpdateCustomerClient(e2eProperties);
 
-        RegisterResult registerResult;
+        RegisterCustomerResult registerCustomerResult;
         LoginRequest loginRequest;
         LoginResult loginResult;
         LoginResult.Success loginSuccess;
@@ -41,15 +43,17 @@ class TestE2eCustomer extends E2eAbstract {
         CustomerStatusResult.Success customerStatusSuccess;
         CustomerMeResult customerMeResult;
         CustomerMeResult.Success customerMeSuccess;
+        UpdateCustomerResult updateCustomerResult;
+        UpdateCustomerResult.Success updateCustomerSuccess;
 
         /*
         Register
          */
         RegisterRequest baseRequest = baseRegisterRequest();
 
-        registerResult = registerClient.register(baseRequest);
-        assertThat(registerResult).isInstanceOf(RegisterResult.Success.class);
-        RegisterResult.Success registrationSuccess = (RegisterResult.Success) registerResult;
+        registerCustomerResult = registerClient.register(baseRequest);
+        assertThat(registerCustomerResult).isInstanceOf(RegisterCustomerResult.Success.class);
+        RegisterCustomerResult.Success registrationSuccess = (RegisterCustomerResult.Success) registerCustomerResult;
         assertThat(registrationSuccess.response().token()).isNotBlank();
 
         /*
@@ -80,12 +84,38 @@ class TestE2eCustomer extends E2eAbstract {
         assertTrue(customerStatusSuccess.response().enabled());
 
         /*
-        Get Me
+        Get Me, original
          */
         customerMeResult = customerMeClient.getMe(baseRequest.email_address(), loginSuccess.response().token());
         assertThat(customerMeResult).isInstanceOf(CustomerMeResult.Success.class);
         customerMeSuccess = (CustomerMeResult.Success) customerMeResult;
         assertEquals(customerMeSuccess.response().firstname(), baseRequest.firstname());
 
+        /*
+        Update
+         */
+        CustomerProfile customerProfile = new CustomerProfile(customerMeSuccess.response().customer_number(),
+                "Hugo",
+                "Walter",
+                customerMeSuccess.response().company_name(),
+                customerMeSuccess.response().email_address(),
+                customerMeSuccess.response().phone_number(),
+                customerMeSuccess.response().adrline1(),
+                customerMeSuccess.response().adrline2(),
+                customerMeSuccess.response().postalcode(),
+                customerMeSuccess.response().city(),
+                customerMeSuccess.response().country(),
+                null);
+        updateCustomerResult = updateCustomerClient.updateCustomer(baseRequest.email_address(), customerProfile, loginSuccess.response().token());
+        assertThat(updateCustomerResult).isInstanceOf(UpdateCustomerResult.Success.class);
+
+        /*
+        Get Me, updated
+         */
+        customerMeResult = customerMeClient.getMe(baseRequest.email_address(), loginSuccess.response().token());
+        assertThat(customerMeResult).isInstanceOf(CustomerMeResult.Success.class);
+        customerMeSuccess = (CustomerMeResult.Success) customerMeResult;
+        assertEquals("Hugo", customerMeSuccess.response().firstname());
+        assertEquals("Walter",customerMeSuccess.response().lastname());
     }
 }

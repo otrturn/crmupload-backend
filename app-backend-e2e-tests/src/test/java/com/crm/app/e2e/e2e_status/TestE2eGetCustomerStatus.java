@@ -30,7 +30,7 @@ class TestE2eGetCustomerStatus extends E2eAbstract {
         ActivationClient activationClient = new ActivationClient(e2eProperties);
         CustomerStatusClient customerStatusClient = new CustomerStatusClient(e2eProperties);
 
-        RegisterResult registerResult;
+        RegisterCustomerResult registerCustomerResult;
         LoginRequest loginRequest;
         LoginResult loginResult;
         LoginResult.Success loginSuccess;
@@ -43,9 +43,9 @@ class TestE2eGetCustomerStatus extends E2eAbstract {
          */
         RegisterRequest baseRequest = baseRegisterRequest();
 
-        registerResult = registerClient.register(baseRequest);
-        assertThat(registerResult).isInstanceOf(RegisterResult.Success.class);
-        RegisterResult.Success registrationSuccess = (RegisterResult.Success) registerResult;
+        registerCustomerResult = registerClient.register(baseRequest);
+        assertThat(registerCustomerResult).isInstanceOf(RegisterCustomerResult.Success.class);
+        RegisterCustomerResult.Success registrationSuccess = (RegisterCustomerResult.Success) registerCustomerResult;
         assertThat(registrationSuccess.response().token()).isNotBlank();
 
         /*

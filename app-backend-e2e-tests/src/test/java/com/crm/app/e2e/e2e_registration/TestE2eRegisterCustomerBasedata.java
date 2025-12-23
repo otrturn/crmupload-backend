@@ -3,7 +3,7 @@ package com.crm.app.e2e.e2e_registration;
 import com.crm.app.dto.RegisterRequest;
 import com.crm.app.e2e.E2eAbstract;
 import com.crm.app.e2e.client.RegisterCustomerClient;
-import com.crm.app.e2e.client.RegisterResult;
+import com.crm.app.e2e.client.RegisterCustomerResult;
 import com.crm.app.e2e.config.E2eProperties;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +27,8 @@ class TestE2eRegisterCustomerBasedata extends E2eAbstract {
 
         RegisterRequest baseRequest = baseRegisterRequest();
 
-        RegisterResult result;
-        RegisterResult.Failure failure;
+        RegisterCustomerResult result;
+        RegisterCustomerResult.Failure failure;
 
         /*
          * Email address
@@ -54,9 +54,9 @@ class TestE2eRegisterCustomerBasedata extends E2eAbstract {
         );
         result = client.register(invalidDataRequest);
 
-        assertThat(result).isInstanceOf(RegisterResult.Failure.class);
+        assertThat(result).isInstanceOf(RegisterCustomerResult.Failure.class);
 
-        failure = (RegisterResult.Failure) result;
+        failure = (RegisterCustomerResult.Failure) result;
 
         assertThat(failure.error().status()).isEqualTo(400);
         assertThat(failure.error().code()).isEqualTo("REGISTER_INVALID_CUSTOMER_DATA");
@@ -88,9 +88,9 @@ class TestE2eRegisterCustomerBasedata extends E2eAbstract {
 
         result = client.register(invalidDataRequest);
 
-        assertThat(result).isInstanceOf(RegisterResult.Failure.class);
+        assertThat(result).isInstanceOf(RegisterCustomerResult.Failure.class);
 
-        failure = (RegisterResult.Failure) result;
+        failure = (RegisterCustomerResult.Failure) result;
 
         assertThat(failure.error().status()).isEqualTo(400);
         assertThat(failure.error().code()).isEqualTo("REGISTER_INVALID_CUSTOMER_DATA");
@@ -103,9 +103,9 @@ class TestE2eRegisterCustomerBasedata extends E2eAbstract {
         for (RegisterRequest request : invalidAddressesRequests()) {
             result = client.register(request);
 
-            assertThat(result).isInstanceOf(RegisterResult.Failure.class);
+            assertThat(result).isInstanceOf(RegisterCustomerResult.Failure.class);
 
-            failure = (RegisterResult.Failure) result;
+            failure = (RegisterCustomerResult.Failure) result;
 
             assertThat(failure.error().status()).isEqualTo(400);
             assertThat(failure.error().code()).isEqualTo("REGISTER_INVALID_CUSTOMER_DATA");
@@ -137,9 +137,9 @@ class TestE2eRegisterCustomerBasedata extends E2eAbstract {
         );
         result = client.register(invalidDataRequest);
 
-        assertThat(result).isInstanceOf(RegisterResult.Failure.class);
+        assertThat(result).isInstanceOf(RegisterCustomerResult.Failure.class);
 
-        failure = (RegisterResult.Failure) result;
+        failure = (RegisterCustomerResult.Failure) result;
 
         assertThat(failure.error().status()).isEqualTo(400);
         assertThat(failure.error().code()).isEqualTo("REGISTER_INVALID_CUSTOMER_DATA");
@@ -170,9 +170,9 @@ class TestE2eRegisterCustomerBasedata extends E2eAbstract {
         );
         result = client.register(invalidDataRequest);
 
-        assertThat(result).isInstanceOf(RegisterResult.Failure.class);
+        assertThat(result).isInstanceOf(RegisterCustomerResult.Failure.class);
 
-        failure = (RegisterResult.Failure) result;
+        failure = (RegisterCustomerResult.Failure) result;
 
         assertThat(failure.error().status()).isEqualTo(400);
         assertThat(failure.error().code()).isEqualTo("REGISTER_INVALID_CUSTOMER_DATA");

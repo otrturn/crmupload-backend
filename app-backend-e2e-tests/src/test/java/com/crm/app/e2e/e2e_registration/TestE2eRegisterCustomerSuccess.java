@@ -3,7 +3,7 @@ package com.crm.app.e2e.e2e_registration;
 import com.crm.app.dto.RegisterRequest;
 import com.crm.app.e2e.E2eAbstract;
 import com.crm.app.e2e.client.RegisterCustomerClient;
-import com.crm.app.e2e.client.RegisterResult;
+import com.crm.app.e2e.client.RegisterCustomerResult;
 import com.crm.app.e2e.config.E2eProperties;
 import com.crm.app.e2e.config.E2eTestConfig;
 import org.junit.jupiter.api.Test;
@@ -27,11 +27,11 @@ class TestE2eRegisterCustomerSuccess extends E2eAbstract {
 
         RegisterRequest request = baseRegisterRequest();
 
-        RegisterResult result = client.register(request);
+        RegisterCustomerResult result = client.register(request);
 
-        assertThat(result).isInstanceOf(RegisterResult.Success.class);
+        assertThat(result).isInstanceOf(RegisterCustomerResult.Success.class);
 
-        RegisterResult.Success success = (RegisterResult.Success) result;
+        RegisterCustomerResult.Success success = (RegisterCustomerResult.Success) result;
         assertThat(success.response().token()).isNotBlank();
     }
 }

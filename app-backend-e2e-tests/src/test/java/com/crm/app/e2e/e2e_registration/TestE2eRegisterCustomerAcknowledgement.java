@@ -3,7 +3,7 @@ package com.crm.app.e2e.e2e_registration;
 import com.crm.app.dto.RegisterRequest;
 import com.crm.app.e2e.E2eAbstract;
 import com.crm.app.e2e.client.RegisterCustomerClient;
-import com.crm.app.e2e.client.RegisterResult;
+import com.crm.app.e2e.client.RegisterCustomerResult;
 import com.crm.app.e2e.config.E2eProperties;
 import com.crm.app.e2e.config.E2eTestConfig;
 import lombok.extern.slf4j.Slf4j;
@@ -75,11 +75,11 @@ class TestE2eRegisterCustomerAcknowledgement extends E2eAbstract {
         for (RegisterRequest request : invalidRequests) {
             log.info(String.format(" %s %s %s %s", request.agb_accepted(), request.is_entrepreneur(), request.request_immediate_service_start(), request.acknowledge_withdrawal_loss()));
 
-            RegisterResult result = client.register(request);
+            RegisterCustomerResult result = client.register(request);
 
-            assertThat(result).isInstanceOf(RegisterResult.Failure.class);
+            assertThat(result).isInstanceOf(RegisterCustomerResult.Failure.class);
 
-            RegisterResult.Failure failure = (RegisterResult.Failure) result;
+            RegisterCustomerResult.Failure failure = (RegisterCustomerResult.Failure) result;
 
             assertThat(failure.error().status()).isEqualTo(409);
             assertThat(failure.error().code()).isEqualTo("CUSTOMER_ACKNOWLEDGEMENT_INFORMATION_INVALID");
@@ -107,11 +107,11 @@ class TestE2eRegisterCustomerAcknowledgement extends E2eAbstract {
                 baseRequest.terms_version()
         );
 
-        RegisterResult result = client.register(allTrueRequest);
+        RegisterCustomerResult result = client.register(allTrueRequest);
 
-        assertThat(result).isInstanceOf(RegisterResult.Success.class);
+        assertThat(result).isInstanceOf(RegisterCustomerResult.Success.class);
 
-        RegisterResult.Success success = (RegisterResult.Success) result;
+        RegisterCustomerResult.Success success = (RegisterCustomerResult.Success) result;
         assertThat(success.response().token()).isNotBlank();
     }
 }

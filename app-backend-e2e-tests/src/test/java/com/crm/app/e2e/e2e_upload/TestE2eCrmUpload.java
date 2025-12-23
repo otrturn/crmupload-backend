@@ -26,8 +26,8 @@ class TestE2eCrmUpload extends E2eAbstract {
     void registerCustomer_conflict_crmUpload() {
         RegisterRequest baseRequest = baseRegisterRequest();
         RegisterCustomerClient registerclient = new RegisterCustomerClient(e2eProperties);
-        RegisterResult registerResult = registerclient.register(baseRequest);
-        Assertions.assertThat(registerResult).isInstanceOf(RegisterResult.Success.class);
+        RegisterCustomerResult registerCustomerResult = registerclient.register(baseRequest);
+        Assertions.assertThat(registerCustomerResult).isInstanceOf(RegisterCustomerResult.Success.class);
 
         LoginClient loginClient;
         LoginRequest loginRequest;

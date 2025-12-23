@@ -45,8 +45,8 @@ class TestE2eCrmUploadMissingProduct extends E2eAbstract {
                 baseRequest.terms_version());
 
         RegisterCustomerClient registerclient = new RegisterCustomerClient(e2eProperties);
-        RegisterResult registerResult = registerclient.register(invalidRequest);
-        Assertions.assertThat(registerResult).isInstanceOf(RegisterResult.Success.class);
+        RegisterCustomerResult registerCustomerResult = registerclient.register(invalidRequest);
+        Assertions.assertThat(registerCustomerResult).isInstanceOf(RegisterCustomerResult.Success.class);
 
         ActivationClient activationClient = new ActivationClient(e2eProperties);
         String token = CustomerHandling.getActivationToken(dataSource, invalidRequest.email_address());
