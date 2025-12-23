@@ -7,7 +7,7 @@
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>
-    <option name="PACKAGE_NAME" value="com.crm.app.e2e.registration" />
+    <option name="PACKAGE_NAME" value="com.crm.app.e2e.e2e_registration" />
     <option name="MAIN_CLASS_NAME" value="com.crm.app.e2e.e2e_registration.TestE2eRegisterCustomerProducts" />
     <option name="METHOD_NAME" value="" />
     <option name="TEST_OBJECT" value="class" />
