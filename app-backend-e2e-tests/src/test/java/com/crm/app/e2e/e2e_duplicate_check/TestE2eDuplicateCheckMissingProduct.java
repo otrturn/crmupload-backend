@@ -71,7 +71,7 @@ class TestE2eDuplicateCheckMissingProduct extends E2eAbstract {
          *  Missing product
          */
         sourceSystem = "Lexware";
-        file = new ClassPathResource("files/Lexware_Generated_00001.xlsx");
+        file = new ClassPathResource("files/Lexware_Generated_Correct.xlsx");
         uploadResult = duplicateCheckClient.duplicateCheck(
                 invalidRequest.email_address(),
                 loginSuccess.response().token(),

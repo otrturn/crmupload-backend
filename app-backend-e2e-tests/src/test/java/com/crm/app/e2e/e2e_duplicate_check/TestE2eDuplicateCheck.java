@@ -56,7 +56,7 @@ class TestE2eDuplicateCheck extends E2eAbstract {
          * Permission denied
          */
         sourceSystem = "Lexware";
-        file = new ClassPathResource("files/Lexware_Generated_00001.xlsx");
+        file = new ClassPathResource("files/Lexware_Generated_Correct.xlsx");
         uploadResult = duplicateCheckClient.duplicateCheck(
                 baseRequest.email_address(),
                 loginSuccess.response().token(),
@@ -86,7 +86,7 @@ class TestE2eDuplicateCheck extends E2eAbstract {
          * Wrong source system
          */
         sourceSystem = "LEXWARE";
-        file = new ClassPathResource("files/Lexware_Generated_00001.xlsx");
+        file = new ClassPathResource("files/Lexware_Generated_Correct.xlsx");
         uploadResult = duplicateCheckClient.duplicateCheck(
                 baseRequest.email_address(),
                 loginSuccess.response().token(),
@@ -103,7 +103,7 @@ class TestE2eDuplicateCheck extends E2eAbstract {
          * Correct request
          */
         sourceSystem = "Lexware";
-        file = new ClassPathResource("files/Lexware_Generated_00001.xlsx");
+        file = new ClassPathResource("files/Lexware_Generated_Correct.xlsx");
         uploadResult = duplicateCheckClient.duplicateCheck(
                 baseRequest.email_address(),
                 loginSuccess.response().token(),
@@ -126,7 +126,7 @@ class TestE2eDuplicateCheck extends E2eAbstract {
          * Already in progress
          */
         sourceSystem = "Lexware";
-        file = new ClassPathResource("files/Lexware_Generated_00001.xlsx");
+        file = new ClassPathResource("files/Lexware_Generated_Correct.xlsx");
         uploadResult = duplicateCheckClient.duplicateCheck(
                 baseRequest.email_address(),
                 loginSuccess.response().token(),

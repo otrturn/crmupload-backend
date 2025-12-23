@@ -1,5 +1,6 @@
 package com.crm.app.e2e.e2e_duplicate_check;
 
+import com.crm.app.dto.DuplicateCheckHistory;
 import com.crm.app.dto.LoginRequest;
 import com.crm.app.dto.RegisterRequest;
 import com.crm.app.e2e.E2eAbstract;
@@ -16,7 +17,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.Duration;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.Comparator;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -24,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ActiveProfiles("e2e")
 @Tag("e2e-all")
 @Tag("e2e-await")
-class TestE2eDuplicateCheckAwaitAnswerSuccessful extends E2eAbstract {
+class TestE2eDuplicateCheckAwaitAnswer extends E2eAbstract {
 
     @Autowired
     private E2eProperties e2eProperties;
@@ -70,10 +71,10 @@ class TestE2eDuplicateCheckAwaitAnswerSuccessful extends E2eAbstract {
         Assertions.assertThat(activationResult).isInstanceOf(ActivationResult.Success.class);
 
         /*
-         * Correct request
+         * Request with correct file
          */
         sourceSystem = "Lexware";
-        file = new ClassPathResource("files/Lexware_Generated_00001.xlsx");
+        file = new ClassPathResource("files/Lexware_Generated_Correct.xlsx");
         uploadResult = duplicateCheckClient.duplicateCheck(
                 baseRequest.email_address(),
                 loginSuccess.response().token(),
@@ -84,7 +85,7 @@ class TestE2eDuplicateCheckAwaitAnswerSuccessful extends E2eAbstract {
         assertThat(uploadResult).isInstanceOf(CrmUploadResult.Success.class);
 
         /*
-        Get status
+         * Get status
          */
         customerStatusResult = customerStatusClient.getStatus(baseRequest.email_address(), loginSuccess.response().token());
         Assertions.assertThat(customerStatusResult).isInstanceOf(CustomerStatusResult.Success.class);
@@ -93,10 +94,8 @@ class TestE2eDuplicateCheckAwaitAnswerSuccessful extends E2eAbstract {
         assertTrue(customerStatusSuccess.response().hasOpenDuplicateChecks());
 
         /*
-        Wait for completion
+         * Wait for completion
          */
-        AtomicReference<CustomerStatusResult.Success> last = new AtomicReference<>();
-
         Awaitility.await("Duplicate check finished")
                 .atMost(Duration.ofSeconds(120))
                 .pollInterval(Duration.ofSeconds(2))
@@ -105,21 +104,67 @@ class TestE2eDuplicateCheckAwaitAnswerSuccessful extends E2eAbstract {
                     assertThat(r).isInstanceOf(CustomerStatusResult.Success.class);
 
                     CustomerStatusResult.Success s = (CustomerStatusResult.Success) r;
-                    last.set(s);
 
                     assertThat(s.response().hasOpenDuplicateChecks()).isFalse();
                 });
 
-        assertThat(last.get().response().hasOpenDuplicateChecks()).isFalse();
-
         /*
-        History
+         *  History
          */
         duplicateCheckHistoryResult = duplicateCheckHistoryClient.getDuplicateCheckHistory(baseRequest.email_address(), loginSuccess.response().token());
         Assertions.assertThat(duplicateCheckHistoryResult).isInstanceOf(DuplicateCheckHistoryResult.Success.class);
         duplicateCheckHistorySuccess = (DuplicateCheckHistoryResult.Success) duplicateCheckHistoryResult;
         assertFalse(duplicateCheckHistorySuccess.response().duplicateCheckHistory().isEmpty());
+        duplicateCheckHistorySuccess.response().duplicateCheckHistory().sort(Comparator.comparing(DuplicateCheckHistory::getTs).reversed());
         assertEquals("done", duplicateCheckHistorySuccess.response().duplicateCheckHistory().get(0).getStatus());
+
+        /*
+         * Request with invalid file
+         */
+        sourceSystem = "Lexware";
+        file = new ClassPathResource("files/Lexware_Generated_Invalid.xlsx");
+        uploadResult = duplicateCheckClient.duplicateCheck(
+                baseRequest.email_address(),
+                loginSuccess.response().token(),
+                sourceSystem,
+                file
+        );
+
+        assertThat(uploadResult).isInstanceOf(CrmUploadResult.Success.class);
+
+        /*
+         * Get status
+         */
+        customerStatusResult = customerStatusClient.getStatus(baseRequest.email_address(), loginSuccess.response().token());
+        Assertions.assertThat(customerStatusResult).isInstanceOf(CustomerStatusResult.Success.class);
+        customerStatusSuccess = (CustomerStatusResult.Success) customerStatusResult;
+        assertTrue(customerStatusSuccess.response().enabled());
+        assertTrue(customerStatusSuccess.response().hasOpenDuplicateChecks());
+
+        /*
+         *  Wait for completion
+         */
+        Awaitility.await("Duplicate check finished")
+                .atMost(Duration.ofSeconds(120))
+                .pollInterval(Duration.ofSeconds(2))
+                .untilAsserted(() -> {
+                    CustomerStatusResult r = customerStatusClient.getStatus(baseRequest.email_address(), loginSuccess.response().token());
+                    assertThat(r).isInstanceOf(CustomerStatusResult.Success.class);
+
+                    CustomerStatusResult.Success s = (CustomerStatusResult.Success) r;
+
+                    assertThat(s.response().hasOpenDuplicateChecks()).isFalse();
+                });
+
+        /*
+         * History
+         */
+        duplicateCheckHistoryResult = duplicateCheckHistoryClient.getDuplicateCheckHistory(baseRequest.email_address(), loginSuccess.response().token());
+        Assertions.assertThat(duplicateCheckHistoryResult).isInstanceOf(DuplicateCheckHistoryResult.Success.class);
+        duplicateCheckHistorySuccess = (DuplicateCheckHistoryResult.Success) duplicateCheckHistoryResult;
+        assertFalse(duplicateCheckHistorySuccess.response().duplicateCheckHistory().isEmpty());
+        duplicateCheckHistorySuccess.response().duplicateCheckHistory().sort(Comparator.comparing(DuplicateCheckHistory::getTs).reversed());
+        assertEquals("failed", duplicateCheckHistorySuccess.response().duplicateCheckHistory().get(0).getStatus());
     }
 
 }

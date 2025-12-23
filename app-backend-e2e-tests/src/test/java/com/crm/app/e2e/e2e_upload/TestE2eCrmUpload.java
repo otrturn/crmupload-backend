@@ -56,7 +56,7 @@ class TestE2eCrmUpload extends E2eAbstract {
          * Permission denied
          */
         sourceSystem = "Lexware";
-        file = new ClassPathResource("files/Lexware_Generated_00001.xlsx");
+        file = new ClassPathResource("files/Lexware_Generated_Correct.xlsx");
         uploadResult = uploadclient.crmUpload(
                 baseRequest.email_address(),
                 loginSuccess.response().token(),
@@ -90,7 +90,7 @@ class TestE2eCrmUpload extends E2eAbstract {
          * Wrong source system
          */
         sourceSystem = "LEXWARE";
-        file = new ClassPathResource("files/Lexware_Generated_00001.xlsx");
+        file = new ClassPathResource("files/Lexware_Generated_Correct.xlsx");
         uploadResult = uploadclient.crmUpload(
                 baseRequest.email_address(),
                 loginSuccess.response().token(),
@@ -111,7 +111,7 @@ class TestE2eCrmUpload extends E2eAbstract {
          *  Wrong crm system
          */
         sourceSystem = "Lexware";
-        file = new ClassPathResource("files/Lexware_Generated_00001.xlsx");
+        file = new ClassPathResource("files/Lexware_Generated_Correct.xlsx");
         uploadResult = uploadclient.crmUpload(
                 baseRequest.email_address(),
                 loginSuccess.response().token(),
@@ -132,7 +132,7 @@ class TestE2eCrmUpload extends E2eAbstract {
          * Correct request
          */
         sourceSystem = "Lexware";
-        file = new ClassPathResource("files/Lexware_Generated_00001.xlsx");
+        file = new ClassPathResource("files/Lexware_Generated_Correct.xlsx");
         uploadResult = uploadclient.crmUpload(
                 baseRequest.email_address(),
                 loginSuccess.response().token(),
@@ -147,7 +147,7 @@ class TestE2eCrmUpload extends E2eAbstract {
         assertThat(uploadResult).isInstanceOf(CrmUploadResult.Success.class);
 
         /*
-        Get status
+         *   Get status
          */
         customerStatusResult = customerStatusClient.getStatus(baseRequest.email_address(), loginSuccess.response().token());
         Assertions.assertThat(customerStatusResult).isInstanceOf(CustomerStatusResult.Success.class);
@@ -159,7 +159,7 @@ class TestE2eCrmUpload extends E2eAbstract {
          * Already in progress
          */
         sourceSystem = "Lexware";
-        file = new ClassPathResource("files/Lexware_Generated_00001.xlsx");
+        file = new ClassPathResource("files/Lexware_Generated_Correct.xlsx");
         uploadResult = uploadclient.crmUpload(
                 baseRequest.email_address(),
                 loginSuccess.response().token(),
