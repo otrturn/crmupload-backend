@@ -100,8 +100,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(CustomerNotFoundException.class)
-    public ResponseEntity<com.crm.app.dto.ApiError> handleNotFound(CustomerNotFoundException ex,
-                                                                   HttpServletRequest request) {
+    public ResponseEntity<com.crm.app.dto.ApiError> handleCustomerNotFound(CustomerNotFoundException ex,
+                                                                           HttpServletRequest request) {
         log.warn("Customer not found {}: {}", request.getRequestURI(), ex.getMessage());
         com.crm.app.dto.ApiError body = new com.crm.app.dto.ApiError(
                 HttpStatus.CONFLICT.value(),
@@ -160,7 +160,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(DuplicateCheckInvalidDataException.class)
-    public ResponseEntity<com.crm.app.dto.ApiError> handleDuplicatecheckInvalidData(DuplicateCheckInvalidDataException ex,
+    public ResponseEntity<com.crm.app.dto.ApiError> handleDuplicateCheckInvalidData(DuplicateCheckInvalidDataException ex,
                                                                                     HttpServletRequest request) {
         log.warn("Duplicate check invalid data {}: {}", request.getRequestURI(), ex.getMessage());
         com.crm.app.dto.ApiError body = new com.crm.app.dto.ApiError(
@@ -175,7 +175,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(DuplicateCheckPermissionDeniedException.class)
-    public ResponseEntity<com.crm.app.dto.ApiError> handleDuplicatecheckPermissionDenied(DuplicateCheckPermissionDeniedException ex,
+    public ResponseEntity<com.crm.app.dto.ApiError> handleDuplicatecCeckPermissionDenied(DuplicateCheckPermissionDeniedException ex,
                                                                                          HttpServletRequest request) {
         log.warn("Duplicate check permission denied {}: {}", request.getRequestURI(), ex.getMessage());
         com.crm.app.dto.ApiError body = new com.crm.app.dto.ApiError(

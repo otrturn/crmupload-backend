@@ -19,7 +19,7 @@ import java.time.Duration;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ActiveProfiles("e2e")
 @Tag("e2e-all")
@@ -42,6 +42,9 @@ class TestE2eCrmUploadAwaitAnswerSuccessful extends E2eAbstract {
         LoginResult.Success loginSuccess;
         CustomerStatusResult customerStatusResult;
         CustomerStatusResult.Success customerStatusSuccess;
+        CrmUploadResult.Failure crmUploadFailure;
+        CrmUploadHistoryResult crmUploadHistoryResult;
+        CrmUploadHistoryResult.Success crmUploadHistorySuccess;
 
         /*
          * Login
@@ -53,6 +56,7 @@ class TestE2eCrmUploadAwaitAnswerSuccessful extends E2eAbstract {
 
         CrmUploadClient uploadclient = new CrmUploadClient(e2eProperties);
         CustomerStatusClient customerStatusClient = new CustomerStatusClient(e2eProperties);
+        CrmUploadHistoryClient crmUploadHistoryClient = new CrmUploadHistoryClient(e2eProperties);
 
         String sourceSystem;
         Resource file;
@@ -113,5 +117,33 @@ class TestE2eCrmUploadAwaitAnswerSuccessful extends E2eAbstract {
 
         assertThat(last.get().response().hasOpenCrmUploads()).isFalse();
 
+        /*
+        History
+         */
+        crmUploadHistoryResult = crmUploadHistoryClient.getCrmUploadHistory(baseRequest.email_address(), loginSuccess.response().token());
+        Assertions.assertThat(crmUploadHistoryResult).isInstanceOf(CrmUploadHistoryResult.Success.class);
+        crmUploadHistorySuccess = (CrmUploadHistoryResult.Success) crmUploadHistoryResult;
+        assertFalse(crmUploadHistorySuccess.response().crmUploadHistory().isEmpty());
+        assertEquals("done", crmUploadHistorySuccess.response().crmUploadHistory().get(0).getStatus());
+
+        /*
+         * Correct request with different crm system
+         */
+        sourceSystem = "Lexware";
+        file = new ClassPathResource("files/Lexware_Generated_00001.xlsx");
+        uploadResult = uploadclient.crmUpload(
+                baseRequest.email_address(),
+                loginSuccess.response().token(),
+                sourceSystem,
+                "Pipedrive",
+                "http://host.docker.internal:8080",
+                "CUST-123",
+                "7a124718fbcde7a4a096396cb61fa80e",
+                file
+        );
+
+        assertThat(uploadResult).isInstanceOf(CrmUploadResult.Failure.class);
+        crmUploadFailure = (CrmUploadResult.Failure) uploadResult;
+        Assertions.assertThat(crmUploadFailure.error().code()).isEqualTo("CRM_UPLOAD_FORBIDDEN_USE");
     }
 }
