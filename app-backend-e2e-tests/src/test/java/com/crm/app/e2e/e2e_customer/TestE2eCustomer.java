@@ -3,6 +3,7 @@ package com.crm.app.e2e.e2e_customer;
 import com.crm.app.dto.CustomerProfile;
 import com.crm.app.dto.LoginRequest;
 import com.crm.app.dto.RegisterRequest;
+import com.crm.app.dto.UpdatePasswordRequest;
 import com.crm.app.e2e.E2eAbstract;
 import com.crm.app.e2e.client.*;
 import com.crm.app.e2e.config.E2eProperties;
@@ -33,6 +34,7 @@ class TestE2eCustomer extends E2eAbstract {
         CustomerStatusClient customerStatusClient = new CustomerStatusClient(e2eProperties);
         CustomerMeClient customerMeClient = new CustomerMeClient(e2eProperties);
         UpdateCustomerClient updateCustomerClient = new UpdateCustomerClient(e2eProperties);
+        UpdatePasswordClient updatePasswordClient = new UpdatePasswordClient(e2eProperties);
 
         RegisterCustomerResult registerCustomerResult;
         LoginRequest loginRequest;
@@ -44,7 +46,7 @@ class TestE2eCustomer extends E2eAbstract {
         CustomerMeResult customerMeResult;
         CustomerMeResult.Success customerMeSuccess;
         UpdateCustomerResult updateCustomerResult;
-        UpdateCustomerResult.Success updateCustomerSuccess;
+        UpdatePasswordResult updatePasswordResult;
 
         /*
         Register
@@ -92,7 +94,7 @@ class TestE2eCustomer extends E2eAbstract {
         assertEquals(customerMeSuccess.response().firstname(), baseRequest.firstname());
 
         /*
-        Update
+        Update customer
          */
         CustomerProfile customerProfile = new CustomerProfile(customerMeSuccess.response().customer_number(),
                 "Hugo",
@@ -116,6 +118,27 @@ class TestE2eCustomer extends E2eAbstract {
         assertThat(customerMeResult).isInstanceOf(CustomerMeResult.Success.class);
         customerMeSuccess = (CustomerMeResult.Success) customerMeResult;
         assertEquals("Hugo", customerMeSuccess.response().firstname());
-        assertEquals("Walter",customerMeSuccess.response().lastname());
+        assertEquals("Walter", customerMeSuccess.response().lastname());
+
+        /*
+        Update password
+         */
+        UpdatePasswordRequest updatePasswordRequest = new UpdatePasswordRequest("wiki123");
+        updatePasswordResult = updatePasswordClient.updatePassword(baseRequest.email_address(), updatePasswordRequest, loginSuccess.response().token());
+        assertThat(updatePasswordResult).isInstanceOf(UpdatePasswordResult.Success.class);
+
+        /*
+        Login, old password
+         */
+        loginRequest = new LoginRequest(baseRequest.email_address(), baseRequest.password());
+        loginResult = loginClient.login(loginRequest);
+        assertThat(loginResult).isInstanceOf(LoginResult.Failure.class);
+
+        /*
+        Login, new password
+         */
+        loginRequest = new LoginRequest(baseRequest.email_address(), "wiki123");
+        loginResult = loginClient.login(loginRequest);
+        assertThat(loginResult).isInstanceOf(LoginResult.Success.class);
     }
 }
