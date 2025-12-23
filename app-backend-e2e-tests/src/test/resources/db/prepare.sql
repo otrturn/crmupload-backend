@@ -8,4 +8,5 @@ TRUNCATE TABLE app.customer_activation CASCADE;
 TRUNCATE TABLE app.customer_acknowledgement CASCADE;
 TRUNCATE TABLE app.customer CASCADE;
 TRUNCATE TABLE app.user_account CASCADE;
+TRUNCATE TABLE app.page_visits;
 

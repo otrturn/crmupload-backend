@@ -19,4 +19,16 @@ public class CustomerHandling {
         }
         return "";
     }
-}
+
+    public static String getPageVisits(DataSource dataSource) {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement psUpdate = connection.prepareStatement("SELECT page_Id from app.page_visits")) {
+            ResultSet rs = psUpdate.executeQuery();
+            if (rs.next()) {
+                return rs.getString(1);
+            }
+        } catch (Exception e) {
+            throw new IllegalStateException("getPageVisits failed", e);
+        }
+        return "";
+    }}
