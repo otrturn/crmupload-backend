@@ -19,7 +19,7 @@ import java.time.Duration;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ActiveProfiles("e2e")
 @Tag("e2e-all")
@@ -30,7 +30,7 @@ class TestE2eDuplicateCheckAwaitAnswerSuccessful extends E2eAbstract {
     private E2eProperties e2eProperties;
 
     @Test
-    void registerCustomer_conflict_DuplicateCheckAwaitAnswerSuccessful() {
+    void registerCustomer_conflict_duplicateCheckAwaitAnswerSuccessful() {
         RegisterRequest baseRequest = baseRegisterRequest();
         RegisterCustomerClient registerclient = new RegisterCustomerClient(e2eProperties);
         RegisterCustomerResult registerCustomerResult = registerclient.register(baseRequest);
@@ -42,6 +42,8 @@ class TestE2eDuplicateCheckAwaitAnswerSuccessful extends E2eAbstract {
         LoginResult.Success loginSuccess;
         CustomerStatusResult customerStatusResult;
         CustomerStatusResult.Success customerStatusSuccess;
+        DuplicateCheckHistoryResult duplicateCheckHistoryResult;
+        DuplicateCheckHistoryResult.Success duplicateCheckHistorySuccess;
 
         /*
          * Login
@@ -53,6 +55,7 @@ class TestE2eDuplicateCheckAwaitAnswerSuccessful extends E2eAbstract {
 
         DuplicateCheckClient duplicateCheckClient = new DuplicateCheckClient(e2eProperties);
         CustomerStatusClient customerStatusClient = new CustomerStatusClient(e2eProperties);
+        DuplicateCheckHistoryClient duplicateCheckHistoryClient = new DuplicateCheckHistoryClient(e2eProperties);
 
         String sourceSystem;
         Resource file;
@@ -109,6 +112,14 @@ class TestE2eDuplicateCheckAwaitAnswerSuccessful extends E2eAbstract {
 
         assertThat(last.get().response().hasOpenDuplicateChecks()).isFalse();
 
+        /*
+        History
+         */
+        duplicateCheckHistoryResult = duplicateCheckHistoryClient.getDuplicateCheckHistory(baseRequest.email_address(), loginSuccess.response().token());
+        Assertions.assertThat(duplicateCheckHistoryResult).isInstanceOf(DuplicateCheckHistoryResult.Success.class);
+        duplicateCheckHistorySuccess = (DuplicateCheckHistoryResult.Success) duplicateCheckHistoryResult;
+        assertFalse(duplicateCheckHistorySuccess.response().duplicateCheckHistory().isEmpty());
+        assertEquals("done", duplicateCheckHistorySuccess.response().duplicateCheckHistory().get(0).getStatus());
     }
 
 }
