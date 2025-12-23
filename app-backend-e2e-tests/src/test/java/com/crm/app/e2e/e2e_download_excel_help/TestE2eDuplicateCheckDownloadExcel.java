@@ -6,6 +6,7 @@ import com.crm.app.e2e.client.DuplicateCheckDownloadExcelHelper;
 import com.crm.app.e2e.client.DuplicateCheckDownloadExcelResult;
 import com.crm.app.e2e.config.E2eProperties;
 import com.crm.app.e2e.config.E2eTestConfig;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
@@ -15,6 +16,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @ActiveProfiles("e2e")
 @Import(E2eTestConfig.class)
+@Tag("e2e-all")
+@Tag("e2e-fast")
 class TestE2eDuplicateCheckDownloadExcel extends E2eAbstract {
 
     @Autowired

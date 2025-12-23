@@ -7,6 +7,7 @@ import com.crm.app.e2e.client.*;
 import com.crm.app.e2e.config.E2eProperties;
 import com.crm.app.e2e.database.CustomerHandling;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
@@ -17,6 +18,8 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ActiveProfiles("e2e")
+@Tag("e2e-all")
+@Tag("e2e-fast")
 class TestE2eCrmUpload extends E2eAbstract {
 
     @Autowired

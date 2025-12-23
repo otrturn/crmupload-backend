@@ -6,6 +6,7 @@ import com.crm.app.e2e.client.PageVisitsResult;
 import com.crm.app.e2e.config.E2eProperties;
 import com.crm.app.e2e.config.E2eTestConfig;
 import com.crm.app.e2e.database.CustomerHandling;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
@@ -16,6 +17,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ActiveProfiles("e2e")
 @Import(E2eTestConfig.class)
+@Tag("e2e-all")
+@Tag("e2e-fast")
 class TestE2ePageVisits extends E2eAbstract {
 
     @Autowired

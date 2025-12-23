@@ -7,6 +7,7 @@ import com.crm.app.e2e.client.RegisterCustomerResult;
 import com.crm.app.e2e.config.E2eProperties;
 import com.crm.app.e2e.config.E2eTestConfig;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
@@ -20,6 +21,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ActiveProfiles("e2e")
 @Import(E2eTestConfig.class)
 @Slf4j
+@Tag("e2e-all")
+@Tag("e2e-fast")
 class TestE2eRegisterCustomerAcknowledgement extends E2eAbstract {
 
     @Autowired

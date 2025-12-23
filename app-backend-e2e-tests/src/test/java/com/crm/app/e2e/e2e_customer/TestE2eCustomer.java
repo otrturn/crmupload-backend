@@ -9,6 +9,7 @@ import com.crm.app.e2e.client.*;
 import com.crm.app.e2e.config.E2eProperties;
 import com.crm.app.e2e.config.E2eTestConfig;
 import com.crm.app.e2e.database.CustomerHandling;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
@@ -20,6 +21,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ActiveProfiles("e2e")
 @Import(E2eTestConfig.class)
+@Tag("e2e-all")
+@Tag("e2e-fast")
 class TestE2eCustomer extends E2eAbstract {
 
     @Autowired

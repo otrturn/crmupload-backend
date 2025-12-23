@@ -8,6 +8,7 @@ import com.crm.app.e2e.client.*;
 import com.crm.app.e2e.config.E2eProperties;
 import com.crm.app.e2e.database.CustomerHandling;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
@@ -17,6 +18,8 @@ import org.springframework.test.context.ActiveProfiles;
 import java.util.List;
 
 @ActiveProfiles("e2e")
+@Tag("e2e-all")
+@Tag("e2e-fast")
 class TestE2eCrmUploadMissingProduct extends E2eAbstract {
 
     @Autowired

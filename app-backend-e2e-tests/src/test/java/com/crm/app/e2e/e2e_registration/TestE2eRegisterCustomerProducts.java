@@ -6,6 +6,7 @@ import com.crm.app.e2e.E2eAbstract;
 import com.crm.app.e2e.client.RegisterCustomerClient;
 import com.crm.app.e2e.client.RegisterCustomerResult;
 import com.crm.app.e2e.config.E2eProperties;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
@@ -16,6 +17,8 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ActiveProfiles("e2e")
+@Tag("e2e-all")
+@Tag("e2e-fast")
 class TestE2eRegisterCustomerProducts extends E2eAbstract {
 
     @Autowired
