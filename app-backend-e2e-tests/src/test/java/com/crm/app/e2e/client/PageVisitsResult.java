@@ -5,7 +5,9 @@ import com.crm.app.dto.ApiError;
 public sealed interface PageVisitsResult
         permits PageVisitsResult.Success, PageVisitsResult.Failure {
 
-    record Success() implements PageVisitsResult {}
+    record Success() implements PageVisitsResult {
+    }
 
-    record Failure(ApiError error) implements PageVisitsResult {}
+    record Failure(ApiError error) implements PageVisitsResult {
+    }
 }

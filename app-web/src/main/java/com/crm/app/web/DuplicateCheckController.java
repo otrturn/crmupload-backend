@@ -3,7 +3,6 @@ package com.crm.app.web;
 import com.crm.app.dto.UploadResponse;
 import com.crm.app.web.config.AppWebDuplicatecheckProperties;
 import com.crm.app.web.duplicate_check.DuplicateCheckService;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,21 +42,21 @@ public class DuplicateCheckController {
     }
 
     @GetMapping("/duplicate-check/downloads/help/excel-sample")
-    public ResponseEntity<Resource> downloadExcelSample(HttpServletRequest request) throws IOException {
+    public ResponseEntity<Resource> downloadExcelSample() throws IOException {
         Path path = Paths.get(appWebDuplicatecheckProperties.getExcelSampleFile());
         Resource resource = new UrlResource(path.toUri());
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"excel-sample.xlsx\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"dubletten-pruefung-beispiel.xlsx\"")
                 .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
                 .body(resource);
     }
 
     @GetMapping("/duplicate-check/downloads/help/excel-sample-answer")
-    public ResponseEntity<Resource> downloadExcelSampleAnswer(HttpServletRequest request) throws IOException {
+    public ResponseEntity<Resource> downloadExcelSampleAnswer() throws IOException {
         Path path = Paths.get(appWebDuplicatecheckProperties.getExcelSampleFileAnswer());
         Resource resource = new UrlResource(path.toUri());
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"excel-sample-answer.xlsx\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"dubletten-pruefung-antwort.xlsx\"")
                 .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
                 .body(resource);
     }

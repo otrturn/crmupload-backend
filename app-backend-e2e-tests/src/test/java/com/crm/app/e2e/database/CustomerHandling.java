@@ -31,4 +31,5 @@ public class CustomerHandling {
             throw new IllegalStateException("getPageVisits failed", e);
         }
         return "";
-    }}
+    }
+}
