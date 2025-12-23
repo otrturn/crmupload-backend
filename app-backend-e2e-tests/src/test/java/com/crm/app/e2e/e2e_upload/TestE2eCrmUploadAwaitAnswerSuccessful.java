@@ -1,4 +1,4 @@
-package com.crm.app.e2e.e2e_duplicate_check;
+package com.crm.app.e2e.e2e_upload;
 
 import com.crm.app.dto.LoginRequest;
 import com.crm.app.dto.RegisterRequest;
@@ -24,13 +24,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ActiveProfiles("e2e")
 @Tag("e2e-all")
 @Tag("e2e-await")
-class TestE2eDuplicateCheckAwaitAnswerSuccessful extends E2eAbstract {
+class TestE2eCrmUploadAwaitAnswerSuccessful extends E2eAbstract {
 
     @Autowired
     private E2eProperties e2eProperties;
 
     @Test
-    void registerCustomer_conflict_DuplicateCheckAwaitAnswerSuccessful() {
+    void registerCustomer_conflict_crmUploadAwaitAnswerSuccessful() {
         RegisterRequest baseRequest = baseRegisterRequest();
         RegisterCustomerClient registerclient = new RegisterCustomerClient(e2eProperties);
         RegisterCustomerResult registerCustomerResult = registerclient.register(baseRequest);
@@ -51,7 +51,7 @@ class TestE2eDuplicateCheckAwaitAnswerSuccessful extends E2eAbstract {
         loginResult = loginClient.login(loginRequest);
         loginSuccess = (LoginResult.Success) loginResult;
 
-        DuplicateCheckClient duplicateCheckClient = new DuplicateCheckClient(e2eProperties);
+        CrmUploadClient uploadclient = new CrmUploadClient(e2eProperties);
         CustomerStatusClient customerStatusClient = new CustomerStatusClient(e2eProperties);
 
         String sourceSystem;
@@ -71,10 +71,14 @@ class TestE2eDuplicateCheckAwaitAnswerSuccessful extends E2eAbstract {
          */
         sourceSystem = "Lexware";
         file = new ClassPathResource("files/Lexware_Generated_00001.xlsx");
-        uploadResult = duplicateCheckClient.duplicateCheck(
+        uploadResult = uploadclient.crmUpload(
                 baseRequest.email_address(),
                 loginSuccess.response().token(),
                 sourceSystem,
+                "EspoCRM",
+                "http://host.docker.internal:8080",
+                "CUST-123",
+                "7a124718fbcde7a4a096396cb61fa80e",
                 file
         );
 
@@ -87,14 +91,14 @@ class TestE2eDuplicateCheckAwaitAnswerSuccessful extends E2eAbstract {
         Assertions.assertThat(customerStatusResult).isInstanceOf(CustomerStatusResult.Success.class);
         customerStatusSuccess = (CustomerStatusResult.Success) customerStatusResult;
         assertTrue(customerStatusSuccess.response().enabled());
-        assertTrue(customerStatusSuccess.response().hasOpenDuplicateChecks());
+        assertTrue(customerStatusSuccess.response().hasOpenCrmUploads());
 
         /*
         Wait for completion
          */
         AtomicReference<CustomerStatusResult.Success> last = new AtomicReference<>();
 
-        Awaitility.await("Duplicate check finished")
+        Awaitility.await("Upload check finished")
                 .atMost(Duration.ofSeconds(120))
                 .pollInterval(Duration.ofSeconds(2))
                 .untilAsserted(() -> {
@@ -104,11 +108,10 @@ class TestE2eDuplicateCheckAwaitAnswerSuccessful extends E2eAbstract {
                     CustomerStatusResult.Success s = (CustomerStatusResult.Success) r;
                     last.set(s);
 
-                    assertThat(s.response().hasOpenDuplicateChecks()).isFalse();
+                    assertThat(s.response().hasOpenCrmUploads()).isFalse();
                 });
 
-        assertThat(last.get().response().hasOpenDuplicateChecks()).isFalse();
+        assertThat(last.get().response().hasOpenCrmUploads()).isFalse();
 
     }
-
 }
