@@ -71,15 +71,11 @@ public class DuplicateCheckWorkerProcessForLexware {
 
     private List<DuplicateCheckEntry> verifyAndMapEntries(List<LexwareEntry> lexwareEntries, Map<LexwareColumn, Integer> indexMap, List<ErrMsg> errors) {
         List<DuplicateCheckEntry> duplicateCheckEntries = new ArrayList<>();
+        boolean isSuccess = true;
         for (int i = 0; i < lexwareEntries.size(); i++) {
             LexwareEntry lexwareEntry = lexwareEntries.get(i);
-            if (lexwareEntry.getAccountName() == null || lexwareEntry.getAccountName().isBlank()) {
-                String msg = String.format("[Account] Zeile %d: Firmenname ist leer", i + 1);
-                errors.add(new ErrMsg(0, i, indexMap.get(LexwareColumn.FIRMENNAME), LexwareColumn.FIRMENNAME.name(), msg));
-            } else if (lexwareEntry.getAddress().getPostcalCode() == null || lexwareEntry.getAddress().getPostcalCode().isBlank()) {
-                String msg = String.format("[Account] Zeile %d: PLZ ist leer", i + 1);
-                errors.add(new ErrMsg(0, i, indexMap.get(LexwareColumn.PLZ), LexwareColumn.PLZ.name(), msg));
-            } else {
+            isSuccess = verifyEntry(indexMap, errors, lexwareEntry, i, isSuccess);
+            if (isSuccess) {
                 DuplicateCheckEntry duplicateCheckEntry = new DuplicateCheckEntry(
                         lexwareEntry.getAccountName(),
                         lexwareEntry.getAddress().getPostcalCode(),
@@ -93,5 +89,29 @@ public class DuplicateCheckWorkerProcessForLexware {
             }
         }
         return duplicateCheckEntries;
+    }
+
+    private static boolean verifyEntry(Map<LexwareColumn, Integer> indexMap, List<ErrMsg> errors, LexwareEntry lexwareEntry, int i, boolean isSuccess) {
+        if (lexwareEntry.getAccountName() == null || lexwareEntry.getAccountName().isBlank()) {
+            String msg = String.format("[Account] Zeile %d: Firmenname ist leer", i + 1);
+            errors.add(new ErrMsg(0, i, indexMap.get(LexwareColumn.FIRMENNAME), LexwareColumn.FIRMENNAME.name(), msg));
+            isSuccess = false;
+        }
+        if (lexwareEntry.getAddress().getPostcalCode() == null || lexwareEntry.getAddress().getPostcalCode().isBlank()) {
+            String msg = String.format("[Account] Zeile %d: PLZ ist leer", i + 1);
+            errors.add(new ErrMsg(0, i, indexMap.get(LexwareColumn.PLZ), LexwareColumn.PLZ.name(), msg));
+            isSuccess = false;
+        }
+        if (lexwareEntry.getAddress().getStreet() == null || lexwareEntry.getAddress().getStreet().isBlank()) {
+            String msg = String.format("[Account] Zeile %d: Strasse ist leer", i + 1);
+            errors.add(new ErrMsg(0, i, indexMap.get(LexwareColumn.STRASSE), LexwareColumn.STRASSE.name(), msg));
+            isSuccess = false;
+        }
+        if (lexwareEntry.getAddress().getCity() == null || lexwareEntry.getAddress().getCity().isBlank()) {
+            String msg = String.format("[Account] Zeile %d: Land ist leer", i + 1);
+            errors.add(new ErrMsg(0, i, indexMap.get(LexwareColumn.LAND), LexwareColumn.LAND.name(), msg));
+            isSuccess = false;
+        }
+        return isSuccess;
     }
 }
