@@ -10,5 +10,5 @@ curl -v -X POST https://www.crmupload.de/auth/register-customer \
 "postalcode": "12345",
 "city": "Ingelbach",
 "country": "DE",
-"password": "test123"
+"password": "test1234"
 }'

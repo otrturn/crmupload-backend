@@ -45,7 +45,7 @@ public abstract class E2eAbstract {
                 "01702934959",
                 "Teichgarten 17", null,
                 "60333", "Frankfurt", "DE",
-                "test123",
+                "test1234",
                 java.util.List.of(
                         AppConstants.PRODUCT_CRM_UPLOAD,
                         AppConstants.PRODUCT_DUPLICATE_CHECK

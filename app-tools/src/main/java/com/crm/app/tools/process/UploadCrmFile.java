@@ -37,7 +37,7 @@ public class UploadCrmFile {
         for (int i = 0; i < n; i++) {
             try {
                 String email = "ralf@test.de".replace("@", "+" + i + "@");
-                LoginRequest loginRequest = new LoginRequest(email, "test123");
+                LoginRequest loginRequest = new LoginRequest(email, "test1234");
                 LoginResponse loginResponse = login(appToolsConfig.getBaseUrl(), loginRequest);
 
                 // Multipart-Datei
