@@ -1,5 +1,6 @@
 package com.crm.app.tools;
 
+import com.crm.app.adapter.jdbc.config.AppDataSourceProperties;
 import com.crm.app.dto.AppConstants;
 import com.crm.app.dto.RegisterRequest;
 import com.crm.app.tools.process.RegisterCustomers;
@@ -13,14 +14,16 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.ExitCodeGenerator;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
 import java.nio.file.Paths;
 import java.util.List;
 
 @Slf4j
 @SuppressWarnings("squid:S6437")
-@SpringBootApplication(scanBasePackages = "com.crm.app.tools")
+@SpringBootApplication(scanBasePackages = "com.crm")
 @RequiredArgsConstructor
+@EnableConfigurationProperties({AppDataSourceProperties.class})
 public class AppBulkTool implements CommandLineRunner, ExitCodeGenerator {
 
     private final RegisterCustomers registerCustomers;

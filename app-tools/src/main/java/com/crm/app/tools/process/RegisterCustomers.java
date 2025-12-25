@@ -2,6 +2,7 @@ package com.crm.app.tools.process;
 
 import com.crm.app.dto.AppConstants;
 import com.crm.app.dto.RegisterRequest;
+import com.crm.app.port.customer.CustomerActivationRepositoryPort;
 import com.crm.app.tools.config.AppToolsConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,6 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -16,6 +19,7 @@ import java.util.List;
 public class RegisterCustomers {
 
     private final AppToolsConfig appToolsConfig;
+    private final CustomerActivationRepositoryPort activationRepository;
 
     public void process(int n, RegisterRequest requestTemplate) {
         log.info(String.format("registerCustomers:baseUrl=%s", appToolsConfig.getBaseUrl()));
@@ -28,19 +32,42 @@ public class RegisterCustomers {
             RegisterRequest req = generateRequestForIndex(requestTemplate, i);
 
             try {
-                String response = client.post()
+                RegisterResponse registerResponse = client.post()
                         .uri("/auth/register-customer")
                         .bodyValue(req)
                         .retrieve()
-                        .bodyToMono(String.class)
+                        .bodyToMono(RegisterResponse.class)
                         .block(); // synchron
 
-                log.info(String.format("Response %d: %s", i, response));
+                if (registerResponse == null || registerResponse.token() == null || registerResponse.token().isBlank()) {
+                    throw new IllegalStateException("Register did not return an activation token");
+                }
+
+                Optional<UUID> activationToken = activationRepository.getTokenByEmail(req.email_address());
+
+                if (activationToken.isEmpty())
+                {
+                    throw new IllegalStateException("no activation token for "+req.email_address());
+                }
+
+                String activationText = client.get()
+                        .uri(uriBuilder -> uriBuilder
+                                .path("/auth/activate")
+                                .queryParam("token", activationToken.get())
+                                .build())
+                        .retrieve()
+                        .bodyToMono(String.class)
+                        .block();
+
+                log.info("Activate: {}", activationText);
 
             } catch (Exception ex) {
                 log.error(String.format("Error in request %d: %s", i, ex.getMessage()), ex);
             }
         }
+    }
+
+    public record RegisterResponse(String token) {
     }
 
     private RegisterRequest generateRequestForIndex(RegisterRequest base, int index) {

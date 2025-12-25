@@ -3,6 +3,7 @@ package com.crm.app.adapter.jdbc.customer;
 import com.crm.app.port.customer.CustomerActivationRepositoryPort;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -88,6 +89,33 @@ public class JdbcCustomerActivationRepositoryAdapter implements CustomerActivati
         } catch (DataAccessException ex) {
             log.error(String.format("Failed to mark activation token %s as used", token), ex);
             throw new IllegalStateException("Could not update activation token", ex);
+        }
+    }
+
+    @Override
+    public Optional<UUID> getTokenByEmail(String email) {
+
+        String sql = """
+                SELECT ca.token
+                FROM app.customer c
+                JOIN app.customer_activation ca
+                  ON ca.customer_id = c.customer_id
+                WHERE c.email_address = :email
+                  AND ca.used = false
+                  AND ca.expires_at > now()
+                ORDER BY ca.created DESC
+                LIMIT 1
+                """;
+
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("email", email);
+
+        try {
+            return Optional.ofNullable(
+                    jdbcTemplate.queryForObject(sql, params, UUID.class)
+            );
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
         }
     }
 }
