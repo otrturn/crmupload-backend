@@ -22,7 +22,7 @@ WHERE customer_id = (SELECT customer_id from app.customer WHERE email_address = 
 select *
 from app.customer_acknowledgement;
 
-select upload_id, customer_id, source_system, crm_system, statistics, status
+select upload_id, customer_id, source_system, crm_system, crm_url, statistics, status
 from app.crm_upload
 order by upload_id desc;
 
