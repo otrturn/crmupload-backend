@@ -50,6 +50,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
     private static final String LITERAL_STATUS = "status";
     private static final String LITERAL_USER_ID = "user_id";
     private static final String LITERAL_ACTIVATION_DATE = "activation_date";
+    private static final String LITERAL_ENABLED = "enabled";
 
     private static final String LITERAL_NO_CUSTOMER_FOR_EMAIL = "No customer found for email '%s'";
     private static final String LITERAL_NO_CUSTOMER_FOR_CUSTOMER_ID = "No customer found for customerId '%s'";
@@ -636,35 +637,26 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
     }
 
     @Override
-    public List<String> findActiveProductsByCustomerId(long customerId) {
+    public List<CustomerProduct> findActiveProductsByEmail(String email) {
         String sql = """
-                SELECT cp.product
-                FROM app.customer_product cp
-                WHERE cp.customer_id = :customerId
-                AND   cp.enabled = true
-                ORDER BY cp.product
-                """;
-
-        MapSqlParameterSource params = new MapSqlParameterSource().addValue(LITERAL_CUSTOMER_ID_CAMELCASE, customerId);
-
-        return jdbc.query(sql, params, (rs, rowNum) -> rs.getString(LITERAL_PRODUCT));
-    }
-
-    @Override
-    public List<String> findActiveProductsByEmail(String email) {
-        String sql = """
-                SELECT DISTINCT cp.product
+                SELECT cp.product,
+                       cp.enabled,
+                       cp.activation_date
                 FROM app.customer c
                 JOIN app.customer_product cp
                       ON cp.customer_id = c.customer_id
                 WHERE c.email_address = :email
-                AND   cp.enabled = true
                 ORDER BY cp.product
                 """;
 
-        MapSqlParameterSource params = new MapSqlParameterSource().addValue(LITERAL_EMAIL, email);
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue(LITERAL_EMAIL, email);
 
-        return jdbc.query(sql, params, (rs, rowNum) -> rs.getString(LITERAL_PRODUCT));
+        return jdbc.query(sql, params, (rs, rowNum) -> new CustomerProduct(
+                rs.getString(LITERAL_PRODUCT),
+                rs.getBoolean(LITERAL_ENABLED),
+                rs.getTimestamp(LITERAL_ACTIVATION_DATE)
+        ));
     }
 
     @Override

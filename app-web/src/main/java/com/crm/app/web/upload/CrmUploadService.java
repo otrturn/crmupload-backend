@@ -30,7 +30,7 @@ public class CrmUploadService {
         long customerId = customerRepositoryPort.findCustomerIdByEmail(emailAddress);
         log.info(String.format("processCrmUpload resolved customerId=%d for email=%s", customerId, emailAddress));
 
-        List<String> products = customerRepositoryPort.findActiveProductsByEmail(emailAddress);
+        List<CustomerProduct> products = customerRepositoryPort.findActiveProductsByEmail(emailAddress);
 
         boolean enabled = customerRepositoryPort.isEnabledByCustomerId(customerId);
         boolean hasOpenCrmUploads = customerRepositoryPort.isHasOpenCrmUploadsByCustomerId(customerId);
@@ -45,8 +45,11 @@ public class CrmUploadService {
         if (!CrmSystem.availableCrmSystems().contains(crmSystem != null ? crmSystem : "")) {
             throw new CrmUploadInvalidDataException(String.format("processCrmUpload: Customer %s unknown crmSystem [%s]", emailAddress, crmSystem));
         }
-        if (!products.contains(AppConstants.PRODUCT_CRM_UPLOAD)) {
-            throw new CrmUploadMissingProductException(String.format("processCrmUpload: Customer %s does not have product [%s]", emailAddress, AppConstants.PRODUCT_CRM_UPLOAD));
+        if (products.stream()
+                .filter(CustomerProduct::isEnabled)
+                .noneMatch(p -> AppConstants.PRODUCT_CRM_UPLOAD
+                        .equalsIgnoreCase(p.getProduct()))) {
+            throw new CrmUploadMissingProductException(String.format("processCrmUpload: Customer %s does not have (enabled) product [%s]", emailAddress, AppConstants.PRODUCT_CRM_UPLOAD));
         }
         if (hasOpenCrmUploads) {
             throw new CrmUploadAlreadyInProgressException(String.format("processCrmUpload: Customer %s has open uploads", emailAddress));

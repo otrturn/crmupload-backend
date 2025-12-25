@@ -1,9 +1,6 @@
 package com.crm.app.web.duplicate_check;
 
-import com.crm.app.dto.AppConstants;
-import com.crm.app.dto.DuplicateCheckHistory;
-import com.crm.app.dto.DuplicateCheckRequest;
-import com.crm.app.dto.SourceSystem;
+import com.crm.app.dto.*;
 import com.crm.app.port.customer.CustomerRepositoryPort;
 import com.crm.app.port.customer.DuplicateCheckRepositoryPort;
 import com.crm.app.web.error.*;
@@ -32,7 +29,7 @@ public class DuplicateCheckService {
         long customerId = customerRepositoryPort.findCustomerIdByEmail(emailAddress);
         log.info(String.format("processDuplicateCheck resolved customerId=%d for email=%s", customerId, emailAddress));
 
-        List<String> products = customerRepositoryPort.findActiveProductsByEmail(emailAddress);
+        List<CustomerProduct> products = customerRepositoryPort.findActiveProductsByEmail(emailAddress);
 
         boolean enabled = customerRepositoryPort.isEnabledByCustomerId(customerId);
         boolean hasOpenDuplicatechecks = customerRepositoryPort.isHasOpenDuplicateChecksByCustomerId(customerId);
@@ -43,8 +40,11 @@ public class DuplicateCheckService {
         if (!SourceSystem.availableSourceSystems().contains(sourceSystem != null ? sourceSystem : "")) {
             throw new DuplicateCheckInvalidDataException(String.format("processDuplicateCheck: Customer %s unknown sourceSystem [%s]", emailAddress, sourceSystem));
         }
-        if (!products.contains(AppConstants.PRODUCT_DUPLICATE_CHECK)) {
-            throw new DuplicateCheckMissingProductException(String.format("processDuplicateCheck: Customer %s does not have product [%s]", emailAddress, AppConstants.PRODUCT_DUPLICATE_CHECK));
+        if (products.stream()
+                .filter(CustomerProduct::isEnabled)
+                .noneMatch(p -> AppConstants.PRODUCT_DUPLICATE_CHECK
+                        .equalsIgnoreCase(p.getProduct()))) {
+            throw new DuplicateCheckMissingProductException(String.format("processDuplicateCheck: Customer %s does not have (enabled) product [%s]", emailAddress, AppConstants.PRODUCT_DUPLICATE_CHECK));
         }
         if (hasOpenDuplicatechecks) {
             throw new DuplicateCheckAlreadyInProgressException(String.format("processDuplicateCheck: Customer %s has open duplicate-check", emailAddress));

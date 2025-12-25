@@ -1,6 +1,7 @@
 package com.crm.app.web.auth;
 
 import com.crm.app.dto.CrmUploadCoreInfo;
+import com.crm.app.dto.CustomerProduct;
 import com.crm.app.dto.LoginRequest;
 import com.crm.app.dto.LoginResponse;
 import com.crm.app.port.customer.CustomerRepositoryPort;
@@ -54,7 +55,7 @@ public class AuthenticationService {
         boolean hasOpenCrmUploads = customerRepositoryPort.isHasOpenCrmUploadsByEmail(emailAddress);
         boolean hasOpenDuplicateChecks = customerRepositoryPort.isHasOpenDuplicateChecksByEmail(emailAddress);
         Optional<CrmUploadCoreInfo> crmUploadInfo = customerRepositoryPort.findLatestUploadByEmail(emailAddress);
-        List<String> products = customerRepositoryPort.findActiveProductsByEmail(emailAddress);
+        List<CustomerProduct> products = customerRepositoryPort.findActiveProductsByEmail(emailAddress);
 
         return new LoginResponse(token, enabled, hasOpenCrmUploads, hasOpenDuplicateChecks, crmUploadInfo.orElse(null), products);
     }
