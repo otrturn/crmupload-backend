@@ -6,6 +6,7 @@ import com.crm.app.port.customer.CrmUploadRepositoryPort;
 import com.crm.app.worker_common.dto.StatisticsError;
 import com.crm.app.worker_common.util.WorkerUtil;
 import com.crm.app.worker_upload.dto.StatisticsUploadEspo;
+import com.crm.app.worker_upload.error.WorkerUploadException;
 import com.crm.app.worker_upload.mail.UploadMailService;
 import com.crmmacher.config.BaseCtx;
 import com.crmmacher.error.ErrMsg;
@@ -94,10 +95,15 @@ public class UploadHandlingForEspo {
 
     private void loadEspo(BaseCtx baseCtx, EspoEntityPool espoEntityPool) {
         Instant start = Instant.now();
-        log.info("Loading espo ...");
-        espoEntityPool.setAccounts(new GetAccountFromEspo().getAccountsWithDetails(baseCtx));
-        espoEntityPool.setContacts(new GetContactFromEspo().getContactsWithDetails(baseCtx));
-        espoEntityPool.setLeads(new GetLeadFromEspo().getLeadsWithDetails(baseCtx));
+        log.info("Loading espo from " + baseCtx.getBaseUrl() + " ...");
+        try {
+            espoEntityPool.setAccounts(new GetAccountFromEspo().getAccountsWithDetails(baseCtx));
+            espoEntityPool.setContacts(new GetContactFromEspo().getContactsWithDetails(baseCtx));
+            espoEntityPool.setLeads(new GetLeadFromEspo().getLeadsWithDetails(baseCtx));
+        } catch (Exception e) {
+            log.error("Error loading espo", e);
+            throw new WorkerUploadException(String.format("Error loading espo %s", e.getMessage()));
+        }
         Duration duration = Duration.between(start, Instant.now());
         log.info(String.format("Loaded espo %d accounts, %d contacts, %d leads", espoEntityPool.getAccounts().size(), espoEntityPool.getContacts().size(), espoEntityPool.getLeads().size()));
         log.info(String.format(DURATION_FORMAT_STRING, duration.toHours(), duration.toMinutesPart(), duration.toSecondsPart()));
