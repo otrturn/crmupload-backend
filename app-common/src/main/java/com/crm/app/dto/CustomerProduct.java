@@ -13,14 +13,16 @@ import static com.crm.app.dto.AppConstants.PRODUCT_DUPLICATE_CHECK;
 @Setter
 public class CustomerProduct {
     private String product;
+    boolean enabled;
     private Timestamp activationDate;
     private BigDecimal taxValue;
     private BigDecimal taxAmount;
     private BigDecimal netAmount;
     private BigDecimal amount;
 
-    public CustomerProduct(String product, Timestamp activationDate) {
+    public CustomerProduct(String product, boolean enabled, Timestamp activationDate) {
         this.product = product;
+        this.enabled = enabled;
         this.activationDate = activationDate;
     }
 

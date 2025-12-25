@@ -48,7 +48,7 @@ public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
     }
 
     @Override
-    public List<CustomerInvoiceData> getCustomersWithProducts() {
+    public List<CustomerInvoiceData> getCustomersWithActiveProducts() {
         String sql = """
                 SELECT
                   cp.customer_id,
@@ -84,6 +84,7 @@ public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
                     .computeIfAbsent(row.customerId(), k -> new ArrayList<>())
                     .add(new CustomerProduct(
                             row.product(),
+                            true,
                             row.activationDate()
                     ));
         }
@@ -134,6 +135,7 @@ public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
                 .map(p -> {
                     CustomerProduct copy = new CustomerProduct(
                             p.getProduct().trim().toUpperCase(),
+                            p.isEnabled(),
                             p.getActivationDate()
                     );
                     copy.setTaxValue(p.getTaxValue());

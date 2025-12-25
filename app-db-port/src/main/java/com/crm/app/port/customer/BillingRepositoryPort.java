@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface BillingRepositoryPort {
 
-    List<CustomerInvoiceData> getCustomersWithProducts();
+    List<CustomerInvoiceData> getCustomersWithActiveProducts();
 
     long nextInvoiceId();
 

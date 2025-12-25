@@ -37,7 +37,7 @@ public class GenerateInvoices {
         log.info("Generate invoices ...");
         try {
             Instant start = Instant.now();
-            List<CustomerInvoiceData> customerInvoiceDataList = billingRepositoryPort.getCustomersWithProducts();
+            List<CustomerInvoiceData> customerInvoiceDataList = billingRepositoryPort.getCustomersWithActiveProducts();
             log.info(String.format("%d costumers found", customerInvoiceDataList.size()));
             Duration duration = Duration.between(start, Instant.now());
             log.info(String.format(DURATION_FORMAT_STRING, duration.toHours(), duration.toMinutesPart(), duration.toSecondsPart()));
