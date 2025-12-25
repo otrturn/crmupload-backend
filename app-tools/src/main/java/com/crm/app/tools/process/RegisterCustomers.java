@@ -45,9 +45,8 @@ public class RegisterCustomers {
 
                 Optional<UUID> activationToken = activationRepository.getTokenByEmail(req.email_address());
 
-                if (activationToken.isEmpty())
-                {
-                    throw new IllegalStateException("no activation token for "+req.email_address());
+                if (activationToken.isEmpty()) {
+                    throw new IllegalStateException("no activation token for " + req.email_address());
                 }
 
                 String activationText = client.get()
