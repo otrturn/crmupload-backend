@@ -7,6 +7,7 @@ import com.crm.app.tools.process.RegisterCustomers;
 import com.crm.app.tools.process.UploadCrmFile;
 import com.crm.app.tools.process.UploadDuplicateCheckFile;
 import com.crmmacher.bexio.tools.generator.process.BexioGenerateWorkbook;
+import com.crmmacher.lexware_excel.tools.generator.process.LexwareGenerateWorkbook;
 import com.crmmacher.lexware_excel.tools.generator.process.LexwareGenerateWorkbookDuplicateCheck;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -89,11 +90,13 @@ public class AppBulkTool implements CommandLineRunner, ExitCodeGenerator {
     private void processLexware(TASK task) throws Exception {
         int nFiles = 1;
         for (int i = 1; i <= nFiles; i++) {
-            String filename = String.format("/home/ralf/espocrm-demo/generated/Lexware_Generated_Duplicate_Check_%05d.xlsx", i);
-            LexwareGenerateWorkbookDuplicateCheck.createWorkbook(filename, 100, String.format("LW-%04d", i));
             if (task.equals(TASK.TO_ESPO)) {
+                String filename = String.format("/home/ralf/espocrm-demo/generated/Lexware_Generated_%05d.xlsx", i);
+                LexwareGenerateWorkbook.createWorkbook(filename, 10, String.format("LW-%04d", i));
                 uploadCrmFile.process(Paths.get(filename), 1, "Lexware", ESPO_CRM_LITERAL);
             } else if (task.equals(TASK.TO_DUPLICATE_CHECK)) {
+                String filename = String.format("/home/ralf/espocrm-demo/generated/Lexware_Generated_Duplicate_Check_%05d.xlsx", i);
+                LexwareGenerateWorkbookDuplicateCheck.createWorkbook(filename, 100, String.format("LW-%04d", i));
                 uploadDuplicateCheckFile.process(Paths.get(filename), 1, "Lexware");
             }
         }

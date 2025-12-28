@@ -63,13 +63,11 @@ public class CrmUploadService {
                     customerId));
         }
 
-        boolean isTest = false;
-
         long uploadId = repository.nextUploadId();
         log.info(String.format("Generated uploadId=%d", uploadId));
 
         try {
-            repository.insertCrmUpload(new CrmUploadRequest(uploadId, customerId, sourceSystem, crmSystem, crmUrl, crmCustomerId, crmApiKey, file.getBytes(), isTest));
+            repository.insertCrmUpload(new CrmUploadRequest(uploadId, customerId, sourceSystem, crmSystem, crmUrl, crmCustomerId, crmApiKey, file.getBytes(), isValidEspoDemoUrl(crmUrl)));
         } catch (Exception ex) {
             log.error(String.format("processCrmUpload: Failed to insert customer upload: uploadId=%d, customerId=%d", uploadId, customerId), ex);
             throw new IllegalStateException("Upload failed: " + ex.getMessage(), ex);
@@ -82,5 +80,16 @@ public class CrmUploadService {
             throw new CustomerNotFoundException(emailAddress);
         }
         return response;
+    }
+
+    private boolean isValidEspoDemoUrl(String url) {
+        if (url == null) {
+            return false;
+        }
+
+        return url.startsWith("http://crmupload.de/espo-demo-")
+                || url.startsWith("https://crmupload.de/espo-demo-")
+                || url.startsWith("http://www.crmupload.de/espo-demo-")
+                || url.startsWith("https://www.crmupload.de/espo-demo-");
     }
 }
