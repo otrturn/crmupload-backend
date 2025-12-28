@@ -3,6 +3,7 @@ package com.crm.app.web.upload;
 import com.crm.app.dto.*;
 import com.crm.app.port.customer.CrmUploadRepositoryPort;
 import com.crm.app.port.customer.CustomerRepositoryPort;
+import com.crm.app.util.UrlUtils;
 import com.crm.app.web.error.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +33,20 @@ public class CrmUploadService {
 
         List<CustomerProduct> products = customerRepositoryPort.findActiveProductsByEmail(emailAddress);
 
+        checkUploadRequest(emailAddress, sourceSystem, crmSystem, crmUrl, crmCustomerId, customerId, products);
+
+        long uploadId = repository.nextUploadId();
+        log.info(String.format("Generated uploadId=%d", uploadId));
+
+        try {
+            repository.insertCrmUpload(new CrmUploadRequest(uploadId, customerId, sourceSystem, crmSystem, crmUrl, crmCustomerId, crmApiKey, file.getBytes(), isValidEspoDemoUrl(crmUrl)));
+        } catch (Exception ex) {
+            log.error(String.format("processCrmUpload: Failed to insert customer upload: uploadId=%d, customerId=%d", uploadId, customerId), ex);
+            throw new IllegalStateException("Upload failed: " + ex.getMessage(), ex);
+        }
+    }
+
+    private void checkUploadRequest(String emailAddress, String sourceSystem, String crmSystem, String crmUrl, String crmCustomerId, long customerId, List<CustomerProduct> products) {
         boolean enabled = customerRepositoryPort.isEnabledByCustomerId(customerId);
         boolean hasOpenCrmUploads = customerRepositoryPort.isHasOpenCrmUploadsByCustomerId(customerId);
         Optional<CrmUploadCoreInfo> crmUploadInfo = customerRepositoryPort.findLatestUploadByCustomerId(customerId);
@@ -44,6 +59,9 @@ public class CrmUploadService {
         }
         if (!CrmSystem.availableCrmSystems().contains(crmSystem != null ? crmSystem : "")) {
             throw new CrmUploadInvalidDataException(String.format("processCrmUpload: Customer %s unknown crmSystem [%s]", emailAddress, crmSystem));
+        }
+        if (!UrlUtils.isValidHttpUrl(crmUrl)) {
+            throw new CrmUploadInvalidDataException(String.format("processCrmUpload: Customer %s invalid crmUrl [%s]", emailAddress, crmUrl));
         }
         if (products.stream()
                 .filter(CustomerProduct::isEnabled)
@@ -61,16 +79,6 @@ public class CrmUploadService {
                     crmUploadInfo.get().getCrmSystem(),
                     crmUploadInfo.get().getCrmCustomerId(),
                     customerId));
-        }
-
-        long uploadId = repository.nextUploadId();
-        log.info(String.format("Generated uploadId=%d", uploadId));
-
-        try {
-            repository.insertCrmUpload(new CrmUploadRequest(uploadId, customerId, sourceSystem, crmSystem, crmUrl, crmCustomerId, crmApiKey, file.getBytes(), isValidEspoDemoUrl(crmUrl)));
-        } catch (Exception ex) {
-            log.error(String.format("processCrmUpload: Failed to insert customer upload: uploadId=%d, customerId=%d", uploadId, customerId), ex);
-            throw new IllegalStateException("Upload failed: " + ex.getMessage(), ex);
         }
     }
 
