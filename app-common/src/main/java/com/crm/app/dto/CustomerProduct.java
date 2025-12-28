@@ -6,8 +6,7 @@ import lombok.Setter;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 
-import static com.crm.app.dto.AppConstants.PRODUCT_CRM_UPLOAD;
-import static com.crm.app.dto.AppConstants.PRODUCT_DUPLICATE_CHECK;
+import static com.crm.app.dto.AppConstants.*;
 
 @Getter
 @Setter
@@ -31,9 +30,9 @@ public class CustomerProduct {
             return "";
         }
         if (product.equalsIgnoreCase(PRODUCT_CRM_UPLOAD)) {
-            return "CRM-Upload – Import von Kundendaten in das CRM-System";
+            return PRODUCT_CRM_UPLOAD_DESCRIPTION;
         } else if (product.equalsIgnoreCase(PRODUCT_DUPLICATE_CHECK)) {
-            return "CRM-Dublettenprüfung – Dublettenanalyse von Kundendaten";
+            return PRODUCT_DUPLICATE_CHECK_DESCRIPTION;
         }
         return "";
     }

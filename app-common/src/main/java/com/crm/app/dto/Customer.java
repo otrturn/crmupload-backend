@@ -23,7 +23,7 @@ public record Customer(
 
     public static String getFullname(Customer customer) {
         if (customer == null) {
-            return "(Kein Name)";
+            return "";
         }
         String firstName = "";
         if (customer.firstname() != null && !customer.firstname().isEmpty()) {

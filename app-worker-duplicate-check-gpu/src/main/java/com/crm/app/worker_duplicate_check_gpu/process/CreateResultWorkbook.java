@@ -180,7 +180,7 @@ public class CreateResultWorkbook {
             duplicateCheckContent.setContent(bos.toByteArray());
         } catch (IOException e) {
             log.error(String.format("createResultWorkbook: %s", e.getMessage()), e);
-            throw new WorkerDuplicateCheckGpuException("Fehler beim Erzeugen des Excel-Workbooks: ", e);
+            throw new WorkerDuplicateCheckGpuException("Error creating the excel workbook: ", e);
         }
     }
 

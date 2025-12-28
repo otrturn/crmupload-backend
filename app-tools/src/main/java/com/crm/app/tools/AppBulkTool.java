@@ -46,7 +46,7 @@ public class AppBulkTool implements CommandLineRunner, ExitCodeGenerator {
             log.error(String.format("args.length is %d", args.length));
             return;
         }
-        log.info("Starte Batch-Prozess…");
+        log.info("Start batch process…");
         switch (args[0]) {
             case "--registerCustomer" -> {
                 RegisterRequest request = new RegisterRequest("Jürgen", "Becker", null, "ralf@test.de", "01702934959",
@@ -65,7 +65,7 @@ public class AppBulkTool implements CommandLineRunner, ExitCodeGenerator {
 
             default -> log.error(String.format("Unknown command %s", args[0]));
         }
-        log.info("Batch-Prozess beendet.");
+        log.info("Batch process finished.");
     }
 
     @Override

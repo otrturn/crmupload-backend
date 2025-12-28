@@ -33,7 +33,7 @@ public class AppMaintenance implements CommandLineRunner, ExitCodeGenerator {
     @Override
     public void run(String... args) throws Exception {
         AppParameters appParameters = parseArgs(args);
-        log.info("Starte Batch-Prozess…");
+        log.info("Start batch process…");
         if (option == null) {
             throw new MaintenanceException("No valid arguments were provided [--get-upload-file {id}");
         } else if (option.equals(Option.GET_UPLOAD_FILE)) {
@@ -41,7 +41,7 @@ public class AppMaintenance implements CommandLineRunner, ExitCodeGenerator {
         } else if (option.equals(Option.GET_DUPLICATE_CHECK_FILE)) {
             getDuplicateCheck.get(appParameters.getDuplicateCheckId());
         }
-        log.info("Batch-Prozess beendet.");
+        log.info("Batch process finished.");
     }
 
     @Override

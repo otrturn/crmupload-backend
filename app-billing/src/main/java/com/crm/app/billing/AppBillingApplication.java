@@ -42,7 +42,7 @@ public class AppBillingApplication implements CommandLineRunner, ExitCodeGenerat
             log.error(String.format("args.length is %d", args.length));
             return;
         }
-        log.info("Starte Batch-Prozess…");
+        log.info("Start batch process…");
         switch (args[0]) {
             case "--generateInvoices" -> generateInvoices.generateInvoices();
 
@@ -50,7 +50,7 @@ public class AppBillingApplication implements CommandLineRunner, ExitCodeGenerat
 
             default -> log.error(String.format("Unknown command %s", args[0]));
         }
-        log.info("Batch-Prozess beendet.");
+        log.info("Batch process finished.");
     }
 
     @Override
