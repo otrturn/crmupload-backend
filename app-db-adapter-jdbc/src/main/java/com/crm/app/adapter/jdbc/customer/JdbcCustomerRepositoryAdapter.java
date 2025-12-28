@@ -135,7 +135,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
                 cu.crm_url         AS crm_url,
                 cu.crm_customer_id AS crm_customer_id,
                 cu.status          AS status,
-                cu.is_test         AS is_tes
+                cu.is_test         AS is_test
             FROM app.crm_upload cu
             JOIN app.customer c
               ON c.customer_id = cu.customer_id
@@ -634,7 +634,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
         return list.stream().findFirst();
     }
 
-    public Optional<CrmUploadCoreInfo> findLatestUploadByEmail(String email) {
+    public Optional<CrmUploadCoreInfo> findLatestSuccessfulNoTestUploadByEmail(String email) {
         Map<String, Object> params = Map.of(LITERAL_EMAIL, email);
         List<CrmUploadCoreInfo> list = jdbc.query(SQL_FIND_LATEST_SUCCESSFUL_NO_TEST_UPLOAD_BY_EMAIL, params, (rs, rowNum) -> new CrmUploadCoreInfo(rs.getString(LITERAL_SOURCE_SYSTEM), rs.getString(LITERAL_CRM_SYSTEM), rs.getString(LITERAL_CRM_URL), rs.getString(LITERAL_CRM_CUSTOMER_ID), rs.getBoolean(LITERAL_IS_TEST)));
         return list.stream().findFirst();

@@ -5,6 +5,7 @@ import com.crm.app.web.customer.CustomerProfileService;
 import com.crm.app.web.duplicate_check.DuplicateCheckService;
 import com.crm.app.web.upload.CrmUploadService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,6 +14,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/customer")
 @RequiredArgsConstructor
+@Slf4j
 public class CustomerController {
 
     private final CustomerProfileService customerProfileService;

@@ -22,7 +22,14 @@ WHERE customer_id = (SELECT customer_id from app.customer WHERE email_address = 
 select *
 from app.customer_acknowledgement;
 
-select upload_id, customer_id, source_system, crm_system, crm_url, statistics, status, is_test
+select upload_id,
+       customer_id,
+       source_system,
+       crm_system,
+       crm_url,
+       statistics,
+       status,
+       is_test
 from app.crm_upload
 order by upload_id desc;
 
@@ -69,3 +76,8 @@ commit;
 
 SELECT *
 FROM app.kpi_open_products_revenue();
+
+update app.crm_upload
+set is_test= true
+where crm_url like '%demo%';
+commit;
