@@ -18,9 +18,10 @@ public class CrmUploadHistory extends CrmUploadCoreInfo {
             String crmSystem,
             String crmUrl,
             String crmCustomerId,
-            String status
+            String status,
+            boolean isTest
     ) {
-        super(sourceSystem, crmSystem, crmUrl, crmCustomerId);
+        super(sourceSystem, crmSystem, crmUrl, crmCustomerId, isTest);
         this.ts = ts;
         this.status = status;
     }

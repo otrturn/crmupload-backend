@@ -51,6 +51,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
     private static final String LITERAL_USER_ID = "user_id";
     private static final String LITERAL_ACTIVATION_DATE = "activation_date";
     private static final String LITERAL_ENABLED = "enabled";
+    private static final String LITERAL_IS_TEST = "is_test";
 
     private static final String LITERAL_NO_CUSTOMER_FOR_EMAIL = "No customer found for email '%s'";
     private static final String LITERAL_NO_CUSTOMER_FOR_CUSTOMER_ID = "No customer found for customerId '%s'";
@@ -133,7 +134,8 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
                 cu.crm_system      AS crm_system,
                 cu.crm_url         AS crm_url,
                 cu.crm_customer_id AS crm_customer_id,
-                cu.status          AS status
+                cu.status          AS status,
+                cu.is_test         AS is_tes
             FROM app.crm_upload cu
             JOIN app.customer c
               ON c.customer_id = cu.customer_id
@@ -141,21 +143,23 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
             ORDER BY cu.created DESC
             """;
 
-    private static final String SQL_FIND_LATEST_SUCCESSFUL_UPLOAD_BY_CUSTOMER_ID = """
-            SELECT source_system, crm_system, crm_url, crm_customer_id
+    private static final String SQL_FIND_LATEST_SUCCESSFUL_NO_TEST_UPLOAD_BY_CUSTOMER_ID = """
+            SELECT source_system, crm_system, crm_url, crm_customer_id, is_test
             FROM app.crm_upload
             WHERE customer_id = :customerId
               AND status = 'done'
+              AND is_test IS NOT TRUE
             ORDER BY modified DESC
             LIMIT 1
             """;
 
-    private static final String SQL_FIND_LATEST_SUCCESSFUL_UPLOAD_BY_EMAIL = """
-            SELECT cu.source_system, cu.crm_system, cu.crm_url, cu.crm_customer_id
+    private static final String SQL_FIND_LATEST_SUCCESSFUL_NO_TEST_UPLOAD_BY_EMAIL = """
+            SELECT cu.source_system, cu.crm_system, cu.crm_url, cu.crm_customer_id, is_test
             FROM app.crm_upload cu
             JOIN app.customer c ON c.customer_id = cu.customer_id
             WHERE c.email_address = :email
               AND cu.status = 'done'
+              AND is_test IS NOT TRUE
             ORDER BY cu.modified DESC
             LIMIT 1
             """;
@@ -621,18 +625,18 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
     @Override
     public List<CrmUploadHistory> findUploadHistoryByEmailAddress(String emailAddress) {
         MapSqlParameterSource params = new MapSqlParameterSource().addValue(LITERAL_EMAIL_ADDRESS, emailAddress);
-        return jdbc.query(SQL_FIND_UPLOAD_HISTORY_BY_EMAIL, params, (rs, rowNum) -> new CrmUploadHistory(rs.getTimestamp(LITERAL_TS), rs.getString(LITERAL_SOURCE_SYSTEM), rs.getString(LITERAL_CRM_SYSTEM), rs.getString(LITERAL_CRM_URL), rs.getString(LITERAL_CRM_CUSTOMER_ID), rs.getString(LITERAL_STATUS)));
+        return jdbc.query(SQL_FIND_UPLOAD_HISTORY_BY_EMAIL, params, (rs, rowNum) -> new CrmUploadHistory(rs.getTimestamp(LITERAL_TS), rs.getString(LITERAL_SOURCE_SYSTEM), rs.getString(LITERAL_CRM_SYSTEM), rs.getString(LITERAL_CRM_URL), rs.getString(LITERAL_CRM_CUSTOMER_ID), rs.getString(LITERAL_STATUS), rs.getBoolean(LITERAL_IS_TEST)));
     }
 
     public Optional<CrmUploadCoreInfo> findLatestUploadByCustomerId(long customerId) {
         Map<String, Object> params = Map.of(LITERAL_CUSTOMER_ID_CAMELCASE, customerId);
-        List<CrmUploadCoreInfo> list = jdbc.query(SQL_FIND_LATEST_SUCCESSFUL_UPLOAD_BY_CUSTOMER_ID, params, (rs, rowNum) -> new CrmUploadCoreInfo(rs.getString(LITERAL_SOURCE_SYSTEM), rs.getString(LITERAL_CRM_SYSTEM), rs.getString(LITERAL_CRM_URL), rs.getString(LITERAL_CRM_CUSTOMER_ID)));
+        List<CrmUploadCoreInfo> list = jdbc.query(SQL_FIND_LATEST_SUCCESSFUL_NO_TEST_UPLOAD_BY_CUSTOMER_ID, params, (rs, rowNum) -> new CrmUploadCoreInfo(rs.getString(LITERAL_SOURCE_SYSTEM), rs.getString(LITERAL_CRM_SYSTEM), rs.getString(LITERAL_CRM_URL), rs.getString(LITERAL_CRM_CUSTOMER_ID), rs.getBoolean(LITERAL_IS_TEST)));
         return list.stream().findFirst();
     }
 
     public Optional<CrmUploadCoreInfo> findLatestUploadByEmail(String email) {
         Map<String, Object> params = Map.of(LITERAL_EMAIL, email);
-        List<CrmUploadCoreInfo> list = jdbc.query(SQL_FIND_LATEST_SUCCESSFUL_UPLOAD_BY_EMAIL, params, (rs, rowNum) -> new CrmUploadCoreInfo(rs.getString(LITERAL_SOURCE_SYSTEM), rs.getString(LITERAL_CRM_SYSTEM), rs.getString(LITERAL_CRM_URL), rs.getString(LITERAL_CRM_CUSTOMER_ID)));
+        List<CrmUploadCoreInfo> list = jdbc.query(SQL_FIND_LATEST_SUCCESSFUL_NO_TEST_UPLOAD_BY_EMAIL, params, (rs, rowNum) -> new CrmUploadCoreInfo(rs.getString(LITERAL_SOURCE_SYSTEM), rs.getString(LITERAL_CRM_SYSTEM), rs.getString(LITERAL_CRM_URL), rs.getString(LITERAL_CRM_CUSTOMER_ID), rs.getBoolean(LITERAL_IS_TEST)));
         return list.stream().findFirst();
     }
 

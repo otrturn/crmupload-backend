@@ -22,11 +22,11 @@ WHERE customer_id = (SELECT customer_id from app.customer WHERE email_address = 
 select *
 from app.customer_acknowledgement;
 
-select upload_id, customer_id, source_system, crm_system, crm_url, statistics, status
+select upload_id, customer_id, source_system, crm_system, crm_url, statistics, status, is_test
 from app.crm_upload
 order by upload_id desc;
 
-select upload_id, customer_id, source_system, crm_system, status
+select upload_id, customer_id, source_system, crm_system, status, is_test
 from app.crm_upload_observation;
 
 select duplicate_check_id, customer_id, source_system, statistics, status

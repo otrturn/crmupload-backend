@@ -63,11 +63,13 @@ public class CrmUploadService {
                     customerId));
         }
 
+        boolean isTest = false;
+
         long uploadId = repository.nextUploadId();
         log.info(String.format("Generated uploadId=%d", uploadId));
 
         try {
-            repository.insertCrmUpload(new CrmUploadRequest(uploadId, customerId, sourceSystem, crmSystem, crmUrl, crmCustomerId, crmApiKey, file.getBytes()));
+            repository.insertCrmUpload(new CrmUploadRequest(uploadId, customerId, sourceSystem, crmSystem, crmUrl, crmCustomerId, crmApiKey, file.getBytes(), isTest));
         } catch (Exception ex) {
             log.error(String.format("processCrmUpload: Failed to insert customer upload: uploadId=%d, customerId=%d", uploadId, customerId), ex);
             throw new IllegalStateException("Upload failed: " + ex.getMessage(), ex);

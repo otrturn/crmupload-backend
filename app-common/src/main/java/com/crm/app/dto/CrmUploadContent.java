@@ -21,9 +21,10 @@ public class CrmUploadContent extends CrmUploadCoreInfo {
             String crmUrl,
             String crmCustomerId,
             String apiKey,
-            byte[] content
+            byte[] content,
+            boolean isTest
     ) {
-        super(sourceSystem, crmSystem, crmUrl, crmCustomerId);
+        super(sourceSystem, crmSystem, crmUrl, crmCustomerId, isTest);
         this.uploadId = uploadId;
         this.customerId = customerId;
         this.apiKey = apiKey;

@@ -25,13 +25,13 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
 
     private static final String SQL_INSERT_CRM_UPLOAD =
             "INSERT INTO app.crm_upload " +
-                    "(upload_id, customer_id, source_system, crm_system, crm_url, crm_customer_id, api_key, content, status) " +
-                    "VALUES (:uploadId, :customerId, :sourceSystem, :crmSystem, :crmUrl, :crmCustomerId, :apiKey, :content, :status)";
+                    "(upload_id, customer_id, source_system, crm_system, crm_url, crm_customer_id, api_key, content, status, is_test) " +
+                    "VALUES (:uploadId, :customerId, :sourceSystem, :crmSystem, :crmUrl, :crmCustomerId, :apiKey, :content, :status, :isTest)";
 
     private static final String SQL_INSERT_CRM_UPLOAD_OBSERVATION =
             "INSERT INTO app.crm_upload_observation " +
-                    "(upload_id, customer_id, source_system, crm_system, crm_url, crm_customer_id, api_key, content, status) " +
-                    "VALUES (:uploadId, :customerId, :sourceSystem, :crmSystem, :crmUrl, :crmCustomerId, :apiKey, :content, :status)";
+                    "(upload_id, customer_id, source_system, crm_system, crm_url, crm_customer_id, api_key, content, status, is_test) " +
+                    "VALUES (:uploadId, :customerId, :sourceSystem, :crmSystem, :crmUrl, :crmCustomerId, :apiKey, :content, :status, :isTest)";
 
     private static final String SQL_CLAIM_NEXT_CRM_UPLOADS = """
             UPDATE app.crm_upload cu
@@ -103,7 +103,8 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
                    crm_url,
                    crm_customer_id,
                    api_key,
-                   content
+                   content,
+                   is_test
               FROM app.crm_upload
              WHERE upload_id = ANY(ARRAY[:uploadIds])
             """;
@@ -144,6 +145,7 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
     private static final String LITERAL_ERROR = "error";
     private static final String LITERAL_LIMIT = "limit";
     private static final String LITERAL_STATISTICS = "statistics";
+    private static final String LITERAL_IS_TEST = "is_test";
 
     // camelCase-Parameter → *_CAMELCASE
     private static final String LITERAL_UPLOAD_ID_CAMELCASE = "uploadId";
@@ -154,6 +156,7 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
     private static final String LITERAL_CRM_CUSTOMER_ID_CAMELCASE = "crmCustomerId";
     private static final String LITERAL_API_KEY_CAMELCASE = "apiKey";
     private static final String LITERAL_UPLOAD_IDS_CAMELCASE = "uploadIds";
+    private static final String LITERAL_IS_TEST_CAMELCASE = "isTest";
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
 
@@ -197,7 +200,8 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
                 .addValue(LITERAL_CRM_URL_CAMELCASE, crmUploadRequest.getCrmUrl())
                 .addValue(LITERAL_API_KEY_CAMELCASE, crmUploadRequest.getApiKey())
                 .addValue(LITERAL_CONTENT, crmUploadRequest.getContent())
-                .addValue(LITERAL_STATUS, STATUS_CRM_UPLOAD_NEW);
+                .addValue(LITERAL_STATUS, STATUS_CRM_UPLOAD_NEW)
+                .addValue(LITERAL_IS_TEST_CAMELCASE, crmUploadRequest.isTest());
 
         try {
             final int affectedRows = jdbcTemplate.update(SQL_INSERT_CRM_UPLOAD, params);
@@ -285,7 +289,8 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
                             rs.getString(LITERAL_CRM_URL),
                             rs.getString(LITERAL_CRM_CUSTOMER_ID),
                             rs.getString(LITERAL_API_KEY),
-                            rs.getBytes(LITERAL_CONTENT)
+                            rs.getBytes(LITERAL_CONTENT),
+                            rs.getBoolean(LITERAL_IS_TEST)
                     )
             );
         } catch (DataAccessException ex) {
