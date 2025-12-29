@@ -87,9 +87,7 @@ public class JdbcDuplicateCheckRepositoryAdapter implements DuplicateCheckReposi
             UPDATE app.duplicate_check
                SET status = 'duplicate-checked',
                    content = :content,
-                   statistics =
-                       COALESCE(statistics, '{}'::jsonb)
-                       || COALESCE(NULLIF(:statistics, ''), '{}')::jsonb,
+                   statistics = COALESCE(NULLIF(:statistics, ''), '{}')::jsonb,
                    modified = now()
              WHERE duplicate_check_id = :duplicateCheckId
             """;
@@ -99,9 +97,7 @@ public class JdbcDuplicateCheckRepositoryAdapter implements DuplicateCheckReposi
                SET status = 'failed',
                    content = NULL,
                    last_error = :error,
-                   statistics =
-                       COALESCE(statistics, '{}'::jsonb)
-                       || COALESCE(NULLIF(:statistics, ''), '{}')::jsonb,
+                   statistics = COALESCE(NULLIF(:statistics, ''), '{}')::jsonb,
                    modified = now()
              WHERE duplicate_check_id = :duplicateCheckId
             """;
@@ -110,9 +106,7 @@ public class JdbcDuplicateCheckRepositoryAdapter implements DuplicateCheckReposi
             UPDATE app.duplicate_check
                SET status = 'failed',
                    last_error = :error,
-                   statistics =
-                       COALESCE(statistics, '{}'::jsonb)
-                       || COALESCE(NULLIF(:statistics, ''), '{}')::jsonb,
+                   statistics = COALESCE(NULLIF(:statistics, ''), '{}')::jsonb,
                    modified = now()
              WHERE duplicate_check_id = :duplicateCheckId
             """;

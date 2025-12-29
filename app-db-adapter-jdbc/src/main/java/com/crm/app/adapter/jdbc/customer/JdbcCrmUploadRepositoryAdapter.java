@@ -53,9 +53,7 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
                    content = NULL,
                    api_key = NULL,
                    last_error = NULL,
-                   statistics =
-                       COALESCE(statistics, '{}'::jsonb)
-                       || COALESCE(NULLIF(:statistics, ''), '{}')::jsonb,
+                   statistics = COALESCE(NULLIF(:statistics, ''), '{}')::jsonb,
                    modified = now()
              WHERE upload_id = :uploadId
             """;
@@ -64,12 +62,11 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
             UPDATE app.crm_upload
                SET status = 'done',
                    last_error = NULL,
-                   statistics =
-                       COALESCE(statistics, '{}'::jsonb)
-                       || COALESCE(NULLIF(:statistics, ''), '{}')::jsonb,
+                   statistics = COALESCE(NULLIF(:statistics, ''), '{}')::jsonb,
                    modified = now()
              WHERE upload_id = :uploadId
             """;
+
 
     private static final String SQL_MARK_CRM_UPLOAD_FAILED = """
             UPDATE app.crm_upload
@@ -77,12 +74,11 @@ public class JdbcCrmUploadRepositoryAdapter implements CrmUploadRepositoryPort {
                    content = NULL,
                    api_key = NULL,
                    last_error = :error,
-                   statistics =
-                       COALESCE(statistics, '{}'::jsonb)
-                       || COALESCE(NULLIF(:statistics, ''), '{}')::jsonb,
+                   statistics = COALESCE(NULLIF(:statistics, ''), '{}')::jsonb,
                    modified = now()
              WHERE upload_id = :uploadId
             """;
+
 
     private static final String SQL_MARK_CRM_UPLOAD_FAILED_KEEP_CONTENT = """
             UPDATE app.crm_upload
