@@ -20,6 +20,7 @@ import com.crmmacher.espo.storage_handler.add.error.EspoValidationException;
 import com.crmmacher.espo.storage_handler.get.GetAccountFromEspo;
 import com.crmmacher.espo.storage_handler.get.GetContactFromEspo;
 import com.crmmacher.espo.storage_handler.get.GetLeadFromEspo;
+import com.crmmacher.espo.storage_handler.sanity_check.SanityCheck;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import lombok.RequiredArgsConstructor;
@@ -57,6 +58,20 @@ public class UploadHandlingForEspo {
         baseCtx.setApiKey(upload.getApiKey());
 
         if (!ErrMsg.containsErrors(errors)) {
+            if (!new SanityCheck(baseCtx.getBaseUrl(), baseCtx.getApiKey()).checkForExternalReference()) {
+                uploadMailService.sendErrorMailForEspoSanityCheck(customer, upload);
+                return;
+            }
+        } else {
+            StatisticsError statisticsError = new StatisticsError();
+            statisticsError.setFromErrMsg(errors);
+            repository.markUploadFailed(upload.getUploadId(), "Validation failed", GSON.toJson(statisticsError));
+            WorkerUtil.markExcelFile(excelBytes, errors);
+            uploadMailService.sendErrorMailForEspo(customer, upload, errors, WorkerUtil.markExcelFile(excelBytes, errors));
+            return;
+        }
+
+        if (!ErrMsg.containsErrors(errors)) {
             try {
                 Instant start = Instant.now();
                 loadEspo(baseCtx, espoEntityPoolForLoad);
@@ -84,12 +99,6 @@ public class UploadHandlingForEspo {
                 String msg = "ESPO Handling failed[" + e.getMessage() + "]";
                 repository.markUploadFailed(upload.getUploadId(), msg, GSON.toJson(msg));
             }
-        } else {
-            StatisticsError statisticsError = new StatisticsError();
-            statisticsError.setFromErrMsg(errors);
-            repository.markUploadFailed(upload.getUploadId(), "Validation failed", GSON.toJson(statisticsError));
-            WorkerUtil.markExcelFile(excelBytes, errors);
-            uploadMailService.sendErrorMailForEspo(customer, upload, errors, WorkerUtil.markExcelFile(excelBytes, errors));
         }
     }
 

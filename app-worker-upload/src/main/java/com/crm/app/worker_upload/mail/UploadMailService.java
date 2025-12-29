@@ -26,28 +26,34 @@ public class UploadMailService {
     private static final String TIMEZONE = "Europe/Berlin";
     private final JavaMailSender mailSender;
 
+    private static final String LITERAL_FROM = "CRM-Upload <support@crmupload.de>";
+    private static final String LITERAL_REPLY_TO = "CRM-Upload Support <support@crmupload.de>";
+    private static final String LITERAL_UTF_8 = "UTF-8";
+    private static final String LITERAL_DATE_FORMAT = "dd.MM.yyyy";
+
+
     public void sendSuccessMailForEspo(Customer customer, CrmUploadContent upload, EspoEntityPool espoEntityPool, EspoEntityPool espoEntityPoolForIgnore) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, "UTF-8");
+            MimeMessageHelper helper = new MimeMessageHelper(message, LITERAL_UTF_8);
 
             helper.setTo(customer.emailAddress());
             helper.setSubject(
                     String.format(
-                            "Upload erfolgreich: %s → %s (Upload-ID %s)",
+                            "Upload erfolgreich: %s → %s (Upload-ID %d)",
                             upload.getSourceSystem(),
                             upload.getCrmSystem(),
                             upload.getUploadId()
                     )
             );
             helper.setText(bodySuccessForEspo(customer, upload.getUploadId(), upload.getSourceSystem(), upload.getCrmSystem(), espoEntityPool, espoEntityPoolForIgnore), false);
-            helper.setFrom("CRM-Upload <support@crmupload.de>");
-            helper.setReplyTo("CRM-Upload Support <support@crmupload.de>");
+            helper.setFrom(LITERAL_FROM);
+            helper.setReplyTo(LITERAL_REPLY_TO);
 
             mailSender.send(message);
             log.info(String.format("Upload-Success mail sent to %s", customer.emailAddress()));
         } catch (MessagingException e) {
-            log.error(String.format("Upload-Error mail to send activation mail to %s", customer.emailAddress()), e);
+            log.error(String.format("Failed mail to send Upload-Success mail to %s", customer.emailAddress()), e);
         }
     }
 
@@ -89,7 +95,7 @@ public class UploadMailService {
                 espoEntityPool.getContacts().size(), espoEntityPoolForIgnore.getContacts().size(),
                 uploadId,
                 DateTimeFormatter
-                        .ofPattern("dd.MM.yyyy")
+                        .ofPattern(LITERAL_DATE_FORMAT)
                         .withZone(ZoneId.systemDefault())
                         .format(Instant.now()));
     }
@@ -97,13 +103,13 @@ public class UploadMailService {
     public void sendErrorMailForEspo(Customer customer, CrmUploadContent upload, List<ErrMsg> errors, byte[] errorFile) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, LITERAL_UTF_8);
 
             helper.setTo(customer.emailAddress());
-            helper.setSubject(String.format("Ihre %s Daten müssen noch korrigiert werden", upload.getSourceSystem()));
+            helper.setSubject(String.format("Ihre %s Daten müssen noch korrigiert werden (Upload-ID %d)", upload.getSourceSystem(), upload.getUploadId()));
             helper.setText(bodyFailedForEspo(customer, upload.getUploadId(), Instant.now(), upload.getSourceSystem(), upload.getCrmSystem(), errors), false);
-            helper.setFrom("CRM-Upload <support@crmupload.de>");
-            helper.setReplyTo("CRM-Upload Support <support@crmupload.de>");
+            helper.setFrom(LITERAL_FROM);
+            helper.setReplyTo(LITERAL_REPLY_TO);
 
             helper.addAttachment(
                     String.format("Upload_Ergebnis_%s_%s.xlsx",
@@ -115,9 +121,9 @@ public class UploadMailService {
                     new ByteArrayResource(errorFile)
             );
             mailSender.send(message);
-            log.info(String.format("CorrectionMail mail sent to %s", customer.emailAddress()));
+            log.info(String.format("Upload-Error mail sent to %s", customer.emailAddress()));
         } catch (MessagingException e) {
-            log.error(String.format("Failed to send CorrectionMail mail to %s", customer.emailAddress()), e);
+            log.error(String.format("Failed to send Upload-Error mail to %s", customer.emailAddress()), e);
         }
     }
 
@@ -172,10 +178,70 @@ public class UploadMailService {
                 www.crmupload.de
                 """.formatted(uploadId,
                 DateTimeFormatter
-                        .ofPattern("dd.MM.yyyy")
+                        .ofPattern(LITERAL_DATE_FORMAT)
                         .withZone(ZoneId.systemDefault())
                         .format(uploadDate)));
 
         return sb.toString();
     }
+
+    public void sendErrorMailForEspoSanityCheck(Customer customer, CrmUploadContent upload) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, LITERAL_UTF_8);
+
+            helper.setTo(customer.emailAddress());
+            helper.setSubject(String.format("CRM-Upload von %s nicht möglich – technische Voraussetzungen nicht erfüllt (Upload-ID %d)",
+                    upload.getSourceSystem(),
+                    upload.getUploadId()));
+            helper.setText(bodyForSanityCheck(customer, upload.getUploadId(), Instant.now(), upload.getSourceSystem(), upload.getCrmSystem()), false);
+            helper.setFrom(LITERAL_FROM);
+            helper.setReplyTo(LITERAL_REPLY_TO);
+
+
+            mailSender.send(message);
+            log.info(String.format("Sanity-Check mail sent to %s", customer.emailAddress()));
+        } catch (MessagingException e) {
+            log.error(String.format("Failed to send Sanity-Check mail to %s", customer.emailAddress()), e);
+        }
+    }
+
+    private String bodyForSanityCheck(Customer customer, long uploadId, Instant uploadDate, String sourceSystem, String crmSystem) {
+
+        return """
+                Hallo %s,
+                Ihr %s-Export konnte noch nicht in das CRM %s übertragen werden.
+                Unsere automatische Systemprüfung hat ergeben, dass eine oder mehrere technische Voraussetzungen in Ihrem CRM nicht erfüllt sind.
+                
+                Der Upload wurde daher nicht durchgeführt, um fehlerhafte oder unvollständige Daten zu vermeiden.
+                
+                """.formatted(Customer.getFullname(customer), sourceSystem, crmSystem) +
+                """
+                        Upload-ID: %d
+                        Datum: %s
+                        
+                        ➡ Was jetzt zu tun ist
+                        
+                        Bitte wenden Sie sich an den Betreiber oder Administrator Ihres %s-Systems.
+                        Die erforderlichen technischen Voraussetzungen finden Sie hier:
+                        
+                        https://www.crmupload.de/hilfe
+                        
+                        Sollten Sie diesen Upload nicht selbst ausgelöst haben, ignorieren Sie diese E-Mail bitte
+                        und informieren Sie uns unter: support@crmupload.de
+                        
+                        Bei Fragen helfen wir Ihnen selbstverständlich gerne weiter.
+                        
+                        Viele Grüße
+                        Ihr CRM-Upload-Team
+                        support@crmupload.de
+                        www.crmupload.de
+                        """.formatted(uploadId,
+                        DateTimeFormatter
+                                .ofPattern(LITERAL_DATE_FORMAT)
+                                .withZone(ZoneId.systemDefault())
+                                .format(uploadDate),
+                        crmSystem);
+    }
+
 }
