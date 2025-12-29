@@ -197,8 +197,6 @@ public class UploadMailService {
             helper.setText(bodyForSanityCheck(customer, upload.getUploadId(), Instant.now(), upload.getSourceSystem(), upload.getCrmSystem()), false);
             helper.setFrom(LITERAL_FROM);
             helper.setReplyTo(LITERAL_REPLY_TO);
-
-
             mailSender.send(message);
             log.info(String.format("Sanity-Check mail sent to %s", customer.emailAddress()));
         } catch (MessagingException e) {
