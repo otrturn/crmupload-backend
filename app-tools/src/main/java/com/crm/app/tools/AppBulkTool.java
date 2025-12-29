@@ -7,7 +7,6 @@ import com.crm.app.tools.process.RegisterCustomers;
 import com.crm.app.tools.process.UploadCrmFile;
 import com.crm.app.tools.process.UploadDuplicateCheckFile;
 import com.crmmacher.bexio.tools.generator.process.BexioGenerateWorkbook;
-import com.crmmacher.lexware_excel.tools.generator.process.LexwareGenerateWorkbook;
 import com.crmmacher.lexware_excel.tools.generator.process.LexwareGenerateWorkbookDuplicateCheck;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

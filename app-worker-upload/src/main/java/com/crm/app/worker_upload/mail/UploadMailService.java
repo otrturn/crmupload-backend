@@ -2,6 +2,7 @@ package com.crm.app.worker_upload.mail;
 
 import com.crm.app.dto.CrmUploadContent;
 import com.crm.app.dto.Customer;
+import com.crm.app.worker_upload.dto.StatisticsErrorUploadEspo;
 import com.crmmacher.error.ErrMsg;
 import com.crmmacher.espo.dto.EspoEntityPool;
 import jakarta.mail.MessagingException;
@@ -100,14 +101,14 @@ public class UploadMailService {
                         .format(Instant.now()));
     }
 
-    public void sendErrorMailForEspo(Customer customer, CrmUploadContent upload, List<ErrMsg> errors, byte[] errorFile) {
+    public void sendExcelHasAlreadyErrorsMailForEspo(Customer customer, CrmUploadContent upload, List<ErrMsg> errors, byte[] errorFile) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, LITERAL_UTF_8);
 
             helper.setTo(customer.emailAddress());
             helper.setSubject(String.format("Ihre %s Daten müssen noch korrigiert werden (Upload-ID %d)", upload.getSourceSystem(), upload.getUploadId()));
-            helper.setText(bodyFailedForEspo(customer, upload.getUploadId(), Instant.now(), upload.getSourceSystem(), upload.getCrmSystem(), errors), false);
+            helper.setText(bodyFailedForExcelHasAlreadyErrors(customer, upload.getUploadId(), Instant.now(), upload.getSourceSystem(), upload.getCrmSystem(), errors), false);
             helper.setFrom(LITERAL_FROM);
             helper.setReplyTo(LITERAL_REPLY_TO);
 
@@ -121,17 +122,18 @@ public class UploadMailService {
                     new ByteArrayResource(errorFile)
             );
             mailSender.send(message);
-            log.info(String.format("Upload-Error mail sent to %s", customer.emailAddress()));
+            log.info(String.format("Upload-Error (ExcelHasAlreadyErrors) mail sent to %s", customer.emailAddress()));
         } catch (MessagingException e) {
-            log.error(String.format("Failed to send Upload-Error mail to %s", customer.emailAddress()), e);
+            log.error(String.format("Failed to send Upload-Error (ExcelHasAlreadyErrors) mail to %s", customer.emailAddress()), e);
         }
     }
 
-    private String bodyFailedForEspo(Customer customer, long uploadId, Instant uploadDate, String sourceSystem, String crmSystem, List<ErrMsg> errors) {
+    private String bodyFailedForExcelHasAlreadyErrors(Customer customer, long uploadId, Instant uploadDate, String sourceSystem, String crmSystem, List<ErrMsg> errors) {
         StringBuilder sb = new StringBuilder();
 
         sb.append("""
                 Hallo %s,
+                
                 Ihr %s-Export konnte noch nicht in das CRM %s übertragen werden,
                 weil in der Datei Pflichtangaben fehlen oder einzelne Werte ungültig sind.
                 Im Anhang finden Sie Ihre Exceldatei mit markierten Feldern sowie die notwendigen Korrekturen:
@@ -169,7 +171,7 @@ public class UploadMailService {
                 Der Anhang kann personenbezogene Daten enthalten. Bitte behandeln Sie die Datei vertraulich
                 und löschen Sie sie nach Abschluss der Korrektur.
                 
-                Falls Sie diesen Upload nicht selbst ausgelöst haben, ignorieren Sie diese E-Mail bitte
+                Sollten Sie diesen Upload nicht selbst ausgelöst haben, ignorieren Sie diese E-Mail bitte
                 und informieren Sie uns unter: support@crmupload.de
                 
                 Viele Grüße
@@ -208,6 +210,7 @@ public class UploadMailService {
 
         return """
                 Hallo %s,
+                
                 Ihr %s-Export konnte noch nicht in das CRM %s übertragen werden.
                 Unsere automatische Systemprüfung hat ergeben, dass eine oder mehrere technische Voraussetzungen in Ihrem CRM nicht erfüllt sind.
                 
@@ -240,6 +243,126 @@ public class UploadMailService {
                                 .withZone(ZoneId.systemDefault())
                                 .format(uploadDate),
                         crmSystem);
+    }
+
+    public void sendErrorMailForEspoUpload(Customer customer,
+                                           CrmUploadContent upload,
+                                           StatisticsErrorUploadEspo statistics) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, LITERAL_UTF_8);
+
+            helper.setTo(customer.emailAddress());
+            helper.setSubject(String.format(
+                    "Ihr %s-Export konnte nicht vollständig übertragen werden (Upload-ID %d)",
+                    upload.getSourceSystem(),
+                    upload.getUploadId()
+            ));
+            helper.setText(bodyFailedForEspoUpload(
+                    customer,
+                    upload.getUploadId(),
+                    Instant.now(),
+                    upload.getSourceSystem(),
+                    upload.getCrmSystem(),
+                    statistics
+            ), false);
+            helper.setFrom(LITERAL_FROM);
+            helper.setReplyTo(LITERAL_REPLY_TO);
+
+            mailSender.send(message);
+            log.info("Upload-Error (EspoError) mail sent to {}", customer.emailAddress());
+        } catch (MessagingException e) {
+            log.error("Failed to send Upload-Error (EspoError) mail to {}", customer.emailAddress(), e);
+        }
+    }
+
+    private String bodyFailedForEspoUpload(Customer customer,
+                                           long uploadId,
+                                           Instant uploadDate,
+                                           String sourceSystem,
+                                           String crmSystem,
+                                           StatisticsErrorUploadEspo s) {
+
+        String dateStr = DateTimeFormatter
+                .ofPattern(LITERAL_DATE_FORMAT)
+                .withZone(ZoneId.of(TIMEZONE))
+                .format(uploadDate);
+
+        String accountsSection = buildSection(
+                "Firmen",
+                s.getNAccountsMeantToBeAdded(),
+                s.getNAccountsAdded(),
+                s.getNAccountsRejected()
+        );
+
+        String contactsSection = buildSection(
+                "Kontakte",
+                s.getNContactsMeantToBeAdded(),
+                s.getNContactsAdded(),
+                s.getNContactsRejected()
+        );
+
+        return """
+                Hallo %s,
+                
+                Ihr %s-Export konnte leider nicht vollständig in Ihr CRM-System %s übertragen werden.
+                Während der Übertragung sind technische Fehler im CRM-System aufgetreten.
+                
+                Upload-ID: %d
+                Datum: %s
+                
+                Zusammenfassung der Übertragung
+                %s%s
+                ➡ Was Sie jetzt tun können
+                
+                Bitte wenden Sie sich an den Betreiber oder Administrator Ihres %s-Systems.
+                Dort können die technischen Voraussetzungen geprüft und ggf. angepasst werden.
+                
+                Eine Übersicht der erforderlichen Voraussetzungen finden Sie hier:
+                https://www.crmupload.de/hilfe
+                
+                Sollten Sie diesen Upload nicht selbst ausgelöst haben, ignorieren Sie diese E-Mail bitte
+                und informieren Sie uns unter: support@crmupload.de
+                
+                Viele Grüße
+                Ihr CRM-Upload-Team
+                support@crmupload.de
+                www.crmupload.de
+                """.formatted(
+                Customer.getFullname(customer),
+                sourceSystem,
+                crmSystem,
+                uploadId,
+                dateStr,
+                accountsSection,
+                contactsSection,
+                crmSystem
+        );
+    }
+
+    private static String buildSection(String title,
+                                       long meant,
+                                       long added,
+                                       long rejected) {
+
+        if (meant == 0 && added == 0 && rejected == 0) {
+            return "";
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("\n").append(title).append("\n");
+
+        if (meant > 0) {
+            sb.append(String.format("- Vorgesehen zur Übertragung: %d%n", meant));
+        }
+        if (added > 0) {
+            sb.append(String.format("- Erfolgreich übertragen:     %d%n", added));
+        }
+        if (rejected > 0) {
+            sb.append(String.format("- Vom CRM-System abgelehnt:   %d%n", rejected));
+        }
+
+        return sb.toString();
     }
 
 }

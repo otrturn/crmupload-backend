@@ -5,6 +5,7 @@ import com.crm.app.dto.Customer;
 import com.crm.app.port.customer.CrmUploadRepositoryPort;
 import com.crm.app.worker_common.dto.StatisticsError;
 import com.crm.app.worker_common.util.WorkerUtil;
+import com.crm.app.worker_upload.dto.StatisticsErrorUploadEspo;
 import com.crm.app.worker_upload.dto.StatisticsUploadEspo;
 import com.crm.app.worker_upload.error.EspoEntity;
 import com.crm.app.worker_upload.error.WorkerUploadException;
@@ -72,13 +73,13 @@ public class UploadHandlingForEspo {
             statisticsError.setFromErrMsg(errors);
             repository.markUploadFailed(upload.getUploadId(), "Validation failed", GSON.toJson(statisticsError));
             WorkerUtil.markExcelFile(excelBytes, errors);
-            uploadMailService.sendErrorMailForEspo(customer, upload, errors, WorkerUtil.markExcelFile(excelBytes, errors));
+            uploadMailService.sendExcelHasAlreadyErrorsMailForEspo(customer, upload, errors, WorkerUtil.markExcelFile(excelBytes, errors));
             return;
         }
 
         if (!ErrMsg.containsErrors(errors)) {
+            Instant start = Instant.now();
             try {
-                Instant start = Instant.now();
                 loadEspo(baseCtx, espoEntityPoolForLoad);
                 Duration durationEspoLoad = Duration.between(start, Instant.now());
 
@@ -98,11 +99,15 @@ public class UploadHandlingForEspo {
                 repository.markUploadDone(upload.getUploadId(), statisticsJson);
                 uploadMailService.sendSuccessMailForEspo(customer, upload, espoEntityPoolForAdd, espoEntityPoolForIgnore);
             } catch (EspoValidationException e) {
+                StatisticsErrorUploadEspo statisticsErrorUploadEspo = setErrorStatistics(espoEntityPoolForLoad, espoEntityPoolForReceived, espoEntityPoolForAdd, espoEntityPoolForIgnore);
+                uploadMailService.sendErrorMailForEspoUpload(customer, upload, statisticsErrorUploadEspo);
                 String msg = "ESPO Validation failed[" + e.getMessage() + "]";
-                repository.markUploadFailed(upload.getUploadId(), msg, GSON.toJson(msg));
+                repository.markUploadFailed(upload.getUploadId(), msg, GSON.toJson(statisticsErrorUploadEspo));
             } catch (Exception e) {
+                StatisticsErrorUploadEspo statisticsErrorUploadEspo = setErrorStatistics(espoEntityPoolForLoad, espoEntityPoolForReceived, espoEntityPoolForAdd, espoEntityPoolForIgnore);
+                uploadMailService.sendErrorMailForEspoUpload(customer, upload, statisticsErrorUploadEspo);
                 String msg = "ESPO Handling failed[" + e.getMessage() + "]";
-                repository.markUploadFailed(upload.getUploadId(), msg, GSON.toJson(msg));
+                repository.markUploadFailed(upload.getUploadId(), msg, GSON.toJson(statisticsErrorUploadEspo));
             }
         }
     }
@@ -204,6 +209,26 @@ public class UploadHandlingForEspo {
         statisticsUploadEspo.setNContactsIgnored(espoEntityPoolForIgnore.getContacts().size());
 
         return statisticsUploadEspo;
+    }
+
+    private StatisticsErrorUploadEspo setErrorStatistics(EspoEntityPool espoEntityPoolForLoad, EspoEntityPool espoEntityPoolForReceived, EspoEntityPool espoEntityPoolForAdd, EspoEntityPool espoEntityPoolForIgnore) {
+        StatisticsErrorUploadEspo statisticsErrorUploadEspo = new StatisticsErrorUploadEspo();
+
+        statisticsErrorUploadEspo.setNAccountsInCrm(espoEntityPoolForLoad.getAccounts().size());
+        statisticsErrorUploadEspo.setNAccountsReceived(espoEntityPoolForReceived.getAccounts().size());
+        statisticsErrorUploadEspo.setNAccountsMeantToBeAdded(espoEntityPoolForAdd.getAccounts().size());
+        statisticsErrorUploadEspo.setNAccountsAdded(espoEntityPoolForAdd.getAccounts().stream().filter(EspoAccount::isAddedToEspo).count());
+        statisticsErrorUploadEspo.setNAccountsRejected(espoEntityPoolForAdd.getAccounts().stream().filter(EspoAccount::isRejectedByEspo).count());
+        statisticsErrorUploadEspo.setNAccountsIgnored(espoEntityPoolForIgnore.getAccounts().size());
+
+        statisticsErrorUploadEspo.setNContactsInCrm(espoEntityPoolForLoad.getContacts().size());
+        statisticsErrorUploadEspo.setNContactsReceived(espoEntityPoolForReceived.getContacts().size());
+        statisticsErrorUploadEspo.setNContactsMeantToBeAdded(espoEntityPoolForAdd.getContacts().size());
+        statisticsErrorUploadEspo.setNContactsAdded(espoEntityPoolForAdd.getContacts().stream().filter(EspoContact::isAddedToEspo).count());
+        statisticsErrorUploadEspo.setNContactsRejected(espoEntityPoolForAdd.getContacts().stream().filter(EspoContact::isRejectedByEspo).count());
+        statisticsErrorUploadEspo.setNContactsIgnored(espoEntityPoolForIgnore.getContacts().size());
+
+        return statisticsErrorUploadEspo;
     }
 
 }
