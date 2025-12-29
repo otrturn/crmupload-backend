@@ -76,16 +76,25 @@ public class DuplicateCheckWorkerProcessForMyExcel {
                 String msg = String.format("[Account] Zeile %d: PLZ ist leer", i + 1);
                 errors.add(new ErrMsg(0, i, 0, "PLZ", msg));
             } else {
-                DuplicateCheckEntry duplicateCheckEntry = new DuplicateCheckEntry(
-                        myExcelEntry.getcExternalReference(),
-                        myExcelEntry.getName(),
-                        myExcelEntry.getBillingAddress().getPostcalCode(),
-                        myExcelEntry.getBillingAddress().getStreet(),
-                        myExcelEntry.getBillingAddress().getCity(),
-                        myExcelEntry.getBillingAddress().getCountry(),
-                        !myExcelEntry.getEmailAddressData().isEmpty() ? myExcelEntry.getEmailAddressData().get(0).getEmailAddress() : "",
-                        !myExcelEntry.getPhoneNumberData().isEmpty() ? myExcelEntry.getPhoneNumberData().get(0).getPhoneNumber() : ""
-                );
+                DuplicateCheckEntry duplicateCheckEntry = DuplicateCheckEntry.builder()
+                        .cExternalReference(myExcelEntry.getcExternalReference())
+                        .accountName(myExcelEntry.getName())
+                        .postalCode(myExcelEntry.getBillingAddress().getPostcalCode())
+                        .street(myExcelEntry.getBillingAddress().getStreet())
+                        .city(myExcelEntry.getBillingAddress().getCity())
+                        .country(myExcelEntry.getBillingAddress().getCountry())
+                        .emailAddress(
+                                !myExcelEntry.getEmailAddressData().isEmpty()
+                                        ? myExcelEntry.getEmailAddressData().get(0).getEmailAddress()
+                                        : ""
+                        )
+                        .phoneNumber(
+                                !myExcelEntry.getPhoneNumberData().isEmpty()
+                                        ? myExcelEntry.getPhoneNumberData().get(0).getPhoneNumber()
+                                        : ""
+                        )
+                        .build();
+
                 duplicateCheckEntries.add(duplicateCheckEntry);
             }
         }

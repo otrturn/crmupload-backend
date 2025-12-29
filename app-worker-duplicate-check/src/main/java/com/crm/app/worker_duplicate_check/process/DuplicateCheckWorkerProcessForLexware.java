@@ -76,16 +76,25 @@ public class DuplicateCheckWorkerProcessForLexware {
             LexwareEntry lexwareEntry = lexwareEntries.get(i);
             isSuccess = verifyEntry(indexMap, errors, lexwareEntry, i, isSuccess);
             if (isSuccess) {
-                DuplicateCheckEntry duplicateCheckEntry = new DuplicateCheckEntry(
-                        lexwareEntry.getcExternalReference(),
-                        lexwareEntry.getAccountName(),
-                        lexwareEntry.getAddress().getPostcalCode(),
-                        lexwareEntry.getAddress().getStreet(),
-                        lexwareEntry.getAddress().getCity(),
-                        lexwareEntry.getAddress().getCountry(),
-                        !lexwareEntry.getEmailAddressData().isEmpty() ? lexwareEntry.getEmailAddressData().get(0).getEmailAddress() : "",
-                        !lexwareEntry.getPhoneNumberData().isEmpty() ? lexwareEntry.getPhoneNumberData().get(0).getPhoneNumber() : ""
-                );
+                DuplicateCheckEntry duplicateCheckEntry = DuplicateCheckEntry.builder()
+                        .cExternalReference(lexwareEntry.getcExternalReference())
+                        .accountName(lexwareEntry.getAccountName())
+                        .postalCode(lexwareEntry.getAddress().getPostcalCode())
+                        .street(lexwareEntry.getAddress().getStreet())
+                        .city(lexwareEntry.getAddress().getCity())
+                        .country(lexwareEntry.getAddress().getCountry())
+                        .emailAddress(
+                                !lexwareEntry.getEmailAddressData().isEmpty()
+                                        ? lexwareEntry.getEmailAddressData().get(0).getEmailAddress()
+                                        : ""
+                        )
+                        .phoneNumber(
+                                !lexwareEntry.getPhoneNumberData().isEmpty()
+                                        ? lexwareEntry.getPhoneNumberData().get(0).getPhoneNumber()
+                                        : ""
+                        )
+                        .build();
+
                 duplicateCheckEntries.add(duplicateCheckEntry);
             }
         }

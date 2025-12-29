@@ -80,16 +80,24 @@ public class DuplicateCheckWorkerProcessForBexio {
                 String msg = String.format("[Account] Zeile %d: PLZ ist leer", i + 1);
                 errors.add(new ErrMsg(0, i, indexMap.get(BexioColumn.PLZ), BexioColumn.PLZ.name(), msg));
             } else {
-                DuplicateCheckEntry duplicateCheckEntry = new DuplicateCheckEntry(
-                        bexioEntry.getcExternalReference(),
-                        bexioEntry.getAccountName(),
-                        bexioEntry.getAddress().getPostcalCode(),
-                        bexioEntry.getAddress().getStreet(),
-                        bexioEntry.getAddress().getCity(),
-                        bexioEntry.getAddress().getCountry(),
-                        !bexioEntry.getEmailAddressData().isEmpty() ? bexioEntry.getEmailAddressData().get(0).getEmailAddress() : "",
-                        !bexioEntry.getPhoneNumberData().isEmpty() ? bexioEntry.getPhoneNumberData().get(0).getPhoneNumber() : ""
-                );
+                DuplicateCheckEntry duplicateCheckEntry = DuplicateCheckEntry.builder()
+                        .cExternalReference(bexioEntry.getcExternalReference())
+                        .accountName(bexioEntry.getAccountName())
+                        .postalCode(bexioEntry.getAddress().getPostcalCode())
+                        .street(bexioEntry.getAddress().getStreet())
+                        .city(bexioEntry.getAddress().getCity())
+                        .country(bexioEntry.getAddress().getCountry())
+                        .emailAddress(
+                                !bexioEntry.getEmailAddressData().isEmpty()
+                                        ? bexioEntry.getEmailAddressData().get(0).getEmailAddress()
+                                        : ""
+                        )
+                        .phoneNumber(
+                                !bexioEntry.getPhoneNumberData().isEmpty()
+                                        ? bexioEntry.getPhoneNumberData().get(0).getPhoneNumber()
+                                        : ""
+                        )
+                        .build();
                 duplicateCheckEntries.add(duplicateCheckEntry);
             }
         }
