@@ -27,6 +27,7 @@ select upload_id,
        source_system,
        crm_system,
        crm_url,
+       last_error,
        statistics,
        status,
        is_test

@@ -91,8 +91,8 @@ public class AppBulkTool implements CommandLineRunner, ExitCodeGenerator {
         int nFiles = 1;
         for (int i = 1; i <= nFiles; i++) {
             if (task.equals(TASK.TO_ESPO)) {
-                String filename = String.format("/home/ralf/espocrm-demo/generated/Lexware_Generated_%05d.xlsx", i);
-                LexwareGenerateWorkbook.createWorkbook(filename, 10, String.format("LW-%04d", i));
+                String filename = String.format("/home/ralf/espocrm-demo/generated/Lexware_Generated_Duplicate_Check_%05d.xlsx", i);
+                LexwareGenerateWorkbookDuplicateCheck.createWorkbook(filename, 100, String.format("LW-%04d", i));
                 uploadCrmFile.process(Paths.get(filename), 1, "Lexware", ESPO_CRM_LITERAL);
             } else if (task.equals(TASK.TO_DUPLICATE_CHECK)) {
                 String filename = String.format("/home/ralf/espocrm-demo/generated/Lexware_Generated_Duplicate_Check_%05d.xlsx", i);

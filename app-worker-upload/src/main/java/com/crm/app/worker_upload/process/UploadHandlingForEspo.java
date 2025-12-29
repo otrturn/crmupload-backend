@@ -6,6 +6,7 @@ import com.crm.app.port.customer.CrmUploadRepositoryPort;
 import com.crm.app.worker_common.dto.StatisticsError;
 import com.crm.app.worker_common.util.WorkerUtil;
 import com.crm.app.worker_upload.dto.StatisticsUploadEspo;
+import com.crm.app.worker_upload.error.EspoEntity;
 import com.crm.app.worker_upload.error.WorkerUploadException;
 import com.crm.app.worker_upload.mail.UploadMailService;
 import com.crmmacher.config.BaseCtx;
@@ -58,7 +59,11 @@ public class UploadHandlingForEspo {
         baseCtx.setApiKey(upload.getApiKey());
 
         if (!ErrMsg.containsErrors(errors)) {
-            if (!new SanityCheck(baseCtx.getBaseUrl(), baseCtx.getApiKey()).checkForExternalReference()) {
+            List<String> items = new SanityCheck(baseCtx.getBaseUrl(), baseCtx.getApiKey()).checkForExternalReference();
+            if (!items.isEmpty()) {
+                repository.markUploadFailed(upload.getUploadId(), "SanityCheck failed", GSON.toJson(items.stream()
+                        .map(EspoEntity::new)
+                        .toList()));
                 uploadMailService.sendErrorMailForEspoSanityCheck(customer, upload);
                 return;
             }
