@@ -70,17 +70,11 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
             start = Instant.now();
             Map<String, List<CompanyEmbedded>> emailDuplicates = emailAnalysis(companiesEmbedded);
             log.info("E-Mail duplicates");
-            emailDuplicates.forEach((email, companies) -> {
-                log.info("E-Mail: " + email);
-                companies.forEach(c ->
-                        log.info("  - " + c.getAccountName()+", "+c.getCExternalReference())
-                );
-            });
             log.info("Finished email analysis ...");
             duration = Duration.between(start, Instant.now());
             log.info(String.format(DURATION_FORMAT_STRING, duration.toHours(), duration.toMinutesPart(), duration.toSecondsPart()));
 
-            createResultWorkbook.create(duplicateCheckContent, companiesEmbedded);
+            createResultWorkbook.create(duplicateCheckContent, companiesEmbedded, emailDuplicates);
             Optional<Customer> customer = customerRepositoryPort.findCustomerByCustomerId(duplicateCheckContent.getCustomerId());
             if (customer.isPresent()) {
                 duplicateCheckRepositoryPort.markDuplicateCheckChecked(duplicateCheckContent.getDuplicateCheckId(), duplicateCheckContent.getContent(), GSON.toJson(setStatistics(companiesEmbedded)));
