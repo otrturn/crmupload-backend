@@ -4,6 +4,9 @@ import com.crm.app.dto.CrmUploadContent;
 import com.crm.app.dto.Customer;
 import com.crm.app.worker_upload.dto.StatisticsErrorUploadEspo;
 import com.crmmacher.error.ErrMsg;
+import com.crmmacher.espo.dto.EspoAccount;
+import com.crmmacher.espo.dto.EspoContact;
+import com.crmmacher.espo.dto.EspoEmailAddressData;
 import com.crmmacher.espo.dto.EspoEntityPool;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -18,6 +21,9 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -245,9 +251,10 @@ public class UploadMailService {
                         crmSystem);
     }
 
-    public void sendErrorMailForEspoUpload(Customer customer,
+    public void sendMailForEspoUploadError(Customer customer,
                                            CrmUploadContent upload,
-                                           StatisticsErrorUploadEspo statistics) {
+                                           StatisticsErrorUploadEspo statistics,
+                                           EspoEntityPool espoEntityPoolForAdd) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, LITERAL_UTF_8);
@@ -258,13 +265,14 @@ public class UploadMailService {
                     upload.getSourceSystem(),
                     upload.getUploadId()
             ));
-            helper.setText(bodyFailedForEspoUpload(
+            helper.setText(bodyForEspoUploadError(
                     customer,
                     upload.getUploadId(),
                     Instant.now(),
                     upload.getSourceSystem(),
                     upload.getCrmSystem(),
-                    statistics
+                    statistics,
+                    espoEntityPoolForAdd
             ), false);
             helper.setFrom(LITERAL_FROM);
             helper.setReplyTo(LITERAL_REPLY_TO);
@@ -276,12 +284,13 @@ public class UploadMailService {
         }
     }
 
-    private String bodyFailedForEspoUpload(Customer customer,
-                                           long uploadId,
-                                           Instant uploadDate,
-                                           String sourceSystem,
-                                           String crmSystem,
-                                           StatisticsErrorUploadEspo s) {
+    private String bodyForEspoUploadError(Customer customer,
+                                          long uploadId,
+                                          Instant uploadDate,
+                                          String sourceSystem,
+                                          String crmSystem,
+                                          StatisticsErrorUploadEspo s,
+                                          EspoEntityPool espoEntityPoolForAdd) {
 
         String dateStr = DateTimeFormatter
                 .ofPattern(LITERAL_DATE_FORMAT)
@@ -302,6 +311,8 @@ public class UploadMailService {
                 s.getNContactsRejected()
         );
 
+        String causeSection = buildCauseSection(espoEntityPoolForAdd);
+
         return """
                 Hallo %s,
                 
@@ -312,7 +323,7 @@ public class UploadMailService {
                 Datum: %s
                 
                 Zusammenfassung der Übertragung
-                %s%s
+                %s%s%s
                 ➡ Was Sie jetzt tun können
                 
                 Bitte wenden Sie sich an den Betreiber oder Administrator Ihres %s-Systems.
@@ -336,14 +347,15 @@ public class UploadMailService {
                 dateStr,
                 accountsSection,
                 contactsSection,
+                causeSection,
                 crmSystem
         );
     }
 
-    private static String buildSection(String title,
-                                       long meant,
-                                       long added,
-                                       long rejected) {
+    private String buildSection(String title,
+                                long meant,
+                                long added,
+                                long rejected) {
 
         if (meant == 0 && added == 0 && rejected == 0) {
             return "";
@@ -362,6 +374,40 @@ public class UploadMailService {
             sb.append(String.format("- Vom CRM-System abgelehnt:   %d%n", rejected));
         }
 
+        return sb.toString();
+    }
+
+    private String buildCauseSection(EspoEntityPool espoEntityPoolForAdd) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("\n");
+
+        Optional<EspoAccount> account = espoEntityPoolForAdd.getAccounts().stream().filter(EspoAccount::isRejectedByEspo).findFirst();
+        if (account.isPresent()) {
+            String emails = account.get().getEmailAddressData().stream()
+                    .map(EspoEmailAddressData::getEmailAddress)
+                    .filter(Objects::nonNull)
+                    .filter(s -> !s.isBlank())
+                    .distinct()
+                    .collect(Collectors.joining(", "));
+            sb.append("""
+                    Der Fehler trat auf bei Firma %s, E-Mail(s) %s.
+                    """.formatted(account.get().getName(), emails));
+
+        }
+
+        Optional<EspoContact> contact = espoEntityPoolForAdd.getContacts().stream().filter(EspoContact::isRejectedByEspo).findFirst();
+        if (contact.isPresent()) {
+            String emails = contact.get().getEmailAddressData().stream()
+                    .map(EspoEmailAddressData::getEmailAddress)
+                    .filter(Objects::nonNull)
+                    .filter(s -> !s.isBlank())
+                    .distinct()
+                    .collect(Collectors.joining(", "));
+            sb.append("""
+                    Der Fehler trat auf bei Kontakt %s, E-Mail(s) %s.
+                    """.formatted(contact.get().getFullname(), emails));
+
+        }
         return sb.toString();
     }
 

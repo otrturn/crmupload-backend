@@ -100,12 +100,12 @@ public class UploadHandlingForEspo {
                 uploadMailService.sendSuccessMailForEspo(customer, upload, espoEntityPoolForAdd, espoEntityPoolForIgnore);
             } catch (EspoValidationException e) {
                 StatisticsErrorUploadEspo statisticsErrorUploadEspo = setErrorStatistics(espoEntityPoolForLoad, espoEntityPoolForReceived, espoEntityPoolForAdd, espoEntityPoolForIgnore);
-                uploadMailService.sendErrorMailForEspoUpload(customer, upload, statisticsErrorUploadEspo);
+                uploadMailService.sendMailForEspoUploadError(customer, upload, statisticsErrorUploadEspo, espoEntityPoolForAdd);
                 String msg = "ESPO Validation failed[" + e.getMessage() + "]";
                 repository.markUploadFailed(upload.getUploadId(), msg, GSON.toJson(statisticsErrorUploadEspo));
             } catch (Exception e) {
                 StatisticsErrorUploadEspo statisticsErrorUploadEspo = setErrorStatistics(espoEntityPoolForLoad, espoEntityPoolForReceived, espoEntityPoolForAdd, espoEntityPoolForIgnore);
-                uploadMailService.sendErrorMailForEspoUpload(customer, upload, statisticsErrorUploadEspo);
+                uploadMailService.sendMailForEspoUploadError(customer, upload, statisticsErrorUploadEspo, espoEntityPoolForAdd);
                 String msg = "ESPO Handling failed[" + e.getMessage() + "]";
                 repository.markUploadFailed(upload.getUploadId(), msg, GSON.toJson(statisticsErrorUploadEspo));
             }
