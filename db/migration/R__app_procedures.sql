@@ -20,6 +20,7 @@ WITH price_map AS (SELECT 1 AS product_count, 250 AS price
                                          JOIN app.customer c
                                               ON c.customer_id = cp.customer_id
                                                   AND c.activation_date IS NOT NULL
+                                                  AND c.billable IS TRUE
                                 WHERE NOT EXISTS (SELECT 1
                                                   FROM app.customer_invoice ci
                                                   WHERE ci.customer_id = cp.customer_id
@@ -36,10 +37,8 @@ WITH price_map AS (SELECT 1 AS product_count, 250 AS price
                                   ON pm.product_count = cop.open_product_count)
 SELECT COALESCE(SUM(CASE WHEN product_count = 1 THEN 1 ELSE 0 END), 0)::bigint AS customers_1_product,
        COALESCE(SUM(CASE WHEN product_count = 2 THEN 1 ELSE 0 END), 0)::bigint AS customers_2_products,
-
        COALESCE(SUM(price) FILTER (WHERE product_count = 1), 0)::bigint        AS revenue_1_product,
        COALESCE(SUM(price) FILTER (WHERE product_count = 2), 0)::bigint        AS revenue_2_products,
-
        COALESCE(SUM(price), 0)::bigint                                         AS total_revenue
 FROM rated;
 $$;

@@ -49,6 +49,7 @@ CREATE TABLE IF NOT EXISTS app.customer
     city              TEXT        NOT NULL,
     country           TEXT        NOT NULL CHECK (country IN ('DE', 'AT', 'CH')),
     enabled           BOOLEAN     NOT NULL DEFAULT false,
+    billable          BOOLEAN     NOT NULL DEFAULT true,
     activation_date   TIMESTAMPTZ,
     under_observation BOOLEAN     NOT NULL DEFAULT false,
     created           TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -338,6 +339,7 @@ CREATE TABLE IF NOT EXISTS app.customer_invoice
     tax_amount           NUMERIC     NOT NULL,
     net_amount           NUMERIC     NOT NULL,
     amount               NUMERIC     NOT NULL,
+    cancelled            jsonb,
     created              TIMESTAMPTZ NOT NULL DEFAULT now(),
     modified             TIMESTAMPTZ NOT NULL DEFAULT now()
 );

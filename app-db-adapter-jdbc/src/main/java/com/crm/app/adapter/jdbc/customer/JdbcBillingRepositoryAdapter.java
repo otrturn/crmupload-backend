@@ -58,6 +58,7 @@ public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
                 JOIN app.customer c
                   ON c.customer_id = cp.customer_id
                  AND c.activation_date IS NOT NULL
+                 AND c.billable IS TRUE
                 WHERE NOT EXISTS (
                   SELECT 1
                   FROM app.customer_invoice ci
