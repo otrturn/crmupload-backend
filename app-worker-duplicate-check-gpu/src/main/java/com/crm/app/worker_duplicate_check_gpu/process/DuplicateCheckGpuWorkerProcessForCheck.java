@@ -28,9 +28,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -67,6 +66,20 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
             duration = Duration.between(start, Instant.now());
             log.info(String.format(DURATION_FORMAT_STRING, duration.toHours(), duration.toMinutesPart(), duration.toSecondsPart()));
 
+            log.info("Start email analysis ...");
+            start = Instant.now();
+            Map<String, List<CompanyEmbedded>> emailDuplicates = emailAnalysis(companiesEmbedded);
+            log.info("E-Mail duplicates");
+            emailDuplicates.forEach((email, companies) -> {
+                log.info("E-Mail: " + email);
+                companies.forEach(c ->
+                        log.info("  - " + c.getAccountName()+", "+c.getCExternalReference())
+                );
+            });
+            log.info("Finished email analysis ...");
+            duration = Duration.between(start, Instant.now());
+            log.info(String.format(DURATION_FORMAT_STRING, duration.toHours(), duration.toMinutesPart(), duration.toSecondsPart()));
+
             createResultWorkbook.create(duplicateCheckContent, companiesEmbedded);
             Optional<Customer> customer = customerRepositoryPort.findCustomerByCustomerId(duplicateCheckContent.getCustomerId());
             if (customer.isPresent()) {
@@ -97,6 +110,7 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
                 companyEmbedded.setCountry(getCellValue(row.getCell(WorkerUtil.IDX_COUNTRY)));
                 companyEmbedded.setEmailAddress(getCellValue(row.getCell(WorkerUtil.IDX_EMAIL_ADDRESS)));
                 companyEmbedded.setPhoneNumber(getCellValue(row.getCell(WorkerUtil.IDX_PHONE_NUMBER)));
+                companyEmbedded.setCExternalReference(getCellValue(row.getCell(WorkerUtil.IDX_EXTERNAL_REFERENCE)));
 
                 companyEmbedded.setVectorsAccountName(client.embedMany(List.of(companyEmbedded.getNormalisedAccountName())));
 
@@ -197,5 +211,35 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
         statisticsDuplicateCheck.setNAddressesPossible(possibleAddressMatches);
         statisticsDuplicateCheck.setNAddressesMatch(addressMatches);
         return statisticsDuplicateCheck;
+    }
+
+    private Map<String, List<CompanyEmbedded>> emailAnalysis(List<CompanyEmbedded> companiesEmbedded) {
+        if (companiesEmbedded == null || companiesEmbedded.isEmpty()) {
+            return Map.of();
+        }
+
+        Map<String, List<CompanyEmbedded>> grouped = companiesEmbedded.stream()
+                .filter(Objects::nonNull)
+                .filter(c -> c.getEmailAddress() != null)
+                .map(c -> new AbstractMap.SimpleEntry<>(normalizeEmail(c.getEmailAddress()), c))
+                .filter(e -> !e.getKey().isBlank())
+                .collect(Collectors.groupingBy(
+                        Map.Entry::getKey,
+                        LinkedHashMap::new,
+                        Collectors.mapping(Map.Entry::getValue, Collectors.toList())
+                ));
+
+        return grouped.entrySet().stream()
+                .filter(e -> e.getValue().size() > 1)
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (a, b) -> a,
+                        LinkedHashMap::new
+                ));
+    }
+
+    private static String normalizeEmail(String email) {
+        return email.trim().toLowerCase(Locale.ROOT);
     }
 }

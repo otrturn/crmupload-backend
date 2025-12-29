@@ -81,6 +81,7 @@ public class DuplicateCheckWorkerProcessForBexio {
                 errors.add(new ErrMsg(0, i, indexMap.get(BexioColumn.PLZ), BexioColumn.PLZ.name(), msg));
             } else {
                 DuplicateCheckEntry duplicateCheckEntry = new DuplicateCheckEntry(
+                        bexioEntry.getcExternalReference(),
                         bexioEntry.getAccountName(),
                         bexioEntry.getAddress().getPostcalCode(),
                         bexioEntry.getAddress().getStreet(),

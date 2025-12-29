@@ -24,6 +24,7 @@ public class WorkerUtil {
     public static final int IDX_COUNTRY = 4;
     public static final int IDX_EMAIL_ADDRESS = 5;
     public static final int IDX_PHONE_NUMBER = 6;
+    public static final int IDX_EXTERNAL_REFERENCE = 7;
 
     private WorkerUtil() {
     }
@@ -44,6 +45,7 @@ public class WorkerUtil {
                 row.createCell(IDX_COUNTRY, CellType.STRING).setCellValue(duplicateCheckEntry.getCountry());
                 row.createCell(IDX_EMAIL_ADDRESS, CellType.STRING).setCellValue(duplicateCheckEntry.getEmailAddress());
                 row.createCell(IDX_PHONE_NUMBER, CellType.STRING).setCellValue(duplicateCheckEntry.getPhoneNumber());
+                row.createCell(IDX_EXTERNAL_REFERENCE, CellType.STRING).setCellValue(duplicateCheckEntry.getCExternalReference());
                 i++;
             }
             workbook.write(bos);

@@ -77,6 +77,7 @@ public class DuplicateCheckWorkerProcessForLexware {
             isSuccess = verifyEntry(indexMap, errors, lexwareEntry, i, isSuccess);
             if (isSuccess) {
                 DuplicateCheckEntry duplicateCheckEntry = new DuplicateCheckEntry(
+                        lexwareEntry.getcExternalReference(),
                         lexwareEntry.getAccountName(),
                         lexwareEntry.getAddress().getPostcalCode(),
                         lexwareEntry.getAddress().getStreet(),

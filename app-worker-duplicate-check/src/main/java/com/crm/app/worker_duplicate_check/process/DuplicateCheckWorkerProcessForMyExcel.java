@@ -77,6 +77,7 @@ public class DuplicateCheckWorkerProcessForMyExcel {
                 errors.add(new ErrMsg(0, i, 0, "PLZ", msg));
             } else {
                 DuplicateCheckEntry duplicateCheckEntry = new DuplicateCheckEntry(
+                        myExcelEntry.getcExternalReference(),
                         myExcelEntry.getName(),
                         myExcelEntry.getBillingAddress().getPostcalCode(),
                         myExcelEntry.getBillingAddress().getStreet(),

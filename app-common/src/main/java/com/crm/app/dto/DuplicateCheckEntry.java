@@ -8,6 +8,7 @@ import lombok.Setter;
 @Setter
 @RequiredArgsConstructor
 public class DuplicateCheckEntry {
+    private String cExternalReference;
     private String accountName;
     private String postalCode;
     private String street;
@@ -16,7 +17,8 @@ public class DuplicateCheckEntry {
     private String emailAddress;
     private String phoneNumber;
 
-    public DuplicateCheckEntry(String accountName, String postalCode, String street, String city, String country, String emailAddress, String phoneNumber) {
+    public DuplicateCheckEntry(String cExternalReference, String accountName, String postalCode, String street, String city, String country, String emailAddress, String phoneNumber) {
+        this.cExternalReference = cExternalReference;
         this.accountName = accountName;
         this.postalCode = postalCode;
         this.street = street;
