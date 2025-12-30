@@ -2,7 +2,9 @@ package com.crm.app.worker_duplicate_check.mail;
 
 import com.crm.app.dto.Customer;
 import com.crm.app.dto.DuplicateCheckContent;
+import com.crm.app.worker_common.dto.StatisticsDuplicateCheck;
 import com.crmmacher.error.ErrMsg;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -23,12 +25,22 @@ import java.util.List;
 public class DuplicatecheckMailService {
 
     private final JavaMailSender mailSender;
+    private final ObjectMapper objectMapper;
 
     private static final String TIMEZONE = "Europe/Berlin";
     private static final String DATE_FORMAT = "dd.MM.yyyy";
 
     public void sendSuccessMail(Customer customer, DuplicateCheckContent duplicateCheckContent, byte[] resultFile) {
+        StatisticsDuplicateCheck statistics = null;
         try {
+            log.info("Stat=[" + duplicateCheckContent.getStatistics() + "]");
+            statistics = objectMapper.readValue(duplicateCheckContent.getStatistics(), StatisticsDuplicateCheck.class);
+        } catch (Exception e) {
+            log.error(String.format("ObjectMapper error mail to send duplicate-check success mail to %s", customer.emailAddress()), e);
+        }
+
+        try {
+
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
@@ -41,7 +53,7 @@ public class DuplicatecheckMailService {
                             .withZone(ZoneId.of(TIMEZONE))
                             .format(Instant.now())
             ));
-            helper.setText(bodySuccess(customer, duplicateCheckContent), false);
+            helper.setText(bodySuccess(customer, duplicateCheckContent, statistics), false);
             helper.setFrom("CRM-Upload <support@crmupload.de>");
             helper.setReplyTo("CRM-Upload Support <support@crmupload.de>");
 
@@ -57,7 +69,7 @@ public class DuplicatecheckMailService {
             mailSender.send(message);
             log.info(String.format("Duplicate check success mail sent to %s", customer.emailAddress()));
         } catch (MessagingException e) {
-            log.error(String.format("Duplicate check error mail to send activation mail to %s", customer.emailAddress()), e);
+            log.error(String.format("Duplicate check error mail to send duplicate-check success to %s", customer.emailAddress()), e);
         }
     }
 
@@ -154,10 +166,15 @@ public class DuplicatecheckMailService {
         return sb.toString();
     }
 
-    private String bodySuccess(Customer customer, DuplicateCheckContent content) {
+    private String bodySuccess(Customer customer,
+                               DuplicateCheckContent content,
+                               StatisticsDuplicateCheck statistics) {
+
         String date = DateTimeFormatter.ofPattern(DATE_FORMAT)
                 .withZone(ZoneId.of(TIMEZONE))
                 .format(Instant.now());
+
+        String statisticsText = statisticsBlock(statistics);
 
         return """
                 Hallo %s,
@@ -167,7 +184,7 @@ public class DuplicatecheckMailService {
                 
                 Prüf-ID: %s
                 Datum: %s
-                
+                %s
                 Hinweis zum Datenschutz:
                 Der Anhang kann personenbezogene Daten enthalten. Bitte behandeln Sie die Datei vertraulich
                 und löschen Sie sie nach Abschluss der Prüfung.
@@ -183,7 +200,49 @@ public class DuplicatecheckMailService {
                 Customer.getFullname(customer),
                 content.getSourceSystem(),
                 content.getDuplicateCheckId(),
-                date
+                date,
+                statisticsText
         );
+    }
+
+
+    private String statisticsBlock(StatisticsDuplicateCheck s) {
+        StringBuilder sb = new StringBuilder();
+
+        if (s.getNEntries() > 0) {
+            sb.append("• Verarbeitete Einträge: ")
+                    .append(s.getNEntries())
+                    .append("\n");
+        }
+        if (s.getNDuplicateAccountNames() > 0) {
+            sb.append("• Wahrscheinliche Dubletten bei Firmennamen: ")
+                    .append(s.getNDuplicateAccountNames())
+                    .append("\n");
+        }
+        if (s.getNAddressMatchesProbable() > 0) {
+            sb.append("• Wahrscheinlich übereinstimmende Adressen: ")
+                    .append(s.getNAddressMatchesProbable())
+                    .append("\n");
+        }
+        if (s.getNAddressMatchesPossible() > 0) {
+            sb.append("• Möglicherweise übereinstimmende Adressen: ")
+                    .append(s.getNAddressMatchesPossible())
+                    .append("\n");
+        }
+        if (s.getNEmailMatches() > 0) {
+            sb.append("• Mehrfach verwendete E-Mail-Adressen: ")
+                    .append(s.getNEmailMatches())
+                    .append("\n");
+        }
+
+        if (sb.isEmpty()) {
+            return "";
+        }
+
+        return """
+                
+                Zusammenfassung der Prüfung:
+                %s
+                """.formatted(sb.toString());
     }
 }

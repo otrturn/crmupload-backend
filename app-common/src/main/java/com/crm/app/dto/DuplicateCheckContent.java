@@ -15,6 +15,7 @@ public class DuplicateCheckContent {
     private long customerId;
     private String sourceSystem;
     private byte[] content;
+    private String statistics;
 
     public DuplicateCheckContent(
             long duplicateCheckId,
@@ -26,6 +27,20 @@ public class DuplicateCheckContent {
         this.customerId = customerId;
         this.sourceSystem = sourceSystem;
         this.content = content;
+    }
+
+    public DuplicateCheckContent(
+            long duplicateCheckId,
+            long customerId,
+            String sourceSystem,
+            byte[] content,
+            String statistics
+    ) {
+        this.duplicateCheckId = duplicateCheckId;
+        this.customerId = customerId;
+        this.sourceSystem = sourceSystem;
+        this.content = content;
+        this.statistics = statistics;
     }
 
     @Override

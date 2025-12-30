@@ -8,7 +8,10 @@ import com.crm.app.util.AccountNameEmbeddingNormalizer;
 import com.crm.app.util.EmbeddingUtils;
 import com.crm.app.worker_common.util.WorkerUtil;
 import com.crm.app.worker_duplicate_check_gpu.config.DuplicateCheckGpuProperties;
-import com.crm.app.worker_duplicate_check_gpu.dto.*;
+import com.crm.app.worker_duplicate_check_gpu.dto.AddressMatchCategory;
+import com.crm.app.worker_duplicate_check_gpu.dto.CompanyEmbedded;
+import com.crm.app.worker_duplicate_check_gpu.dto.EmbeddingMatchType;
+import com.crm.app.worker_duplicate_check_gpu.dto.SimilarCompany;
 import com.crm.app.worker_duplicate_check_gpu.error.WorkerDuplicateCheckGpuEmbeddingException;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -179,8 +182,8 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
         return cell != null ? cell.getStringCellValue() : "";
     }
 
-    private StatisticsDuplicateCheck setStatistics(List<CompanyEmbedded> companiesEmbedded, Map<String, List<CompanyEmbedded>> emailDuplicates) {
-        StatisticsDuplicateCheck statisticsDuplicateCheck = new StatisticsDuplicateCheck();
+    private com.crm.app.worker_common.dto.StatisticsDuplicateCheck setStatistics(List<CompanyEmbedded> companiesEmbedded, Map<String, List<CompanyEmbedded>> emailDuplicates) {
+        com.crm.app.worker_common.dto.StatisticsDuplicateCheck statisticsDuplicateCheck = new com.crm.app.worker_common.dto.StatisticsDuplicateCheck();
         statisticsDuplicateCheck.setNEntries(companiesEmbedded.size());
         long accountNameMatches = 0;
         long nAddressMatchesPossible = 0;

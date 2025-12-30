@@ -131,7 +131,8 @@ public class JdbcDuplicateCheckRepositoryAdapter implements DuplicateCheckReposi
             SELECT duplicate_check_id,
                    customer_id,
                    source_system,
-                   content
+                   content,
+                   statistics::text AS statistics
               FROM app.duplicate_check
              WHERE duplicate_check_id = ANY(ARRAY[:duplicateCheckIds])
             """;
@@ -336,7 +337,8 @@ public class JdbcDuplicateCheckRepositoryAdapter implements DuplicateCheckReposi
                             rs.getLong(LITERAL_DUPLICATE_CHECK_ID),
                             rs.getLong(LITERAL_CUSTOMER_ID),
                             rs.getString(LITERAL_SOURCE_SYSTEM),
-                            rs.getBytes(LITERAL_CONTENT)
+                            rs.getBytes(LITERAL_CONTENT),
+                            rs.getString(LITERAL_STATISTICS)
                     )
             );
         } catch (DataAccessException ex) {

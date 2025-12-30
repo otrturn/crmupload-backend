@@ -212,80 +212,75 @@ public class CreateResultWorkbook {
         Cell cell;
         int rowIdx;
         Sheet sheet;
-        /*
-         * Duplicates email
-         */
-        if (emailDuplicates != null && !emailDuplicates.isEmpty()) {
 
-            XSSFCellStyle cellStyleHeaderCell = (XSSFCellStyle) workbook.createCellStyle();
-            cellStyleHeaderCell.setFillForegroundColor(IndexedColors.GOLD.index);
-            cellStyleHeaderCell.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        XSSFCellStyle cellStyleHeaderCell = (XSSFCellStyle) workbook.createCellStyle();
+        cellStyleHeaderCell.setFillForegroundColor(IndexedColors.GOLD.index);
+        cellStyleHeaderCell.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
-            sheet = workbook.createSheet("E-Mail Dubletten");
-            rowIdx = 0;
+        sheet = workbook.createSheet("E-Mail Dubletten");
+        rowIdx = 0;
+
+        row = sheet.createRow(rowIdx);
+
+        cell = row.createCell(0, CellType.STRING);
+        cell.setCellValue("E-Mail Adresse");
+        cell.setCellStyle(cellStyleHeaderCell);
+
+        cell = row.createCell(1, CellType.STRING);
+        cell.setCellValue("Firmenname");
+        cell.setCellStyle(cellStyleHeaderCell);
+
+        cell = row.createCell(2, CellType.STRING);
+        cell.setCellValue("Kundennummer");
+        cell.setCellStyle(cellStyleHeaderCell);
+
+        cell = row.createCell(3, CellType.STRING);
+        cell.setCellValue("PLZ");
+        cell.setCellStyle(cellStyleHeaderCell);
+
+        cell = row.createCell(4, CellType.STRING);
+        cell.setCellValue("Strasse");
+        cell.setCellStyle(cellStyleHeaderCell);
+
+        cell = row.createCell(5, CellType.STRING);
+        cell.setCellValue("Ort");
+        cell.setCellStyle(cellStyleHeaderCell);
+
+        cell = row.createCell(6, CellType.STRING);
+        cell.setCellValue("Land");
+        cell.setCellStyle(cellStyleHeaderCell);
+
+        rowIdx++;
+
+        for (Map.Entry<String, List<CompanyEmbedded>> entry : emailDuplicates.entrySet()) {
+            String email = entry.getKey();
+            List<CompanyEmbedded> companies = entry.getValue();
 
             row = sheet.createRow(rowIdx);
-
             cell = row.createCell(0, CellType.STRING);
-            cell.setCellValue("E-Mail Adresse");
-            cell.setCellStyle(cellStyleHeaderCell);
+            cell.setCellValue(email);
 
-            cell = row.createCell(1, CellType.STRING);
-            cell.setCellValue("Firmenname");
-            cell.setCellStyle(cellStyleHeaderCell);
+            for (CompanyEmbedded company : companies) {
+                cell = row.createCell(1, CellType.STRING);
+                cell.setCellValue(company.getAccountName());
 
-            cell = row.createCell(2, CellType.STRING);
-            cell.setCellValue("Kundennummer");
-            cell.setCellStyle(cellStyleHeaderCell);
+                cell = row.createCell(2, CellType.STRING);
+                cell.setCellValue(company.getCExternalReference());
 
-            cell = row.createCell(3, CellType.STRING);
-            cell.setCellValue("PLZ");
-            cell.setCellStyle(cellStyleHeaderCell);
+                cell = row.createCell(3, CellType.STRING);
+                cell.setCellValue(company.getPostalCode());
 
-            cell = row.createCell(4, CellType.STRING);
-            cell.setCellValue("Strasse");
-            cell.setCellStyle(cellStyleHeaderCell);
+                cell = row.createCell(4, CellType.STRING);
+                cell.setCellValue(company.getStreet());
 
-            cell = row.createCell(5, CellType.STRING);
-            cell.setCellValue("Ort");
-            cell.setCellStyle(cellStyleHeaderCell);
+                cell = row.createCell(5, CellType.STRING);
+                cell.setCellValue(company.getCity());
 
-            cell = row.createCell(6, CellType.STRING);
-            cell.setCellValue("Land");
-            cell.setCellStyle(cellStyleHeaderCell);
+                cell = row.createCell(6, CellType.STRING);
+                cell.setCellValue(company.getCountry());
 
-            rowIdx++;
-
-            for (Map.Entry<String, List<CompanyEmbedded>> entry : emailDuplicates.entrySet()) {
-                String email = entry.getKey();
-                List<CompanyEmbedded> companies = entry.getValue();
-
+                rowIdx++;
                 row = sheet.createRow(rowIdx);
-                cell = row.createCell(0, CellType.STRING);
-                cell.setCellValue(email);
-
-                for (CompanyEmbedded company : companies) {
-                    cell = row.createCell(1, CellType.STRING);
-                    cell.setCellValue(company.getAccountName());
-
-                    cell = row.createCell(2, CellType.STRING);
-                    cell.setCellValue(company.getCExternalReference());
-
-                    cell = row.createCell(3, CellType.STRING);
-                    cell.setCellValue(company.getPostalCode());
-
-                    cell = row.createCell(4, CellType.STRING);
-                    cell.setCellValue(company.getStreet());
-
-                    cell = row.createCell(5, CellType.STRING);
-                    cell.setCellValue(company.getCity());
-
-                    cell = row.createCell(6, CellType.STRING);
-                    cell.setCellValue(company.getCountry());
-
-                    rowIdx++;
-                    row = sheet.createRow(rowIdx);
-                }
             }
         }
     }
