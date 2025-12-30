@@ -219,6 +219,22 @@ public class CreateResultWorkbook {
             cell.setCellStyle(cellStyleHeaderCell);
 
             cell = row.createCell(2, CellType.STRING);
+            cell.setCellValue("PLZ");
+            cell.setCellStyle(cellStyleHeaderCell);
+
+            cell = row.createCell(3, CellType.STRING);
+            cell.setCellValue("Strasse");
+            cell.setCellStyle(cellStyleHeaderCell);
+
+            cell = row.createCell(4, CellType.STRING);
+            cell.setCellValue("Ort");
+            cell.setCellStyle(cellStyleHeaderCell);
+
+            cell = row.createCell(5, CellType.STRING);
+            cell.setCellValue("Land");
+            cell.setCellStyle(cellStyleHeaderCell);
+
+            cell = row.createCell(6, CellType.STRING);
             cell.setCellValue("Kundennummer");
             cell.setCellStyle(cellStyleHeaderCell);
 
@@ -235,7 +251,20 @@ public class CreateResultWorkbook {
                 for (CompanyEmbedded company : companies) {
                     cell = row.createCell(1, CellType.STRING);
                     cell.setCellValue(company.getAccountName());
+
                     cell = row.createCell(2, CellType.STRING);
+                    cell.setCellValue(company.getPostalCode());
+
+                    cell = row.createCell(3, CellType.STRING);
+                    cell.setCellValue(company.getStreet());
+
+                    cell = row.createCell(4, CellType.STRING);
+                    cell.setCellValue(company.getCity());
+
+                    cell = row.createCell(5, CellType.STRING);
+                    cell.setCellValue(company.getCountry());
+
+                    cell = row.createCell(6, CellType.STRING);
                     cell.setCellValue(company.getCExternalReference());
                     rowIdx++;
                     row = sheet.createRow(rowIdx);
