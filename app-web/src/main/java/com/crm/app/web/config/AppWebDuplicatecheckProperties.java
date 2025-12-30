@@ -8,6 +8,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Getter
 @Setter
 public class AppWebDuplicatecheckProperties {
+    /*
+     *    volumes:
+            - /opt/crmupload-deploy/downloads:/data/generated:ro
+     */
     private String excelSampleFile;
     private String excelSampleFileAnswer;
 }

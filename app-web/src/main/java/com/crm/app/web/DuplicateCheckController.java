@@ -46,7 +46,7 @@ public class DuplicateCheckController {
         Path path = Paths.get(appWebDuplicatecheckProperties.getExcelSampleFile());
         Resource resource = new UrlResource(path.toUri());
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"dubletten-pruefung-beispiel.xlsx\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"dubletten-pruefung-lexware-beispiel.xlsx\"")
                 .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
                 .body(resource);
     }
@@ -56,7 +56,7 @@ public class DuplicateCheckController {
         Path path = Paths.get(appWebDuplicatecheckProperties.getExcelSampleFileAnswer());
         Resource resource = new UrlResource(path.toUri());
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"dubletten-pruefung-antwort.xlsx\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"dubletten-pruefung-lexware-antwort.xlsx\"")
                 .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
                 .body(resource);
     }
