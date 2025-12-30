@@ -8,6 +8,7 @@ import lombok.Setter;
 public class StatisticsDuplicateCheck {
     long nEntries = 0;
     long nDuplicateAccountNames = 0;
-    long nAddressesMatch = 0;
-    long nAddressesPossible = 0;
+    long nAddressMatchesProbable = 0;
+    long nAddressMatchesPossible = 0;
+    long nEmailMatches = 0;
 }

@@ -77,7 +77,7 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
             createResultWorkbook.create(duplicateCheckContent, companiesEmbedded, emailDuplicates);
             Optional<Customer> customer = customerRepositoryPort.findCustomerByCustomerId(duplicateCheckContent.getCustomerId());
             if (customer.isPresent()) {
-                duplicateCheckRepositoryPort.markDuplicateCheckChecked(duplicateCheckContent.getDuplicateCheckId(), duplicateCheckContent.getContent(), GSON.toJson(setStatistics(companiesEmbedded)));
+                duplicateCheckRepositoryPort.markDuplicateCheckChecked(duplicateCheckContent.getDuplicateCheckId(), duplicateCheckContent.getContent(), GSON.toJson(setStatistics(companiesEmbedded, emailDuplicates)));
             } else {
                 log.error(String.format("Customer not found for customerId=%d", duplicateCheckContent.getCustomerId()));
             }
@@ -179,12 +179,12 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
         return cell != null ? cell.getStringCellValue() : "";
     }
 
-    private StatisticsDuplicateCheck setStatistics(List<CompanyEmbedded> companiesEmbedded) {
+    private StatisticsDuplicateCheck setStatistics(List<CompanyEmbedded> companiesEmbedded, Map<String, List<CompanyEmbedded>> emailDuplicates) {
         StatisticsDuplicateCheck statisticsDuplicateCheck = new StatisticsDuplicateCheck();
         statisticsDuplicateCheck.setNEntries(companiesEmbedded.size());
         long accountNameMatches = 0;
-        long possibleAddressMatches = 0;
-        long addressMatches = 0;
+        long nAddressMatchesPossible = 0;
+        long nAddressMatchesProbable = 0;
 
         for (CompanyEmbedded company : companiesEmbedded) {
             for (SimilarCompany similar : company.getSimilarCompanies()) {
@@ -195,15 +195,16 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
                 }
 
                 if (mt.getAddressMatchCategory() == AddressMatchCategory.POSSIBLE) {
-                    possibleAddressMatches++;
+                    nAddressMatchesPossible++;
                 } else if (mt.getAddressMatchCategory() == AddressMatchCategory.MATCH) {
-                    addressMatches++;
+                    nAddressMatchesProbable++;
                 }
             }
         }
         statisticsDuplicateCheck.setNDuplicateAccountNames(accountNameMatches);
-        statisticsDuplicateCheck.setNAddressesPossible(possibleAddressMatches);
-        statisticsDuplicateCheck.setNAddressesMatch(addressMatches);
+        statisticsDuplicateCheck.setNAddressMatchesPossible(nAddressMatchesPossible);
+        statisticsDuplicateCheck.setNAddressMatchesProbable(nAddressMatchesProbable);
+        statisticsDuplicateCheck.setNEmailMatches(emailDuplicates.size());
         return statisticsDuplicateCheck;
     }
 
