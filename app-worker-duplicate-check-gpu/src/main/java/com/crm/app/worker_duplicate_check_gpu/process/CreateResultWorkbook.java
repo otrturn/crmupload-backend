@@ -43,6 +43,9 @@ public class CreateResultWorkbook {
         }
     }
 
+    /****************************************************************************************************
+     * Account name and address
+     ****************************************************************************************************/
     private void duplicateAccountNameAndAddresses(List<CompanyEmbedded> companiesEmbedded, Workbook workbook) {
         byte[] ocker = new byte[]{
                 (byte) 0xFF,
@@ -90,26 +93,30 @@ public class CreateResultWorkbook {
         cell.setCellStyle(cellStyleHeaderCell);
 
         cell = row.createCell(2, CellType.STRING);
-        cell.setCellValue("PLZ");
+        cell.setCellValue("Kundennummer");
         cell.setCellStyle(cellStyleHeaderCell);
 
         cell = row.createCell(3, CellType.STRING);
-        cell.setCellValue("Strasse");
+        cell.setCellValue("PLZ");
         cell.setCellStyle(cellStyleHeaderCell);
 
         cell = row.createCell(4, CellType.STRING);
-        cell.setCellValue("Ort");
+        cell.setCellValue("Strasse");
         cell.setCellStyle(cellStyleHeaderCell);
 
         cell = row.createCell(5, CellType.STRING);
+        cell.setCellValue("Ort");
+        cell.setCellStyle(cellStyleHeaderCell);
+
+        cell = row.createCell(6, CellType.STRING);
         cell.setCellValue("Land");
         cell.setCellStyle(cellStyleHeaderCell);
 
         if (properties.isPerformAddressAnalysis()) {
-            cell = row.createCell(6, CellType.STRING);
+            cell = row.createCell(7, CellType.STRING);
             cell.setCellValue("Ähnlichkeit");
             cell.setCellStyle(cellStyleCentered);
-            sheet.addMergedRegion(new CellRangeAddress(0, 0, 6, 7));
+            sheet.addMergedRegion(new CellRangeAddress(0, 0, 7, 8));
         }
 
         rowIdx++;
@@ -117,11 +124,11 @@ public class CreateResultWorkbook {
         if (properties.isPerformAddressAnalysis()) {
             row = sheet.createRow(rowIdx);
 
-            cell = row.createCell(6, CellType.STRING);
+            cell = row.createCell(7, CellType.STRING);
             cell.setCellValue("Firma");
             cell.setCellStyle(cellStyleCentered);
 
-            cell = row.createCell(7, CellType.STRING);
+            cell = row.createCell(8, CellType.STRING);
             cell.setCellValue("Adresse");
             cell.setCellStyle(cellStyleCentered);
 
@@ -139,15 +146,18 @@ public class CreateResultWorkbook {
                 cell.setCellValue(companyEmbedded.getAccountName());
 
                 cell = row.createCell(2, CellType.STRING);
-                cell.setCellValue(companyEmbedded.getPostalCode());
+                cell.setCellValue(companyEmbedded.getCExternalReference());
 
                 cell = row.createCell(3, CellType.STRING);
-                cell.setCellValue(companyEmbedded.getStreet());
+                cell.setCellValue(companyEmbedded.getPostalCode());
 
                 cell = row.createCell(4, CellType.STRING);
-                cell.setCellValue(companyEmbedded.getCity());
+                cell.setCellValue(companyEmbedded.getStreet());
 
                 cell = row.createCell(5, CellType.STRING);
+                cell.setCellValue(companyEmbedded.getCity());
+
+                cell = row.createCell(6, CellType.STRING);
                 cell.setCellValue(companyEmbedded.getCountry());
 
                 rowIdx++;
@@ -166,15 +176,18 @@ public class CreateResultWorkbook {
                     cell.setCellStyle(partnerCounter % 2 == 0 ? cellStyleHeaderCellLightBlue : cellStyleHeaderCellLightGreen);
 
                     cell = row.createCell(2, CellType.STRING);
-                    cell.setCellValue(companyEmbeddedSimilar.getPostalCode());
+                    cell.setCellValue(companyEmbeddedSimilar.getCExternalReference());
 
                     cell = row.createCell(3, CellType.STRING);
-                    cell.setCellValue(companyEmbeddedSimilar.getStreet());
+                    cell.setCellValue(companyEmbeddedSimilar.getPostalCode());
 
                     cell = row.createCell(4, CellType.STRING);
-                    cell.setCellValue(companyEmbeddedSimilar.getCity());
+                    cell.setCellValue(companyEmbeddedSimilar.getStreet());
 
                     cell = row.createCell(5, CellType.STRING);
+                    cell.setCellValue(companyEmbeddedSimilar.getCity());
+
+                    cell = row.createCell(6, CellType.STRING);
                     cell.setCellValue(companyEmbeddedSimilar.getCountry());
 
                     markRowWithMatchType(similarCompany, row);
@@ -191,6 +204,9 @@ public class CreateResultWorkbook {
         }
     }
 
+    /****************************************************************************************************
+     * Email
+     ****************************************************************************************************/
     private static void duplicateEmails(Map<String, List<CompanyEmbedded>> emailDuplicates, Workbook workbook) {
         Row row;
         Cell cell;
@@ -219,23 +235,23 @@ public class CreateResultWorkbook {
             cell.setCellStyle(cellStyleHeaderCell);
 
             cell = row.createCell(2, CellType.STRING);
-            cell.setCellValue("PLZ");
+            cell.setCellValue("Kundennummer");
             cell.setCellStyle(cellStyleHeaderCell);
 
             cell = row.createCell(3, CellType.STRING);
-            cell.setCellValue("Strasse");
+            cell.setCellValue("PLZ");
             cell.setCellStyle(cellStyleHeaderCell);
 
             cell = row.createCell(4, CellType.STRING);
-            cell.setCellValue("Ort");
+            cell.setCellValue("Strasse");
             cell.setCellStyle(cellStyleHeaderCell);
 
             cell = row.createCell(5, CellType.STRING);
-            cell.setCellValue("Land");
+            cell.setCellValue("Ort");
             cell.setCellStyle(cellStyleHeaderCell);
 
             cell = row.createCell(6, CellType.STRING);
-            cell.setCellValue("Kundennummer");
+            cell.setCellValue("Land");
             cell.setCellStyle(cellStyleHeaderCell);
 
             rowIdx++;
@@ -253,19 +269,20 @@ public class CreateResultWorkbook {
                     cell.setCellValue(company.getAccountName());
 
                     cell = row.createCell(2, CellType.STRING);
-                    cell.setCellValue(company.getPostalCode());
+                    cell.setCellValue(company.getCExternalReference());
 
                     cell = row.createCell(3, CellType.STRING);
-                    cell.setCellValue(company.getStreet());
+                    cell.setCellValue(company.getPostalCode());
 
                     cell = row.createCell(4, CellType.STRING);
-                    cell.setCellValue(company.getCity());
+                    cell.setCellValue(company.getStreet());
 
                     cell = row.createCell(5, CellType.STRING);
-                    cell.setCellValue(company.getCountry());
+                    cell.setCellValue(company.getCity());
 
                     cell = row.createCell(6, CellType.STRING);
-                    cell.setCellValue(company.getCExternalReference());
+                    cell.setCellValue(company.getCountry());
+
                     rowIdx++;
                     row = sheet.createRow(rowIdx);
                 }
@@ -277,14 +294,14 @@ public class CreateResultWorkbook {
     private static void markRowWithMatchType(SimilarCompany similarCompany, Row row) {
         Cell cell;
         if (similarCompany.getMatchType().isAccountNameMatch()) {
-            cell = row.createCell(6, CellType.STRING);
+            cell = row.createCell(7, CellType.STRING);
             cell.setCellValue("Wahrscheinlich");
         }
         if (similarCompany.getMatchType().getAddressMatchCategory().equals(AddressMatchCategory.MATCH)) {
-            cell = row.createCell(7, CellType.STRING);
+            cell = row.createCell(8, CellType.STRING);
             cell.setCellValue("Wahrscheinlich");
         } else if (similarCompany.getMatchType().getAddressMatchCategory().equals(AddressMatchCategory.POSSIBLE)) {
-            cell = row.createCell(7, CellType.STRING);
+            cell = row.createCell(8, CellType.STRING);
             cell.setCellValue("Möglich");
         }
     }
