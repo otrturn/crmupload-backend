@@ -49,6 +49,8 @@ services:
   crmupload-web:
     image: ghcr.io/otrturn/crmupload-web:prod
     container_name: crmupload-web
+    env_file:
+      - .env
     depends_on:
       crmupload-flyway:
         condition: service_completed_successfully
@@ -68,6 +70,8 @@ services:
   crmupload-worker-upload:
     image: ghcr.io/otrturn/crmupload-worker-upload:prod
     container_name: crmupload-worker-upload
+    env_file:
+      - .env
     depends_on:
       crmupload-flyway:
         condition: service_completed_successfully
@@ -82,6 +86,8 @@ services:
   crmupload-worker-duplicate-check:
     image: ghcr.io/otrturn/crmupload-worker-duplicate-check:prod
     container_name: crmupload-worker-duplicate-check
+    env_file:
+      - .env
     depends_on:
       crmupload-flyway:
         condition: service_completed_successfully
@@ -92,18 +98,6 @@ services:
       - ./tmp:/data/tmp
     environment:
       SPRING_PROFILES_ACTIVE: prod
-
-  # --------------------------------------------------------------
-  # MAILPIT (SMTP debugging)
-  # --------------------------------------------------------------
-  crmupload-mailpit:
-    image: axllent/mailpit:latest
-    container_name: crmupload-mailpit
-    ports:
-      - "${MAILPIT_SMTP_PORT:-1025}:1025"
-      - "${MAILPIT_HTTP_PORT:-8025}:8025"
-    restart: unless-stopped
-    networks: [ crmuploadnet ]
 
   # --------------------------------------------------------------
   # BILLING (one-shot batch jobs)
@@ -126,6 +120,8 @@ services:
   crmupload-billing-mail:
     image: ghcr.io/otrturn/crmupload-billing:prod
     container_name: crmupload-billing-mail
+    env_file:
+      - .env
     command: [ "--mailInvoices" ]
     restart: "no"
     depends_on:

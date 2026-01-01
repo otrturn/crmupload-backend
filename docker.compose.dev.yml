@@ -55,6 +55,8 @@ services:
       context: ./app-web
       dockerfile: Dockerfile
     container_name: crmupload-web
+    env_file:
+      - .env
     depends_on:
       crmupload-flyway:
         condition: service_completed_successfully
@@ -77,6 +79,8 @@ services:
       context: ./app-worker-upload
       dockerfile: Dockerfile
     container_name: crmupload-worker-upload
+    env_file:
+      - .env
     restart: unless-stopped
     depends_on:
       crmupload-flyway:
@@ -96,6 +100,8 @@ services:
       context: ./app-worker-duplicate-check
       dockerfile: Dockerfile
     container_name: crmupload-worker-duplicate-check
+    env_file:
+      - .env
     restart: unless-stopped
     depends_on:
       crmupload-flyway:
@@ -115,6 +121,8 @@ services:
       context: ./app-worker-duplicate-check-gpu
       dockerfile: Dockerfile
     container_name: crmupload-worker-duplicate-check-gpu-dev
+    env_file:
+      - .env
     restart: unless-stopped
     depends_on:
       crmupload-flyway:
@@ -134,6 +142,8 @@ services:
       context: ./app-worker-duplicate-check-gpu
       dockerfile: Dockerfile
     container_name: crmupload-worker-duplicate-check-gpu-prod
+    env_file:
+      - .env
     restart: unless-stopped
     depends_on:
       crmupload-flyway:
@@ -185,6 +195,8 @@ services:
     build:
       context: ./app-billing
       dockerfile: Dockerfile
+    env_file:
+      - .env
     container_name: crmupload-billing-mail
     command: [ "--mailInvoices" ]
     restart: "no"
