@@ -67,6 +67,16 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
     private static final String LITERAL_IP_ADDRESS_CAMELCASE = "ipAddress";
     private static final String LITERAL_USER_AGENT_CAMELCASE = "userAgent";
 
+    private static final String SQL_IS_CUSTOMER_BLOCKED = """
+            SELECT EXISTS (
+                SELECT 1
+                FROM app.customer c
+                JOIN app.customer_blocked cb
+                  ON cb.customer_id = c.customer_id
+                WHERE c.email_address = :email_address
+            )
+            """;
+
     private static final String SQL_FIND_ENABLED_BY_EMAIL =
             "SELECT enabled FROM app.customer WHERE email_address = :email_address";
 
@@ -316,6 +326,24 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
                 .addValue(LITERAL_USER_AGENT_CAMELCASE, customerAcknowledgement.userAgent());
 
         jdbc.update(sql, params);
+    }
+
+    @Override
+    public boolean isBlockedByEmail(String emailAddress) {
+        MapSqlParameterSource params = new MapSqlParameterSource(LITERAL_EMAIL_ADDRESS, emailAddress);
+
+        try {
+            Boolean blocked = jdbc.queryForObject(SQL_IS_CUSTOMER_BLOCKED, params, Boolean.class);
+
+            log.debug(String.format("Customer '%s' blocked=%s", emailAddress, blocked));
+            return Boolean.TRUE.equals(blocked);
+        } catch (EmptyResultDataAccessException ex) {
+            log.warn(String.format(LITERAL_NO_CUSTOMER_FOR_EMAIL, emailAddress));
+            throw new IllegalStateException("No customer found for email '" + emailAddress + "'", ex);
+        } catch (DataAccessException ex) {
+            log.error(String.format("Failed to read blocked for customer '%s'", emailAddress), ex);
+            throw new IllegalStateException("Could not read blocked for customer '" + emailAddress + "'", ex);
+        }
     }
 
     @Override

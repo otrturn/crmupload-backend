@@ -15,6 +15,8 @@ public interface CustomerRepositoryPort {
 
     void insertCustomerAcknowledgement(CustomerAcknowledgement customerAcknowledgement);
 
+    boolean isBlockedByEmail(String emailAddress);
+
     boolean isEnabledByEmail(String emailAddress);
 
     boolean isEnabledByCustomerId(long customerId);

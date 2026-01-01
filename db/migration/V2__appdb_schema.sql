@@ -116,15 +116,17 @@ ALTER TABLE app.customer_acknowledgement
 
 CREATE TABLE IF NOT EXISTS app.customer_activation
 (
-    token       UUID        NOT NULL PRIMARY KEY,
-    customer_id INT         NOT NULL REFERENCES app.customer (customer_id),
+    token       UUID        NOT NULL,
+    customer_id INT         NOT NULL,
     created     TIMESTAMPTZ NOT NULL DEFAULT now(),
     expires_at  TIMESTAMPTZ NOT NULL, -- z. B. now() + interval '24 hours'
     used        BOOLEAN     NOT NULL DEFAULT FALSE,
-    used_at     TIMESTAMPTZ
+    used_at     TIMESTAMPTZ,
+    CONSTRAINT pk_customer_activation
+        PRIMARY KEY (token)
 );
 
-CREATE INDEX IF NOT EXISTS idx_customer_activation_customer
+CREATE INDEX IF NOT EXISTS idx_customer_activation_customer_id
     ON app.customer_activation (customer_id);
 
 ALTER TABLE app.customer_activation
@@ -154,6 +156,50 @@ CREATE INDEX idx_customer_product_customer_id
 
 ALTER TABLE app.customer_product
     ADD CONSTRAINT fk_customer_product_customer_id
+        FOREIGN KEY (customer_id)
+            REFERENCES app.customer (customer_id)
+            ON DELETE RESTRICT;
+
+-- ****************************************************************************************************
+-- customer_blocked
+-- ****************************************************************************************************
+
+CREATE TABLE IF NOT EXISTS app.customer_blocked
+(
+    customer_id INT         NOT NULL,
+    created     TIMESTAMPTZ NOT NULL DEFAULT now(),
+    CONSTRAINT pk_customer_blocked
+        PRIMARY KEY (customer_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_customer_blocked_customer_id
+    ON app.customer_blocked (customer_id);
+
+ALTER TABLE app.customer_blocked
+    ADD CONSTRAINT fk_customer_blocked_customer_id
+        FOREIGN KEY (customer_id)
+            REFERENCES app.customer (customer_id)
+            ON DELETE RESTRICT;
+
+-- ****************************************************************************************************
+-- customer_blocked_details
+-- ****************************************************************************************************
+
+CREATE TABLE IF NOT EXISTS app.customer_blocked_details
+(
+    customer_id  INT         NOT NULL,
+    blocked_date TIMESTAMPTZ NOT NULL DEFAULT now(),
+    remark       TEXT        NOT NULL,
+    resolution   TEXT,
+    created      TIMESTAMPTZ NOT NULL DEFAULT now(),
+    modified     TIMESTAMPTZ
+);
+
+CREATE INDEX IF NOT EXISTS idx_customer_blocked_details_customer_id
+    ON app.customer_blocked (customer_id);
+
+ALTER TABLE app.customer_blocked_details
+    ADD CONSTRAINT fk_customer_blocked_details_customer_id
         FOREIGN KEY (customer_id)
             REFERENCES app.customer (customer_id)
             ON DELETE RESTRICT;

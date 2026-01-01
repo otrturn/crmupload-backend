@@ -13,6 +13,9 @@ select *
 from app.customer;
 
 select *
+from app.customer_blocked;
+
+select *
 from app.customer_activation;
 
 SELECT token

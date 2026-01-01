@@ -5,6 +5,7 @@ import com.crm.app.dto.CustomerProduct;
 import com.crm.app.dto.LoginRequest;
 import com.crm.app.dto.LoginResponse;
 import com.crm.app.port.customer.CustomerRepositoryPort;
+import com.crm.app.web.error.CustomerBlockedException;
 import com.crm.app.web.security.JwtService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -45,6 +46,10 @@ public class AuthenticationService {
         } catch (AuthenticationException ex) {
             log.error(String.format("Authentication failed for username=%s: %s - %s", request.username(), ex.getClass().getSimpleName(), ex.getMessage()), ex);
             throw ex;
+        }
+
+        if (customerRepositoryPort.isBlockedByEmail(request.username())) {
+            throw new CustomerBlockedException("Customer with email is blocked: " + request.username());
         }
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(request.username());
