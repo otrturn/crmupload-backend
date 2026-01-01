@@ -24,6 +24,10 @@ public class DuplicateCheckService {
             throw new IllegalArgumentException("processUpload: duplicate-check file must not be empty");
         }
 
+        if (customerRepositoryPort.isBlockedByEmail(emailAddress)) {
+            throw new CustomerBlockedException("Customer with email is blocked: " + emailAddress);
+        }
+
         log.info(String.format("Received DuplicateCheck: email=%s", emailAddress));
 
         long customerId = customerRepositoryPort.findCustomerIdByEmail(emailAddress);
@@ -62,6 +66,9 @@ public class DuplicateCheckService {
     }
 
     public List<DuplicateCheckHistory> getDuplicateCheckHistoryByEmail(String emailAddress) {
+        if (customerRepositoryPort.isBlockedByEmail(emailAddress)) {
+            throw new CustomerBlockedException("Customer with email is blocked: " + emailAddress);
+        }
         List<DuplicateCheckHistory> response = customerRepositoryPort.findDuplicateCheckHistoryByEmailAddress(emailAddress);
         if (response == null) {
             throw new CustomerNotFoundException(emailAddress);

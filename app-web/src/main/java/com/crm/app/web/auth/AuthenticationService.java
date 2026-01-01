@@ -40,16 +40,16 @@ public class AuthenticationService {
         log.info(String.format("login request: %s", String.valueOf(request)));
         var authToken = new UsernamePasswordAuthenticationToken(request.username(), request.password());
 
+        if (customerRepositoryPort.isBlockedByEmail(request.username())) {
+            throw new CustomerBlockedException("Customer with email is blocked: " + request.username());
+        }
+
         try {
             authManager.authenticate(authToken);
             log.info(String.format("Login successful for username=%s", request.username()));
         } catch (AuthenticationException ex) {
             log.error(String.format("Authentication failed for username=%s: %s - %s", request.username(), ex.getClass().getSimpleName(), ex.getMessage()), ex);
             throw ex;
-        }
-
-        if (customerRepositoryPort.isBlockedByEmail(request.username())) {
-            throw new CustomerBlockedException("Customer with email is blocked: " + request.username());
         }
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(request.username());
