@@ -3,11 +3,11 @@ package com.crm.app.e2e.client;
 public enum DuplicateCheckDownloadExcelHelper {
     SAMPLE(
             "/api/duplicate-check/downloads/help/excel-sample",
-            "dubletten-pruefung-beispiel.xlsx"
+            "dubletten-pruefung-lexware-beispiel.xlsx"
     ),
     SAMPLE_ANSWER(
             "/api/duplicate-check/downloads/help/excel-sample-answer",
-            "dubletten-pruefung-antwort.xlsx"
+            "dubletten-pruefung-lexware-antwort.xlsx"
     );
 
     private final String path;
