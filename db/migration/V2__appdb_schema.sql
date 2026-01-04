@@ -35,25 +35,26 @@ CREATE SEQUENCE app.sequence_customer
 
 CREATE TABLE IF NOT EXISTS app.customer
 (
-    customer_id       INT         NOT NULL,
-    customer_number   TEXT        NOT NULL,
-    user_id           INT         NOT NULL,
-    firstname         TEXT,
-    lastname          TEXT,
-    company_name      TEXT,
-    email_address     TEXT        NOT NULL,
-    phone_number      TEXT        NOT NULL,
-    adrline1          TEXT        NOT NULL,
-    adrline2          TEXT,
-    postalcode        TEXT        NOT NULL,
-    city              TEXT        NOT NULL,
-    country           TEXT        NOT NULL CHECK (country IN ('DE', 'AT', 'CH')),
-    enabled           BOOLEAN     NOT NULL DEFAULT false,
-    billable          BOOLEAN     NOT NULL DEFAULT true,
-    activation_date   TIMESTAMPTZ,
-    under_observation BOOLEAN     NOT NULL DEFAULT false,
-    created           TIMESTAMPTZ NOT NULL DEFAULT now(),
-    modified          TIMESTAMPTZ NOT NULL DEFAULT now()
+    customer_id         INT         NOT NULL,
+    customer_number     TEXT        NOT NULL,
+    user_id             INT         NOT NULL,
+    firstname           TEXT,
+    lastname            TEXT,
+    company_name        TEXT,
+    email_address       TEXT        NOT NULL,
+    phone_number        TEXT        NOT NULL,
+    adrline1            TEXT        NOT NULL,
+    adrline2            TEXT,
+    postalcode          TEXT        NOT NULL,
+    city                TEXT        NOT NULL,
+    country             TEXT        NOT NULL CHECK (country IN ('DE', 'AT', 'CH')),
+    enabled             BOOLEAN     NOT NULL DEFAULT false,
+    billable            BOOLEAN     NOT NULL DEFAULT true,
+    non_billable_reason jsonb,
+    activation_date     TIMESTAMPTZ,
+    under_observation   BOOLEAN     NOT NULL DEFAULT false,
+    created             TIMESTAMPTZ NOT NULL DEFAULT now(),
+    modified            TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 ALTER TABLE app.customer
@@ -385,7 +386,8 @@ CREATE TABLE IF NOT EXISTS app.customer_invoice
     tax_amount           NUMERIC     NOT NULL,
     net_amount           NUMERIC     NOT NULL,
     amount               NUMERIC     NOT NULL,
-    cancelled            jsonb,
+    cancelled            BOOLEAN     NOT NULL DEFAULT false,
+    cancelled_reason     jsonb,
     created              TIMESTAMPTZ NOT NULL DEFAULT now(),
     modified             TIMESTAMPTZ NOT NULL DEFAULT now()
 );
