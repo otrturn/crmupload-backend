@@ -35,6 +35,7 @@ public class SecurityConfig {
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/login", "/auth/test", "/auth/register-customer").permitAll()
+                        .requestMatchers("/stats").permitAll()
                         .requestMatchers(HttpMethod.PUT, "/api/maintenance/page-visited/**").permitAll()
                         .requestMatchers(
                                 "/api/duplicate-check/downloads/help/**",

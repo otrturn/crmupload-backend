@@ -55,4 +55,6 @@ public interface CustomerRepositoryPort {
 
     Optional<Customer> findCustomerByCustomerId(long customerId);
 
+    Optional<SimpleStats> getSimpleStats();
+
 }

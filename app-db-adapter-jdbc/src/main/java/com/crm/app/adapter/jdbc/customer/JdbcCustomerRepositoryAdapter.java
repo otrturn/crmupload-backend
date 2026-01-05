@@ -755,6 +755,32 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
         return jdbc.query(SQL_FIND_DUPLICATE_CHECK_HISTORY_BY_EMAIL, params, (rs, rowNum) -> new DuplicateCheckHistory(rs.getTimestamp(LITERAL_TS), rs.getString(LITERAL_SOURCE_SYSTEM), rs.getString(LITERAL_STATUS)));
     }
 
+    @Override
+    public Optional<SimpleStats> getSimpleStats() {
+
+        final String sql = """
+        select
+            (select count(*) from app.customer) as customer,
+            (select count(*) from app.customer where enabled = true) as customer_enabled,
+            (select count(*) from app.customer_product where product = 'crm-upload') as product_crm_upload,
+            (select count(*) from app.customer_product where product = 'duplicate-check') as product_duplicate_check
+        """;
+
+        return jdbc.query(sql, rs -> {
+            if (!rs.next()) {
+                return Optional.empty();
+            }
+
+            SimpleStats stats = new SimpleStats();
+            stats.setNCustomer(rs.getLong("customer"));
+            stats.setNCustomerEnabled(rs.getLong("customer_enabled"));
+            stats.setNProductsCrmUpload(rs.getLong("product_crm_upload"));
+            stats.setNProductsDuplicateCheck(rs.getLong("product_duplicate_check"));
+
+            return Optional.of(stats);
+        });
+    }
+
     private List<String> loadActiveProductsForCustomer(long customerId) {
         try {
             MapSqlParameterSource params = new MapSqlParameterSource().addValue(LITERAL_CUSTOMER_ID_CAMELCASE, customerId);
