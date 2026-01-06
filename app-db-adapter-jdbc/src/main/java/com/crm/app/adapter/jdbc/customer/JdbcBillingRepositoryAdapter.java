@@ -160,8 +160,7 @@ public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
                     net_amount,
                     amount,
                     invoice_meta,
-                    invoice_image,
-                    submitted_to_agency
+                    invoice_image
                 )
                 VALUES (
                     :invoiceId,
@@ -173,8 +172,7 @@ public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
                     :netAmount,
                     :amount,
                     :invoiceMeta::jsonb,
-                    :invoiceImage,
-                    NULL
+                    :invoiceImage
                 )
                 """;
 
