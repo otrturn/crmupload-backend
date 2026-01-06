@@ -116,8 +116,8 @@ public class GeneratePdfWithHtmlTemplate {
                 byte[] pdfBytes = out.toByteArray();
 
                 String pdfName = String.format("Rechnung_%06d.pdf", invoiceRecord.getInvoiceId());
-                Path pdfPath = Path.of(appBillingConfig.getWorkdir(), pdfName);
-                invoiceRecord.setInvoicePdfName(pdfName);
+                Path pdfPath = Path.of(appBillingConfig.getInvoiceDir(), pdfName);
+                invoiceRecord.setInvoicePdfName(pdfPath.toString());
                 Files.write(pdfPath, pdfBytes);
 
                 return pdfBytes;

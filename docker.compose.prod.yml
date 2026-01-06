@@ -116,6 +116,7 @@ services:
       SPRING_PROFILES_ACTIVE: prod
     volumes:
       - ./tmp:/data/tmp
+      - ./invoices:/data/invoices
 
   crmupload-billing-mail:
     image: ghcr.io/otrturn/crmupload-billing:prod
@@ -133,6 +134,7 @@ services:
       SPRING_PROFILES_ACTIVE: prod
     volumes:
       - ./tmp:/data/tmp
+      - ./invoices:/data/invoices
 
 networks:
   crmuploadnet:

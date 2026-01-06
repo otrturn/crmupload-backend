@@ -13,12 +13,12 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "app.billing")
 @Slf4j
 public class AppBillingConfig {
-    private String workdir;
+    private String invoiceDir;
 
     @PostConstruct
     public void init() {
-        if (workdir == null || workdir.isBlank()) {
-            throw new IllegalStateException("workdir is blank");
+        if (invoiceDir == null || invoiceDir.isBlank()) {
+            throw new IllegalStateException("invoiceDir is blank");
         }
     }
 }

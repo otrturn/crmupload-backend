@@ -5,7 +5,7 @@ app:
     password: apppass
     driver-class-name: org.postgresql.Driver
   billing:
-    work-dir: /data/tmp
+    invoice-dir: /data/invoices
 
 spring:
   main:

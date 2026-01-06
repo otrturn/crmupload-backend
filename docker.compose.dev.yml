@@ -189,6 +189,7 @@ services:
       SPRING_PROFILES_ACTIVE: dev
     volumes:
       - /home/ralf/tmp:/data/tmp
+      - /home/ralf/invoices:/data/invoices
 
   crmupload-billing-mail:
     image: crmupload-billing
@@ -209,6 +210,7 @@ services:
       SPRING_PROFILES_ACTIVE: dev
     volumes:
       - /home/ralf/tmp:/data/tmp
+      - /home/ralf/invoices:/data/invoices
 
 networks:
   crmuploadnet:
