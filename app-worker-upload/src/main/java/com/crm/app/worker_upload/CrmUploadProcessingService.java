@@ -14,6 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Objects;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -49,41 +51,29 @@ public class CrmUploadProcessingService {
     }
 
     private void handleBexio(CrmUploadContent upload, CrmSystem crmSystem) {
-        switch (crmSystem) {
-            case ESPOCRM -> uploadWorkerProcessForBexio.processUploadForEspo(upload);
-            case PIPEDRIVE -> {
-                // TODO: implement
-            }
-            default -> {
-                log.error(String.format(ERROR_MSG, upload.getCrmSystem(), upload.getUploadId()));
-                repository.markUploadFailed(upload.getUploadId(), UNKNOWN_CRM_SYSTEM + upload.getCrmSystem(), GSON.toJson(UNKNOWN_SOURCE_SYSTEM + upload.getSourceSystem()));
-            }
+        if (Objects.requireNonNull(crmSystem) == CrmSystem.ESPOCRM) {
+            uploadWorkerProcessForBexio.processUploadForEspo(upload);
+        } else {
+            log.error(String.format(ERROR_MSG, upload.getCrmSystem(), upload.getUploadId()));
+            repository.markUploadFailed(upload.getUploadId(), UNKNOWN_CRM_SYSTEM + upload.getCrmSystem(), GSON.toJson(UNKNOWN_SOURCE_SYSTEM + upload.getSourceSystem()));
         }
     }
 
     private void handleLexware(CrmUploadContent upload, CrmSystem crmSystem) {
-        switch (crmSystem) {
-            case ESPOCRM -> uploadWorkerProcessForLexware.processUploadForEspo(upload);
-            case PIPEDRIVE -> {
-                // TODO: implement
-            }
-            default -> {
-                log.error(String.format(ERROR_MSG, upload.getCrmSystem(), upload.getUploadId()));
-                repository.markUploadFailed(upload.getUploadId(), UNKNOWN_CRM_SYSTEM + upload.getCrmSystem(), GSON.toJson(UNKNOWN_SOURCE_SYSTEM + upload.getSourceSystem()));
-            }
+        if (Objects.requireNonNull(crmSystem) == CrmSystem.ESPOCRM) {
+            uploadWorkerProcessForLexware.processUploadForEspo(upload);
+        } else {
+            log.error(String.format(ERROR_MSG, upload.getCrmSystem(), upload.getUploadId()));
+            repository.markUploadFailed(upload.getUploadId(), UNKNOWN_CRM_SYSTEM + upload.getCrmSystem(), GSON.toJson(UNKNOWN_SOURCE_SYSTEM + upload.getSourceSystem()));
         }
     }
 
     private void handleMyExcel(CrmUploadContent upload, CrmSystem crmSystem) {
-        switch (crmSystem) {
-            case ESPOCRM -> uploadWorkerProcessForMyExcel.processUploadForEspo(upload);
-            case PIPEDRIVE -> {
-                // TODO: implement
-            }
-            default -> {
-                log.warn(String.format(ERROR_MSG, upload.getCrmSystem(), upload.getUploadId()));
-                repository.markUploadFailed(upload.getUploadId(), UNKNOWN_CRM_SYSTEM + upload.getCrmSystem(), GSON.toJson(UNKNOWN_SOURCE_SYSTEM + upload.getSourceSystem()));
-            }
+        if (Objects.requireNonNull(crmSystem) == CrmSystem.ESPOCRM) {
+            uploadWorkerProcessForMyExcel.processUploadForEspo(upload);
+        } else {
+            log.warn(String.format(ERROR_MSG, upload.getCrmSystem(), upload.getUploadId()));
+            repository.markUploadFailed(upload.getUploadId(), UNKNOWN_CRM_SYSTEM + upload.getCrmSystem(), GSON.toJson(UNKNOWN_SOURCE_SYSTEM + upload.getSourceSystem()));
         }
     }
 }

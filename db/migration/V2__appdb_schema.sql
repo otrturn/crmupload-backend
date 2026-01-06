@@ -374,7 +374,8 @@ CREATE SEQUENCE app.sequence_customer_invoice
 
 CREATE TABLE IF NOT EXISTS app.customer_invoice
 (
-    invoice_id           TEXT        NOT NULL,
+    invoice_id           INT         NOT NULL,
+    invoice_no           TEXT        NOT NULL,
     customer_id          INT         NOT NULL,
     invoice_date         TIMESTAMPTZ NOT NULL,
     invoice_due_date     TIMESTAMPTZ NOT NULL,
@@ -383,6 +384,7 @@ CREATE TABLE IF NOT EXISTS app.customer_invoice
     invoice_agency_date  TIMESTAMPTZ,
     invoice_meta         jsonb       NOT NULL DEFAULT '{}'::jsonb,
     invoice_image        BYTEA       NOT NULL,
+    invoice_pdf_name     TEXT        NOT NULL,
     tax_value            NUMERIC     NOT NULL,
     tax_amount           NUMERIC     NOT NULL,
     net_amount           NUMERIC     NOT NULL,

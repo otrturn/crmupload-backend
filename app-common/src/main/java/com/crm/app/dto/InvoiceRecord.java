@@ -11,7 +11,7 @@ import java.util.Arrays;
 @Getter
 @Setter
 public class InvoiceRecord {
-    private CustomerInvoiceData customerInvoiceData;
+    private CustomerInvoiceProductData customerInvoiceProductData;
     private Customer customer;
     private long invoiceId;
     private Timestamp invoiceDate;
@@ -22,6 +22,7 @@ public class InvoiceRecord {
     private BigDecimal netAmount;
     private BigDecimal amount;
     private byte[] invoiceImage;
+    private String invoicePdfName;
 
     @Override
     public boolean equals(Object o) {

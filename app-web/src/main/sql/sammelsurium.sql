@@ -91,3 +91,4 @@ select
     (select count(*) from app.customer where enabled=true) as customerEnabled,
     (select count(*) from app.customer_product where product='crm-upload') as productCrmUpload,
     (select count(*) from app.customer_product where product='duplicate-check') as productDuplicateCheck;
+

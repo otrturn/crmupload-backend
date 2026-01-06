@@ -759,12 +759,12 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
     public Optional<SimpleStats> getSimpleStats() {
 
         final String sql = """
-        select
-            (select count(*) from app.customer) as customer,
-            (select count(*) from app.customer where enabled = true) as customer_enabled,
-            (select count(*) from app.customer_product where product = 'crm-upload') as product_crm_upload,
-            (select count(*) from app.customer_product where product = 'duplicate-check') as product_duplicate_check
-        """;
+                select
+                    (select count(*) from app.customer) as customer,
+                    (select count(*) from app.customer where enabled = true) as customer_enabled,
+                    (select count(*) from app.customer_product where product = 'crm-upload') as product_crm_upload,
+                    (select count(*) from app.customer_product where product = 'duplicate-check') as product_duplicate_check
+                """;
 
         return jdbc.query(sql, rs -> {
             if (!rs.next()) {

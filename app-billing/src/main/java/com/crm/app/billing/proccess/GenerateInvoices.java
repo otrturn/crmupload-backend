@@ -1,9 +1,8 @@
 package com.crm.app.billing.proccess;
 
-import com.crm.app.billing.config.AppBillingConfig;
 import com.crm.app.billing.util.BillingRules;
 import com.crm.app.dto.Customer;
-import com.crm.app.dto.CustomerInvoiceData;
+import com.crm.app.dto.CustomerInvoiceProductData;
 import com.crm.app.dto.CustomerProduct;
 import com.crm.app.dto.InvoiceRecord;
 import com.crm.app.port.customer.BillingRepositoryPort;
@@ -26,7 +25,6 @@ import static com.crm.app.util.IdentityNumberCreator.createInvoiceNumber;
 @Service
 @RequiredArgsConstructor
 public class GenerateInvoices {
-    private final AppBillingConfig appBillingConfig;
     private final BillingRepositoryPort billingRepositoryPort;
     private final CustomerRepositoryPort customerRepositoryPort;
     private final GeneratePdfWithHtmlTemplate generatePdfWithHtmlTemplate;
@@ -37,19 +35,19 @@ public class GenerateInvoices {
         log.info("Generate invoices ...");
         try {
             Instant start = Instant.now();
-            List<CustomerInvoiceData> customerInvoiceDataList = billingRepositoryPort.getCustomersWithActiveProducts();
-            log.info(String.format("%d costumers found", customerInvoiceDataList.size()));
+            List<CustomerInvoiceProductData> customerInvoiceProductDataList = billingRepositoryPort.getCustomersWithActiveProducts();
+            log.info(String.format("%d costumers found", customerInvoiceProductDataList.size()));
             Duration duration = Duration.between(start, Instant.now());
             log.info(String.format(DURATION_FORMAT_STRING, duration.toHours(), duration.toMinutesPart(), duration.toSecondsPart()));
 
             start = Instant.now();
-            for (CustomerInvoiceData customerInvoiceData : customerInvoiceDataList) {
-                Optional<Customer> customer = customerRepositoryPort.findCustomerByCustomerId(customerInvoiceData.customerId());
+            for (CustomerInvoiceProductData customerInvoiceProductData : customerInvoiceProductDataList) {
+                Optional<Customer> customer = customerRepositoryPort.findCustomerByCustomerId(customerInvoiceProductData.customerId());
                 if (customer.isPresent()) {
                     long invoiceId = billingRepositoryPort.nextInvoiceId();
 
                     InvoiceRecord invoiceRecord = new InvoiceRecord();
-                    invoiceRecord.setCustomerInvoiceData(customerInvoiceData);
+                    invoiceRecord.setCustomerInvoiceProductData(customerInvoiceProductData);
                     invoiceRecord.setCustomer(customer.get());
                     invoiceRecord.setInvoiceId(invoiceId);
                     invoiceRecord.setInvoiceDate(Timestamp.from(Instant.now()));
@@ -65,10 +63,10 @@ public class GenerateInvoices {
 
                     billingRepositoryPort.insertInvoiceRecord(invoiceRecord);
                 } else {
-                    log.error(String.format("Customer not found for customerId=%d", customerInvoiceData.customerId()));
+                    log.error(String.format("Customer not found for customerId=%d", customerInvoiceProductData.customerId()));
                 }
             }
-            log.info(String.format("%d invoices generated", customerInvoiceDataList.size()));
+            log.info(String.format("%d invoices generated", customerInvoiceProductDataList.size()));
             duration = Duration.between(start, Instant.now());
             log.info(String.format(DURATION_FORMAT_STRING, duration.toHours(), duration.toMinutesPart(), duration.toSecondsPart()));
         } catch (Exception e) {
@@ -78,7 +76,7 @@ public class GenerateInvoices {
 
     private void setItemPrices(InvoiceRecord invoiceRecord) {
 
-        List<CustomerProduct> products = invoiceRecord.getCustomerInvoiceData().products();
+        List<CustomerProduct> products = invoiceRecord.getCustomerInvoiceProductData().products();
         BigDecimal price = products.size() == 1 ? BigDecimal.valueOf(250) : BigDecimal.valueOf(200);
         BigDecimal taxValue = new BigDecimal("0.19");
 

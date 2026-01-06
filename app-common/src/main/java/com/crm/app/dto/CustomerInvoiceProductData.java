@@ -2,7 +2,7 @@ package com.crm.app.dto;
 
 import java.util.List;
 
-public record CustomerInvoiceData(
+public record CustomerInvoiceProductData(
         Long customerId,
         List<CustomerProduct> products
 ) {

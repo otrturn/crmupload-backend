@@ -115,10 +115,10 @@ public class GeneratePdfWithHtmlTemplate {
 
                 byte[] pdfBytes = out.toByteArray();
 
-                Files.write(
-                        Path.of(appBillingConfig.getWorkdir(), String.format("Rechnung_%06d.pdf", invoiceRecord.getInvoiceId())),
-                        pdfBytes
-                );
+                String pdfName = String.format("Rechnung_%06d.pdf", invoiceRecord.getInvoiceId());
+                Path pdfPath = Path.of(appBillingConfig.getWorkdir(), pdfName);
+                invoiceRecord.setInvoicePdfName(pdfName);
+                Files.write(pdfPath, pdfBytes);
 
                 return pdfBytes;
             }
@@ -173,7 +173,7 @@ public class GeneratePdfWithHtmlTemplate {
         invoice.put("dueDate", df.format(invoiceRecord.getInvoiceDueDate().toInstant()));
 
         // -------- items --------
-        List<Map<String, Object>> items = invoiceRecord.getCustomerInvoiceData().products().stream()
+        List<Map<String, Object>> items = invoiceRecord.getCustomerInvoiceProductData().products().stream()
                 .filter(Objects::nonNull)
                 .map(p -> {
                     Map<String, Object> it = new LinkedHashMap<>();

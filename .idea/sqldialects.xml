@@ -3,5 +3,6 @@
   <component name="SqlDialectMappings">
     <file url="file://$PROJECT_DIR$/app-web/src/main/sql/sammelsurium.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/app-web/src/main/sql/statistics.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/db/migration/V2__appdb_schema.sql" dialect="PostgreSQL" />
   </component>
 </project>

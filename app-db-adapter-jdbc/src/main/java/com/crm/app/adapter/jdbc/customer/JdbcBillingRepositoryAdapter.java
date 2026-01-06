@@ -1,6 +1,6 @@
 package com.crm.app.adapter.jdbc.customer;
 
-import com.crm.app.dto.CustomerInvoiceData;
+import com.crm.app.dto.CustomerInvoiceProductData;
 import com.crm.app.dto.CustomerProduct;
 import com.crm.app.dto.InvoiceRecord;
 import com.crm.app.port.customer.BillingRepositoryPort;
@@ -25,6 +25,7 @@ public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
             "SELECT nextval('" + SEQUENCE_INVOICE_ID + "')";
 
     private static final String LITERAL_INVOICE_ID_CAMELCASE = "invoiceId";
+    private static final String LITERAL_INVOICE_NO_CAMELCASE = "invoiceNo";
     private static final String LITERAL_CUSTOMER_ID = "customer_id";
     private static final String LITERAL_CUSTOMER_ID_CAMELCASE = "customerId";
     private static final String LITERAL_PRODUCT = "product";
@@ -32,6 +33,7 @@ public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
     private static final String LITERAL_ACTIVATION_DATE_CAMELCASE = "activationDate";
     private static final String LITERAL_INVOICE_META_CAMELCASE = "invoiceMeta";
     private static final String LITERAL_INVOICE_IMAGE_CAMELCASE = "invoiceImage";
+    private static final String LITERAL_INVOICE_PDF_NAME_CAMELCASE = "invoicePdfName";
     private static final String LITERAL_TAX_VALUE_CAMELCASE = "taxValue";
     private static final String LITERAL_TAX_AMOUNT_CAMELCASE = "taxAmount";
     private static final String LITERAL_NET_AMOUNT_CAMELCASE = "netAmount";
@@ -48,7 +50,7 @@ public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
     }
 
     @Override
-    public List<CustomerInvoiceData> getCustomersWithActiveProducts() {
+    public List<CustomerInvoiceProductData> getCustomersWithActiveProducts() {
         String sql = """
                 SELECT
                   cp.customer_id,
@@ -91,10 +93,10 @@ public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
         }
 
         // Mapping auf CustomerBillingData
-        List<CustomerInvoiceData> result = new ArrayList<>();
+        List<CustomerInvoiceProductData> result = new ArrayList<>();
 
         for (Map.Entry<Long, List<CustomerProduct>> entry : grouped.entrySet()) {
-            result.add(new CustomerInvoiceData(
+            result.add(new CustomerInvoiceProductData(
                     entry.getKey(),
                     entry.getValue()
             ));
@@ -131,7 +133,7 @@ public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
     @Override
     public void insertInvoiceRecord(InvoiceRecord invoiceRecord) {
 
-        List<CustomerProduct> products = invoiceRecord.getCustomerInvoiceData().products().stream()
+        List<CustomerProduct> products = invoiceRecord.getCustomerInvoiceProductData().products().stream()
                 .filter(p -> p != null && p.getProduct() != null && !p.getProduct().isBlank())
                 .map(p -> {
                     CustomerProduct copy = new CustomerProduct(
@@ -152,6 +154,7 @@ public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
         String sql = """
                 INSERT INTO app.customer_invoice (
                     invoice_id,
+                    invoice_no,
                     customer_id,
                     invoice_date,
                     invoice_due_date,
@@ -160,10 +163,12 @@ public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
                     net_amount,
                     amount,
                     invoice_meta,
-                    invoice_image
+                    invoice_image,
+                    invoice_pdf_name
                 )
                 VALUES (
                     :invoiceId,
+                    :invoiceNo,
                     :customerId,
                     :invoiceDate,
                     :invoiceDueDate,
@@ -172,13 +177,15 @@ public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
                     :netAmount,
                     :amount,
                     :invoiceMeta::jsonb,
-                    :invoiceImage
+                    :invoiceImage,
+                    :invoicePdfName
                 )
                 """;
 
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue(LITERAL_INVOICE_ID_CAMELCASE, invoiceRecord.getInvoiceId())
-                .addValue(LITERAL_CUSTOMER_ID_CAMELCASE, invoiceRecord.getCustomerInvoiceData().customerId())
+                .addValue(LITERAL_INVOICE_NO_CAMELCASE, invoiceRecord.getInvoiceNo())
+                .addValue(LITERAL_CUSTOMER_ID_CAMELCASE, invoiceRecord.getCustomerInvoiceProductData().customerId())
                 .addValue(LITERAL_INVOICE_DATE_CAMELCASE, invoiceRecord.getInvoiceDate())
                 .addValue(LITERAL_INVOICE_DUE_DATE_CAMELCASE, invoiceRecord.getInvoiceDueDate())
                 .addValue(LITERAL_TAX_VALUE_CAMELCASE, invoiceRecord.getTaxValue())
@@ -186,7 +193,8 @@ public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
                 .addValue(LITERAL_NET_AMOUNT_CAMELCASE, invoiceRecord.getNetAmount())
                 .addValue(LITERAL_AMOUNT_CAMELCASE, invoiceRecord.getAmount())
                 .addValue(LITERAL_INVOICE_META_CAMELCASE, billingMetaJson, Types.OTHER)
-                .addValue(LITERAL_INVOICE_IMAGE_CAMELCASE, invoiceRecord.getInvoiceImage());
+                .addValue(LITERAL_INVOICE_IMAGE_CAMELCASE, invoiceRecord.getInvoiceImage())
+                .addValue(LITERAL_INVOICE_PDF_NAME_CAMELCASE, invoiceRecord.getInvoicePdfName());
 
         jdbc.update(sql, params);
     }
@@ -213,6 +221,56 @@ public class JdbcBillingRepositoryAdapter implements BillingRepositoryPort {
             return objectMapper.writeValueAsString(meta);
         } catch (JsonProcessingException e) {
             throw new IllegalStateException("Failed to serialize invoice_meta JSON", e);
+        }
+    }
+
+    public List<InvoiceRecord> findInvoicesToBeMailed() {
+
+        String sql = """
+                SELECT
+                    ci.invoice_id,
+                    ci.invoice_no,
+                    ci.invoice_date,
+                    ci.invoice_due_date,
+                    ci.tax_value,
+                    ci.tax_amount,
+                    ci.net_amount,
+                    ci.amount,
+                    ci.invoice_image,
+                    c.customer_id,
+                    c.firstname,
+                    c.lastname,
+                    c.email_address
+                FROM app.customer_invoice ci
+                JOIN app.customer c
+                  ON c.customer_id = ci.customer_id
+                WHERE ci.invoice_mailing_date IS NULL
+                  AND ci.cancelled = false
+                ORDER BY ci.invoice_date
+                """;
+
+        return jdbc.query(sql, new InvoiceRecordRowMapper());
+    }
+
+    @Override
+    public void setInvoiceToMailed(long invoiceId) {
+        String sql = """
+                UPDATE app.customer_invoice
+                SET invoice_mailing_date = now(),
+                    modified = now()
+                WHERE invoice_id = :invoiceId
+                  AND invoice_mailing_date IS NULL
+                """;
+
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue(LITERAL_INVOICE_ID_CAMELCASE, invoiceId);
+
+        int updated = jdbc.update(sql, params);
+
+        if (updated == 0) {
+            throw new IllegalStateException(
+                    "Invoice not updated (not found or already mailed): invoiceId=" + invoiceId
+            );
         }
     }
 }
