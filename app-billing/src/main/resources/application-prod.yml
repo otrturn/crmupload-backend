@@ -1,0 +1,15 @@
+spring:
+  mail:
+    host: smtp.tem.scaleway.com
+    port: 587
+    username: 5dcaf79f-5a67-42a4-af18-562b435afb90
+    password: ${SPRING_MAIL_PASSWORD}}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          connectiontimeout: 10000
+          timeout: 10000
+          writetimeout: 10000

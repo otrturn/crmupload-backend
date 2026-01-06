@@ -56,6 +56,10 @@ select *
 from app.customer_invoice
 order by customer_id;
 
+update app.customer_invoice
+    set invoice_mailing_date=NULL;
+commit;
+
 delete
 from app.customer_invoice;
 commit;

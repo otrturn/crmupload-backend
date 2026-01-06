@@ -1,6 +1,6 @@
 package com.crm.app.billing.proccess;
 
-import com.crm.app.billing.config.AppBillingConfig;
+import com.crm.app.billing.mail.BillingMailService;
 import com.crm.app.dto.InvoiceRecord;
 import com.crm.app.port.customer.BillingRepositoryPort;
 import lombok.RequiredArgsConstructor;
@@ -15,8 +15,8 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class MailInvoices {
-    private final AppBillingConfig appBillingConfig;
     private final BillingRepositoryPort billingRepositoryPort;
+    private final BillingMailService billingMailService;
     private static final String DURATION_FORMAT_STRING = "Duration: %02d:%02d:%02d";
 
     public void mailInvoices() {
@@ -28,6 +28,7 @@ public class MailInvoices {
             Duration duration = Duration.between(start, Instant.now());
             log.info(String.format(DURATION_FORMAT_STRING, duration.toHours(), duration.toMinutesPart(), duration.toSecondsPart()));
             for (InvoiceRecord invoiceRecord : invoiceRecords) {
+                billingMailService.sendSuccessMail(invoiceRecord);
                 billingRepositoryPort.setInvoiceToMailed(invoiceRecord.getInvoiceId());
             }
             log.info(String.format("%d invoices mailed", invoiceRecords.size()));
