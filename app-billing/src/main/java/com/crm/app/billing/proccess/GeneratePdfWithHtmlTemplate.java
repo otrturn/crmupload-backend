@@ -32,7 +32,7 @@ public class GeneratePdfWithHtmlTemplate {
     private static final String NAME_OF_COMPANY = "Ralf Scholler";
     private static final String STREET_OF_COMPANY = "Am Dorfplatz 6";
     private static final String ZIP_CITY_OF_COMPANY = "57610 Ingelbach";
-    private static final String TAX_NUMBER_OF_COMPANY = "Steuernummer 003/867/30663";
+    private static final String TAX_NUMBER_OF_COMPANY = "Steuernummer 02/227/05080";
     private static final String VAT_ID_NUMBER_OF_COMPANY = "DE 244 3344 16";
 
     private static final String SUPPORT_EMAIL = "support@crmupload.de";
