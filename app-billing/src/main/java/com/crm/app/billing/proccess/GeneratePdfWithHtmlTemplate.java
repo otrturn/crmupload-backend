@@ -90,6 +90,16 @@ public class GeneratePdfWithHtmlTemplate {
                 // Optional (falls irgendwo "ZapfDingbats" auftaucht, gleiche Idee)
                 // builder.useFont(() -> resource("/fonts/DejaVuSans.ttf"),
 
+                // >>> NEU: PDF/A-3 aktivieren
+                builder.usePdfAConformance(PdfRendererBuilder.PdfAConformance.PDFA_3_U);
+
+                // Color schema#
+                byte[] colorProfile;
+                try (InputStream is = resource("/color/sRGB.icc")) {
+                    colorProfile = is.readAllBytes();
+                }
+                builder.useColorProfile(colorProfile);
+
                 // ------------------------------------------------------------
                 // CSS base URL: Ordner, in dem invoice.css liegt
                 // ------------------------------------------------------------
