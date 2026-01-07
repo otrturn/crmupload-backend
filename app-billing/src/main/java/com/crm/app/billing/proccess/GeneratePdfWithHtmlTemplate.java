@@ -23,24 +23,13 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import static com.crm.app.billing.dto.BillingConstants.*;
+
 @Slf4j
 @Component
 public class GeneratePdfWithHtmlTemplate {
 
     private static final String DATE_FORMAT = "dd.MM.yyyy";
-
-    private static final String NAME_OF_COMPANY = "Ralf Scholler";
-    private static final String STREET_OF_COMPANY = "Am Dorfplatz 6";
-    private static final String ZIP_CITY_OF_COMPANY = "57610 Ingelbach";
-    private static final String TAX_NUMBER_OF_COMPANY = "Steuernummer 02/227/05080";
-    private static final String VAT_ID_NUMBER_OF_COMPANY = "DE 244 3344 16";
-
-    private static final String SUPPORT_EMAIL = "support@crmupload.de";
-    private static final String WEBSITE = "www.crmupload.de";
-
-    private static final String BANK_NAME = "Raiffeisenbank Grävenwiesbach eG";
-    private static final String BANK_ACCOUNT_NAME = "Ralf Scholler";
-    private static final String BANK_IBAN = "DE59 5006 9345 0100 0362 77";
 
     private final AppBillingConfig appBillingConfig;
     private final TemplateEngine templateEngine;
@@ -145,8 +134,8 @@ public class GeneratePdfWithHtmlTemplate {
         issuer.put("name", NAME_OF_COMPANY);
         issuer.put("street", STREET_OF_COMPANY);
         issuer.put("zipCity", ZIP_CITY_OF_COMPANY);
-        issuer.put("taxNumber", TAX_NUMBER_OF_COMPANY);
-        issuer.put("vatId", VAT_ID_NUMBER_OF_COMPANY);
+        issuer.put("taxNumber", DISPLAY_TEXT_TAX_NUMBER_OF_COMPANY);
+        issuer.put("vatId", DISPLAY_TEXT_VAT_ID_NUMBER_OF_COMPANY);
         issuer.put("supportEmail", SUPPORT_EMAIL);
         issuer.put("website", WEBSITE);
 

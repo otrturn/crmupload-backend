@@ -53,26 +53,30 @@ public class BillingMailService {
         String fullName = Customer.getFullname(invoiceRecord.getCustomer());
 
         return """
-                Hallo %s,
+                    Hallo %s,
                 
-                anbei erhalten Sie Ihre Rechnung %s als PDF-Dokument.
+                    anbei erhalten Sie Ihre Rechnung %s als PDF-Dokument.
                 
-                Rechnungsdatum: %s
-                Fälligkeitsdatum: %s
+                    Die beigefügte Rechnung ist ein elektronisches Rechnungsdokument im Standard EN 16931
+                    (ZUGFeRD / Factur-X) und kann unverändert an Ihre Buchhaltung oder Ihren Steuerberater
+                    weitergegeben werden.
                 
-                Bitte überweisen Sie den Rechnungsbetrag bis zum angegebenen Fälligkeitsdatum.
+                    Rechnungsdatum: %s
+                    Fälligkeitsdatum: %s
                 
-                Sollten Sie Fragen zu dieser Rechnung haben, antworten Sie bitte einfach auf diese E-Mail
-                oder wenden Sie sich an support@crmupload.de unter Angabe der Rechnungsnummer.
+                    Bitte überweisen Sie den Rechnungsbetrag bis zum angegebenen Fälligkeitsdatum.
                 
-                Vielen Dank für Ihr Vertrauen.
+                    Sollten Sie Fragen zu dieser Rechnung haben, antworten Sie bitte einfach auf diese E-Mail
+                    oder wenden Sie sich an support@crmupload.de unter Angabe der Rechnungsnummer.
                 
-                Freundliche Grüße
-                Ihr CRM-Upload-Team
+                    Vielen Dank für Ihr Vertrauen.
                 
-                CRM-Upload
-                support@crmupload.de
-                www.crmupload.de
+                    Freundliche Grüße
+                    Ihr CRM-Upload-Team
+                
+                    CRM-Upload
+                    support@crmupload.de
+                    www.crmupload.de
                 """.formatted(
                 fullName,
                 invoiceRecord.getInvoiceNo(),

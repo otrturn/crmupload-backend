@@ -1,6 +1,7 @@
 package com.crm.app.billing.proccess;
 
 import com.crm.app.billing.util.BillingRules;
+import com.crm.app.billing.zugferd.ZugferdService;
 import com.crm.app.dto.Customer;
 import com.crm.app.dto.CustomerInvoiceProductData;
 import com.crm.app.dto.CustomerProduct;
@@ -12,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.nio.file.Path;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
@@ -19,6 +21,7 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
+import static com.crm.app.billing.dto.BillingConstants.*;
 import static com.crm.app.util.IdentityNumberCreator.createInvoiceNumber;
 
 @Slf4j
@@ -58,8 +61,13 @@ public class GenerateInvoices {
                                     .toInstant()));
                     invoiceRecord.setInvoiceNo(createInvoiceNumber(invoiceId));
                     setItemPrices(invoiceRecord);
-                    byte[] invoiceImage = generatePdfWithHtmlTemplate.generatePDFForCustomer(invoiceRecord);
-                    invoiceRecord.setInvoiceImage(invoiceImage);
+
+                    generatePdfWithHtmlTemplate.generatePDFForCustomer(invoiceRecord);
+
+                    ZugferdService service = new ZugferdService(Path.of("/data/invoices"), createIssuer(), "crmupload.de", "crmupload-billing");
+
+                    byte[] pdfWithZugferd = service.createZugferdPdfBytes(invoiceRecord);
+                    invoiceRecord.setInvoiceImage(pdfWithZugferd);
 
                     billingRepositoryPort.insertInvoiceRecord(invoiceRecord);
                 } else {
@@ -120,5 +128,22 @@ public class GenerateInvoices {
                                 .reduce(BigDecimal.ZERO, BigDecimal::add)
                 )
         );
+    }
+
+    private ZugferdService.IssuerData createIssuer() {
+        return new ZugferdService.IssuerData(
+                NAME_OF_COMPANY,
+                STREET_OF_COMPANY,
+                POSTALCODE_OF_COMPANY,
+                CITY_OF_COMPANY,
+                COUNTRY_CODE_OF_COMPANY,
+                TAX_NUMBER_OF_COMPANY,
+                VAT_ID_NUMBER_OF_COMPANY,
+                SUPPORT_EMAIL,
+                CONTACT_NAME,
+                CONTACT_PHONE,
+                SUPPORT_EMAIL,
+                VAT_ID_NUMBER_OF_COMPANY,
+                BANK_BIC);
     }
 }
