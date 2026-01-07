@@ -22,7 +22,7 @@ public class StatisticsController {
 
     @GetMapping("/stats")
     public String stats() {
-        return GSON.toJson(statisticsService.getSimpleStats());
+        return "<!DOCTYPE html><html><body><span style=\"font-size:18pt;\">" + GSON.toJson(statisticsService.getSimpleStats()) + "</span></body></html>";
     }
 
 }
