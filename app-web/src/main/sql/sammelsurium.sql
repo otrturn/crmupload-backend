@@ -57,7 +57,7 @@ from app.customer_invoice
 order by customer_id;
 
 update app.customer_invoice
-    set invoice_mailing_date=NULL;
+set invoice_mailing_date=NULL;
 commit;
 
 delete
@@ -90,9 +90,8 @@ set is_test= true
 where crm_url like '%demo%';
 commit;
 
-select
-    (select count(*) from app.customer ) as customer,
-    (select count(*) from app.customer where enabled=true) as customerEnabled,
-    (select count(*) from app.customer_product where product='crm-upload') as productCrmUpload,
-    (select count(*) from app.customer_product where product='duplicate-check') as productDuplicateCheck;
+select (select count(*) from app.customer)                                           as customer,
+       (select count(*) from app.customer where enabled = true)                      as customerEnabled,
+       (select count(*) from app.customer_product where product = 'crm-upload')      as productCrmUpload,
+       (select count(*) from app.customer_product where product = 'duplicate-check') as productDuplicateCheck;
 

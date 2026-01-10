@@ -24,10 +24,6 @@ public class DuplicateCheckService {
             throw new IllegalArgumentException("processUpload: duplicate-check file must not be empty");
         }
 
-        if (!customerRepositoryPort.isEnabledByEmail(emailAddress)) {
-            throw new CustomerNotEnabledException("Customer with email is not enabled: " + emailAddress);
-        }
-
         if (customerRepositoryPort.isBlockedByEmail(emailAddress)) {
             throw new CustomerBlockedException("Customer with email is blocked: " + emailAddress);
         }
@@ -70,9 +66,6 @@ public class DuplicateCheckService {
     }
 
     public List<DuplicateCheckHistory> getDuplicateCheckHistoryByEmail(String emailAddress) {
-        if (!customerRepositoryPort.isEnabledByEmail(emailAddress)) {
-            throw new CustomerNotEnabledException("Customer with email is not enabled: " + emailAddress);
-        }
         if (customerRepositoryPort.isBlockedByEmail(emailAddress)) {
             throw new CustomerBlockedException("Customer with email is blocked: " + emailAddress);
         }

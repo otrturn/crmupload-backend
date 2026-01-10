@@ -26,10 +26,6 @@ public class CrmUploadService {
             throw new IllegalArgumentException("processCrmUpload: Uploaded file must not be empty");
         }
 
-        if (!customerRepositoryPort.isEnabledByEmail(emailAddress)) {
-            throw new CustomerNotEnabledException("Customer with email is not enabled: " + emailAddress);
-        }
-
         if (customerRepositoryPort.isBlockedByEmail(emailAddress)) {
             throw new CustomerBlockedException("Customer with email is blocked: " + emailAddress);
         }
@@ -91,9 +87,6 @@ public class CrmUploadService {
     }
 
     public List<CrmUploadHistory> getCrmUploadHistoryByEmail(String emailAddress) {
-        if (!customerRepositoryPort.isEnabledByEmail(emailAddress)) {
-            throw new CustomerNotEnabledException("Customer with email is not enabled: " + emailAddress);
-        }
         if (customerRepositoryPort.isBlockedByEmail(emailAddress)) {
             throw new CustomerBlockedException("Customer with email is blocked: " + emailAddress);
         }
