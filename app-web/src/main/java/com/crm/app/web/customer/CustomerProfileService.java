@@ -6,6 +6,7 @@ import com.crm.app.dto.CustomerStatusResponse;
 import com.crm.app.dto.UpdatePasswordRequest;
 import com.crm.app.port.customer.CustomerRepositoryPort;
 import com.crm.app.web.error.CustomerBlockedException;
+import com.crm.app.web.error.CustomerNotEnabledException;
 import com.crm.app.web.error.CustomerNotFoundException;
 import com.crm.app.web.error.UpdateRequestInvalidCustomerDataException;
 import com.crm.app.web.validation.UpdateRequestValidator;
@@ -21,6 +22,9 @@ public class CustomerProfileService {
     private final PasswordEncoder passwordEncoder;
 
     public CustomerProfile getCustomerByEmail(String emailAddress) {
+        if (!customerRepositoryPort.isEnabledByEmail(emailAddress)) {
+            throw new CustomerNotEnabledException("Customer with email is not enabled: " + emailAddress);
+        }
         if (customerRepositoryPort.isBlockedByEmail(emailAddress)) {
             throw new CustomerBlockedException("Customer with email is blocked: " + emailAddress);
         }
@@ -33,6 +37,9 @@ public class CustomerProfileService {
 
     public void updateCustomerProfile(String emailAddress, CustomerProfile request) {
         UpdateRequestValidator.assertValid(request);
+        if (!customerRepositoryPort.isEnabledByEmail(emailAddress)) {
+            throw new CustomerNotEnabledException("Customer with email is not enabled: " + emailAddress);
+        }
         if (customerRepositoryPort.isBlockedByEmail(emailAddress)) {
             throw new CustomerBlockedException("Customer with email is blocked: " + emailAddress);
         }
@@ -52,6 +59,9 @@ public class CustomerProfileService {
         if (request.password() == null || request.password().isBlank()) {
             throw new UpdateRequestInvalidCustomerDataException(emailAddress);
         }
+        if (!customerRepositoryPort.isEnabledByEmail(emailAddress)) {
+            throw new CustomerNotEnabledException("Customer with email is not enabled: " + emailAddress);
+        }
         if (customerRepositoryPort.isBlockedByEmail(emailAddress)) {
             throw new CustomerBlockedException("Customer with email is blocked: " + emailAddress);
         }
@@ -65,6 +75,9 @@ public class CustomerProfileService {
     }
 
     public CustomerStatusResponse getStatus(String emailAddress) {
+        if (!customerRepositoryPort.isEnabledByEmail(emailAddress)) {
+            throw new CustomerNotEnabledException("Customer with email is not enabled: " + emailAddress);
+        }
         if (customerRepositoryPort.isBlockedByEmail(emailAddress)) {
             throw new CustomerBlockedException("Customer with email is blocked: " + emailAddress);
         }

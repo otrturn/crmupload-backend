@@ -99,6 +99,22 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
+    @ExceptionHandler(CustomerNotEnabledException.class)
+    public ResponseEntity<ApiError> handleCustomerNotEnabled(CustomerNotEnabledException ex,
+                                                             HttpServletRequest request) {
+        log.warn("Customer is not enabled {}: {}", request.getRequestURI(), ex.getMessage());
+
+        ApiError body = new ApiError(
+                HttpStatus.CONFLICT.value(),
+                HttpStatus.CONFLICT.getReasonPhrase(),
+                ex.getMessage(),
+                request.getRequestURI(),
+                Instant.now(),
+                "CUSTOMER_NOT_ENABLED"
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+    }
+
     @ExceptionHandler(CustomerBlockedException.class)
     public ResponseEntity<ApiError> handleCustomerBlocked(CustomerBlockedException ex,
                                                           HttpServletRequest request) {
