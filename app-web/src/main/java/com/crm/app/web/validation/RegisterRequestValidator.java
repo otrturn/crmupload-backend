@@ -15,140 +15,125 @@ public final class RegisterRequestValidator {
     }
 
     public static void assertValid(RegisterRequest request) {
-        /*
-        NULL
-         */
+        requireRequest(request);
+
+        final String emailAddress = requireEmail(request);
+
+        requireNamesOrCompany(request, emailAddress);
+        requireAddress(request, emailAddress);
+        requireValidPostalCode(request, emailAddress);
+        requirePhoneNumber(request, emailAddress);
+        requireValidTaxId(request, emailAddress);
+        requireValidVatIdIfPresent(request, emailAddress);
+        requirePassword(request, emailAddress);
+        requireProducts(request, emailAddress);
+        requireAcknowledgement(request, emailAddress);
+    }
+
+    private static void requireRequest(RegisterRequest request) {
         if (request == null) {
             throw new RegisterRequestInvalidCustomerDataException("registration: request must not be null");
         }
+    }
 
-        /*
-        Email address
-         */
+    private static String requireEmail(RegisterRequest request) {
         if (stringIsEmpty(request.email_address())) {
             throw new RegisterRequestInvalidCustomerDataException("registration: Customer with no e-mail address");
         }
+        return request.email_address();
+    }
 
-        String emailAddress = request.email_address();
-
-        /*
-        Names
-         */
+    private static void requireNamesOrCompany(RegisterRequest request, String emailAddress) {
         boolean invalid =
                 (stringIsEmpty(request.firstname()) || stringIsEmpty(request.lastname()))
                         && stringIsEmpty(request.company_name());
 
         if (invalid) {
             throw new RegisterRequestInvalidCustomerDataException(
-                    String.format(
-                            "registration: Customer %s firstName/lastName/company_name invalid",
-                            emailAddress
-                    )
+                    String.format("registration: Customer %s firstName/lastName/company_name invalid", emailAddress)
             );
         }
+    }
 
-        /*
-        Address
-         */
-        invalid = stringIsEmpty(request.adrline1()) || stringIsEmpty(request.postalcode()) || stringIsEmpty(request.city()) || stringIsEmpty(request.country());
+    private static void requireAddress(RegisterRequest request, String emailAddress) {
+        boolean invalid = stringIsEmpty(request.adrline1())
+                || stringIsEmpty(request.postalcode())
+                || stringIsEmpty(request.city())
+                || stringIsEmpty(request.country());
 
         if (invalid) {
             throw new RegisterRequestInvalidCustomerDataException(
-                    String.format(
-                            "registration: Customer %s AdrLine1/postlCode/city/country invalid",
-                            emailAddress
-                    )
+                    String.format("registration: Customer %s AdrLine1/postlCode/city/country invalid", emailAddress)
             );
         }
+    }
 
-        /*
-        Postalcode
-         */
-        invalid = !CheckAddress.checkPostalCode(request.country(), request.postalcode());
-
+    private static void requireValidPostalCode(RegisterRequest request, String emailAddress) {
+        boolean invalid = !CheckAddress.checkPostalCode(request.country(), request.postalcode());
         if (invalid) {
             throw new RegisterRequestInvalidCustomerDataException(
-                    String.format(
-                            "registration: Customer %s postalCode for country invalid",
-                            emailAddress
-                    )
+                    String.format("registration: Customer %s postalCode for country invalid", emailAddress)
             );
         }
+    }
 
-        /*
-        Phone number
-         */
+    private static void requirePhoneNumber(RegisterRequest request, String emailAddress) {
         if (stringIsEmpty(request.phone_number())) {
             throw new RegisterRequestInvalidCustomerDataException(
-                    String.format(
-                            "registration: Customer %s phone number invalid",
-                            emailAddress
-                    )
+                    String.format("registration: Customer %s phone number invalid", emailAddress)
             );
         }
+    }
 
-        /*
-        Tax Id - Steuernummer
-         */
+    private static void requireValidTaxId(RegisterRequest request, String emailAddress) {
         if (stringIsEmpty(request.tax_id()) || !isValidGermanTaxId(request.tax_id())) {
             throw new RegisterRequestInvalidTaxIdException(
-                    String.format(
-                            "registration: Customer %s taxId invalid",
-                            emailAddress
-                    )
+                    String.format("registration: Customer %s taxId invalid", emailAddress)
             );
         }
+    }
 
-        /*
-        Vat Id - Ust-IdNr.
-         */
+    private static void requireValidVatIdIfPresent(RegisterRequest request, String emailAddress) {
         if (!stringIsEmpty(request.vat_id()) && !isValidVatId(request.vat_id())) {
             throw new RegisterRequestInvalidVatIdException(
-                    String.format(
-                            "registration: Customer %s vatId invalid",
-                            emailAddress
-                    )
+                    String.format("registration: Customer %s vatId invalid", emailAddress)
             );
         }
+    }
 
-        /*
-        Password
-         */
-        if (stringIsEmpty(request.password()))
+    private static void requirePassword(RegisterRequest request, String emailAddress) {
+        if (stringIsEmpty(request.password())) {
             throw new RegisterRequestInvalidCustomerDataException(
-                    String.format(
-                            "registration: Customer %s password invalid",
-                            emailAddress
-                    )
+                    String.format("registration: Customer %s password invalid", emailAddress)
             );
+        }
+    }
 
-        /*
-        Products
-         */
+    private static void requireProducts(RegisterRequest request, String emailAddress) {
         if (request.products() == null || request.products().isEmpty()) {
             throw new RegisterRequestInvalidCustomerDataException(
-                    String.format(
-                            "registration: Customer %s no products",
-                            emailAddress
-                    )
+                    String.format("registration: Customer %s no products", emailAddress)
             );
-
         }
+    }
 
-        /*
-        Acknowledgement
-         */
+    private static void requireAcknowledgement(RegisterRequest request, String emailAddress) {
         if (!request.agb_accepted()
                 || !request.is_entrepreneur()
                 || !request.request_immediate_service_start()
                 || !request.acknowledge_withdrawal_loss()) {
+
             String msg = String.format(
-                    "Customer with email %s -> invalid acknowledgement information [agb_accepted][is_entrepreneur][request_immediate_service_start][acknowledge_withdrawal_loss] [%s][%s][%s][%s]",
-                    emailAddress, request.agb_accepted(), request.is_entrepreneur(), request.request_immediate_service_start(), !request.acknowledge_withdrawal_loss());
+                    "Customer with email %s -> invalid acknowledgement information " +
+                            "[agb_accepted][is_entrepreneur][request_immediate_service_start][acknowledge_withdrawal_loss] " +
+                            "[%s][%s][%s][%s]",
+                    emailAddress,
+                    request.agb_accepted(),
+                    request.is_entrepreneur(),
+                    request.request_immediate_service_start(),
+                    request.acknowledge_withdrawal_loss()
+            );
             throw new CustomerAcknowledgementInvalidException(msg);
         }
-
     }
-
 }
-
