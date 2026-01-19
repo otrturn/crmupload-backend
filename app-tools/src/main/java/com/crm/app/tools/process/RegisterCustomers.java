@@ -83,6 +83,8 @@ public class RegisterCustomers {
                 base.postalcode(),
                 base.city(),
                 base.country(),
+                base.tax_id(),
+                base.vat_id(),
                 base.password(),
                 List.of(AppConstants.PRODUCT_CRM_UPLOAD, AppConstants.PRODUCT_DUPLICATE_CHECK),
                 true, true, true, true, "21.12.2025"

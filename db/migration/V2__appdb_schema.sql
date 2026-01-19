@@ -48,6 +48,8 @@ CREATE TABLE IF NOT EXISTS app.customer
     postalcode          TEXT        NOT NULL,
     city                TEXT        NOT NULL,
     country             TEXT        NOT NULL CHECK (country IN ('DE', 'AT', 'CH')),
+    tax_id              TEXT        NOT NULL,
+    vat_id              TEXT        NOT NULL,
     enabled             BOOLEAN     NOT NULL DEFAULT false,
     billable            BOOLEAN     NOT NULL DEFAULT true,
     non_billable_reason jsonb,

@@ -33,6 +33,10 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
     private static final String LITERAL_COMPANY_NAME_CAMELCASE = "companyName";
     private static final String LITERAL_PHONE_NUMBER = "phone_number";
     private static final String LITERAL_PHONE = "phone";
+    private static final String LITERAL_TAX_ID = "tax_id";
+    private static final String LITERAL_VAT_ID = "vat_id";
+    private static final String LITERAL_TAX_ID_CAMELCASE = "taxId";
+    private static final String LITERAL_VAT_ID_CAMELCASE = "vatId";
     private static final String LITERAL_ADRLINE1 = "adrline1";
     private static final String LITERAL_ADRLINE2 = "adrline2";
     private static final String LITERAL_POSTALCODE = "postalcode";
@@ -197,6 +201,8 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
                    postalcode,
                    city,
                    country,
+                   tax_id,
+                   vat_id,
                    activation_date
               FROM app.customer
              WHERE customer_id = :customerId
@@ -256,12 +262,14 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
                 INSERT INTO app.customer (
                     customer_id, customer_number, user_id, firstname, lastname, company_name,
                     email_address, phone_number,
-                    adrline1, adrline2, postalcode, city, country
+                    adrline1, adrline2, postalcode, city, country,
+                    tax_id, vat_id
                 )
                 VALUES (
                     :customerId, :customerNumber, :userId, :firstname, :lastname, :companyName,
                     :email_address, :phone,
-                    :adr1, :adr2, :postal, :city, :country
+                    :adr1, :adr2, :postal, :city, :country,
+                    :taxId, :vatId
                 )
                 """;
 
@@ -278,7 +286,9 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
                 .addValue(LITERAL_ADR2, customer.adrline2())
                 .addValue(LITERAL_POSTAL, customer.postalcode())
                 .addValue(LITERAL_CITY, customer.city())
-                .addValue(LITERAL_COUNTRY, customer.country());
+                .addValue(LITERAL_COUNTRY, customer.country())
+                .addValue(LITERAL_TAX_ID_CAMELCASE, customer.taxId())
+                .addValue(LITERAL_VAT_ID_CAMELCASE, customer.vatId());
 
         jdbc.update(sql, params);
 
@@ -521,6 +531,8 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
                        postalcode,
                        city,
                        country,
+                       tax_id,
+                       vat_id,
                        activation_date
                 FROM app.customer
                 WHERE email_address = :email
@@ -547,6 +559,8 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
                        postalcode,
                        city,
                        country,
+                       tax_id,
+                       vat_id,
                        activation_date
                 FROM app.customer
                 WHERE customer_id = :customer_id
@@ -572,6 +586,8 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
                 rs.getString(LITERAL_POSTALCODE),
                 rs.getString(LITERAL_CITY),
                 rs.getString(LITERAL_COUNTRY),
+                rs.getString(LITERAL_TAX_ID),
+                rs.getString(LITERAL_VAT_ID),
                 rs.getTimestamp(LITERAL_ACTIVATION_DATE)
         );
     }
@@ -589,6 +605,8 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
                 rs.getString(LITERAL_POSTALCODE),
                 rs.getString(LITERAL_CITY),
                 rs.getString(LITERAL_COUNTRY),
+                rs.getString(LITERAL_TAX_ID),
+                rs.getString(LITERAL_VAT_ID),
                 rs.getTimestamp(LITERAL_ACTIVATION_DATE)
         );
     }
@@ -725,7 +743,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
         MapSqlParameterSource params = new MapSqlParameterSource().addValue(LITERAL_CUSTOMER_ID_CAMELCASE, customerId);
 
         try {
-            List<Customer> rows = jdbc.query(SQL_FIND_CUSTOMER_BY_CUSTOMER_ID, params, (rs, rowNum) -> new Customer(rs.getLong(LITERAL_CUSTOMER_ID), rs.getString(LITERAL_CUSTOMER_NUMBER), rs.getLong(LITERAL_USER_ID), rs.getString(LITERAL_FIRSTNAME), rs.getString(LITERAL_LASTNAME), rs.getString(LITERAL_COMPANY_NAME), rs.getString(LITERAL_EMAIL_ADDRESS), rs.getString(LITERAL_PHONE_NUMBER), rs.getString(LITERAL_ADRLINE1), rs.getString(LITERAL_ADRLINE2), rs.getString(LITERAL_POSTALCODE), rs.getString(LITERAL_CITY), rs.getString(LITERAL_COUNTRY), null, rs.getTimestamp(LITERAL_ACTIVATION_DATE)));
+            List<Customer> rows = jdbc.query(SQL_FIND_CUSTOMER_BY_CUSTOMER_ID, params, (rs, rowNum) -> new Customer(rs.getLong(LITERAL_CUSTOMER_ID), rs.getString(LITERAL_CUSTOMER_NUMBER), rs.getLong(LITERAL_USER_ID), rs.getString(LITERAL_FIRSTNAME), rs.getString(LITERAL_LASTNAME), rs.getString(LITERAL_COMPANY_NAME), rs.getString(LITERAL_EMAIL_ADDRESS), rs.getString(LITERAL_PHONE_NUMBER), rs.getString(LITERAL_ADRLINE1), rs.getString(LITERAL_ADRLINE2), rs.getString(LITERAL_POSTALCODE), rs.getString(LITERAL_CITY), rs.getString(LITERAL_COUNTRY), rs.getString(LITERAL_TAX_ID), rs.getString(LITERAL_VAT_ID), null, rs.getTimestamp(LITERAL_ACTIVATION_DATE)));
 
             if (rows.isEmpty()) {
                 return Optional.empty();
@@ -739,7 +757,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
 
             List<String> products = loadActiveProductsForCustomer(customerId);
 
-            Customer enrichedCustomer = new Customer(customer.customerId(), customer.customerNumber(), customer.userId(), customer.firstname(), customer.lastname(), customer.companyName(), customer.emailAddress(), customer.phoneNumber(), customer.adrline1(), customer.adrline2(), customer.postalcode(), customer.city(), customer.country(), products, customer.activationDate());
+            Customer enrichedCustomer = new Customer(customer.customerId(), customer.customerNumber(), customer.userId(), customer.firstname(), customer.lastname(), customer.companyName(), customer.emailAddress(), customer.phoneNumber(), customer.adrline1(), customer.adrline2(), customer.postalcode(), customer.city(), customer.country(), customer.taxId(), customer.vatId(), products, customer.activationDate());
 
             return Optional.of(enrichedCustomer);
 

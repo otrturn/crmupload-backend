@@ -4,6 +4,10 @@ import com.crm.app.dto.RegisterRequest;
 import com.crm.app.util.CheckAddress;
 import com.crm.app.web.error.CustomerAcknowledgementInvalidException;
 import com.crm.app.web.error.RegisterRequestInvalidCustomerDataException;
+import com.crm.app.web.error.RegisterRequestInvalidTaxIdException;
+import com.crm.app.web.error.RegisterRequestInvalidVatIdException;
+
+import static com.crm.app.web.validation.RequestValidator.*;
 
 public final class RegisterRequestValidator {
 
@@ -84,6 +88,30 @@ public final class RegisterRequestValidator {
         }
 
         /*
+        Tax Id - Steuernummer
+         */
+        if (stringIsEmpty(request.tax_id()) || !isValidGermanTaxId(request.tax_id())) {
+            throw new RegisterRequestInvalidTaxIdException(
+                    String.format(
+                            "registration: Customer %s taxId invalid",
+                            emailAddress
+                    )
+            );
+        }
+
+        /*
+        Vat Id - Ust-IdNr.
+         */
+        if (!stringIsEmpty(request.vat_id()) && !isValidVatId(request.vat_id())) {
+            throw new RegisterRequestInvalidVatIdException(
+                    String.format(
+                            "registration: Customer %s vatId invalid",
+                            emailAddress
+                    )
+            );
+        }
+
+        /*
         Password
          */
         if (stringIsEmpty(request.password()))
@@ -122,8 +150,5 @@ public final class RegisterRequestValidator {
 
     }
 
-    private static boolean stringIsEmpty(String value) {
-        return value == null || value.isBlank();
-    }
 }
 

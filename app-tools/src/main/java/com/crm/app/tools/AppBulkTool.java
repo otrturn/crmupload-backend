@@ -50,7 +50,7 @@ public class AppBulkTool implements CommandLineRunner, ExitCodeGenerator {
         switch (args[0]) {
             case "--registerCustomer" -> {
                 RegisterRequest request = new RegisterRequest("Jürgen", "Becker", null, "ralf@test.de", "01702934959",
-                        "Teichgarten 17", null, "60333", "Frankfurt", "DE", "test1234",
+                        "Teichgarten 17", null, "60333", "Frankfurt", "DE", "013/815/08153", "DE123456789", "test1234",
                         List.of(AppConstants.PRODUCT_CRM_UPLOAD, AppConstants.PRODUCT_DUPLICATE_CHECK), true, true, true, true, "21.12.2025");
                 registerCustomers.process(10, request);
             }

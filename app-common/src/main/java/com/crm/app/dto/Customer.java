@@ -17,6 +17,8 @@ public record Customer(
         String postalcode,
         String city,
         String country,
+        String taxId,
+        String vatId,
         List<String> products,
         Timestamp activationDate
 ) {

@@ -86,6 +86,8 @@ public class CustomerRegistrationService {
                 request.postalcode(),
                 request.city(),
                 request.country(),
+                request.tax_id(),
+                request.vat_id(),
                 request.products(),
                 null
         );

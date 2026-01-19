@@ -2,7 +2,12 @@ package com.crm.app.web.validation;
 
 import com.crm.app.dto.CustomerProfile;
 import com.crm.app.util.CheckAddress;
+import com.crm.app.web.error.RegisterRequestInvalidTaxIdException;
+import com.crm.app.web.error.RegisterRequestInvalidVatIdException;
 import com.crm.app.web.error.UpdateRequestInvalidCustomerDataException;
+
+import static com.crm.app.web.validation.RequestValidator.isValidGermanTaxId;
+import static com.crm.app.web.validation.RequestValidator.isValidVatId;
 
 public final class UpdateRequestValidator {
 
@@ -77,6 +82,30 @@ public final class UpdateRequestValidator {
             throw new UpdateRequestInvalidCustomerDataException(
                     String.format(
                             "updateCustomer: Customer %s phone number invalid",
+                            emailAddress
+                    )
+            );
+        }
+
+        /*
+        Tax Id - Steuernummer
+         */
+        if (stringIsEmpty(customerProfile.tax_id()) || !isValidGermanTaxId(customerProfile.tax_id())) {
+            throw new RegisterRequestInvalidTaxIdException(
+                    String.format(
+                            "registration: Customer %s taxId invalid",
+                            emailAddress
+                    )
+            );
+        }
+
+        /*
+        Vat Id - Ust-IdNr.
+         */
+        if (!stringIsEmpty(customerProfile.vat_id()) && !isValidVatId(customerProfile.vat_id())) {
+            throw new RegisterRequestInvalidVatIdException(
+                    String.format(
+                            "registration: Customer %s vatId invalid",
                             emailAddress
                     )
             );

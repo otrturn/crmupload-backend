@@ -39,6 +39,8 @@ public class InvoiceRecordRowMapper implements RowMapper<InvoiceRecord> {
                 null,
                 null,
                 null,
+                null,
+                null,
                 null
         );
 
