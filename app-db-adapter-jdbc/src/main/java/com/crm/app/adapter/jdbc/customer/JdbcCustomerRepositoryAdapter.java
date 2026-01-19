@@ -624,6 +624,8 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
                     postalcode   = :postalcode,
                     city         = :city,
                     country      = :country,
+                    tax_id       = :taxId,
+                    vat_id       = :vatId,
                     modified     = now()
                 WHERE email_address = :email_address
                 """;
@@ -638,6 +640,8 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
                 .addValue(LITERAL_POSTALCODE, request.postalcode())
                 .addValue(LITERAL_CITY, request.city())
                 .addValue(LITERAL_COUNTRY, request.country())
+                .addValue(LITERAL_TAX_ID_CAMELCASE, request.tax_id())
+                .addValue(LITERAL_VAT_ID_CAMELCASE, request.vat_id())
                 .addValue(LITERAL_EMAIL_ADDRESS, emailAddress);
 
         return jdbc.update(sql, params);
