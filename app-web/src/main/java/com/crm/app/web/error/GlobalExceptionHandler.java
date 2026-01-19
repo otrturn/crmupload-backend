@@ -13,6 +13,7 @@ import java.time.Instant;
 
 @RestControllerAdvice
 @Slf4j
+@SuppressWarnings("squid:S6539")
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(IllegalStateException.class)
