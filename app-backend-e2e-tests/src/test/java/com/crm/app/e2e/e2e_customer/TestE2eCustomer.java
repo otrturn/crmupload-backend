@@ -110,6 +110,8 @@ class TestE2eCustomer extends E2eAbstract {
                 customerMeSuccess.response().postalcode(),
                 customerMeSuccess.response().city(),
                 customerMeSuccess.response().country(),
+                customerMeSuccess.response().tax_id(),
+                customerMeSuccess.response().vat_id(),
                 null);
         updateCustomerResult = updateCustomerClient.updateCustomer(baseRequest.email_address(), customerProfile, loginSuccess.response().token());
         assertThat(updateCustomerResult).isInstanceOf(UpdateCustomerResult.Success.class);
@@ -158,6 +160,8 @@ class TestE2eCustomer extends E2eAbstract {
                 customerMeSuccess.response().postalcode(),
                 customerMeSuccess.response().city(),
                 customerMeSuccess.response().country(),
+                customerMeSuccess.response().tax_id(),
+                customerMeSuccess.response().vat_id(),
                 null);
         updateCustomerResult = updateCustomerClient.updateCustomer(baseRequest.email_address(), customerProfile, loginSuccess.response().token());
         assertThat(updateCustomerResult).isInstanceOf(UpdateCustomerResult.Failure.class);

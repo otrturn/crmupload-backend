@@ -55,6 +55,8 @@ class TestE2eLoginSuccess extends E2eAbstract {
                 baseRequest.postalcode(),
                 baseRequest.city(),
                 baseRequest.country(),
+                baseRequest.tax_id(),
+                baseRequest.vat_id(),
                 baseRequest.password(),
                 baseRequest.products(),
                 baseRequest.agb_accepted(),

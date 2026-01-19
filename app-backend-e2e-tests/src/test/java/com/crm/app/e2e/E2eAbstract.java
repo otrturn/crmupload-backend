@@ -45,6 +45,7 @@ public abstract class E2eAbstract {
                 "01702934959",
                 "Teichgarten 17", null,
                 "60333", "Frankfurt", "DE",
+                "013/815/08153","DE123456789",
                 "test1234",
                 java.util.List.of(
                         AppConstants.PRODUCT_CRM_UPLOAD,

@@ -39,6 +39,8 @@ class TestE2eCrmUploadMissingProduct extends E2eAbstract {
                 baseRequest.postalcode(),
                 baseRequest.city(),
                 baseRequest.country(),
+                baseRequest.tax_id(),
+                baseRequest.vat_id(),
                 baseRequest.password(),
                 List.of(AppConstants.PRODUCT_DUPLICATE_CHECK),
                 baseRequest.agb_accepted(),
