@@ -86,7 +86,7 @@ public final class RegisterRequestValidator {
     }
 
     private static void requireValidTaxId(RegisterRequest request, String emailAddress) {
-        if (stringIsEmpty(request.tax_id()) || !isValidGermanTaxId(request.tax_id())) {
+        if ("DE".equals(request.country()) && (stringIsEmpty(request.tax_id()) || !isValidGermanTaxId(request.tax_id()))) {
             throw new RegisterRequestInvalidTaxIdException(
                     String.format("registration: Customer %s taxId invalid", emailAddress)
             );
@@ -94,7 +94,7 @@ public final class RegisterRequestValidator {
     }
 
     private static void requireValidVatIdIfPresent(RegisterRequest request, String emailAddress) {
-        if (!stringIsEmpty(request.vat_id()) && !isValidVatId(request.vat_id())) {
+        if ("DE".equals(request.country()) && !stringIsEmpty(request.vat_id()) && !isValidGermanVatId(request.vat_id())) {
             throw new RegisterRequestInvalidVatIdException(
                     String.format("registration: Customer %s vatId invalid", emailAddress)
             );

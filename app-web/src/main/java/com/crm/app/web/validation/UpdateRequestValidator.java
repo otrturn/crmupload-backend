@@ -2,12 +2,12 @@ package com.crm.app.web.validation;
 
 import com.crm.app.dto.CustomerProfile;
 import com.crm.app.util.CheckAddress;
-import com.crm.app.web.error.RegisterRequestInvalidTaxIdException;
-import com.crm.app.web.error.RegisterRequestInvalidVatIdException;
 import com.crm.app.web.error.UpdateRequestInvalidCustomerDataException;
+import com.crm.app.web.error.UpdateRequestInvalidTaxIdException;
+import com.crm.app.web.error.UpdateRequestInvalidVatIdException;
 
 import static com.crm.app.web.validation.RequestValidator.isValidGermanTaxId;
-import static com.crm.app.web.validation.RequestValidator.isValidVatId;
+import static com.crm.app.web.validation.RequestValidator.isValidGermanVatId;
 
 public final class UpdateRequestValidator {
 
@@ -90,8 +90,8 @@ public final class UpdateRequestValidator {
         /*
         Tax Id - Steuernummer
          */
-        if (stringIsEmpty(customerProfile.tax_id()) || !isValidGermanTaxId(customerProfile.tax_id())) {
-            throw new RegisterRequestInvalidTaxIdException(
+        if ("DE".equals(customerProfile.country()) && (stringIsEmpty(customerProfile.tax_id()) || !isValidGermanTaxId(customerProfile.tax_id()))) {
+            throw new UpdateRequestInvalidTaxIdException(
                     String.format(
                             "registration: Customer %s taxId invalid",
                             emailAddress
@@ -102,8 +102,8 @@ public final class UpdateRequestValidator {
         /*
         Vat Id - Ust-IdNr.
          */
-        if (!stringIsEmpty(customerProfile.vat_id()) && !isValidVatId(customerProfile.vat_id())) {
-            throw new RegisterRequestInvalidVatIdException(
+        if ("DE".equals(customerProfile.country()) && !stringIsEmpty(customerProfile.vat_id()) && !isValidGermanVatId(customerProfile.vat_id())) {
+            throw new UpdateRequestInvalidVatIdException(
                     String.format(
                             "registration: Customer %s vatId invalid",
                             emailAddress
