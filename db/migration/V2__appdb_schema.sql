@@ -367,6 +367,39 @@ ALTER TABLE app.duplicate_check_observation
             ON DELETE RESTRICT;
 
 -- ****************************************************************************************************
+-- customer_verification_task
+-- ****************************************************************************************************
+CREATE SEQUENCE app.sequence_customer_verification_task
+    START WITH 1
+    INCREMENT BY 1
+    MINVALUE 1
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE TABLE IF NOT EXISTS app.customer_verification_task
+(
+    verification_id             INT         NOT NULL,
+    customer_id                 INT         NOT NULL,
+    task_description            TEXT        NOT NULL,
+    task_resolution_description TEXT,
+    task_resolution_date        TIMESTAMPTZ,
+    created                     TIMESTAMPTZ NOT NULL DEFAULT now(),
+    modified                    TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+ALTER TABLE app.customer_verification_task
+    ADD CONSTRAINT uq_customer_verification_task_verification_id UNIQUE (verification_id);
+
+ALTER TABLE app.customer_verification_task
+    ADD CONSTRAINT fk_customer_verification_task_customer_id
+        FOREIGN KEY (customer_id)
+            REFERENCES app.customer (customer_id)
+            ON DELETE RESTRICT;
+
+CREATE INDEX idx_customer_verification_task_customer_id
+    ON app.customer_verification_task (customer_id);
+
+-- ****************************************************************************************************
 -- customer_invoice
 -- ****************************************************************************************************
 CREATE SEQUENCE app.sequence_customer_invoice
