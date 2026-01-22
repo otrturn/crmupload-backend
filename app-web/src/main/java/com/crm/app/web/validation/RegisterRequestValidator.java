@@ -7,7 +7,8 @@ import com.crm.app.web.error.RegisterRequestInvalidCustomerDataException;
 import com.crm.app.web.error.RegisterRequestInvalidTaxIdException;
 import com.crm.app.web.error.RegisterRequestInvalidVatIdException;
 
-import static com.crm.app.web.validation.RequestValidator.*;
+import static com.crm.app.web.validation.RequestValidator.isNotValidGermanVatId;
+import static com.crm.app.web.validation.RequestValidator.stringIsEmpty;
 
 public final class RegisterRequestValidator {
 
@@ -16,9 +17,7 @@ public final class RegisterRequestValidator {
 
     public static void assertValid(RegisterRequest request) {
         requireRequest(request);
-
         final String emailAddress = requireEmail(request);
-
         requireNamesOrCompany(request, emailAddress);
         requireAddress(request, emailAddress);
         requireValidPostalCode(request, emailAddress);
@@ -86,17 +85,17 @@ public final class RegisterRequestValidator {
     }
 
     private static void requireValidTaxId(RegisterRequest request, String emailAddress) {
-        if ("DE".equals(request.country()) && (stringIsEmpty(request.tax_id()) || !isValidGermanTaxId(request.tax_id()))) {
+        if ("DE".equals(request.country()) && (stringIsEmpty(request.tax_id()))) {
             throw new RegisterRequestInvalidTaxIdException(
-                    String.format("registration: Customer %s taxId invalid", emailAddress)
+                    String.format("registration: Customer %s taxId empty", emailAddress)
             );
         }
     }
 
     private static void requireValidVatIdIfPresent(RegisterRequest request, String emailAddress) {
-        if ("DE".equals(request.country()) && !stringIsEmpty(request.vat_id()) && !isValidGermanVatId(request.vat_id())) {
+        if ("DE".equals(request.country()) && !stringIsEmpty(request.vat_id()) && isNotValidGermanVatId(request.vat_id())) {
             throw new RegisterRequestInvalidVatIdException(
-                    String.format("registration: Customer %s vatId invalid", emailAddress)
+                    String.format("registration: Customer %s vatId empty or invalid", emailAddress)
             );
         }
     }
