@@ -15,4 +15,8 @@ public class WebUtils {
 
         return request.getRemoteAddr();
     }
+
+    public static boolean stringIsEmpty(String value) {
+        return value == null || value.isBlank();
+    }
 }

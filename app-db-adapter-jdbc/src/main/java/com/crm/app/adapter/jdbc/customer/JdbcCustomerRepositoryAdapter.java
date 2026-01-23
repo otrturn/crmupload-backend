@@ -28,8 +28,8 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
     private static final String LITERAL_EMAIL = "email";
     private static final String LITERAL_CUSTOMER_ID = "customer_id";
     private static final String LITERAL_CUSTOMER_ID_CAMELCASE = "customerId";
-    private static final String LITERAL_CUSTOMER_VERIFICATION_TASK_ID_CAMELCASE = "customerVerificationTaskId";
-    private static final String LITERAL_CUSTOMER_VERIFICATION_TASK_DESCRIPTION_CAMELCASE = "customerVerificationTaskDescription";
+    private static final String LITERAL_CUSTOMER_VERIFICATION_TASK_ID_CAMELCASE = "verificationTaskId";
+    private static final String LITERAL_CUSTOMER_VERIFICATION_TASK_DESCRIPTION_CAMELCASE = "taskDescription";
     private static final String LITERAL_USER_ID_CAMELCASE = "userId";
     private static final String LITERAL_COMPANY_NAME = "company_name";
     private static final String LITERAL_COMPANY_NAME_CAMELCASE = "companyName";
@@ -351,15 +351,15 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
     }
 
     @Override
-    public void insertCustomerVerificationTask(Customer customer, CustomerVerificationTask customerVerificationTask) {
+    public void insertCustomerVerificationTask(long customerId, CustomerVerificationTask customerVerificationTask) {
         String sql = """
                 INSERT INTO app.customer_verification_task (
-                    verification_id,
+                    verification_task_id,
                     customer_id,
                     task_description
                 )
                 VALUES (
-                    :verificationId,
+                    :verificationTaskId,
                     :customerId,
                     :taskDescription
                 )
@@ -367,7 +367,7 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
 
         var params = new MapSqlParameterSource()
                 .addValue(LITERAL_CUSTOMER_VERIFICATION_TASK_ID_CAMELCASE, customerVerificationTask.verificationTaskId())
-                .addValue(LITERAL_CUSTOMER_ID_CAMELCASE, customer.customerId())
+                .addValue(LITERAL_CUSTOMER_ID_CAMELCASE, customerId)
                 .addValue(LITERAL_CUSTOMER_VERIFICATION_TASK_DESCRIPTION_CAMELCASE, customerVerificationTask.taskDescription());
 
         jdbc.update(sql, params);

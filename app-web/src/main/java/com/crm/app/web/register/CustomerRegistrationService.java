@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import static com.crm.app.util.IdentityNumberCreator.createCustomerNumber;
+import static com.crm.app.web.validation.RequestValidator.isNotValidGermanTaxId;
 
 @Service
 @RequiredArgsConstructor
@@ -106,6 +107,8 @@ public class CustomerRegistrationService {
 
         customerRepository.insertCustomerAcknowledgement(customerAcknowledgement);
 
+        checkForVerificationTasks(customer);
+
         customerActivationService.sendActivationEmail(
                 emailAddress,
                 request.firstname() + " " + request.lastname(),
@@ -115,6 +118,12 @@ public class CustomerRegistrationService {
         return ResponseEntity
                 .status(201)
                 .body(new RegisterResponse(accountResult.jwtToken()));
+    }
+
+    private void checkForVerificationTasks(Customer customer) {
+        if ("DE".equals(customer.country()) && (isNotValidGermanTaxId(customer.taxId()))) {
+            customerRepository.insertCustomerVerificationTask(customer.customerId(), new CustomerVerificationTask(customer.customerId(), customerRepository.nextCustomerVerificationTaskId(), "taxId:" + customer.taxId()));
+        }
     }
 
 }

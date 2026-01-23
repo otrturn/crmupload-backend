@@ -5,10 +5,6 @@ public final class RequestValidator {
     private RequestValidator() {
     }
 
-    public static boolean stringIsEmpty(String value) {
-        return value == null || value.isBlank();
-    }
-
     public static boolean isNotValidGermanTaxId(String input) {
         if (input == null) return true;
 

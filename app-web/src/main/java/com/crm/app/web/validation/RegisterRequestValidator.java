@@ -7,8 +7,8 @@ import com.crm.app.web.error.RegisterRequestInvalidCustomerDataException;
 import com.crm.app.web.error.RegisterRequestInvalidTaxIdException;
 import com.crm.app.web.error.RegisterRequestInvalidVatIdException;
 
+import static com.crm.app.web.util.WebUtils.stringIsEmpty;
 import static com.crm.app.web.validation.RequestValidator.isNotValidGermanVatId;
-import static com.crm.app.web.validation.RequestValidator.stringIsEmpty;
 
 public final class RegisterRequestValidator {
 

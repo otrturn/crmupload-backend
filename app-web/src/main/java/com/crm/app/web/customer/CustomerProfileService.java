@@ -3,6 +3,7 @@ package com.crm.app.web.customer;
 
 import com.crm.app.dto.CustomerProfile;
 import com.crm.app.dto.CustomerStatusResponse;
+import com.crm.app.dto.CustomerVerificationTask;
 import com.crm.app.dto.UpdatePasswordRequest;
 import com.crm.app.port.customer.CustomerRepositoryPort;
 import com.crm.app.web.error.CustomerBlockedException;
@@ -12,6 +13,8 @@ import com.crm.app.web.validation.UpdateRequestValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import static com.crm.app.web.validation.RequestValidator.isNotValidGermanTaxId;
 
 @Service
 @RequiredArgsConstructor
@@ -46,6 +49,7 @@ public class CustomerProfileService {
         if (rows == 0) {
             throw new CustomerNotFoundException(emailAddress);
         }
+        checkForVerificationTasks(request);
     }
 
     public void updateCustomerPassword(String emailAddress, UpdatePasswordRequest request) {
@@ -73,5 +77,12 @@ public class CustomerProfileService {
         boolean hasOpenDuplicateChecks = customerRepositoryPort.isHasOpenDuplicateChecksByEmail(emailAddress);
 
         return new CustomerStatusResponse(isEnabled, hasOpenCrmUploads, hasOpenDuplicateChecks);
+    }
+
+    private void checkForVerificationTasks(CustomerProfile customer) {
+        if ("DE".equals(customer.country()) && (isNotValidGermanTaxId(customer.tax_id()))) {
+            long customerId = customerRepositoryPort.findCustomerIdByEmail(customer.email_address());
+            customerRepositoryPort.insertCustomerVerificationTask(customerId, new CustomerVerificationTask(customerId, customerRepositoryPort.nextCustomerVerificationTaskId(), "taxId:" + customer.tax_id()));
+        }
     }
 }

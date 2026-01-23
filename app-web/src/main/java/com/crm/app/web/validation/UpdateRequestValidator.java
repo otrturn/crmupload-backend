@@ -6,6 +6,7 @@ import com.crm.app.web.error.UpdateRequestInvalidCustomerDataException;
 import com.crm.app.web.error.UpdateRequestInvalidTaxIdException;
 import com.crm.app.web.error.UpdateRequestInvalidVatIdException;
 
+import static com.crm.app.web.util.WebUtils.stringIsEmpty;
 import static com.crm.app.web.validation.RequestValidator.isNotValidGermanVatId;
 
 public final class UpdateRequestValidator {
@@ -110,8 +111,5 @@ public final class UpdateRequestValidator {
         return customerProfile.email_address();
     }
 
-    private static boolean stringIsEmpty(String value) {
-        return value == null || value.isBlank();
-    }
 }
 
