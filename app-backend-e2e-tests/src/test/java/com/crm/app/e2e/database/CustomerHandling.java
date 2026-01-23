@@ -32,4 +32,23 @@ public class CustomerHandling {
         }
         return "";
     }
+
+    public static Long getVerificationTaskId(DataSource dataSource, String emailAddress, String taxId) {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement psUpdate = connection.prepareStatement("""
+                     SELECT verification_task_id from app.customer_verification_task
+                         WHERE customer_id = (SELECT customer_id from app.customer WHERE email_address=?)
+                         AND task_description=?
+                     """)) {
+            psUpdate.setString(1, emailAddress);
+            psUpdate.setString(2, "taxId:" + taxId);
+            ResultSet rs = psUpdate.executeQuery();
+            if (rs.next()) {
+                return rs.getLong(1);
+            }
+        } catch (Exception e) {
+            throw new IllegalStateException("getVerificationTaskId failed", e);
+        }
+        return 0L;
+    }
 }

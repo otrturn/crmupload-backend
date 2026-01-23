@@ -5,6 +5,7 @@ import com.crm.app.e2e.E2eAbstract;
 import com.crm.app.e2e.client.RegisterCustomerClient;
 import com.crm.app.e2e.client.RegisterCustomerResult;
 import com.crm.app.e2e.config.E2eProperties;
+import com.crm.app.e2e.database.CustomerHandling;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -116,7 +117,7 @@ class TestE2eRegisterCustomerTaxIdAndTaxVatId extends E2eAbstract {
                 baseRequest.postalcode(),
                 baseRequest.city(),
                 baseRequest.country(),
-                "123",
+                "1.2.3",
                 baseRequest.vat_id(),
                 baseRequest.password(),
                 baseRequest.products(),
@@ -128,6 +129,8 @@ class TestE2eRegisterCustomerTaxIdAndTaxVatId extends E2eAbstract {
         );
         result = client.register(invalidDataRequest);
         assertThat(result).isInstanceOf(RegisterCustomerResult.Success.class);
+        Long verificationTaskId = CustomerHandling.getVerificationTaskId(dataSource, invalidDataRequest.email_address(), invalidDataRequest.tax_id());
+        assertThat(verificationTaskId).isGreaterThan(0L);
 
         /*
          * Vat Id
