@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ActiveProfiles("e2e")
 @Tag("e2e-all")
 @Tag("e2e-fast")
-class TestE2eRegisterCustomerTaxVatId extends E2eAbstract {
+class TestE2eRegisterCustomerTaxIdAndTaxVatId extends E2eAbstract {
 
     @Autowired
     private E2eProperties e2eProperties;
@@ -101,6 +101,33 @@ class TestE2eRegisterCustomerTaxVatId extends E2eAbstract {
         assertThat(failure.error().code()).isEqualTo("REGISTER_INVALID_TAX_ID");
         assertThat(failure.error().message()).isNotBlank();
         assertThat(failure.error().path()).isEqualTo("/auth/register-customer");
+
+        /*
+         * Tax Id
+         */
+        invalidDataRequest = new RegisterRequest(
+                baseRequest.firstname(),
+                baseRequest.lastname(),
+                baseRequest.company_name(),
+                baseRequest.email_address(),
+                baseRequest.phone_number(),
+                baseRequest.adrline1(),
+                baseRequest.adrline2(),
+                baseRequest.postalcode(),
+                baseRequest.city(),
+                baseRequest.country(),
+                "123",
+                baseRequest.vat_id(),
+                baseRequest.password(),
+                baseRequest.products(),
+                baseRequest.agb_accepted(),
+                baseRequest.is_entrepreneur(),
+                baseRequest.request_immediate_service_start(),
+                baseRequest.acknowledge_withdrawal_loss(),
+                baseRequest.terms_version()
+        );
+        result = client.register(invalidDataRequest);
+        assertThat(result).isInstanceOf(RegisterCustomerResult.Success.class);
 
         /*
          * Vat Id

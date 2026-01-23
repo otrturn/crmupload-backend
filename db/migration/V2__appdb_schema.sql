@@ -378,7 +378,7 @@ CREATE SEQUENCE app.sequence_customer_verification_task
 
 CREATE TABLE IF NOT EXISTS app.customer_verification_task
 (
-    verification_id             INT         NOT NULL,
+    verification_task_id        INT         NOT NULL,
     customer_id                 INT         NOT NULL,
     task_description            TEXT        NOT NULL,
     task_resolution_description TEXT,
@@ -388,7 +388,7 @@ CREATE TABLE IF NOT EXISTS app.customer_verification_task
 );
 
 ALTER TABLE app.customer_verification_task
-    ADD CONSTRAINT uq_customer_verification_task_verification_id UNIQUE (verification_id);
+    ADD CONSTRAINT uq_customer_verification_task_verification_id UNIQUE (verification_task_id);
 
 ALTER TABLE app.customer_verification_task
     ADD CONSTRAINT fk_customer_verification_task_customer_id

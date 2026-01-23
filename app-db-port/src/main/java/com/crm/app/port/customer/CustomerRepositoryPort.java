@@ -11,7 +11,11 @@ public interface CustomerRepositoryPort {
 
     long nextCustomerId();
 
+    long nextCustomerVerificationTaskId();
+
     void insertCustomer(Customer customer);
+
+    void insertCustomerVerificationTask(Customer customer, CustomerVerificationTask customerVerificationTask);
 
     void insertCustomerAcknowledgement(CustomerAcknowledgement customerAcknowledgement);
 
