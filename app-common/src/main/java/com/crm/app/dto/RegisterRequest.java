@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -36,5 +37,29 @@ public class RegisterRequest {
     private boolean acknowledgeWithdrawalLoss;
 
     private String termsVersion;
+
+    public RegisterRequest(RegisterRequest other) {
+        this.firstname = other.firstname;
+        this.lastname = other.lastname;
+        this.companyName = other.companyName;
+        this.emailAddress = other.emailAddress;
+        this.phoneNumber = other.phoneNumber;
+        this.adrline1 = other.adrline1;
+        this.adrline2 = other.adrline2;
+        this.postalcode = other.postalcode;
+        this.city = other.city;
+        this.country = other.country;
+        this.taxId = other.taxId;
+        this.vatId = other.vatId;
+        this.password = other.password;
+
+        this.products = (other.products == null) ? List.of() : new ArrayList<>(other.products);
+
+        this.agbAccepted = other.agbAccepted;
+        this.isEntrepreneur = other.isEntrepreneur;
+        this.requestImmediateServiceStart = other.requestImmediateServiceStart;
+        this.acknowledgeWithdrawalLoss = other.acknowledgeWithdrawalLoss;
+        this.termsVersion = other.termsVersion;
+    }
 
 }

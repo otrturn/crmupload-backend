@@ -43,28 +43,8 @@ class TestE2eLoginSuccess extends E2eAbstract {
         /*
         Register
          */
-        RegisterRequest baseRequest = baseRegisterRequest();
-        RegisterRequest registerRequest = new RegisterRequest(
-                baseRequest.getFirstname(),
-                baseRequest.getLastname(),
-                baseRequest.getCompanyName(),
-                "ralf+00@test.de",
-                baseRequest.getPhoneNumber(),
-                baseRequest.getAdrline1(),
-                baseRequest.getAdrline2(),
-                baseRequest.getPostalcode(),
-                baseRequest.getCity(),
-                baseRequest.getCountry(),
-                baseRequest.getTaxId(),
-                baseRequest.getVatId(),
-                baseRequest.getPassword(),
-                baseRequest.getProducts(),
-                baseRequest.isAgbAccepted(),
-                baseRequest.isEntrepreneur(),
-                baseRequest.isRequestImmediateServiceStart(),
-                baseRequest.isAcknowledgeWithdrawalLoss(),
-                baseRequest.getTermsVersion()
-        );
+        RegisterRequest registerRequest = new RegisterRequest(baseRegisterRequest());
+        registerRequest.setEmailAddress("ralf+00@test.de");
 
         registerCustomerResult = registerClient.register(registerRequest);
         assertThat(registerCustomerResult).isInstanceOf(RegisterCustomerResult.Success.class);
