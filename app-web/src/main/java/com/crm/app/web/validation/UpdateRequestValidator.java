@@ -32,7 +32,7 @@ public final class UpdateRequestValidator {
     }
 
     private static void requireValidTaxId(CustomerProfile customerProfile, String emailAddress) {
-        if ("DE".equals(customerProfile.country()) && (stringIsEmpty(customerProfile.tax_id()))) {
+        if ("DE".equals(customerProfile.country()) && (stringIsEmpty(customerProfile.taxId()))) {
             throw new UpdateRequestInvalidTaxIdException(
                     String.format("updateCustomer: Customer %s taxId empty", emailAddress)
             );
@@ -40,7 +40,7 @@ public final class UpdateRequestValidator {
     }
 
     private static void requireValidVatIdIfPresent(CustomerProfile customerProfile, String emailAddress) {
-        if ("DE".equals(customerProfile.country()) && !stringIsEmpty(customerProfile.vat_id()) && isNotValidGermanVatId(customerProfile.vat_id())) {
+        if ("DE".equals(customerProfile.country()) && !stringIsEmpty(customerProfile.vatId()) && isNotValidGermanVatId(customerProfile.vatId())) {
             throw new UpdateRequestInvalidVatIdException(
                     String.format(
                             "updateCustomer: Customer %s vatId empty or invalid",
@@ -51,7 +51,7 @@ public final class UpdateRequestValidator {
     }
 
     private static void requirePhoneNumber(CustomerProfile customerProfile, String emailAddress) {
-        if (stringIsEmpty(customerProfile.phone_number())) {
+        if (stringIsEmpty(customerProfile.phoneNumber())) {
             throw new UpdateRequestInvalidCustomerDataException(
                     String.format(
                             "updateCustomer: Customer %s phone number invalid",
@@ -92,7 +92,7 @@ public final class UpdateRequestValidator {
     private static void requireNamesOrCompany(CustomerProfile customerProfile, String emailAddress) {
         boolean invalid =
                 (stringIsEmpty(customerProfile.firstname()) || stringIsEmpty(customerProfile.lastname()))
-                        && stringIsEmpty(customerProfile.company_name());
+                        && stringIsEmpty(customerProfile.companyName());
 
         if (invalid) {
             throw new UpdateRequestInvalidCustomerDataException(
@@ -105,10 +105,10 @@ public final class UpdateRequestValidator {
     }
 
     private static String requireEmail(CustomerProfile customerProfile) {
-        if (stringIsEmpty(customerProfile.email_address())) {
+        if (stringIsEmpty(customerProfile.emailAddress())) {
             throw new UpdateRequestInvalidCustomerDataException("updateCustomer: Customer with no e-mail address");
         }
-        return customerProfile.email_address();
+        return customerProfile.emailAddress();
     }
 
 }

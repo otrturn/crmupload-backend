@@ -99,19 +99,19 @@ class TestE2eCustomer extends E2eAbstract {
         /*
          * Update customer, valid data
          */
-        CustomerProfile customerProfile = new CustomerProfile(customerMeSuccess.response().customer_number(),
+        CustomerProfile customerProfile = new CustomerProfile(customerMeSuccess.response().customerNumber(),
                 "Hugo",
                 "Walter",
-                customerMeSuccess.response().company_name(),
-                customerMeSuccess.response().email_address(),
-                customerMeSuccess.response().phone_number(),
+                customerMeSuccess.response().companyName(),
+                customerMeSuccess.response().emailAddress(),
+                customerMeSuccess.response().phoneNumber(),
                 customerMeSuccess.response().adrline1(),
                 customerMeSuccess.response().adrline2(),
                 customerMeSuccess.response().postalcode(),
                 customerMeSuccess.response().city(),
                 customerMeSuccess.response().country(),
-                customerMeSuccess.response().tax_id(),
-                customerMeSuccess.response().vat_id(),
+                customerMeSuccess.response().taxId(),
+                customerMeSuccess.response().vatId(),
                 null);
         updateCustomerResult = updateCustomerClient.updateCustomer(baseRequest.emailAddress(), customerProfile, loginSuccess.response().token());
         assertThat(updateCustomerResult).isInstanceOf(UpdateCustomerResult.Success.class);
@@ -149,19 +149,19 @@ class TestE2eCustomer extends E2eAbstract {
         /*
          *  Update customer, invalid data
          */
-        customerProfile = new CustomerProfile(customerMeSuccess.response().customer_number(),
+        customerProfile = new CustomerProfile(customerMeSuccess.response().customerNumber(),
                 customerMeSuccess.response().firstname(),
                 customerMeSuccess.response().lastname(),
-                customerMeSuccess.response().company_name(),
-                customerMeSuccess.response().email_address(),
-                customerMeSuccess.response().phone_number(),
+                customerMeSuccess.response().companyName(),
+                customerMeSuccess.response().emailAddress(),
+                customerMeSuccess.response().phoneNumber(),
                 null,
                 customerMeSuccess.response().adrline2(),
                 customerMeSuccess.response().postalcode(),
                 customerMeSuccess.response().city(),
                 customerMeSuccess.response().country(),
-                customerMeSuccess.response().tax_id(),
-                customerMeSuccess.response().vat_id(),
+                customerMeSuccess.response().taxId(),
+                customerMeSuccess.response().vatId(),
                 null);
         updateCustomerResult = updateCustomerClient.updateCustomer(baseRequest.emailAddress(), customerProfile, loginSuccess.response().token());
         assertThat(updateCustomerResult).isInstanceOf(UpdateCustomerResult.Failure.class);

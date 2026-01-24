@@ -668,15 +668,15 @@ public class JdbcCustomerRepositoryAdapter implements CustomerRepositoryPort {
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue(LITERAL_FIRSTNAME, request.firstname())
                 .addValue(LITERAL_LASTNAME, request.lastname())
-                .addValue(LITERAL_COMPANY_NAME, request.company_name())
-                .addValue(LITERAL_PHONE_NUMBER, request.phone_number())
+                .addValue(LITERAL_COMPANY_NAME, request.companyName())
+                .addValue(LITERAL_PHONE_NUMBER, request.phoneNumber())
                 .addValue(LITERAL_ADRLINE1, request.adrline1())
                 .addValue(LITERAL_ADRLINE2, request.adrline2())
                 .addValue(LITERAL_POSTALCODE, request.postalcode())
                 .addValue(LITERAL_CITY, request.city())
                 .addValue(LITERAL_COUNTRY, request.country())
-                .addValue(LITERAL_TAX_ID_CAMELCASE, request.tax_id())
-                .addValue(LITERAL_VAT_ID_CAMELCASE, request.vat_id())
+                .addValue(LITERAL_TAX_ID_CAMELCASE, request.taxId())
+                .addValue(LITERAL_VAT_ID_CAMELCASE, request.vatId())
                 .addValue(LITERAL_EMAIL_ADDRESS, emailAddress);
 
         return jdbc.update(sql, params);

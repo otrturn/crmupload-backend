@@ -37,7 +37,7 @@ public class CustomerActivationService {
 
         CustomerProfile customerProfile = customerRepository.getCustomer(customerId);
 
-        activationMailService.sendConfirmationMail(customerProfile.email_address(), customerProfile.firstname() + " " + customerProfile.lastname());
+        activationMailService.sendConfirmationMail(customerProfile.emailAddress(), customerProfile.firstname() + " " + customerProfile.lastname());
 
         return true;
     }

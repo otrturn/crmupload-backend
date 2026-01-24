@@ -80,9 +80,9 @@ public class CustomerProfileService {
     }
 
     private void checkForVerificationTasks(CustomerProfile customer) {
-        if ("DE".equals(customer.country()) && (isNotValidGermanTaxId(customer.tax_id()))) {
-            long customerId = customerRepositoryPort.findCustomerIdByEmail(customer.email_address());
-            customerRepositoryPort.insertCustomerVerificationTask(customerId, new CustomerVerificationTask(customerId, customerRepositoryPort.nextCustomerVerificationTaskId(), "taxId:" + customer.tax_id()));
+        if ("DE".equals(customer.country()) && (isNotValidGermanTaxId(customer.taxId()))) {
+            long customerId = customerRepositoryPort.findCustomerIdByEmail(customer.emailAddress());
+            customerRepositoryPort.insertCustomerVerificationTask(customerId, new CustomerVerificationTask(customerId, customerRepositoryPort.nextCustomerVerificationTaskId(), "taxId:" + customer.taxId()));
         }
     }
 }
