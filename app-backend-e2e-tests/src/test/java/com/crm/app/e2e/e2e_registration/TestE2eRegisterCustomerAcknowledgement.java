@@ -44,25 +44,25 @@ class TestE2eRegisterCustomerAcknowledgement extends E2eAbstract {
             boolean acknowledgeWithdrawalLoss = (mask & 8) != 0;
 
             requests.add(new RegisterRequest(
-                    baseRequest.firstname(),
-                    baseRequest.lastname(),
-                    baseRequest.companyName(),
-                    baseRequest.emailAddress(),
-                    baseRequest.phoneNumber(),
-                    baseRequest.adrline1(),
-                    baseRequest.adrline2(),
-                    baseRequest.postalcode(),
-                    baseRequest.city(),
-                    baseRequest.country(),
-                    baseRequest.taxId(),
-                    baseRequest.vatId(),
-                    baseRequest.password(),
-                    baseRequest.products(),
+                    baseRequest.getFirstname(),
+                    baseRequest.getLastname(),
+                    baseRequest.getCompanyName(),
+                    baseRequest.getEmailAddress(),
+                    baseRequest.getPhoneNumber(),
+                    baseRequest.getAdrline1(),
+                    baseRequest.getAdrline2(),
+                    baseRequest.getPostalcode(),
+                    baseRequest.getCity(),
+                    baseRequest.getCountry(),
+                    baseRequest.getTaxId(),
+                    baseRequest.getVatId(),
+                    baseRequest.getPassword(),
+                    baseRequest.getProducts(),
                     agbAccepted,
                     isEntrepreneur,
                     requestImmediateServiceStart,
                     acknowledgeWithdrawalLoss,
-                    baseRequest.termsVersion()
+                    baseRequest.getTermsVersion()
             ));
         }
 
@@ -70,15 +70,20 @@ class TestE2eRegisterCustomerAcknowledgement extends E2eAbstract {
                 requests.stream()
                         // alles außer "alle true"
                         .filter(r -> !(
-                                r.agbAccepted()
+                                r.isAgbAccepted()
                                         && r.isEntrepreneur()
-                                        && r.requestImmediateServiceStart()
-                                        && r.acknowledgeWithdrawalLoss()
+                                        && r.isRequestImmediateServiceStart()
+                                        && r.isAcknowledgeWithdrawalLoss()
                         ))
                         .toList();
 
         for (RegisterRequest request : invalidRequests) {
-            log.info(String.format(" %s %s %s %s", request.agbAccepted(), request.isEntrepreneur(), request.requestImmediateServiceStart(), request.acknowledgeWithdrawalLoss()));
+            log.info(String.format(" %s %s %s %s",
+                    request.isAgbAccepted(),
+                    request.isEntrepreneur(),
+                    request.isRequestImmediateServiceStart(),
+                    request.isAcknowledgeWithdrawalLoss()
+            ));
 
             RegisterCustomerResult result = client.register(request);
 
@@ -93,25 +98,25 @@ class TestE2eRegisterCustomerAcknowledgement extends E2eAbstract {
         }
 
         RegisterRequest allTrueRequest = new RegisterRequest(
-                baseRequest.firstname(),
-                baseRequest.lastname(),
-                baseRequest.companyName(),
-                baseRequest.emailAddress(),
-                baseRequest.phoneNumber(),
-                baseRequest.adrline1(),
-                baseRequest.adrline2(),
-                baseRequest.postalcode(),
-                baseRequest.city(),
-                baseRequest.country(),
-                baseRequest.taxId(),
-                baseRequest.vatId(),
-                baseRequest.password(),
-                baseRequest.products(),
+                baseRequest.getFirstname(),
+                baseRequest.getLastname(),
+                baseRequest.getCompanyName(),
+                baseRequest.getEmailAddress(),
+                baseRequest.getPhoneNumber(),
+                baseRequest.getAdrline1(),
+                baseRequest.getAdrline2(),
+                baseRequest.getPostalcode(),
+                baseRequest.getCity(),
+                baseRequest.getCountry(),
+                baseRequest.getTaxId(),
+                baseRequest.getVatId(),
+                baseRequest.getPassword(),
+                baseRequest.getProducts(),
                 true,
                 true,
                 true,
                 true,
-                baseRequest.termsVersion()
+                baseRequest.getTermsVersion()
         );
 
         RegisterCustomerResult result = client.register(allTrueRequest);

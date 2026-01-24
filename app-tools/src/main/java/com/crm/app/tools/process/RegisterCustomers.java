@@ -43,10 +43,10 @@ public class RegisterCustomers {
                     throw new IllegalStateException("Register did not return an activation token");
                 }
 
-                Optional<UUID> activationToken = activationRepository.getTokenByEmail(req.emailAddress());
+                Optional<UUID> activationToken = activationRepository.getTokenByEmail(req.getEmailAddress());
 
                 if (activationToken.isEmpty()) {
-                    throw new IllegalStateException("no activation token for " + req.emailAddress());
+                    throw new IllegalStateException("no activation token for " + req.getEmailAddress());
                 }
 
                 String activationText = client.get()
@@ -70,22 +70,22 @@ public class RegisterCustomers {
     }
 
     private RegisterRequest generateRequestForIndex(RegisterRequest base, int index) {
-        String email = base.emailAddress().replace("@", "+" + index + "@");
+        String email = base.getEmailAddress().replace("@", "+" + index + "@");
 
         return new RegisterRequest(
-                base.firstname(),
-                base.lastname(),
-                base.companyName(),
+                base.getFirstname(),
+                base.getLastname(),
+                base.getCompanyName(),
                 email,
-                base.phoneNumber(),
-                base.adrline1(),
-                base.adrline2(),
-                base.postalcode(),
-                base.city(),
-                base.country(),
-                base.taxId(),
-                base.vatId(),
-                base.password(),
+                base.getPhoneNumber(),
+                base.getAdrline1(),
+                base.getAdrline2(),
+                base.getPostalcode(),
+                base.getCity(),
+                base.getCountry(),
+                base.getTaxId(),
+                base.getVatId(),
+                base.getPassword(),
                 List.of(AppConstants.PRODUCT_CRM_UPLOAD, AppConstants.PRODUCT_DUPLICATE_CHECK),
                 true, true, true, true, "21.12.2025"
         );

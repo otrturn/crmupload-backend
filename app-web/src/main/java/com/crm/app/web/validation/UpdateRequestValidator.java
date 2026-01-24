@@ -82,7 +82,7 @@ public final class UpdateRequestValidator {
         if (invalid) {
             throw new UpdateRequestInvalidCustomerDataException(
                     String.format(
-                            "updateCustomer: Customer %s AdrLine1/postlCode/city/country invalid",
+                            "updateCustomer: Customer %s AdrLine1/postalCode/city/country invalid",
                             emailAddress
                     )
             );

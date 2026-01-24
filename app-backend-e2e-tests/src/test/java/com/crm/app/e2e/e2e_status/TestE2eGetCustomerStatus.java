@@ -54,7 +54,7 @@ class TestE2eGetCustomerStatus extends E2eAbstract {
         /*
         Activate customer
          */
-        token = CustomerHandling.getActivationToken(dataSource, baseRequest.emailAddress());
+        token = CustomerHandling.getActivationToken(dataSource, baseRequest.getEmailAddress());
         ActivationResult activationResult = activationClient.activate(token);
         assertThat(activationResult).isInstanceOf(ActivationResult.Success.class);
         ActivationResult.Success activationSuccess = (ActivationResult.Success) activationResult;
@@ -63,7 +63,7 @@ class TestE2eGetCustomerStatus extends E2eAbstract {
         /*
         Login, customer enabled
          */
-        loginRequest = new LoginRequest(baseRequest.emailAddress(), baseRequest.password());
+        loginRequest = new LoginRequest(baseRequest.getEmailAddress(), baseRequest.getPassword());
         loginResult = loginClient.login(loginRequest);
         assertThat(loginResult).isInstanceOf(LoginResult.Success.class);
         loginSuccess = (LoginResult.Success) loginResult;
@@ -73,7 +73,7 @@ class TestE2eGetCustomerStatus extends E2eAbstract {
         /*
         Get status
          */
-        customerStatusResult = customerStatusClient.getStatus(baseRequest.emailAddress(), loginSuccess.response().token());
+        customerStatusResult = customerStatusClient.getStatus(baseRequest.getEmailAddress(), loginSuccess.response().token());
         assertThat(customerStatusResult).isInstanceOf(CustomerStatusResult.Success.class);
         customerStatusSuccess = (CustomerStatusResult.Success) customerStatusResult;
         assertTrue(customerStatusSuccess.response().enabled());

@@ -40,7 +40,7 @@ class TestE2eCrmUpload extends E2eAbstract {
         CustomerStatusResult.Success customerStatusSuccess;
 
         loginClient = new LoginClient(e2eProperties);
-        loginRequest = new LoginRequest(baseRequest.emailAddress(), baseRequest.password());
+        loginRequest = new LoginRequest(baseRequest.getEmailAddress(), baseRequest.getPassword());
         loginResult = loginClient.login(loginRequest);
         loginSuccess = (LoginResult.Success) loginResult;
 
@@ -58,7 +58,7 @@ class TestE2eCrmUpload extends E2eAbstract {
         sourceSystem = "Lexware";
         file = new ClassPathResource("files/Lexware_Generated_Correct.xlsx");
         uploadResult = uploadclient.crmUpload(
-                baseRequest.emailAddress(),
+                baseRequest.getEmailAddress(),
                 loginSuccess.response().token(),
                 sourceSystem,
                 "EspoCRM",
@@ -77,12 +77,12 @@ class TestE2eCrmUpload extends E2eAbstract {
          * Activate & login again
          */
         ActivationClient activationClient = new ActivationClient(e2eProperties);
-        String token = CustomerHandling.getActivationToken(dataSource, baseRequest.emailAddress());
+        String token = CustomerHandling.getActivationToken(dataSource, baseRequest.getEmailAddress());
         ActivationResult activationResult = activationClient.activate(token);
         Assertions.assertThat(activationResult).isInstanceOf(ActivationResult.Success.class);
 
         loginClient = new LoginClient(e2eProperties);
-        loginRequest = new LoginRequest(baseRequest.emailAddress(), baseRequest.password());
+        loginRequest = new LoginRequest(baseRequest.getEmailAddress(), baseRequest.getPassword());
         loginResult = loginClient.login(loginRequest);
         loginSuccess = (LoginResult.Success) loginResult;
 
@@ -92,7 +92,7 @@ class TestE2eCrmUpload extends E2eAbstract {
         sourceSystem = "LEXWARE";
         file = new ClassPathResource("files/Lexware_Generated_Correct.xlsx");
         uploadResult = uploadclient.crmUpload(
-                baseRequest.emailAddress(),
+                baseRequest.getEmailAddress(),
                 loginSuccess.response().token(),
                 sourceSystem,
                 "EspoCRM",
@@ -113,7 +113,7 @@ class TestE2eCrmUpload extends E2eAbstract {
         sourceSystem = "Lexware";
         file = new ClassPathResource("files/Lexware_Generated_Correct.xlsx");
         uploadResult = uploadclient.crmUpload(
-                baseRequest.emailAddress(),
+                baseRequest.getEmailAddress(),
                 loginSuccess.response().token(),
                 sourceSystem,
                 "ESPOCRM",
@@ -134,7 +134,7 @@ class TestE2eCrmUpload extends E2eAbstract {
         sourceSystem = "Lexware";
         file = new ClassPathResource("files/Lexware_Generated_Correct.xlsx");
         uploadResult = uploadclient.crmUpload(
-                baseRequest.emailAddress(),
+                baseRequest.getEmailAddress(),
                 loginSuccess.response().token(),
                 sourceSystem,
                 "EspoCRM",
@@ -149,7 +149,7 @@ class TestE2eCrmUpload extends E2eAbstract {
         /*
          *   Get status
          */
-        customerStatusResult = customerStatusClient.getStatus(baseRequest.emailAddress(), loginSuccess.response().token());
+        customerStatusResult = customerStatusClient.getStatus(baseRequest.getEmailAddress(), loginSuccess.response().token());
         Assertions.assertThat(customerStatusResult).isInstanceOf(CustomerStatusResult.Success.class);
         customerStatusSuccess = (CustomerStatusResult.Success) customerStatusResult;
         assertTrue(customerStatusSuccess.response().enabled());
@@ -161,7 +161,7 @@ class TestE2eCrmUpload extends E2eAbstract {
         sourceSystem = "Lexware";
         file = new ClassPathResource("files/Lexware_Generated_Correct.xlsx");
         uploadResult = uploadclient.crmUpload(
-                baseRequest.emailAddress(),
+                baseRequest.getEmailAddress(),
                 loginSuccess.response().token(),
                 sourceSystem,
                 "EspoCRM",
@@ -177,5 +177,4 @@ class TestE2eCrmUpload extends E2eAbstract {
         Assertions.assertThat(failure.error().message()).isNotBlank();
         Assertions.assertThat(failure.error().path()).isEqualTo("/api/crm-upload");
     }
-
 }

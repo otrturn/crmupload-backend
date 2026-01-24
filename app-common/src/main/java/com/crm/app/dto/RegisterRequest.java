@@ -1,16 +1,40 @@
 package com.crm.app.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.List;
 
-public record RegisterRequest(String firstname, String lastname, String companyName, String emailAddress,
-                              String phoneNumber,
-                              String adrline1, String adrline2, String postalcode, String city, String country,
-                              String taxId, String vatId,
-                              String password, List<String> products,
-                              boolean agbAccepted,
-                              boolean isEntrepreneur,
-                              boolean requestImmediateServiceStart,
-                              boolean acknowledgeWithdrawalLoss,
-                              String termsVersion
-) {
+@Getter
+@Setter
+@AllArgsConstructor
+public class RegisterRequest {
+
+    private String firstname;
+    private String lastname;
+    private String companyName;
+    private String emailAddress;
+
+    private String phoneNumber;
+
+    private String adrline1;
+    private String adrline2;
+    private String postalcode;
+    private String city;
+    private String country;
+
+    private String taxId;
+    private String vatId;
+
+    private String password;
+    private List<String> products;
+
+    private boolean agbAccepted;
+    private boolean isEntrepreneur;
+    private boolean requestImmediateServiceStart;
+    private boolean acknowledgeWithdrawalLoss;
+
+    private String termsVersion;
+
 }

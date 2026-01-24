@@ -38,25 +38,25 @@ class TestE2eRegisterCustomerProducts extends E2eAbstract {
          * Product NULL
          */
         RegisterRequest invalidDataRequest = new RegisterRequest(
-                baseRequest.firstname(),
-                baseRequest.lastname(),
-                baseRequest.companyName(),
-                baseRequest.emailAddress(),
-                baseRequest.phoneNumber(),
-                baseRequest.adrline1(),
-                baseRequest.adrline2(),
-                baseRequest.postalcode(),
-                baseRequest.city(),
-                baseRequest.country(),
-                baseRequest.taxId(),
-                baseRequest.vatId(),
-                baseRequest.password(),
+                baseRequest.getFirstname(),
+                baseRequest.getLastname(),
+                baseRequest.getCompanyName(),
+                baseRequest.getEmailAddress(),
+                baseRequest.getPhoneNumber(),
+                baseRequest.getAdrline1(),
+                baseRequest.getAdrline2(),
+                baseRequest.getPostalcode(),
+                baseRequest.getCity(),
+                baseRequest.getCountry(),
+                baseRequest.getTaxId(),
+                baseRequest.getVatId(),
+                baseRequest.getPassword(),
                 null,
-                baseRequest.agbAccepted(),
+                baseRequest.isAgbAccepted(),
                 baseRequest.isEntrepreneur(),
-                baseRequest.requestImmediateServiceStart(),
-                baseRequest.acknowledgeWithdrawalLoss(),
-                baseRequest.termsVersion()
+                baseRequest.isRequestImmediateServiceStart(),
+                baseRequest.isAcknowledgeWithdrawalLoss(),
+                baseRequest.getTermsVersion()
         );
         result = client.register(invalidDataRequest);
 
@@ -73,25 +73,25 @@ class TestE2eRegisterCustomerProducts extends E2eAbstract {
          * Product Empty
          */
         invalidDataRequest = new RegisterRequest(
-                baseRequest.firstname(),
-                baseRequest.lastname(),
-                baseRequest.companyName(),
-                baseRequest.emailAddress(),
-                baseRequest.phoneNumber(),
-                baseRequest.adrline1(),
-                baseRequest.adrline2(),
-                baseRequest.postalcode(),
-                baseRequest.city(),
-                baseRequest.country(),
-                baseRequest.taxId(),
-                baseRequest.vatId(),
-                baseRequest.password(),
+                baseRequest.getFirstname(),
+                baseRequest.getLastname(),
+                baseRequest.getCompanyName(),
+                baseRequest.getEmailAddress(),
+                baseRequest.getPhoneNumber(),
+                baseRequest.getAdrline1(),
+                baseRequest.getAdrline2(),
+                baseRequest.getPostalcode(),
+                baseRequest.getCity(),
+                baseRequest.getCountry(),
+                baseRequest.getTaxId(),
+                baseRequest.getVatId(),
+                baseRequest.getPassword(),
                 new ArrayList<>(),
-                baseRequest.agbAccepted(),
+                baseRequest.isAgbAccepted(),
                 baseRequest.isEntrepreneur(),
-                baseRequest.requestImmediateServiceStart(),
-                baseRequest.acknowledgeWithdrawalLoss(),
-                baseRequest.termsVersion()
+                baseRequest.isRequestImmediateServiceStart(),
+                baseRequest.isAcknowledgeWithdrawalLoss(),
+                baseRequest.getTermsVersion()
         );
         result = client.register(invalidDataRequest);
 
@@ -108,25 +108,25 @@ class TestE2eRegisterCustomerProducts extends E2eAbstract {
          * Product unknown
          */
         invalidDataRequest = new RegisterRequest(
-                baseRequest.firstname(),
-                baseRequest.lastname(),
-                baseRequest.companyName(),
-                baseRequest.emailAddress(),
-                baseRequest.phoneNumber(),
-                baseRequest.adrline1(),
-                baseRequest.adrline2(),
-                baseRequest.postalcode(),
-                baseRequest.city(),
-                baseRequest.country(),
-                baseRequest.taxId(),
-                baseRequest.vatId(),
-                baseRequest.password(),
+                baseRequest.getFirstname(),
+                baseRequest.getLastname(),
+                baseRequest.getCompanyName(),
+                baseRequest.getEmailAddress(),
+                baseRequest.getPhoneNumber(),
+                baseRequest.getAdrline1(),
+                baseRequest.getAdrline2(),
+                baseRequest.getPostalcode(),
+                baseRequest.getCity(),
+                baseRequest.getCountry(),
+                baseRequest.getTaxId(),
+                baseRequest.getVatId(),
+                baseRequest.getPassword(),
                 List.of("helgoland"),
-                baseRequest.agbAccepted(),
+                baseRequest.isAgbAccepted(),
                 baseRequest.isEntrepreneur(),
-                baseRequest.requestImmediateServiceStart(),
-                baseRequest.acknowledgeWithdrawalLoss(),
-                baseRequest.termsVersion()
+                baseRequest.isRequestImmediateServiceStart(),
+                baseRequest.isAcknowledgeWithdrawalLoss(),
+                baseRequest.getTermsVersion()
         );
         result = client.register(invalidDataRequest);
 
@@ -143,25 +143,25 @@ class TestE2eRegisterCustomerProducts extends E2eAbstract {
          * Product multiple identical entries
          */
         invalidDataRequest = new RegisterRequest(
-                baseRequest.firstname(),
-                baseRequest.lastname(),
-                baseRequest.companyName(),
-                baseRequest.emailAddress(),
-                baseRequest.phoneNumber(),
-                baseRequest.adrline1(),
-                baseRequest.adrline2(),
-                baseRequest.postalcode(),
-                baseRequest.city(),
-                baseRequest.country(),
-                baseRequest.taxId(),
-                baseRequest.vatId(),
-                baseRequest.password(),
+                baseRequest.getFirstname(),
+                baseRequest.getLastname(),
+                baseRequest.getCompanyName(),
+                baseRequest.getEmailAddress(),
+                baseRequest.getPhoneNumber(),
+                baseRequest.getAdrline1(),
+                baseRequest.getAdrline2(),
+                baseRequest.getPostalcode(),
+                baseRequest.getCity(),
+                baseRequest.getCountry(),
+                baseRequest.getTaxId(),
+                baseRequest.getVatId(),
+                baseRequest.getPassword(),
                 List.of(AppConstants.PRODUCT_CRM_UPLOAD, AppConstants.PRODUCT_CRM_UPLOAD),
-                baseRequest.agbAccepted(),
+                baseRequest.isAgbAccepted(),
                 baseRequest.isEntrepreneur(),
-                baseRequest.requestImmediateServiceStart(),
-                baseRequest.acknowledgeWithdrawalLoss(),
-                baseRequest.termsVersion()
+                baseRequest.isRequestImmediateServiceStart(),
+                baseRequest.isAcknowledgeWithdrawalLoss(),
+                baseRequest.getTermsVersion()
         );
         result = client.register(invalidDataRequest);
 
@@ -174,5 +174,4 @@ class TestE2eRegisterCustomerProducts extends E2eAbstract {
         assertThat(failure.error().message()).isNotBlank();
         assertThat(failure.error().path()).isEqualTo("/auth/register-customer");
     }
-
 }

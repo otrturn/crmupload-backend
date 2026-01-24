@@ -29,37 +29,38 @@ class TestE2eCrmUploadMissingProduct extends E2eAbstract {
     void registerCustomer_conflict_crmUploadMissingProduct() {
         RegisterRequest baseRequest = baseRegisterRequest();
         RegisterRequest invalidRequest = new RegisterRequest(
-                baseRequest.firstname(),
-                baseRequest.lastname(),
-                baseRequest.companyName(),
-                baseRequest.emailAddress(),
-                baseRequest.phoneNumber(),
-                baseRequest.adrline1(),
-                baseRequest.adrline2(),
-                baseRequest.postalcode(),
-                baseRequest.city(),
-                baseRequest.country(),
-                baseRequest.taxId(),
-                baseRequest.vatId(),
-                baseRequest.password(),
+                baseRequest.getFirstname(),
+                baseRequest.getLastname(),
+                baseRequest.getCompanyName(),
+                baseRequest.getEmailAddress(),
+                baseRequest.getPhoneNumber(),
+                baseRequest.getAdrline1(),
+                baseRequest.getAdrline2(),
+                baseRequest.getPostalcode(),
+                baseRequest.getCity(),
+                baseRequest.getCountry(),
+                baseRequest.getTaxId(),
+                baseRequest.getVatId(),
+                baseRequest.getPassword(),
                 List.of(AppConstants.PRODUCT_DUPLICATE_CHECK),
-                baseRequest.agbAccepted(),
+                baseRequest.isAgbAccepted(),
                 baseRequest.isEntrepreneur(),
-                baseRequest.requestImmediateServiceStart(),
-                baseRequest.acknowledgeWithdrawalLoss(),
-                baseRequest.termsVersion());
+                baseRequest.isRequestImmediateServiceStart(),
+                baseRequest.isAcknowledgeWithdrawalLoss(),
+                baseRequest.getTermsVersion()
+        );
 
         RegisterCustomerClient registerclient = new RegisterCustomerClient(e2eProperties);
         RegisterCustomerResult registerCustomerResult = registerclient.register(invalidRequest);
         Assertions.assertThat(registerCustomerResult).isInstanceOf(RegisterCustomerResult.Success.class);
 
         ActivationClient activationClient = new ActivationClient(e2eProperties);
-        String token = CustomerHandling.getActivationToken(dataSource, invalidRequest.emailAddress());
+        String token = CustomerHandling.getActivationToken(dataSource, invalidRequest.getEmailAddress());
         ActivationResult activationResult = activationClient.activate(token);
         Assertions.assertThat(activationResult).isInstanceOf(ActivationResult.Success.class);
 
         LoginClient loginClient = new LoginClient(e2eProperties);
-        LoginRequest loginRequest = new LoginRequest(invalidRequest.emailAddress(), invalidRequest.password());
+        LoginRequest loginRequest = new LoginRequest(invalidRequest.getEmailAddress(), invalidRequest.getPassword());
         LoginResult loginResult = loginClient.login(loginRequest);
         LoginResult.Success loginSuccess = (LoginResult.Success) loginResult;
 
@@ -75,7 +76,7 @@ class TestE2eCrmUploadMissingProduct extends E2eAbstract {
         sourceSystem = "Lexware";
         file = new ClassPathResource("files/Lexware_Generated_Correct.xlsx");
         uploadResult = uploadclient.crmUpload(
-                invalidRequest.emailAddress(),
+                invalidRequest.getEmailAddress(),
                 loginSuccess.response().token(),
                 sourceSystem,
                 "EspoCRM",
@@ -90,5 +91,4 @@ class TestE2eCrmUploadMissingProduct extends E2eAbstract {
         Assertions.assertThat(failure.error().message()).isNotBlank();
         Assertions.assertThat(failure.error().path()).isEqualTo("/api/crm-upload");
     }
-
 }

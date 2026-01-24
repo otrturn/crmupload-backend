@@ -27,7 +27,7 @@ public class CustomerRegistrationService {
 
     @Transactional
     public ResponseEntity<RegisterResponse> registerCustomer(RegisterRequest request, String ipAddress, String userAgent) {
-        String emailAddress = request.emailAddress();
+        String emailAddress = request.getEmailAddress();
 
         RegisterRequestValidator.assertValid(request);
 
@@ -41,7 +41,7 @@ public class CustomerRegistrationService {
         /*
         Products
          */
-        for (String product : request.products()) {
+        for (String product : request.getProducts()) {
             if (!AppConstants.availableProducts().contains(product)) {
                 String msg = String.format(
                         "Customer with email %s -> unknown product %s",
@@ -50,7 +50,7 @@ public class CustomerRegistrationService {
             }
         }
 
-        if (request.products().stream().distinct().count() != request.products().size()) {
+        if (request.getProducts().stream().distinct().count() != request.getProducts().size()) {
             throw new CustomerProductInvalidException(
                     String.format(
                             "registration: Customer %s invalid list of products",
@@ -61,15 +61,15 @@ public class CustomerRegistrationService {
         /*
         Terms of service
          */
-        if (!appWebActivationProperties.getAllowedTermsVersions().contains(request.termsVersion())) {
+        if (!appWebActivationProperties.getAllowedTermsVersions().contains(request.getTermsVersion())) {
             String msg = String.format(
                     "Customer with email %s -> invalid/unknown terms version %s",
-                    emailAddress, request.termsVersion());
+                    emailAddress, request.getTermsVersion());
             throw new CustomerTermsVersionInvalidException(msg);
         }
 
         UserAccountRegistrationResult accountResult =
-                userAccountRegistrationService.registerUserAccount(emailAddress, request.password());
+                userAccountRegistrationService.registerUserAccount(emailAddress, request.getPassword());
 
         long customerId = customerRepository.nextCustomerId();
 
@@ -77,30 +77,30 @@ public class CustomerRegistrationService {
                 customerId,
                 createCustomerNumber(customerId),
                 accountResult.userId(),
-                request.firstname(),
-                request.lastname(),
-                request.companyName(),
-                request.emailAddress(),
-                request.phoneNumber(),
-                request.adrline1(),
-                request.adrline2(),
-                request.postalcode(),
-                request.city(),
-                request.country(),
-                request.taxId(),
-                request.vatId(),
-                request.products(),
+                request.getFirstname(),
+                request.getLastname(),
+                request.getCompanyName(),
+                request.getEmailAddress(),
+                request.getPhoneNumber(),
+                request.getAdrline1(),
+                request.getAdrline2(),
+                request.getPostalcode(),
+                request.getCity(),
+                request.getCountry(),
+                request.getTaxId(),
+                request.getVatId(),
+                request.getProducts(),
                 null
         );
 
         customerRepository.insertCustomer(customer);
 
         CustomerAcknowledgement customerAcknowledgement = new CustomerAcknowledgement(customerId,
-                request.agbAccepted(),
+                request.isAgbAccepted(),
                 request.isEntrepreneur(),
-                request.requestImmediateServiceStart(),
-                request.acknowledgeWithdrawalLoss(),
-                request.termsVersion(),
+                request.isRequestImmediateServiceStart(),
+                request.isAcknowledgeWithdrawalLoss(),
+                request.getTermsVersion(),
                 ipAddress,
                 userAgent
         );
@@ -111,7 +111,7 @@ public class CustomerRegistrationService {
 
         customerActivationService.sendActivationEmail(
                 emailAddress,
-                request.firstname() + " " + request.lastname(),
+                request.getFirstname() + " " + request.getLastname(),
                 customerId
         );
 

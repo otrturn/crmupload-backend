@@ -51,7 +51,7 @@ class TestE2eCrmUploadAwaitAnswer extends E2eAbstract {
          * Login
          */
         loginClient = new LoginClient(e2eProperties);
-        loginRequest = new LoginRequest(baseRequest.emailAddress(), baseRequest.password());
+        loginRequest = new LoginRequest(baseRequest.getEmailAddress(), baseRequest.getPassword());
         loginResult = loginClient.login(loginRequest);
         loginSuccess = (LoginResult.Success) loginResult;
 
@@ -67,7 +67,7 @@ class TestE2eCrmUploadAwaitAnswer extends E2eAbstract {
          * Activate
          */
         ActivationClient activationClient = new ActivationClient(e2eProperties);
-        String token = CustomerHandling.getActivationToken(dataSource, baseRequest.emailAddress());
+        String token = CustomerHandling.getActivationToken(dataSource, baseRequest.getEmailAddress());
         ActivationResult activationResult = activationClient.activate(token);
         Assertions.assertThat(activationResult).isInstanceOf(ActivationResult.Success.class);
 
@@ -77,7 +77,7 @@ class TestE2eCrmUploadAwaitAnswer extends E2eAbstract {
         sourceSystem = "Lexware";
         file = new ClassPathResource("files/Lexware_Generated_Correct.xlsx");
         uploadResult = uploadclient.crmUpload(
-                baseRequest.emailAddress(),
+                baseRequest.getEmailAddress(),
                 loginSuccess.response().token(),
                 sourceSystem,
                 "EspoCRM",
@@ -92,7 +92,7 @@ class TestE2eCrmUploadAwaitAnswer extends E2eAbstract {
         /*
          *  Get status
          */
-        customerStatusResult = customerStatusClient.getStatus(baseRequest.emailAddress(), loginSuccess.response().token());
+        customerStatusResult = customerStatusClient.getStatus(baseRequest.getEmailAddress(), loginSuccess.response().token());
         Assertions.assertThat(customerStatusResult).isInstanceOf(CustomerStatusResult.Success.class);
         customerStatusSuccess = (CustomerStatusResult.Success) customerStatusResult;
         assertTrue(customerStatusSuccess.response().enabled());
@@ -105,7 +105,7 @@ class TestE2eCrmUploadAwaitAnswer extends E2eAbstract {
                 .atMost(Duration.ofSeconds(120))
                 .pollInterval(Duration.ofSeconds(2))
                 .untilAsserted(() -> {
-                    CustomerStatusResult r = customerStatusClient.getStatus(baseRequest.emailAddress(), loginSuccess.response().token());
+                    CustomerStatusResult r = customerStatusClient.getStatus(baseRequest.getEmailAddress(), loginSuccess.response().token());
                     assertThat(r).isInstanceOf(CustomerStatusResult.Success.class);
 
                     CustomerStatusResult.Success s = (CustomerStatusResult.Success) r;
@@ -116,7 +116,7 @@ class TestE2eCrmUploadAwaitAnswer extends E2eAbstract {
         /*
          *  History
          */
-        crmUploadHistoryResult = crmUploadHistoryClient.getCrmUploadHistory(baseRequest.emailAddress(), loginSuccess.response().token());
+        crmUploadHistoryResult = crmUploadHistoryClient.getCrmUploadHistory(baseRequest.getEmailAddress(), loginSuccess.response().token());
         Assertions.assertThat(crmUploadHistoryResult).isInstanceOf(CrmUploadHistoryResult.Success.class);
         crmUploadHistorySuccess = (CrmUploadHistoryResult.Success) crmUploadHistoryResult;
         assertFalse(crmUploadHistorySuccess.response().crmUploadHistory().isEmpty());
@@ -129,7 +129,7 @@ class TestE2eCrmUploadAwaitAnswer extends E2eAbstract {
         sourceSystem = "Lexware";
         file = new ClassPathResource("files/Lexware_Generated_Invalid.xlsx");
         uploadResult = uploadclient.crmUpload(
-                baseRequest.emailAddress(),
+                baseRequest.getEmailAddress(),
                 loginSuccess.response().token(),
                 sourceSystem,
                 "EspoCRM",
@@ -144,7 +144,7 @@ class TestE2eCrmUploadAwaitAnswer extends E2eAbstract {
         /*
          *  Get status
          */
-        customerStatusResult = customerStatusClient.getStatus(baseRequest.emailAddress(), loginSuccess.response().token());
+        customerStatusResult = customerStatusClient.getStatus(baseRequest.getEmailAddress(), loginSuccess.response().token());
         Assertions.assertThat(customerStatusResult).isInstanceOf(CustomerStatusResult.Success.class);
         customerStatusSuccess = (CustomerStatusResult.Success) customerStatusResult;
         assertTrue(customerStatusSuccess.response().enabled());
@@ -157,7 +157,7 @@ class TestE2eCrmUploadAwaitAnswer extends E2eAbstract {
                 .atMost(Duration.ofSeconds(120))
                 .pollInterval(Duration.ofSeconds(2))
                 .untilAsserted(() -> {
-                    CustomerStatusResult r = customerStatusClient.getStatus(baseRequest.emailAddress(), loginSuccess.response().token());
+                    CustomerStatusResult r = customerStatusClient.getStatus(baseRequest.getEmailAddress(), loginSuccess.response().token());
                     assertThat(r).isInstanceOf(CustomerStatusResult.Success.class);
 
                     CustomerStatusResult.Success s = (CustomerStatusResult.Success) r;
@@ -168,7 +168,7 @@ class TestE2eCrmUploadAwaitAnswer extends E2eAbstract {
         /*
          *  History
          */
-        crmUploadHistoryResult = crmUploadHistoryClient.getCrmUploadHistory(baseRequest.emailAddress(), loginSuccess.response().token());
+        crmUploadHistoryResult = crmUploadHistoryClient.getCrmUploadHistory(baseRequest.getEmailAddress(), loginSuccess.response().token());
         Assertions.assertThat(crmUploadHistoryResult).isInstanceOf(CrmUploadHistoryResult.Success.class);
         crmUploadHistorySuccess = (CrmUploadHistoryResult.Success) crmUploadHistoryResult;
         assertFalse(crmUploadHistorySuccess.response().crmUploadHistory().isEmpty());
@@ -181,7 +181,7 @@ class TestE2eCrmUploadAwaitAnswer extends E2eAbstract {
         sourceSystem = "Lexware";
         file = new ClassPathResource("files/Lexware_Generated_Correct.xlsx");
         uploadResult = uploadclient.crmUpload(
-                baseRequest.emailAddress(),
+                baseRequest.getEmailAddress(),
                 loginSuccess.response().token(),
                 sourceSystem,
                 "Pipedrive",

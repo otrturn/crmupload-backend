@@ -36,16 +36,16 @@ public final class RegisterRequestValidator {
     }
 
     private static String requireEmail(RegisterRequest request) {
-        if (stringIsEmpty(request.emailAddress())) {
+        if (stringIsEmpty(request.getEmailAddress())) {
             throw new RegisterRequestInvalidCustomerDataException("registration: Customer with no e-mail address");
         }
-        return request.emailAddress();
+        return request.getEmailAddress();
     }
 
     private static void requireNamesOrCompany(RegisterRequest request, String emailAddress) {
         boolean invalid =
-                (stringIsEmpty(request.firstname()) || stringIsEmpty(request.lastname()))
-                        && stringIsEmpty(request.companyName());
+                (stringIsEmpty(request.getFirstname()) || stringIsEmpty(request.getLastname()))
+                        && stringIsEmpty(request.getCompanyName());
 
         if (invalid) {
             throw new RegisterRequestInvalidCustomerDataException(
@@ -55,20 +55,21 @@ public final class RegisterRequestValidator {
     }
 
     private static void requireAddress(RegisterRequest request, String emailAddress) {
-        boolean invalid = stringIsEmpty(request.adrline1())
-                || stringIsEmpty(request.postalcode())
-                || stringIsEmpty(request.city())
-                || stringIsEmpty(request.country());
+        System.out.println("[" + request.getAdrline1() + "][" + request.getPostalcode() + "][" + request.getCity());
+        boolean invalid = stringIsEmpty(request.getAdrline1())
+                || stringIsEmpty(request.getPostalcode())
+                || stringIsEmpty(request.getCity())
+                || stringIsEmpty(request.getCountry());
 
         if (invalid) {
             throw new RegisterRequestInvalidCustomerDataException(
-                    String.format("registration: Customer %s AdrLine1/postlCode/city/country invalid", emailAddress)
+                    String.format("registration: Customer %s adrLine1/postalCode/city/country invalid", emailAddress)
             );
         }
     }
 
     private static void requireValidPostalCode(RegisterRequest request, String emailAddress) {
-        boolean invalid = !CheckAddress.checkPostalCode(request.country(), request.postalcode());
+        boolean invalid = !CheckAddress.checkPostalCode(request.getCountry(), request.getPostalcode());
         if (invalid) {
             throw new RegisterRequestInvalidCustomerDataException(
                     String.format("registration: Customer %s postalCode for country invalid", emailAddress)
@@ -77,7 +78,7 @@ public final class RegisterRequestValidator {
     }
 
     private static void requirePhoneNumber(RegisterRequest request, String emailAddress) {
-        if (stringIsEmpty(request.phoneNumber())) {
+        if (stringIsEmpty(request.getPhoneNumber())) {
             throw new RegisterRequestInvalidCustomerDataException(
                     String.format("registration: Customer %s phone number invalid", emailAddress)
             );
@@ -85,7 +86,7 @@ public final class RegisterRequestValidator {
     }
 
     private static void requireValidTaxId(RegisterRequest request, String emailAddress) {
-        if ("DE".equals(request.country()) && (stringIsEmpty(request.taxId()))) {
+        if ("DE".equals(request.getCountry()) && (stringIsEmpty(request.getTaxId()))) {
             throw new RegisterRequestInvalidTaxIdException(
                     String.format("registration: Customer %s taxId empty", emailAddress)
             );
@@ -93,7 +94,7 @@ public final class RegisterRequestValidator {
     }
 
     private static void requireValidVatIdIfPresent(RegisterRequest request, String emailAddress) {
-        if ("DE".equals(request.country()) && !stringIsEmpty(request.vatId()) && isNotValidGermanVatId(request.vatId())) {
+        if ("DE".equals(request.getCountry()) && !stringIsEmpty(request.getVatId()) && isNotValidGermanVatId(request.getVatId())) {
             throw new RegisterRequestInvalidVatIdException(
                     String.format("registration: Customer %s vatId empty or invalid", emailAddress)
             );
@@ -101,7 +102,7 @@ public final class RegisterRequestValidator {
     }
 
     private static void requirePassword(RegisterRequest request, String emailAddress) {
-        if (stringIsEmpty(request.password())) {
+        if (stringIsEmpty(request.getPassword())) {
             throw new RegisterRequestInvalidCustomerDataException(
                     String.format("registration: Customer %s password invalid", emailAddress)
             );
@@ -109,7 +110,7 @@ public final class RegisterRequestValidator {
     }
 
     private static void requireProducts(RegisterRequest request, String emailAddress) {
-        if (request.products() == null || request.products().isEmpty()) {
+        if (request.getProducts() == null || request.getProducts().isEmpty()) {
             throw new RegisterRequestInvalidCustomerDataException(
                     String.format("registration: Customer %s no products", emailAddress)
             );
@@ -117,20 +118,20 @@ public final class RegisterRequestValidator {
     }
 
     private static void requireAcknowledgement(RegisterRequest request, String emailAddress) {
-        if (!request.agbAccepted()
+        if (!request.isAgbAccepted()
                 || !request.isEntrepreneur()
-                || !request.requestImmediateServiceStart()
-                || !request.acknowledgeWithdrawalLoss()) {
+                || !request.isRequestImmediateServiceStart()
+                || !request.isAcknowledgeWithdrawalLoss()) {
 
             String msg = String.format(
                     "Customer with email %s -> invalid acknowledgement information " +
                             "[agbAccepted][isEntrepreneur][requestImmediateServiceStart][acknowledgeWithdrawalLoss] " +
                             "[%s][%s][%s][%s]",
                     emailAddress,
-                    request.agbAccepted(),
+                    request.isAgbAccepted(),
                     request.isEntrepreneur(),
-                    request.requestImmediateServiceStart(),
-                    request.acknowledgeWithdrawalLoss()
+                    request.isRequestImmediateServiceStart(),
+                    request.isAcknowledgeWithdrawalLoss()
             );
             throw new CustomerAcknowledgementInvalidException(msg);
         }
