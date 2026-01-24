@@ -3,8 +3,8 @@ curl -v -X POST http://localhost:8086/auth/register-customer \
 -d '{
 "firstname": "Ralf",
 "lastname": "Scholler",
-"email_address": "ralf@example.com",
-"phone_number": "+49-111-222",
+"emailAddress": "ralf@example.com",
+"phoneNumber": "+49-111-222",
 "adrline1": "Musterstraße 1",
 "adrline2": "",
 "postalcode": "12345",

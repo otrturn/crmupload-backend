@@ -46,23 +46,23 @@ class TestE2eRegisterCustomerAcknowledgement extends E2eAbstract {
             requests.add(new RegisterRequest(
                     baseRequest.firstname(),
                     baseRequest.lastname(),
-                    baseRequest.company_name(),
-                    baseRequest.email_address(),
-                    baseRequest.phone_number(),
+                    baseRequest.companyName(),
+                    baseRequest.emailAddress(),
+                    baseRequest.phoneNumber(),
                     baseRequest.adrline1(),
                     baseRequest.adrline2(),
                     baseRequest.postalcode(),
                     baseRequest.city(),
                     baseRequest.country(),
-                    baseRequest.tax_id(),
-                    baseRequest.vat_id(),
+                    baseRequest.taxId(),
+                    baseRequest.vatId(),
                     baseRequest.password(),
                     baseRequest.products(),
                     agbAccepted,
                     isEntrepreneur,
                     requestImmediateServiceStart,
                     acknowledgeWithdrawalLoss,
-                    baseRequest.terms_version()
+                    baseRequest.termsVersion()
             ));
         }
 
@@ -70,15 +70,15 @@ class TestE2eRegisterCustomerAcknowledgement extends E2eAbstract {
                 requests.stream()
                         // alles außer "alle true"
                         .filter(r -> !(
-                                r.agb_accepted()
-                                        && r.is_entrepreneur()
-                                        && r.request_immediate_service_start()
-                                        && r.acknowledge_withdrawal_loss()
+                                r.agbAccepted()
+                                        && r.isEntrepreneur()
+                                        && r.requestImmediateServiceStart()
+                                        && r.acknowledgeWithdrawalLoss()
                         ))
                         .toList();
 
         for (RegisterRequest request : invalidRequests) {
-            log.info(String.format(" %s %s %s %s", request.agb_accepted(), request.is_entrepreneur(), request.request_immediate_service_start(), request.acknowledge_withdrawal_loss()));
+            log.info(String.format(" %s %s %s %s", request.agbAccepted(), request.isEntrepreneur(), request.requestImmediateServiceStart(), request.acknowledgeWithdrawalLoss()));
 
             RegisterCustomerResult result = client.register(request);
 
@@ -95,23 +95,23 @@ class TestE2eRegisterCustomerAcknowledgement extends E2eAbstract {
         RegisterRequest allTrueRequest = new RegisterRequest(
                 baseRequest.firstname(),
                 baseRequest.lastname(),
-                baseRequest.company_name(),
-                baseRequest.email_address(),
-                baseRequest.phone_number(),
+                baseRequest.companyName(),
+                baseRequest.emailAddress(),
+                baseRequest.phoneNumber(),
                 baseRequest.adrline1(),
                 baseRequest.adrline2(),
                 baseRequest.postalcode(),
                 baseRequest.city(),
                 baseRequest.country(),
-                baseRequest.tax_id(),
-                baseRequest.vat_id(),
+                baseRequest.taxId(),
+                baseRequest.vatId(),
                 baseRequest.password(),
                 baseRequest.products(),
                 true,
                 true,
                 true,
                 true,
-                baseRequest.terms_version()
+                baseRequest.termsVersion()
         );
 
         RegisterCustomerResult result = client.register(allTrueRequest);

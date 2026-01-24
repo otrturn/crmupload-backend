@@ -50,7 +50,7 @@ class TestE2eDuplicateCheckAwaitAnswer extends E2eAbstract {
          * Login
          */
         loginClient = new LoginClient(e2eProperties);
-        loginRequest = new LoginRequest(baseRequest.email_address(), baseRequest.password());
+        loginRequest = new LoginRequest(baseRequest.emailAddress(), baseRequest.password());
         loginResult = loginClient.login(loginRequest);
         loginSuccess = (LoginResult.Success) loginResult;
 
@@ -66,7 +66,7 @@ class TestE2eDuplicateCheckAwaitAnswer extends E2eAbstract {
          * Activate
          */
         ActivationClient activationClient = new ActivationClient(e2eProperties);
-        String token = CustomerHandling.getActivationToken(dataSource, baseRequest.email_address());
+        String token = CustomerHandling.getActivationToken(dataSource, baseRequest.emailAddress());
         ActivationResult activationResult = activationClient.activate(token);
         Assertions.assertThat(activationResult).isInstanceOf(ActivationResult.Success.class);
 
@@ -76,7 +76,7 @@ class TestE2eDuplicateCheckAwaitAnswer extends E2eAbstract {
         sourceSystem = "Lexware";
         file = new ClassPathResource("files/Lexware_Generated_Correct.xlsx");
         uploadResult = duplicateCheckClient.duplicateCheck(
-                baseRequest.email_address(),
+                baseRequest.emailAddress(),
                 loginSuccess.response().token(),
                 sourceSystem,
                 file
@@ -87,7 +87,7 @@ class TestE2eDuplicateCheckAwaitAnswer extends E2eAbstract {
         /*
          * Get status
          */
-        customerStatusResult = customerStatusClient.getStatus(baseRequest.email_address(), loginSuccess.response().token());
+        customerStatusResult = customerStatusClient.getStatus(baseRequest.emailAddress(), loginSuccess.response().token());
         Assertions.assertThat(customerStatusResult).isInstanceOf(CustomerStatusResult.Success.class);
         customerStatusSuccess = (CustomerStatusResult.Success) customerStatusResult;
         assertTrue(customerStatusSuccess.response().enabled());
@@ -100,7 +100,7 @@ class TestE2eDuplicateCheckAwaitAnswer extends E2eAbstract {
                 .atMost(Duration.ofSeconds(120))
                 .pollInterval(Duration.ofSeconds(2))
                 .untilAsserted(() -> {
-                    CustomerStatusResult r = customerStatusClient.getStatus(baseRequest.email_address(), loginSuccess.response().token());
+                    CustomerStatusResult r = customerStatusClient.getStatus(baseRequest.emailAddress(), loginSuccess.response().token());
                     assertThat(r).isInstanceOf(CustomerStatusResult.Success.class);
 
                     CustomerStatusResult.Success s = (CustomerStatusResult.Success) r;
@@ -111,7 +111,7 @@ class TestE2eDuplicateCheckAwaitAnswer extends E2eAbstract {
         /*
          *  History
          */
-        duplicateCheckHistoryResult = duplicateCheckHistoryClient.getDuplicateCheckHistory(baseRequest.email_address(), loginSuccess.response().token());
+        duplicateCheckHistoryResult = duplicateCheckHistoryClient.getDuplicateCheckHistory(baseRequest.emailAddress(), loginSuccess.response().token());
         Assertions.assertThat(duplicateCheckHistoryResult).isInstanceOf(DuplicateCheckHistoryResult.Success.class);
         duplicateCheckHistorySuccess = (DuplicateCheckHistoryResult.Success) duplicateCheckHistoryResult;
         assertFalse(duplicateCheckHistorySuccess.response().duplicateCheckHistory().isEmpty());
@@ -124,7 +124,7 @@ class TestE2eDuplicateCheckAwaitAnswer extends E2eAbstract {
         sourceSystem = "Lexware";
         file = new ClassPathResource("files/Lexware_Generated_Invalid.xlsx");
         uploadResult = duplicateCheckClient.duplicateCheck(
-                baseRequest.email_address(),
+                baseRequest.emailAddress(),
                 loginSuccess.response().token(),
                 sourceSystem,
                 file
@@ -135,7 +135,7 @@ class TestE2eDuplicateCheckAwaitAnswer extends E2eAbstract {
         /*
          * Get status
          */
-        customerStatusResult = customerStatusClient.getStatus(baseRequest.email_address(), loginSuccess.response().token());
+        customerStatusResult = customerStatusClient.getStatus(baseRequest.emailAddress(), loginSuccess.response().token());
         Assertions.assertThat(customerStatusResult).isInstanceOf(CustomerStatusResult.Success.class);
         customerStatusSuccess = (CustomerStatusResult.Success) customerStatusResult;
         assertTrue(customerStatusSuccess.response().enabled());
@@ -148,7 +148,7 @@ class TestE2eDuplicateCheckAwaitAnswer extends E2eAbstract {
                 .atMost(Duration.ofSeconds(120))
                 .pollInterval(Duration.ofSeconds(2))
                 .untilAsserted(() -> {
-                    CustomerStatusResult r = customerStatusClient.getStatus(baseRequest.email_address(), loginSuccess.response().token());
+                    CustomerStatusResult r = customerStatusClient.getStatus(baseRequest.emailAddress(), loginSuccess.response().token());
                     assertThat(r).isInstanceOf(CustomerStatusResult.Success.class);
 
                     CustomerStatusResult.Success s = (CustomerStatusResult.Success) r;
@@ -159,7 +159,7 @@ class TestE2eDuplicateCheckAwaitAnswer extends E2eAbstract {
         /*
          * History
          */
-        duplicateCheckHistoryResult = duplicateCheckHistoryClient.getDuplicateCheckHistory(baseRequest.email_address(), loginSuccess.response().token());
+        duplicateCheckHistoryResult = duplicateCheckHistoryClient.getDuplicateCheckHistory(baseRequest.emailAddress(), loginSuccess.response().token());
         Assertions.assertThat(duplicateCheckHistoryResult).isInstanceOf(DuplicateCheckHistoryResult.Success.class);
         duplicateCheckHistorySuccess = (DuplicateCheckHistoryResult.Success) duplicateCheckHistoryResult;
         assertFalse(duplicateCheckHistorySuccess.response().duplicateCheckHistory().isEmpty());

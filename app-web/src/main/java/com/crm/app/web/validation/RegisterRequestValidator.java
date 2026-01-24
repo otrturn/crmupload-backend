@@ -36,20 +36,20 @@ public final class RegisterRequestValidator {
     }
 
     private static String requireEmail(RegisterRequest request) {
-        if (stringIsEmpty(request.email_address())) {
+        if (stringIsEmpty(request.emailAddress())) {
             throw new RegisterRequestInvalidCustomerDataException("registration: Customer with no e-mail address");
         }
-        return request.email_address();
+        return request.emailAddress();
     }
 
     private static void requireNamesOrCompany(RegisterRequest request, String emailAddress) {
         boolean invalid =
                 (stringIsEmpty(request.firstname()) || stringIsEmpty(request.lastname()))
-                        && stringIsEmpty(request.company_name());
+                        && stringIsEmpty(request.companyName());
 
         if (invalid) {
             throw new RegisterRequestInvalidCustomerDataException(
-                    String.format("registration: Customer %s firstName/lastName/company_name invalid", emailAddress)
+                    String.format("registration: Customer %s firstName/lastName/companyName invalid", emailAddress)
             );
         }
     }
@@ -77,7 +77,7 @@ public final class RegisterRequestValidator {
     }
 
     private static void requirePhoneNumber(RegisterRequest request, String emailAddress) {
-        if (stringIsEmpty(request.phone_number())) {
+        if (stringIsEmpty(request.phoneNumber())) {
             throw new RegisterRequestInvalidCustomerDataException(
                     String.format("registration: Customer %s phone number invalid", emailAddress)
             );
@@ -85,7 +85,7 @@ public final class RegisterRequestValidator {
     }
 
     private static void requireValidTaxId(RegisterRequest request, String emailAddress) {
-        if ("DE".equals(request.country()) && (stringIsEmpty(request.tax_id()))) {
+        if ("DE".equals(request.country()) && (stringIsEmpty(request.taxId()))) {
             throw new RegisterRequestInvalidTaxIdException(
                     String.format("registration: Customer %s taxId empty", emailAddress)
             );
@@ -93,7 +93,7 @@ public final class RegisterRequestValidator {
     }
 
     private static void requireValidVatIdIfPresent(RegisterRequest request, String emailAddress) {
-        if ("DE".equals(request.country()) && !stringIsEmpty(request.vat_id()) && isNotValidGermanVatId(request.vat_id())) {
+        if ("DE".equals(request.country()) && !stringIsEmpty(request.vatId()) && isNotValidGermanVatId(request.vatId())) {
             throw new RegisterRequestInvalidVatIdException(
                     String.format("registration: Customer %s vatId empty or invalid", emailAddress)
             );
@@ -117,20 +117,20 @@ public final class RegisterRequestValidator {
     }
 
     private static void requireAcknowledgement(RegisterRequest request, String emailAddress) {
-        if (!request.agb_accepted()
-                || !request.is_entrepreneur()
-                || !request.request_immediate_service_start()
-                || !request.acknowledge_withdrawal_loss()) {
+        if (!request.agbAccepted()
+                || !request.isEntrepreneur()
+                || !request.requestImmediateServiceStart()
+                || !request.acknowledgeWithdrawalLoss()) {
 
             String msg = String.format(
                     "Customer with email %s -> invalid acknowledgement information " +
-                            "[agb_accepted][is_entrepreneur][request_immediate_service_start][acknowledge_withdrawal_loss] " +
+                            "[agbAccepted][isEntrepreneur][requestImmediateServiceStart][acknowledgeWithdrawalLoss] " +
                             "[%s][%s][%s][%s]",
                     emailAddress,
-                    request.agb_accepted(),
-                    request.is_entrepreneur(),
-                    request.request_immediate_service_start(),
-                    request.acknowledge_withdrawal_loss()
+                    request.agbAccepted(),
+                    request.isEntrepreneur(),
+                    request.requestImmediateServiceStart(),
+                    request.acknowledgeWithdrawalLoss()
             );
             throw new CustomerAcknowledgementInvalidException(msg);
         }

@@ -47,23 +47,23 @@ class TestE2eLoginSuccess extends E2eAbstract {
         RegisterRequest registerRequest = new RegisterRequest(
                 baseRequest.firstname(),
                 baseRequest.lastname(),
-                baseRequest.company_name(),
+                baseRequest.companyName(),
                 "ralf+00@test.de",
-                baseRequest.phone_number(),
+                baseRequest.phoneNumber(),
                 baseRequest.adrline1(),
                 baseRequest.adrline2(),
                 baseRequest.postalcode(),
                 baseRequest.city(),
                 baseRequest.country(),
-                baseRequest.tax_id(),
-                baseRequest.vat_id(),
+                baseRequest.taxId(),
+                baseRequest.vatId(),
                 baseRequest.password(),
                 baseRequest.products(),
-                baseRequest.agb_accepted(),
-                baseRequest.is_entrepreneur(),
-                baseRequest.request_immediate_service_start(),
-                baseRequest.acknowledge_withdrawal_loss(),
-                baseRequest.terms_version()
+                baseRequest.agbAccepted(),
+                baseRequest.isEntrepreneur(),
+                baseRequest.requestImmediateServiceStart(),
+                baseRequest.acknowledgeWithdrawalLoss(),
+                baseRequest.termsVersion()
         );
 
         registerCustomerResult = registerClient.register(registerRequest);
@@ -74,7 +74,7 @@ class TestE2eLoginSuccess extends E2eAbstract {
         /*
         Login, wrong password
          */
-        loginRequest = new LoginRequest(registerRequest.email_address(), "test321");
+        loginRequest = new LoginRequest(registerRequest.emailAddress(), "test321");
         loginResult = loginClient.login(loginRequest);
 
         assertThat(loginResult).isInstanceOf(LoginResult.Failure.class);
@@ -89,7 +89,7 @@ class TestE2eLoginSuccess extends E2eAbstract {
         /*
         Login, customer not yet enabled
          */
-        loginRequest = new LoginRequest(registerRequest.email_address(), registerRequest.password());
+        loginRequest = new LoginRequest(registerRequest.emailAddress(), registerRequest.password());
         loginResult = loginClient.login(loginRequest);
         assertThat(loginResult).isInstanceOf(LoginResult.Success.class);
         loginSuccess = (LoginResult.Success) loginResult;
@@ -99,7 +99,7 @@ class TestE2eLoginSuccess extends E2eAbstract {
         /*
         Activate customer
          */
-        token = CustomerHandling.getActivationToken(dataSource, registerRequest.email_address());
+        token = CustomerHandling.getActivationToken(dataSource, registerRequest.emailAddress());
         ActivationResult activationResult = activationClient.activate(token);
         assertThat(activationResult).isInstanceOf(ActivationResult.Success.class);
         ActivationResult.Success activationSuccess = (ActivationResult.Success) activationResult;
@@ -108,7 +108,7 @@ class TestE2eLoginSuccess extends E2eAbstract {
         /*
         Login, customer enabled
          */
-        loginRequest = new LoginRequest(registerRequest.email_address(), registerRequest.password());
+        loginRequest = new LoginRequest(registerRequest.emailAddress(), registerRequest.password());
         loginResult = loginClient.login(loginRequest);
         assertThat(loginResult).isInstanceOf(LoginResult.Success.class);
         loginSuccess = (LoginResult.Success) loginResult;

@@ -39,23 +39,23 @@ class TestE2eRegisterCustomerTaxIdAndTaxVatId extends E2eAbstract {
         RegisterRequest invalidDataRequest = new RegisterRequest(
                 baseRequest.firstname(),
                 baseRequest.lastname(),
-                baseRequest.company_name(),
-                baseRequest.email_address(),
-                baseRequest.phone_number(),
+                baseRequest.companyName(),
+                baseRequest.emailAddress(),
+                baseRequest.phoneNumber(),
                 baseRequest.adrline1(),
                 baseRequest.adrline2(),
                 baseRequest.postalcode(),
                 baseRequest.city(),
                 baseRequest.country(),
                 null,
-                baseRequest.vat_id(),
+                baseRequest.vatId(),
                 baseRequest.password(),
                 baseRequest.products(),
-                baseRequest.agb_accepted(),
-                baseRequest.is_entrepreneur(),
-                baseRequest.request_immediate_service_start(),
-                baseRequest.acknowledge_withdrawal_loss(),
-                baseRequest.terms_version()
+                baseRequest.agbAccepted(),
+                baseRequest.isEntrepreneur(),
+                baseRequest.requestImmediateServiceStart(),
+                baseRequest.acknowledgeWithdrawalLoss(),
+                baseRequest.termsVersion()
         );
         result = client.register(invalidDataRequest);
 
@@ -74,23 +74,23 @@ class TestE2eRegisterCustomerTaxIdAndTaxVatId extends E2eAbstract {
         invalidDataRequest = new RegisterRequest(
                 baseRequest.firstname(),
                 baseRequest.lastname(),
-                baseRequest.company_name(),
-                baseRequest.email_address(),
-                baseRequest.phone_number(),
+                baseRequest.companyName(),
+                baseRequest.emailAddress(),
+                baseRequest.phoneNumber(),
                 baseRequest.adrline1(),
                 baseRequest.adrline2(),
                 baseRequest.postalcode(),
                 baseRequest.city(),
                 baseRequest.country(),
                 "",
-                baseRequest.vat_id(),
+                baseRequest.vatId(),
                 baseRequest.password(),
                 baseRequest.products(),
-                baseRequest.agb_accepted(),
-                baseRequest.is_entrepreneur(),
-                baseRequest.request_immediate_service_start(),
-                baseRequest.acknowledge_withdrawal_loss(),
-                baseRequest.terms_version()
+                baseRequest.agbAccepted(),
+                baseRequest.isEntrepreneur(),
+                baseRequest.requestImmediateServiceStart(),
+                baseRequest.acknowledgeWithdrawalLoss(),
+                baseRequest.termsVersion()
         );
         result = client.register(invalidDataRequest);
 
@@ -109,27 +109,27 @@ class TestE2eRegisterCustomerTaxIdAndTaxVatId extends E2eAbstract {
         invalidDataRequest = new RegisterRequest(
                 baseRequest.firstname(),
                 baseRequest.lastname(),
-                baseRequest.company_name(),
-                baseRequest.email_address(),
-                baseRequest.phone_number(),
+                baseRequest.companyName(),
+                baseRequest.emailAddress(),
+                baseRequest.phoneNumber(),
                 baseRequest.adrline1(),
                 baseRequest.adrline2(),
                 baseRequest.postalcode(),
                 baseRequest.city(),
                 baseRequest.country(),
                 "1.2.3",
-                baseRequest.vat_id(),
+                baseRequest.vatId(),
                 baseRequest.password(),
                 baseRequest.products(),
-                baseRequest.agb_accepted(),
-                baseRequest.is_entrepreneur(),
-                baseRequest.request_immediate_service_start(),
-                baseRequest.acknowledge_withdrawal_loss(),
-                baseRequest.terms_version()
+                baseRequest.agbAccepted(),
+                baseRequest.isEntrepreneur(),
+                baseRequest.requestImmediateServiceStart(),
+                baseRequest.acknowledgeWithdrawalLoss(),
+                baseRequest.termsVersion()
         );
         result = client.register(invalidDataRequest);
         assertThat(result).isInstanceOf(RegisterCustomerResult.Success.class);
-        Long verificationTaskId = CustomerHandling.getVerificationTaskId(dataSource, invalidDataRequest.email_address(), invalidDataRequest.tax_id());
+        Long verificationTaskId = CustomerHandling.getVerificationTaskId(dataSource, invalidDataRequest.emailAddress(), invalidDataRequest.taxId());
         assertThat(verificationTaskId).isGreaterThan(0L);
 
         /*
@@ -139,23 +139,23 @@ class TestE2eRegisterCustomerTaxIdAndTaxVatId extends E2eAbstract {
             invalidDataRequest = new RegisterRequest(
                     baseRequest.firstname(),
                     baseRequest.lastname(),
-                    baseRequest.company_name(),
-                    baseRequest.email_address(),
-                    baseRequest.phone_number(),
+                    baseRequest.companyName(),
+                    baseRequest.emailAddress(),
+                    baseRequest.phoneNumber(),
                     baseRequest.adrline1(),
                     baseRequest.adrline2(),
                     baseRequest.postalcode(),
                     baseRequest.city(),
                     baseRequest.country(),
-                    baseRequest.tax_id(),
+                    baseRequest.taxId(),
                     vatId,
                     baseRequest.password(),
                     baseRequest.products(),
-                    baseRequest.agb_accepted(),
-                    baseRequest.is_entrepreneur(),
-                    baseRequest.request_immediate_service_start(),
-                    baseRequest.acknowledge_withdrawal_loss(),
-                    baseRequest.terms_version()
+                    baseRequest.agbAccepted(),
+                    baseRequest.isEntrepreneur(),
+                    baseRequest.requestImmediateServiceStart(),
+                    baseRequest.acknowledgeWithdrawalLoss(),
+                    baseRequest.termsVersion()
             );
             result = client.register(invalidDataRequest);
 

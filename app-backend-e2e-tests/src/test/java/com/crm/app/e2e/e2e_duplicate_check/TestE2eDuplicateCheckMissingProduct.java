@@ -31,35 +31,35 @@ class TestE2eDuplicateCheckMissingProduct extends E2eAbstract {
         RegisterRequest invalidRequest = new RegisterRequest(
                 baseRequest.firstname(),
                 baseRequest.lastname(),
-                baseRequest.company_name(),
-                baseRequest.email_address(),
-                baseRequest.phone_number(),
+                baseRequest.companyName(),
+                baseRequest.emailAddress(),
+                baseRequest.phoneNumber(),
                 baseRequest.adrline1(),
                 baseRequest.adrline2(),
                 baseRequest.postalcode(),
                 baseRequest.city(),
                 baseRequest.country(),
-                baseRequest.tax_id(),
-                baseRequest.vat_id(),
+                baseRequest.taxId(),
+                baseRequest.vatId(),
                 baseRequest.password(),
                 List.of(AppConstants.PRODUCT_CRM_UPLOAD),
-                baseRequest.agb_accepted(),
-                baseRequest.is_entrepreneur(),
-                baseRequest.request_immediate_service_start(),
-                baseRequest.acknowledge_withdrawal_loss(),
-                baseRequest.terms_version());
+                baseRequest.agbAccepted(),
+                baseRequest.isEntrepreneur(),
+                baseRequest.requestImmediateServiceStart(),
+                baseRequest.acknowledgeWithdrawalLoss(),
+                baseRequest.termsVersion());
 
         RegisterCustomerClient registerclient = new RegisterCustomerClient(e2eProperties);
         RegisterCustomerResult registerCustomerResult = registerclient.register(invalidRequest);
         Assertions.assertThat(registerCustomerResult).isInstanceOf(RegisterCustomerResult.Success.class);
 
         ActivationClient activationClient = new ActivationClient(e2eProperties);
-        String token = CustomerHandling.getActivationToken(dataSource, invalidRequest.email_address());
+        String token = CustomerHandling.getActivationToken(dataSource, invalidRequest.emailAddress());
         ActivationResult activationResult = activationClient.activate(token);
         Assertions.assertThat(activationResult).isInstanceOf(ActivationResult.Success.class);
 
         LoginClient loginClient = new LoginClient(e2eProperties);
-        LoginRequest loginRequest = new LoginRequest(invalidRequest.email_address(), invalidRequest.password());
+        LoginRequest loginRequest = new LoginRequest(invalidRequest.emailAddress(), invalidRequest.password());
         LoginResult loginResult = loginClient.login(loginRequest);
         LoginResult.Success loginSuccess = (LoginResult.Success) loginResult;
 
@@ -75,7 +75,7 @@ class TestE2eDuplicateCheckMissingProduct extends E2eAbstract {
         sourceSystem = "Lexware";
         file = new ClassPathResource("files/Lexware_Generated_Correct.xlsx");
         uploadResult = duplicateCheckClient.duplicateCheck(
-                invalidRequest.email_address(),
+                invalidRequest.emailAddress(),
                 loginSuccess.response().token(),
                 sourceSystem,
                 file

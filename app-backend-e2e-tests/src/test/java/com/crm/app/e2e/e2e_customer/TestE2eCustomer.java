@@ -64,7 +64,7 @@ class TestE2eCustomer extends E2eAbstract {
         /*
          *  Activate customer
          */
-        token = CustomerHandling.getActivationToken(dataSource, baseRequest.email_address());
+        token = CustomerHandling.getActivationToken(dataSource, baseRequest.emailAddress());
         ActivationResult activationResult = activationClient.activate(token);
         assertThat(activationResult).isInstanceOf(ActivationResult.Success.class);
         ActivationResult.Success activationSuccess = (ActivationResult.Success) activationResult;
@@ -73,7 +73,7 @@ class TestE2eCustomer extends E2eAbstract {
         /*
          *  Login, customer enabled
          */
-        loginRequest = new LoginRequest(baseRequest.email_address(), baseRequest.password());
+        loginRequest = new LoginRequest(baseRequest.emailAddress(), baseRequest.password());
         loginResult = loginClient.login(loginRequest);
         assertThat(loginResult).isInstanceOf(LoginResult.Success.class);
         loginSuccess = (LoginResult.Success) loginResult;
@@ -83,7 +83,7 @@ class TestE2eCustomer extends E2eAbstract {
         /*
          * Get status
          */
-        customerStatusResult = customerStatusClient.getStatus(baseRequest.email_address(), loginSuccess.response().token());
+        customerStatusResult = customerStatusClient.getStatus(baseRequest.emailAddress(), loginSuccess.response().token());
         assertThat(customerStatusResult).isInstanceOf(CustomerStatusResult.Success.class);
         customerStatusSuccess = (CustomerStatusResult.Success) customerStatusResult;
         assertTrue(customerStatusSuccess.response().enabled());
@@ -91,7 +91,7 @@ class TestE2eCustomer extends E2eAbstract {
         /*
          *  Get Me, original
          */
-        customerMeResult = customerMeClient.getMe(baseRequest.email_address(), loginSuccess.response().token());
+        customerMeResult = customerMeClient.getMe(baseRequest.emailAddress(), loginSuccess.response().token());
         assertThat(customerMeResult).isInstanceOf(CustomerMeResult.Success.class);
         customerMeSuccess = (CustomerMeResult.Success) customerMeResult;
         assertEquals(customerMeSuccess.response().firstname(), baseRequest.firstname());
@@ -113,13 +113,13 @@ class TestE2eCustomer extends E2eAbstract {
                 customerMeSuccess.response().tax_id(),
                 customerMeSuccess.response().vat_id(),
                 null);
-        updateCustomerResult = updateCustomerClient.updateCustomer(baseRequest.email_address(), customerProfile, loginSuccess.response().token());
+        updateCustomerResult = updateCustomerClient.updateCustomer(baseRequest.emailAddress(), customerProfile, loginSuccess.response().token());
         assertThat(updateCustomerResult).isInstanceOf(UpdateCustomerResult.Success.class);
 
         /*
          *  Get Me, updated
          */
-        customerMeResult = customerMeClient.getMe(baseRequest.email_address(), loginSuccess.response().token());
+        customerMeResult = customerMeClient.getMe(baseRequest.emailAddress(), loginSuccess.response().token());
         assertThat(customerMeResult).isInstanceOf(CustomerMeResult.Success.class);
         customerMeSuccess = (CustomerMeResult.Success) customerMeResult;
         assertEquals("Hugo", customerMeSuccess.response().firstname());
@@ -129,20 +129,20 @@ class TestE2eCustomer extends E2eAbstract {
          *  Update password, valid password
          */
         UpdatePasswordRequest updatePasswordRequest = new UpdatePasswordRequest("wiki123");
-        updatePasswordResult = updatePasswordClient.updatePassword(baseRequest.email_address(), updatePasswordRequest, loginSuccess.response().token());
+        updatePasswordResult = updatePasswordClient.updatePassword(baseRequest.emailAddress(), updatePasswordRequest, loginSuccess.response().token());
         assertThat(updatePasswordResult).isInstanceOf(UpdatePasswordResult.Success.class);
 
         /*
          *  Login, old password
          */
-        loginRequest = new LoginRequest(baseRequest.email_address(), baseRequest.password());
+        loginRequest = new LoginRequest(baseRequest.emailAddress(), baseRequest.password());
         loginResult = loginClient.login(loginRequest);
         assertThat(loginResult).isInstanceOf(LoginResult.Failure.class);
 
         /*
          *  Login, new password
          */
-        loginRequest = new LoginRequest(baseRequest.email_address(), "wiki123");
+        loginRequest = new LoginRequest(baseRequest.emailAddress(), "wiki123");
         loginResult = loginClient.login(loginRequest);
         assertThat(loginResult).isInstanceOf(LoginResult.Success.class);
 
@@ -163,7 +163,7 @@ class TestE2eCustomer extends E2eAbstract {
                 customerMeSuccess.response().tax_id(),
                 customerMeSuccess.response().vat_id(),
                 null);
-        updateCustomerResult = updateCustomerClient.updateCustomer(baseRequest.email_address(), customerProfile, loginSuccess.response().token());
+        updateCustomerResult = updateCustomerClient.updateCustomer(baseRequest.emailAddress(), customerProfile, loginSuccess.response().token());
         assertThat(updateCustomerResult).isInstanceOf(UpdateCustomerResult.Failure.class);
         UpdateCustomerResult.Failure updateCustomerFailure = (UpdateCustomerResult.Failure) updateCustomerResult;
         assertEquals("UPDATE_INVALID_CUSTOMER_DATA", updateCustomerFailure.error().code());
@@ -172,7 +172,7 @@ class TestE2eCustomer extends E2eAbstract {
          *  Update password, invalid password
          */
         updatePasswordRequest = new UpdatePasswordRequest(null);
-        updatePasswordResult = updatePasswordClient.updatePassword(baseRequest.email_address(), updatePasswordRequest, loginSuccess.response().token());
+        updatePasswordResult = updatePasswordClient.updatePassword(baseRequest.emailAddress(), updatePasswordRequest, loginSuccess.response().token());
         assertThat(updatePasswordResult).isInstanceOf(UpdatePasswordResult.Failure.class);
         UpdatePasswordResult.Failure updatePasswordFailure = (UpdatePasswordResult.Failure) updatePasswordResult;
         assertEquals("UPDATE_INVALID_CUSTOMER_DATA", updatePasswordFailure.error().code());

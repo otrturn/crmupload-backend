@@ -27,7 +27,7 @@ public class CustomerRegistrationService {
 
     @Transactional
     public ResponseEntity<RegisterResponse> registerCustomer(RegisterRequest request, String ipAddress, String userAgent) {
-        String emailAddress = request.email_address();
+        String emailAddress = request.emailAddress();
 
         RegisterRequestValidator.assertValid(request);
 
@@ -61,10 +61,10 @@ public class CustomerRegistrationService {
         /*
         Terms of service
          */
-        if (!appWebActivationProperties.getAllowedTermsVersions().contains(request.terms_version())) {
+        if (!appWebActivationProperties.getAllowedTermsVersions().contains(request.termsVersion())) {
             String msg = String.format(
                     "Customer with email %s -> invalid/unknown terms version %s",
-                    emailAddress, request.terms_version());
+                    emailAddress, request.termsVersion());
             throw new CustomerTermsVersionInvalidException(msg);
         }
 
@@ -79,16 +79,16 @@ public class CustomerRegistrationService {
                 accountResult.userId(),
                 request.firstname(),
                 request.lastname(),
-                request.company_name(),
-                request.email_address(),
-                request.phone_number(),
+                request.companyName(),
+                request.emailAddress(),
+                request.phoneNumber(),
                 request.adrline1(),
                 request.adrline2(),
                 request.postalcode(),
                 request.city(),
                 request.country(),
-                request.tax_id(),
-                request.vat_id(),
+                request.taxId(),
+                request.vatId(),
                 request.products(),
                 null
         );
@@ -96,11 +96,11 @@ public class CustomerRegistrationService {
         customerRepository.insertCustomer(customer);
 
         CustomerAcknowledgement customerAcknowledgement = new CustomerAcknowledgement(customerId,
-                request.agb_accepted(),
-                request.is_entrepreneur(),
-                request.request_immediate_service_start(),
-                request.acknowledge_withdrawal_loss(),
-                request.terms_version(),
+                request.agbAccepted(),
+                request.isEntrepreneur(),
+                request.requestImmediateServiceStart(),
+                request.acknowledgeWithdrawalLoss(),
+                request.termsVersion(),
                 ipAddress,
                 userAgent
         );

@@ -31,7 +31,7 @@ public class InvoiceRecordRowMapper implements RowMapper<InvoiceRecord> {
                 rs.getString("firstname"),
                 rs.getString("lastname"),
                 null,
-                rs.getString("email_address"),
+                rs.getString("emailAddress"),
                 null,
                 null,
                 null,

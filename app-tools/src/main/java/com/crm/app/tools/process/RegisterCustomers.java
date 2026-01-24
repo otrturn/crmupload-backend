@@ -43,10 +43,10 @@ public class RegisterCustomers {
                     throw new IllegalStateException("Register did not return an activation token");
                 }
 
-                Optional<UUID> activationToken = activationRepository.getTokenByEmail(req.email_address());
+                Optional<UUID> activationToken = activationRepository.getTokenByEmail(req.emailAddress());
 
                 if (activationToken.isEmpty()) {
-                    throw new IllegalStateException("no activation token for " + req.email_address());
+                    throw new IllegalStateException("no activation token for " + req.emailAddress());
                 }
 
                 String activationText = client.get()
@@ -70,21 +70,21 @@ public class RegisterCustomers {
     }
 
     private RegisterRequest generateRequestForIndex(RegisterRequest base, int index) {
-        String email = base.email_address().replace("@", "+" + index + "@");
+        String email = base.emailAddress().replace("@", "+" + index + "@");
 
         return new RegisterRequest(
                 base.firstname(),
                 base.lastname(),
-                base.company_name(),
+                base.companyName(),
                 email,
-                base.phone_number(),
+                base.phoneNumber(),
                 base.adrline1(),
                 base.adrline2(),
                 base.postalcode(),
                 base.city(),
                 base.country(),
-                base.tax_id(),
-                base.vat_id(),
+                base.taxId(),
+                base.vatId(),
                 base.password(),
                 List.of(AppConstants.PRODUCT_CRM_UPLOAD, AppConstants.PRODUCT_DUPLICATE_CHECK),
                 true, true, true, true, "21.12.2025"
