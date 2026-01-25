@@ -28,35 +28,14 @@ class TestE2eRegisterCustomerTaxIdAndTaxVatId extends E2eAbstract {
 
         RegisterCustomerClient client = new RegisterCustomerClient(e2eProperties);
 
-        RegisterRequest baseRequest = baseRegisterRequest();
-
         RegisterCustomerResult result;
         RegisterCustomerResult.Failure failure;
 
         /*
          * Tax Id
          */
-        RegisterRequest invalidDataRequest = new RegisterRequest(
-                baseRequest.getFirstname(),
-                baseRequest.getLastname(),
-                baseRequest.getCompanyName(),
-                baseRequest.getEmailAddress(),
-                baseRequest.getPhoneNumber(),
-                baseRequest.getAdrline1(),
-                baseRequest.getAdrline2(),
-                baseRequest.getPostalcode(),
-                baseRequest.getCity(),
-                baseRequest.getCountry(),
-                null,
-                baseRequest.getVatId(),
-                baseRequest.getPassword(),
-                baseRequest.getProducts(),
-                baseRequest.isAgbAccepted(),
-                baseRequest.isEntrepreneur(),
-                baseRequest.isRequestImmediateServiceStart(),
-                baseRequest.isAcknowledgeWithdrawalLoss(),
-                baseRequest.getTermsVersion()
-        );
+        RegisterRequest invalidDataRequest = new RegisterRequest(baseRegisterRequest());
+        invalidDataRequest.setTaxId(null);
         result = client.register(invalidDataRequest);
 
         assertThat(result).isInstanceOf(RegisterCustomerResult.Failure.class);
@@ -71,27 +50,8 @@ class TestE2eRegisterCustomerTaxIdAndTaxVatId extends E2eAbstract {
         /*
          * Tax Id
          */
-        invalidDataRequest = new RegisterRequest(
-                baseRequest.getFirstname(),
-                baseRequest.getLastname(),
-                baseRequest.getCompanyName(),
-                baseRequest.getEmailAddress(),
-                baseRequest.getPhoneNumber(),
-                baseRequest.getAdrline1(),
-                baseRequest.getAdrline2(),
-                baseRequest.getPostalcode(),
-                baseRequest.getCity(),
-                baseRequest.getCountry(),
-                "",
-                baseRequest.getVatId(),
-                baseRequest.getPassword(),
-                baseRequest.getProducts(),
-                baseRequest.isAgbAccepted(),
-                baseRequest.isEntrepreneur(),
-                baseRequest.isRequestImmediateServiceStart(),
-                baseRequest.isAcknowledgeWithdrawalLoss(),
-                baseRequest.getTermsVersion()
-        );
+        invalidDataRequest = new RegisterRequest(baseRegisterRequest());
+        invalidDataRequest.setTaxId("");
         result = client.register(invalidDataRequest);
 
         assertThat(result).isInstanceOf(RegisterCustomerResult.Failure.class);
@@ -106,27 +66,8 @@ class TestE2eRegisterCustomerTaxIdAndTaxVatId extends E2eAbstract {
         /*
          * Tax Id
          */
-        invalidDataRequest = new RegisterRequest(
-                baseRequest.getFirstname(),
-                baseRequest.getLastname(),
-                baseRequest.getCompanyName(),
-                baseRequest.getEmailAddress(),
-                baseRequest.getPhoneNumber(),
-                baseRequest.getAdrline1(),
-                baseRequest.getAdrline2(),
-                baseRequest.getPostalcode(),
-                baseRequest.getCity(),
-                baseRequest.getCountry(),
-                "1.2.3",
-                baseRequest.getVatId(),
-                baseRequest.getPassword(),
-                baseRequest.getProducts(),
-                baseRequest.isAgbAccepted(),
-                baseRequest.isEntrepreneur(),
-                baseRequest.isRequestImmediateServiceStart(),
-                baseRequest.isAcknowledgeWithdrawalLoss(),
-                baseRequest.getTermsVersion()
-        );
+        invalidDataRequest = new RegisterRequest(baseRegisterRequest());
+        invalidDataRequest.setTaxId("1.2.3.");
         result = client.register(invalidDataRequest);
         assertThat(result).isInstanceOf(RegisterCustomerResult.Success.class);
         Long verificationTaskId = CustomerHandling.getVerificationTaskId(
@@ -140,27 +81,8 @@ class TestE2eRegisterCustomerTaxIdAndTaxVatId extends E2eAbstract {
          * Vat Id
          */
         for (String vatId : List.of("DE", "DE123", "DE1234567890")) {
-            invalidDataRequest = new RegisterRequest(
-                    baseRequest.getFirstname(),
-                    baseRequest.getLastname(),
-                    baseRequest.getCompanyName(),
-                    baseRequest.getEmailAddress(),
-                    baseRequest.getPhoneNumber(),
-                    baseRequest.getAdrline1(),
-                    baseRequest.getAdrline2(),
-                    baseRequest.getPostalcode(),
-                    baseRequest.getCity(),
-                    baseRequest.getCountry(),
-                    baseRequest.getTaxId(),
-                    vatId,
-                    baseRequest.getPassword(),
-                    baseRequest.getProducts(),
-                    baseRequest.isAgbAccepted(),
-                    baseRequest.isEntrepreneur(),
-                    baseRequest.isRequestImmediateServiceStart(),
-                    baseRequest.isAcknowledgeWithdrawalLoss(),
-                    baseRequest.getTermsVersion()
-            );
+            invalidDataRequest = new RegisterRequest(baseRegisterRequest());
+            invalidDataRequest.setVatId(vatId);
             result = client.register(invalidDataRequest);
 
             assertThat(result).isInstanceOf(RegisterCustomerResult.Failure.class);

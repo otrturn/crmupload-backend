@@ -33,8 +33,6 @@ class TestE2eRegisterCustomerAcknowledgement extends E2eAbstract {
 
         RegisterCustomerClient client = new RegisterCustomerClient(e2eProperties);
 
-        RegisterRequest baseRequest = baseRegisterRequest();
-
         List<RegisterRequest> requests = new ArrayList<>();
 
         for (int mask = 0; mask < 16; mask++) {
@@ -43,27 +41,12 @@ class TestE2eRegisterCustomerAcknowledgement extends E2eAbstract {
             boolean requestImmediateServiceStart = (mask & 4) != 0;
             boolean acknowledgeWithdrawalLoss = (mask & 8) != 0;
 
-            requests.add(new RegisterRequest(
-                    baseRequest.getFirstname(),
-                    baseRequest.getLastname(),
-                    baseRequest.getCompanyName(),
-                    baseRequest.getEmailAddress(),
-                    baseRequest.getPhoneNumber(),
-                    baseRequest.getAdrline1(),
-                    baseRequest.getAdrline2(),
-                    baseRequest.getPostalcode(),
-                    baseRequest.getCity(),
-                    baseRequest.getCountry(),
-                    baseRequest.getTaxId(),
-                    baseRequest.getVatId(),
-                    baseRequest.getPassword(),
-                    baseRequest.getProducts(),
-                    agbAccepted,
-                    isEntrepreneur,
-                    requestImmediateServiceStart,
-                    acknowledgeWithdrawalLoss,
-                    baseRequest.getTermsVersion()
-            ));
+            RegisterRequest registerRequest = new RegisterRequest(baseRegisterRequest());
+            registerRequest.setAgbAccepted(agbAccepted);
+            registerRequest.setEntrepreneur(isEntrepreneur);
+            registerRequest.setRequestImmediateServiceStart(requestImmediateServiceStart);
+            registerRequest.setAcknowledgeWithdrawalLoss(acknowledgeWithdrawalLoss);
+            requests.add(registerRequest);
         }
 
         List<RegisterRequest> invalidRequests =
@@ -97,27 +80,11 @@ class TestE2eRegisterCustomerAcknowledgement extends E2eAbstract {
             assertThat(failure.error().path()).isEqualTo("/auth/register-customer");
         }
 
-        RegisterRequest allTrueRequest = new RegisterRequest(
-                baseRequest.getFirstname(),
-                baseRequest.getLastname(),
-                baseRequest.getCompanyName(),
-                baseRequest.getEmailAddress(),
-                baseRequest.getPhoneNumber(),
-                baseRequest.getAdrline1(),
-                baseRequest.getAdrline2(),
-                baseRequest.getPostalcode(),
-                baseRequest.getCity(),
-                baseRequest.getCountry(),
-                baseRequest.getTaxId(),
-                baseRequest.getVatId(),
-                baseRequest.getPassword(),
-                baseRequest.getProducts(),
-                true,
-                true,
-                true,
-                true,
-                baseRequest.getTermsVersion()
-        );
+        RegisterRequest allTrueRequest = new RegisterRequest(baseRegisterRequest());
+        allTrueRequest.setAgbAccepted(true);
+        allTrueRequest.setEntrepreneur(true);
+        allTrueRequest.setRequestImmediateServiceStart(true);
+        allTrueRequest.setAcknowledgeWithdrawalLoss(true);
 
         RegisterCustomerResult result = client.register(allTrueRequest);
 

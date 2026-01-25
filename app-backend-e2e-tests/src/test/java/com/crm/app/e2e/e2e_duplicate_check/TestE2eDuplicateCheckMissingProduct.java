@@ -27,28 +27,8 @@ class TestE2eDuplicateCheckMissingProduct extends E2eAbstract {
 
     @Test
     void registerCustomer_conflict_DuplicateCheckMissingProduct() {
-        RegisterRequest baseRequest = baseRegisterRequest();
-        RegisterRequest invalidRequest = new RegisterRequest(
-                baseRequest.getFirstname(),
-                baseRequest.getLastname(),
-                baseRequest.getCompanyName(),
-                baseRequest.getEmailAddress(),
-                baseRequest.getPhoneNumber(),
-                baseRequest.getAdrline1(),
-                baseRequest.getAdrline2(),
-                baseRequest.getPostalcode(),
-                baseRequest.getCity(),
-                baseRequest.getCountry(),
-                baseRequest.getTaxId(),
-                baseRequest.getVatId(),
-                baseRequest.getPassword(),
-                List.of(AppConstants.PRODUCT_CRM_UPLOAD),
-                baseRequest.isAgbAccepted(),
-                baseRequest.isEntrepreneur(),
-                baseRequest.isRequestImmediateServiceStart(),
-                baseRequest.isAcknowledgeWithdrawalLoss(),
-                baseRequest.getTermsVersion()
-        );
+        RegisterRequest invalidRequest = new RegisterRequest(baseRegisterRequest());
+        invalidRequest.setProducts(List.of(AppConstants.PRODUCT_CRM_UPLOAD));
 
         RegisterCustomerClient registerclient = new RegisterCustomerClient(e2eProperties);
         RegisterCustomerResult registerCustomerResult = registerclient.register(invalidRequest);

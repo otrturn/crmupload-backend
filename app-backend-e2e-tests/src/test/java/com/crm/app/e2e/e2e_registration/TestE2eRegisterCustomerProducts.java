@@ -29,35 +29,15 @@ class TestE2eRegisterCustomerProducts extends E2eAbstract {
 
         RegisterCustomerClient client = new RegisterCustomerClient(e2eProperties);
 
-        RegisterRequest baseRequest = baseRegisterRequest();
-
         RegisterCustomerResult result;
         RegisterCustomerResult.Failure failure;
 
         /*
          * Product NULL
          */
-        RegisterRequest invalidDataRequest = new RegisterRequest(
-                baseRequest.getFirstname(),
-                baseRequest.getLastname(),
-                baseRequest.getCompanyName(),
-                baseRequest.getEmailAddress(),
-                baseRequest.getPhoneNumber(),
-                baseRequest.getAdrline1(),
-                baseRequest.getAdrline2(),
-                baseRequest.getPostalcode(),
-                baseRequest.getCity(),
-                baseRequest.getCountry(),
-                baseRequest.getTaxId(),
-                baseRequest.getVatId(),
-                baseRequest.getPassword(),
-                null,
-                baseRequest.isAgbAccepted(),
-                baseRequest.isEntrepreneur(),
-                baseRequest.isRequestImmediateServiceStart(),
-                baseRequest.isAcknowledgeWithdrawalLoss(),
-                baseRequest.getTermsVersion()
-        );
+        RegisterRequest invalidDataRequest = new RegisterRequest(baseRegisterRequest());
+        invalidDataRequest.setProducts(null);
+
         result = client.register(invalidDataRequest);
 
         assertThat(result).isInstanceOf(RegisterCustomerResult.Failure.class);
@@ -72,27 +52,8 @@ class TestE2eRegisterCustomerProducts extends E2eAbstract {
         /*
          * Product Empty
          */
-        invalidDataRequest = new RegisterRequest(
-                baseRequest.getFirstname(),
-                baseRequest.getLastname(),
-                baseRequest.getCompanyName(),
-                baseRequest.getEmailAddress(),
-                baseRequest.getPhoneNumber(),
-                baseRequest.getAdrline1(),
-                baseRequest.getAdrline2(),
-                baseRequest.getPostalcode(),
-                baseRequest.getCity(),
-                baseRequest.getCountry(),
-                baseRequest.getTaxId(),
-                baseRequest.getVatId(),
-                baseRequest.getPassword(),
-                new ArrayList<>(),
-                baseRequest.isAgbAccepted(),
-                baseRequest.isEntrepreneur(),
-                baseRequest.isRequestImmediateServiceStart(),
-                baseRequest.isAcknowledgeWithdrawalLoss(),
-                baseRequest.getTermsVersion()
-        );
+        invalidDataRequest = new RegisterRequest(baseRegisterRequest());
+        invalidDataRequest.setProducts(new ArrayList<>());
         result = client.register(invalidDataRequest);
 
         assertThat(result).isInstanceOf(RegisterCustomerResult.Failure.class);
@@ -107,27 +68,8 @@ class TestE2eRegisterCustomerProducts extends E2eAbstract {
         /*
          * Product unknown
          */
-        invalidDataRequest = new RegisterRequest(
-                baseRequest.getFirstname(),
-                baseRequest.getLastname(),
-                baseRequest.getCompanyName(),
-                baseRequest.getEmailAddress(),
-                baseRequest.getPhoneNumber(),
-                baseRequest.getAdrline1(),
-                baseRequest.getAdrline2(),
-                baseRequest.getPostalcode(),
-                baseRequest.getCity(),
-                baseRequest.getCountry(),
-                baseRequest.getTaxId(),
-                baseRequest.getVatId(),
-                baseRequest.getPassword(),
-                List.of("helgoland"),
-                baseRequest.isAgbAccepted(),
-                baseRequest.isEntrepreneur(),
-                baseRequest.isRequestImmediateServiceStart(),
-                baseRequest.isAcknowledgeWithdrawalLoss(),
-                baseRequest.getTermsVersion()
-        );
+        invalidDataRequest = new RegisterRequest(baseRegisterRequest());
+        invalidDataRequest.setProducts(List.of("helgoland"));
         result = client.register(invalidDataRequest);
 
         assertThat(result).isInstanceOf(RegisterCustomerResult.Failure.class);
@@ -142,27 +84,8 @@ class TestE2eRegisterCustomerProducts extends E2eAbstract {
         /*
          * Product multiple identical entries
          */
-        invalidDataRequest = new RegisterRequest(
-                baseRequest.getFirstname(),
-                baseRequest.getLastname(),
-                baseRequest.getCompanyName(),
-                baseRequest.getEmailAddress(),
-                baseRequest.getPhoneNumber(),
-                baseRequest.getAdrline1(),
-                baseRequest.getAdrline2(),
-                baseRequest.getPostalcode(),
-                baseRequest.getCity(),
-                baseRequest.getCountry(),
-                baseRequest.getTaxId(),
-                baseRequest.getVatId(),
-                baseRequest.getPassword(),
-                List.of(AppConstants.PRODUCT_CRM_UPLOAD, AppConstants.PRODUCT_CRM_UPLOAD),
-                baseRequest.isAgbAccepted(),
-                baseRequest.isEntrepreneur(),
-                baseRequest.isRequestImmediateServiceStart(),
-                baseRequest.isAcknowledgeWithdrawalLoss(),
-                baseRequest.getTermsVersion()
-        );
+        invalidDataRequest = new RegisterRequest(baseRegisterRequest());
+        invalidDataRequest.setProducts(List.of(AppConstants.PRODUCT_CRM_UPLOAD, AppConstants.PRODUCT_CRM_UPLOAD));
         result = client.register(invalidDataRequest);
 
         assertThat(result).isInstanceOf(RegisterCustomerResult.Failure.class);

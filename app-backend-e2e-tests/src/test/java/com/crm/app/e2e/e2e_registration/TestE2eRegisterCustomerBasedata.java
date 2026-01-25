@@ -28,35 +28,15 @@ class TestE2eRegisterCustomerBasedata extends E2eAbstract {
 
         RegisterCustomerClient client = new RegisterCustomerClient(e2eProperties);
 
-        RegisterRequest baseRequest = baseRegisterRequest();
-
         RegisterCustomerResult result;
         RegisterCustomerResult.Failure failure;
 
         /*
          * Email address
          */
-        RegisterRequest invalidDataRequest = new RegisterRequest(
-                baseRequest.getFirstname(),
-                baseRequest.getLastname(),
-                baseRequest.getCompanyName(),
-                null,
-                baseRequest.getPhoneNumber(),
-                baseRequest.getAdrline1(),
-                baseRequest.getAdrline2(),
-                baseRequest.getPostalcode(),
-                baseRequest.getCity(),
-                baseRequest.getCountry(),
-                baseRequest.getTaxId(),
-                baseRequest.getVatId(),
-                baseRequest.getPassword(),
-                baseRequest.getProducts(),
-                baseRequest.isAgbAccepted(),
-                baseRequest.isEntrepreneur(),
-                baseRequest.isRequestImmediateServiceStart(),
-                baseRequest.isAcknowledgeWithdrawalLoss(),
-                baseRequest.getTermsVersion()
-        );
+        RegisterRequest invalidDataRequest = new RegisterRequest(baseRegisterRequest());
+        invalidDataRequest.setEmailAddress(null);
+
         result = client.register(invalidDataRequest);
 
         assertThat(result).isInstanceOf(RegisterCustomerResult.Failure.class);
@@ -71,27 +51,10 @@ class TestE2eRegisterCustomerBasedata extends E2eAbstract {
         /*
          * Names
          */
-        invalidDataRequest = new RegisterRequest(
-                null,
-                null,
-                null,
-                baseRequest.getEmailAddress(),
-                baseRequest.getPhoneNumber(),
-                baseRequest.getAdrline1(),
-                baseRequest.getAdrline2(),
-                baseRequest.getPostalcode(),
-                baseRequest.getCity(),
-                baseRequest.getCountry(),
-                baseRequest.getTaxId(),
-                baseRequest.getVatId(),
-                baseRequest.getPassword(),
-                baseRequest.getProducts(),
-                baseRequest.isAgbAccepted(),
-                baseRequest.isEntrepreneur(),
-                baseRequest.isRequestImmediateServiceStart(),
-                baseRequest.isAcknowledgeWithdrawalLoss(),
-                baseRequest.getTermsVersion()
-        );
+        invalidDataRequest = new RegisterRequest(baseRegisterRequest());
+        invalidDataRequest.setFirstname(null);
+        invalidDataRequest.setLastname(null);
+        invalidDataRequest.setCompanyName(null);
 
         result = client.register(invalidDataRequest);
 
@@ -123,27 +86,8 @@ class TestE2eRegisterCustomerBasedata extends E2eAbstract {
         /*
          * Phone number
          */
-        invalidDataRequest = new RegisterRequest(
-                baseRequest.getFirstname(),
-                baseRequest.getLastname(),
-                baseRequest.getCompanyName(),
-                baseRequest.getEmailAddress(),
-                null,
-                baseRequest.getAdrline1(),
-                baseRequest.getAdrline2(),
-                baseRequest.getPostalcode(),
-                baseRequest.getCity(),
-                baseRequest.getCountry(),
-                baseRequest.getTaxId(),
-                baseRequest.getVatId(),
-                baseRequest.getPassword(),
-                baseRequest.getProducts(),
-                baseRequest.isAgbAccepted(),
-                baseRequest.isEntrepreneur(),
-                baseRequest.isRequestImmediateServiceStart(),
-                baseRequest.isAcknowledgeWithdrawalLoss(),
-                baseRequest.getTermsVersion()
-        );
+        invalidDataRequest = new RegisterRequest(baseRegisterRequest());
+        invalidDataRequest.setPhoneNumber(null);
         result = client.register(invalidDataRequest);
 
         assertThat(result).isInstanceOf(RegisterCustomerResult.Failure.class);
@@ -158,27 +102,8 @@ class TestE2eRegisterCustomerBasedata extends E2eAbstract {
         /*
          * Password
          */
-        invalidDataRequest = new RegisterRequest(
-                baseRequest.getFirstname(),
-                baseRequest.getLastname(),
-                baseRequest.getCompanyName(),
-                baseRequest.getEmailAddress(),
-                baseRequest.getPhoneNumber(),
-                baseRequest.getAdrline1(),
-                baseRequest.getAdrline2(),
-                baseRequest.getPostalcode(),
-                baseRequest.getCity(),
-                baseRequest.getCountry(),
-                baseRequest.getTaxId(),
-                baseRequest.getVatId(),
-                null,
-                baseRequest.getProducts(),
-                baseRequest.isAgbAccepted(),
-                baseRequest.isEntrepreneur(),
-                baseRequest.isRequestImmediateServiceStart(),
-                baseRequest.isAcknowledgeWithdrawalLoss(),
-                baseRequest.getTermsVersion()
-        );
+        invalidDataRequest = new RegisterRequest(baseRegisterRequest());
+        invalidDataRequest.setPassword(null);
         result = client.register(invalidDataRequest);
 
         assertThat(result).isInstanceOf(RegisterCustomerResult.Failure.class);
@@ -194,117 +119,27 @@ class TestE2eRegisterCustomerBasedata extends E2eAbstract {
 
     private List<RegisterRequest> invalidAddressesRequests() {
         List<RegisterRequest> result = new ArrayList<>();
-        RegisterRequest baseRequest = baseRegisterRequest();
 
-        result.add(new RegisterRequest(
-                baseRequest.getFirstname(),
-                baseRequest.getLastname(),
-                baseRequest.getCompanyName(),
-                baseRequest.getEmailAddress(),
-                baseRequest.getPhoneNumber(),
-                null,
-                baseRequest.getAdrline2(),
-                baseRequest.getPostalcode(),
-                baseRequest.getCity(),
-                baseRequest.getCountry(),
-                baseRequest.getTaxId(),
-                baseRequest.getVatId(),
-                baseRequest.getPassword(),
-                baseRequest.getProducts(),
-                baseRequest.isAgbAccepted(),
-                baseRequest.isEntrepreneur(),
-                baseRequest.isRequestImmediateServiceStart(),
-                baseRequest.isAcknowledgeWithdrawalLoss(),
-                baseRequest.getTermsVersion()
-        ));
+        RegisterRequest a1 = new RegisterRequest(baseRegisterRequest());
+        a1.setAdrline1(null);
+        result.add(a1);
 
-        result.add(new RegisterRequest(
-                baseRequest.getFirstname(),
-                baseRequest.getLastname(),
-                baseRequest.getCompanyName(),
-                baseRequest.getEmailAddress(),
-                baseRequest.getPhoneNumber(),
-                baseRequest.getAdrline1(),
-                baseRequest.getAdrline2(),
-                null,
-                baseRequest.getCity(),
-                baseRequest.getCountry(),
-                baseRequest.getTaxId(),
-                baseRequest.getVatId(),
-                baseRequest.getPassword(),
-                baseRequest.getProducts(),
-                baseRequest.isAgbAccepted(),
-                baseRequest.isEntrepreneur(),
-                baseRequest.isRequestImmediateServiceStart(),
-                baseRequest.isAcknowledgeWithdrawalLoss(),
-                baseRequest.getTermsVersion()
-        ));
+        RegisterRequest a2 = new RegisterRequest(baseRegisterRequest());
+        a2.setPostalcode(null);
+        result.add(a2);
 
-        result.add(new RegisterRequest(
-                baseRequest.getFirstname(),
-                baseRequest.getLastname(),
-                baseRequest.getCompanyName(),
-                baseRequest.getEmailAddress(),
-                baseRequest.getPhoneNumber(),
-                baseRequest.getAdrline1(),
-                baseRequest.getAdrline2(),
-                baseRequest.getPostalcode(),
-                null,
-                baseRequest.getCountry(),
-                baseRequest.getTaxId(),
-                baseRequest.getVatId(),
-                baseRequest.getPassword(),
-                baseRequest.getProducts(),
-                baseRequest.isAgbAccepted(),
-                baseRequest.isEntrepreneur(),
-                baseRequest.isRequestImmediateServiceStart(),
-                baseRequest.isAcknowledgeWithdrawalLoss(),
-                baseRequest.getTermsVersion()
-        ));
+        RegisterRequest a3 = new RegisterRequest(baseRegisterRequest());
+        a3.setCity(null);
+        result.add(a3);
 
-        result.add(new RegisterRequest(
-                baseRequest.getFirstname(),
-                baseRequest.getLastname(),
-                baseRequest.getCompanyName(),
-                baseRequest.getEmailAddress(),
-                baseRequest.getPhoneNumber(),
-                baseRequest.getAdrline1(),
-                baseRequest.getAdrline2(),
-                baseRequest.getPostalcode(),
-                baseRequest.getCity(),
-                null,
-                baseRequest.getTaxId(),
-                baseRequest.getVatId(),
-                baseRequest.getPassword(),
-                baseRequest.getProducts(),
-                baseRequest.isAgbAccepted(),
-                baseRequest.isEntrepreneur(),
-                baseRequest.isRequestImmediateServiceStart(),
-                baseRequest.isAcknowledgeWithdrawalLoss(),
-                baseRequest.getTermsVersion()
-        ));
+        RegisterRequest a4 = new RegisterRequest(baseRegisterRequest());
+        a4.setCountry(null);
+        result.add(a4);
 
-        result.add(new RegisterRequest(
-                baseRequest.getFirstname(),
-                baseRequest.getLastname(),
-                baseRequest.getCompanyName(),
-                baseRequest.getEmailAddress(),
-                baseRequest.getPhoneNumber(),
-                baseRequest.getAdrline1(),
-                baseRequest.getAdrline2(),
-                "1234",
-                baseRequest.getCity(),
-                baseRequest.getCountry(),
-                baseRequest.getTaxId(),
-                baseRequest.getVatId(),
-                baseRequest.getPassword(),
-                baseRequest.getProducts(),
-                baseRequest.isAgbAccepted(),
-                baseRequest.isEntrepreneur(),
-                baseRequest.isRequestImmediateServiceStart(),
-                baseRequest.isAcknowledgeWithdrawalLoss(),
-                baseRequest.getTermsVersion()
-        ));
+        RegisterRequest a5 = new RegisterRequest(baseRegisterRequest());
+        a5.setPostalcode("1234");
+        result.add(a5);
+
         return result;
     }
 }

@@ -30,33 +30,16 @@ class TestE2eRegisterCustomerTermsVersion extends E2eAbstract {
 
         RegisterCustomerClient client = new RegisterCustomerClient(e2eProperties);
 
-        RegisterRequest baseRequest = baseRegisterRequest();
-
         RegisterCustomerResult result;
         RegisterCustomerResult.Success success;
         RegisterCustomerResult.Failure failure;
 
-        RegisterRequest termsVersionValid = new RegisterRequest(
-                baseRequest.getFirstname(),
-                baseRequest.getLastname(),
-                baseRequest.getCompanyName(),
-                baseRequest.getEmailAddress(),
-                baseRequest.getPhoneNumber(),
-                baseRequest.getAdrline1(),
-                baseRequest.getAdrline2(),
-                baseRequest.getPostalcode(),
-                baseRequest.getCity(),
-                baseRequest.getCountry(),
-                baseRequest.getTaxId(),
-                baseRequest.getVatId(),
-                baseRequest.getPassword(),
-                baseRequest.getProducts(),
-                true,
-                true,
-                true,
-                true,
-                "21.12.2025"
-        );
+        RegisterRequest termsVersionValid = new RegisterRequest(baseRegisterRequest());
+        termsVersionValid.setAgbAccepted(true);
+        termsVersionValid.setEntrepreneur(true);
+        termsVersionValid.setRequestImmediateServiceStart(true);
+        termsVersionValid.setAcknowledgeWithdrawalLoss(true);
+        termsVersionValid.setTermsVersion("21.12.2025");
 
         /*
          * Terms version valid
@@ -71,28 +54,12 @@ class TestE2eRegisterCustomerTermsVersion extends E2eAbstract {
         /*
          * Terms version invalid
          */
-        baseRequest = baseRegisterRequest();
-        RegisterRequest termsVersionInvalid = new RegisterRequest(
-                baseRequest.getFirstname(),
-                baseRequest.getLastname(),
-                baseRequest.getCompanyName(),
-                baseRequest.getEmailAddress(),
-                baseRequest.getPhoneNumber(),
-                baseRequest.getAdrline1(),
-                baseRequest.getAdrline2(),
-                baseRequest.getPostalcode(),
-                baseRequest.getCity(),
-                baseRequest.getCountry(),
-                baseRequest.getTaxId(),
-                baseRequest.getVatId(),
-                baseRequest.getPassword(),
-                baseRequest.getProducts(),
-                true,
-                true,
-                true,
-                true,
-                "22.12.2025"
-        );
+        RegisterRequest termsVersionInvalid = new RegisterRequest(baseRegisterRequest());
+        termsVersionInvalid.setAgbAccepted(true);
+        termsVersionInvalid.setEntrepreneur(true);
+        termsVersionInvalid.setRequestImmediateServiceStart(true);
+        termsVersionInvalid.setAcknowledgeWithdrawalLoss(true);
+        termsVersionInvalid.setTermsVersion("22.12.2025");
 
         result = client.register(termsVersionInvalid);
 
