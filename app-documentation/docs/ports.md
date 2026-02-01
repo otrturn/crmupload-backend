@@ -15,6 +15,7 @@
 | espo-crm             |   8080:80 |
 | espo-db (postgreSQL) | 5435:5432 |
 | nexus                | 9081:8081 |
+| odoo                 | 8069:8069 |
 
 ## Demoversionen auf Prod
 
