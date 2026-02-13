@@ -12,6 +12,7 @@ import com.crmmacher.error.ErrMsg;
 import com.crmmacher.espo.importer.my_excel.config.MyExcelCtx;
 import com.crmmacher.my_excel.dto.MyExcelAccount;
 import com.crmmacher.my_excel.reader.MyExcelReadAccounts;
+import com.crmmacher.util.ExcelUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import lombok.RequiredArgsConstructor;
@@ -52,7 +53,7 @@ public class DuplicateCheckWorkerProcessForMyExcel {
                     duplicateCheckContent.setContent(WorkerUtil.createVerifiedExcelAsBytes(duplicateCheckEntries));
                     duplicateCheckRepositoryPort.markDuplicateCheckVerified(duplicateCheckContent.getDuplicateCheckId(), duplicateCheckContent.getContent());
                 } else {
-                    duplicatecheckMailService.sendErrorMail(customer.get(), duplicateCheckContent, errors, WorkerUtil.markExcelFile(duplicateCheckContent.getContent(), errors));
+                    duplicatecheckMailService.sendErrorMail(customer.get(), duplicateCheckContent, errors, ExcelUtils.markExcelFile(duplicateCheckContent.getContent(), errors));
                     StatisticsError statisticsError = new StatisticsError();
                     statisticsError.setFromErrMsg(errors);
                     duplicateCheckRepositoryPort.markDuplicateCheckFailed(duplicateCheckContent.getDuplicateCheckId(), "Verification failed", GSON.toJson(statisticsError));

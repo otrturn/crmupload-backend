@@ -4,7 +4,6 @@ import com.crm.app.dto.CrmUploadContent;
 import com.crm.app.dto.Customer;
 import com.crm.app.port.customer.CrmUploadRepositoryPort;
 import com.crm.app.worker_common.dto.StatisticsError;
-import com.crm.app.worker_common.util.WorkerUtil;
 import com.crm.app.worker_upload.dto.StatisticsErrorUploadEspo;
 import com.crm.app.worker_upload.dto.StatisticsUploadEspo;
 import com.crm.app.worker_upload.error.EspoEntity;
@@ -23,6 +22,7 @@ import com.crmmacher.espo.storage_handler.get.GetAccountFromEspo;
 import com.crmmacher.espo.storage_handler.get.GetContactFromEspo;
 import com.crmmacher.espo.storage_handler.get.GetLeadFromEspo;
 import com.crmmacher.espo.storage_handler.sanity_check.SanityCheck;
+import com.crmmacher.util.ExcelUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import lombok.RequiredArgsConstructor;
@@ -72,8 +72,8 @@ public class UploadHandlingForEspo {
             StatisticsError statisticsError = new StatisticsError();
             statisticsError.setFromErrMsg(errors);
             repository.markUploadFailed(upload.getUploadId(), "Validation failed", GSON.toJson(statisticsError));
-            WorkerUtil.markExcelFile(excelBytes, errors);
-            uploadMailService.sendExcelHasAlreadyErrorsMailForEspo(customer, upload, errors, WorkerUtil.markExcelFile(excelBytes, errors));
+            ExcelUtils.markExcelFile(excelBytes, errors);
+            uploadMailService.sendExcelHasAlreadyErrorsMailForEspo(customer, upload, errors, ExcelUtils.markExcelFile(excelBytes, errors));
             return;
         }
 

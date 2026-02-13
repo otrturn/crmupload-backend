@@ -13,6 +13,7 @@ import com.crmmacher.espo.importer.lexware_excel.config.LexwareCtx;
 import com.crmmacher.lexware_excel.dto.LexwareColumn;
 import com.crmmacher.lexware_excel.dto.LexwareEntry;
 import com.crmmacher.lexware_excel.reader.ReadLexwareExcel;
+import com.crmmacher.util.ExcelUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import lombok.RequiredArgsConstructor;
@@ -56,7 +57,7 @@ public class DuplicateCheckWorkerProcessForLexware {
                     duplicateCheckContent.setContent(WorkerUtil.createVerifiedExcelAsBytes(duplicateCheckEntries));
                     duplicateCheckRepositoryPort.markDuplicateCheckVerified(duplicateCheckContent.getDuplicateCheckId(), duplicateCheckContent.getContent());
                 } else {
-                    duplicatecheckMailService.sendErrorMail(customer.get(), duplicateCheckContent, errors, WorkerUtil.markExcelFile(duplicateCheckContent.getContent(), errors));
+                    duplicatecheckMailService.sendErrorMail(customer.get(), duplicateCheckContent, errors, ExcelUtils.markExcelFile(duplicateCheckContent.getContent(), errors));
                     StatisticsError statisticsError = new StatisticsError();
                     statisticsError.setFromErrMsg(errors);
                     duplicateCheckRepositoryPort.markDuplicateCheckFailed(duplicateCheckContent.getDuplicateCheckId(), "Verification failed", GSON.toJson(statisticsError));

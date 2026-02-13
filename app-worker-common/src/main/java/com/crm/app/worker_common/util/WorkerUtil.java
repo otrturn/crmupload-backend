@@ -2,16 +2,15 @@ package com.crm.app.worker_common.util;
 
 import com.crm.app.dto.DuplicateCheckEntry;
 import com.crm.app.worker_common.error.WorkerUtilCheckException;
-import com.crmmacher.error.ErrMsg;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 
 @Slf4j
@@ -56,57 +55,4 @@ public class WorkerUtil {
         }
     }
 
-    public static byte[] markExcelFile(byte[] excelBytes, List<ErrMsg> errors) {
-        try (InputStream fis = new ByteArrayInputStream(excelBytes);
-             Workbook workbook = new XSSFWorkbook(fis);
-             ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
-            colourCells(errors, workbook);
-            workbook.write(bos);
-            return bos.toByteArray();
-        } catch (IOException e) {
-            log.error("Cannot process excel file [byteArray][byteArray]", e);
-            throw new WorkerUtilCheckException("Cannot process excel file [byteArray][byteArray]", e);
-        }
-    }
-
-    public static void colourCells(List<ErrMsg> errors, Workbook workbook) {
-        XSSFCellStyle cellStyleMarkedCell = (XSSFCellStyle) workbook.createCellStyle();
-        cellStyleMarkedCell.setFillForegroundColor(IndexedColors.RED.index);
-        cellStyleMarkedCell.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-
-        for (ErrMsg errMsg : errors) {
-            Sheet sheet = workbook.getSheetAt(errMsg.getSheetNum());
-            Row row = sheet.getRow(errMsg.getRowNum());
-            Cell cell = row.getCell(errMsg.getColNum());
-            if (cell == null) {
-                cell = row.createCell(errMsg.getColNum());
-            }
-
-            cell.setCellStyle(cellStyleMarkedCell);
-            addComment(cell, errMsg.getMessage());
-        }
-    }
-
-    public static void addComment(Cell cell, String text) {
-        if (cell == null || text == null) {
-            return;
-        }
-
-        Sheet sheet = cell.getSheet();
-        Workbook wb = sheet.getWorkbook();
-        CreationHelper factory = wb.getCreationHelper();
-
-        Drawing<?> drawing = sheet.createDrawingPatriarch();
-
-        ClientAnchor anchor = factory.createClientAnchor();
-        anchor.setCol1(cell.getColumnIndex() + 1);
-        anchor.setRow1(cell.getRowIndex());
-        anchor.setCol2(cell.getColumnIndex() + 3);
-        anchor.setRow2(cell.getRowIndex() + 3);
-
-        Comment comment = drawing.createCellComment(anchor);
-        comment.setString(factory.createRichTextString(text));
-
-        cell.setCellComment(comment);
-    }
 }
