@@ -1,7 +1,7 @@
-package com.crm.app.worker_common.util;
+package com.crm.app.duplicate_check_common.workbook;
 
 import com.crm.app.dto.DuplicateCheckEntry;
-import com.crm.app.worker_common.error.WorkerUtilCheckException;
+import com.crm.app.duplicate_check_common.error.WorkbookUtilCheckException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.util.List;
 
 @Slf4j
-public class WorkerUtil {
+public class WorkbookUtils {
 
     public static final int IDX_ACCOUNTNAME = 0;
     public static final int IDX_POSTCAL_CODE = 1;
@@ -25,7 +25,7 @@ public class WorkerUtil {
     public static final int IDX_PHONE_NUMBER = 6;
     public static final int IDX_EXTERNAL_REFERENCE = 7;
 
-    private WorkerUtil() {
+    private WorkbookUtils() {
     }
 
     public static byte[] createVerifiedExcelAsBytes(List<DuplicateCheckEntry> duplicateCheckEntries) {
@@ -51,7 +51,7 @@ public class WorkerUtil {
             return bos.toByteArray();
         } catch (IOException e) {
             log.error("Cannot process excel file [byteArray][byteArray]", e);
-            throw new WorkerUtilCheckException("Error creating the excel workbook: ", e);
+            throw new WorkbookUtilCheckException("Error creating the excel workbook: ", e);
         }
     }
 

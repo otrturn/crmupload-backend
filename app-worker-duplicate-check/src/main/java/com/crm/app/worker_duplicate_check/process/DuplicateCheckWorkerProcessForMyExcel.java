@@ -3,10 +3,10 @@ package com.crm.app.worker_duplicate_check.process;
 import com.crm.app.dto.Customer;
 import com.crm.app.dto.DuplicateCheckContent;
 import com.crm.app.dto.DuplicateCheckEntry;
+import com.crm.app.duplicate_check_common.workbook.WorkbookUtils;
 import com.crm.app.port.customer.CustomerRepositoryPort;
 import com.crm.app.port.customer.DuplicateCheckRepositoryPort;
 import com.crm.app.worker_common.dto.StatisticsError;
-import com.crm.app.worker_common.util.WorkerUtil;
 import com.crm.app.worker_duplicate_check.mail.DuplicatecheckMailService;
 import com.crmmacher.error.ErrMsg;
 import com.crmmacher.espo.importer.my_excel.config.MyExcelCtx;
@@ -52,7 +52,7 @@ public class DuplicateCheckWorkerProcessForMyExcel {
                 List<DuplicateCheckEntry> duplicateCheckEntries = verifyAndMapEntriesForMyExcel(myExcelAccounts, errors);
                 log.info(String.format("processDuplicateCheck: %d entries mapped, now %d errors", duplicateCheckEntries.size(), errors.size()));
                 if (!ErrMsg.containsErrors(errors)) {
-                    duplicateCheckContent.setContent(WorkerUtil.createVerifiedExcelAsBytes(duplicateCheckEntries));
+                    duplicateCheckContent.setContent(WorkbookUtils.createVerifiedExcelAsBytes(duplicateCheckEntries));
                     duplicateCheckRepositoryPort.markDuplicateCheckVerified(duplicateCheckContent.getDuplicateCheckId(), duplicateCheckContent.getContent());
                 } else {
                     duplicatecheckMailService.sendErrorMail(customer.get(), duplicateCheckContent, errors, ExcelUtils.markExcelFile(duplicateCheckContent.getContent(), errors));

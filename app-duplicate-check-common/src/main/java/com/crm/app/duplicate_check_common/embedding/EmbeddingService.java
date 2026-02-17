@@ -3,8 +3,8 @@ package com.crm.app.duplicate_check_common.embedding;
 import com.crm.app.dto.DuplicateCheckContent;
 import com.crm.app.duplicate_check_common.dto.CompanyEmbedded;
 import com.crm.app.duplicate_check_common.error.DuplicateCheckGpuEmbeddingException;
+import com.crm.app.duplicate_check_common.workbook.WorkbookUtils;
 import com.crm.app.util.AccountNameEmbeddingNormalizer;
-import com.crm.app.worker_common.util.WorkerUtil;
 import com.ki.rag.embedding.client.embed.EmbeddingClient;
 import com.ki.rag.embedding.client.embed.EmbeddingClientFactory;
 import lombok.RequiredArgsConstructor;
@@ -38,15 +38,15 @@ public class EmbeddingService {
             while (idx <= accountsheet.getLastRowNum()) {
                 Row row = accountsheet.getRow(idx);
                 CompanyEmbedded companyEmbedded = new CompanyEmbedded();
-                companyEmbedded.setAccountName(getCellValue(row.getCell(WorkerUtil.IDX_ACCOUNTNAME)));
+                companyEmbedded.setAccountName(getCellValue(row.getCell(WorkbookUtils.IDX_ACCOUNTNAME)));
                 companyEmbedded.setNormalisedAccountName(AccountNameEmbeddingNormalizer.normalizeCompanyName(companyEmbedded.getAccountName()));
-                companyEmbedded.setPostalCode(getCellValue(row.getCell(WorkerUtil.IDX_POSTCAL_CODE)));
-                companyEmbedded.setStreet(getCellValue(row.getCell(WorkerUtil.IDX_STREET)));
-                companyEmbedded.setCity(getCellValue(row.getCell(WorkerUtil.IDX_CITY)));
-                companyEmbedded.setCountry(getCellValue(row.getCell(WorkerUtil.IDX_COUNTRY)));
-                companyEmbedded.setEmailAddress(getCellValue(row.getCell(WorkerUtil.IDX_EMAIL_ADDRESS)));
-                companyEmbedded.setPhoneNumber(getCellValue(row.getCell(WorkerUtil.IDX_PHONE_NUMBER)));
-                companyEmbedded.setCExternalReference(getCellValue(row.getCell(WorkerUtil.IDX_EXTERNAL_REFERENCE)));
+                companyEmbedded.setPostalCode(getCellValue(row.getCell(WorkbookUtils.IDX_POSTCAL_CODE)));
+                companyEmbedded.setStreet(getCellValue(row.getCell(WorkbookUtils.IDX_STREET)));
+                companyEmbedded.setCity(getCellValue(row.getCell(WorkbookUtils.IDX_CITY)));
+                companyEmbedded.setCountry(getCellValue(row.getCell(WorkbookUtils.IDX_COUNTRY)));
+                companyEmbedded.setEmailAddress(getCellValue(row.getCell(WorkbookUtils.IDX_EMAIL_ADDRESS)));
+                companyEmbedded.setPhoneNumber(getCellValue(row.getCell(WorkbookUtils.IDX_PHONE_NUMBER)));
+                companyEmbedded.setCExternalReference(getCellValue(row.getCell(WorkbookUtils.IDX_EXTERNAL_REFERENCE)));
 
                 companyEmbedded.setVectorsAccountName(client.embedMany(List.of(companyEmbedded.getNormalisedAccountName())));
 
