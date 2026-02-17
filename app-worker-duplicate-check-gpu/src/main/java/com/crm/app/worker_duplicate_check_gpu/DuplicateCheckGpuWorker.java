@@ -1,8 +1,8 @@
 package com.crm.app.worker_duplicate_check_gpu;
 
 import com.crm.app.dto.DuplicateCheckContent;
+import com.crm.app.duplicate_check_common.config.DuplicateCheckGpuProperties;
 import com.crm.app.port.customer.DuplicateCheckRepositoryPort;
-import com.crm.app.worker_duplicate_check_gpu.config.DuplicateCheckGpuProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;

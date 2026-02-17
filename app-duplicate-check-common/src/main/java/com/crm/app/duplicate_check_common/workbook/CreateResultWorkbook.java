@@ -1,6 +1,7 @@
 package com.crm.app.duplicate_check_common.workbook;
 
 import com.crm.app.dto.DuplicateCheckContent;
+import com.crm.app.duplicate_check_common.config.DuplicateCheckGpuProperties;
 import com.crm.app.duplicate_check_common.dto.AddressMatchCategory;
 import com.crm.app.duplicate_check_common.dto.CompanyEmbedded;
 import com.crm.app.duplicate_check_common.dto.SimilarCompany;
@@ -24,13 +25,14 @@ import java.util.Map;
 @Component
 @RequiredArgsConstructor
 public class CreateResultWorkbook {
+    private final DuplicateCheckGpuProperties properties;
 
-    public void create(DuplicateCheckContent duplicateCheckContent, List<CompanyEmbedded> companiesEmbedded, Map<String, List<CompanyEmbedded>> emailDuplicates, boolean isPerformAddressAnalysis
+    public void create(DuplicateCheckContent duplicateCheckContent, List<CompanyEmbedded> companiesEmbedded, Map<String, List<CompanyEmbedded>> emailDuplicates
     ) {
         try (Workbook workbook = new XSSFWorkbook();
              ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
 
-            duplicateAccountNameAndAddresses(companiesEmbedded, workbook, isPerformAddressAnalysis);
+            duplicateAccountNameAndAddresses(companiesEmbedded, workbook);
             duplicateEmails(emailDuplicates, workbook);
 
             workbook.write(bos);
@@ -44,7 +46,7 @@ public class CreateResultWorkbook {
     /****************************************************************************************************
      * Account name and address
      ****************************************************************************************************/
-    private void duplicateAccountNameAndAddresses(List<CompanyEmbedded> companiesEmbedded, Workbook workbook, boolean isPerformAddressAnalysis) {
+    private void duplicateAccountNameAndAddresses(List<CompanyEmbedded> companiesEmbedded, Workbook workbook) {
         byte[] ocker = new byte[]{
                 (byte) 0xFF,
                 (byte) 0xFF,
@@ -110,7 +112,7 @@ public class CreateResultWorkbook {
         cell.setCellValue("Land");
         cell.setCellStyle(cellStyleHeaderCell);
 
-        if (isPerformAddressAnalysis) {
+        if (properties.isPerformAddressAnalysis()) {
             cell = row.createCell(7, CellType.STRING);
             cell.setCellValue("Ähnlichkeit");
             cell.setCellStyle(cellStyleCentered);
@@ -119,7 +121,7 @@ public class CreateResultWorkbook {
 
         rowIdx++;
 
-        if (isPerformAddressAnalysis) {
+        if (properties.isPerformAddressAnalysis()) {
             row = sheet.createRow(rowIdx);
 
             cell = row.createCell(7, CellType.STRING);

@@ -1,4 +1,4 @@
-package com.crm.app.worker_duplicate_check_gpu.config;
+package com.crm.app.duplicate_check_common.config;
 
 import lombok.Getter;
 import lombok.Setter;
