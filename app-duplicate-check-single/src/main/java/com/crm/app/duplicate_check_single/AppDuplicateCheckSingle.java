@@ -1,5 +1,6 @@
 package com.crm.app.duplicate_check_single;
 
+import com.crm.app.duplicate_check_single.process.DuplicateCheckSingleProcessFile;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
@@ -16,6 +17,7 @@ import java.time.Instant;
 public class AppDuplicateCheckSingle implements CommandLineRunner, ExitCodeGenerator {
 
     private int exitCode = 0;
+    private final DuplicateCheckSingleProcessFile duplicateCheckSingleProcessFile;
 
     public static void main(String[] args) {
         SpringApplication app = new SpringApplication(AppDuplicateCheckSingle.class);
@@ -28,6 +30,7 @@ public class AppDuplicateCheckSingle implements CommandLineRunner, ExitCodeGener
         try {
             Instant start = Instant.now();
             log.info("Starting duplicate check single …");
+            duplicateCheckSingleProcessFile.processFile();
             log.info("duplicate check single finished.");
             Duration duration = Duration.between(start, Instant.now());
             log.info(String.format("Duration: %02d:%02d:%02d", duration.toHours(), duration.toMinutesPart(), duration.toSecondsPart()));

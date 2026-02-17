@@ -28,7 +28,7 @@ public enum SourceSystem {
                 .filter(v -> v.value.equalsIgnoreCase(raw.trim()))
                 .findFirst()
                 .orElseThrow(() ->
-                        new IllegalArgumentException("Unsupported CRM system: " + raw));
+                        new IllegalArgumentException("Unsupported SourceSystem system: " + raw));
     }
 
     public static List<String> availableSourceSystems() {
