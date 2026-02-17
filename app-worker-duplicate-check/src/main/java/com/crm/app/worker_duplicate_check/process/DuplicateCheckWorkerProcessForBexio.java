@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.crm.app.duplicate_check_common.verification.VerifyAndMap.verifyAndMapEntriesForBexio;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -51,7 +53,7 @@ public class DuplicateCheckWorkerProcessForBexio {
 
             Optional<Customer> customer = customerRepositoryPort.findCustomerByCustomerId(duplicateCheckContent.getCustomerId());
             if (customer.isPresent()) {
-                List<DuplicateCheckEntry> duplicateCheckEntries = verifyAndMapEntries(bexioEntries, indexMap, errors);
+                List<DuplicateCheckEntry> duplicateCheckEntries = verifyAndMapEntriesForBexio(bexioEntries, indexMap, errors);
                 log.info(String.format("processDuplicateCheck: %d entries mapped, now %d errors", duplicateCheckEntries.size(), errors.size()));
                 if (!ErrMsg.containsErrors(errors)) {
                     duplicateCheckContent.setContent(WorkerUtil.createVerifiedExcelAsBytes(duplicateCheckEntries));
@@ -70,38 +72,4 @@ public class DuplicateCheckWorkerProcessForBexio {
         }
     }
 
-    private List<DuplicateCheckEntry> verifyAndMapEntries(List<BexioEntry> bexioEntries, Map<BexioColumn, Integer> indexMap, List<ErrMsg> errors) {
-        List<DuplicateCheckEntry> duplicateCheckEntries = new ArrayList<>();
-        for (int i = 0; i < bexioEntries.size(); i++) {
-            BexioEntry bexioEntry = bexioEntries.get(i);
-            if (bexioEntry.getAccountName() == null || bexioEntry.getAccountName().isBlank()) {
-                String msg = String.format("[Account] Zeile %d: Firmenname ist leer", i + 1);
-                errors.add(new ErrMsg(0, i, indexMap.get(BexioColumn.FIRMENNAME), BexioColumn.FIRMENNAME.name(), msg));
-            } else if (bexioEntry.getAddress().getPostcalCode() == null || bexioEntry.getAddress().getPostcalCode().isBlank()) {
-                String msg = String.format("[Account] Zeile %d: PLZ ist leer", i + 1);
-                errors.add(new ErrMsg(0, i, indexMap.get(BexioColumn.PLZ), BexioColumn.PLZ.name(), msg));
-            } else {
-                DuplicateCheckEntry duplicateCheckEntry = DuplicateCheckEntry.builder()
-                        .cExternalReference(bexioEntry.getcExternalReference())
-                        .accountName(bexioEntry.getAccountName())
-                        .postalCode(bexioEntry.getAddress().getPostcalCode())
-                        .street(bexioEntry.getAddress().getStreet())
-                        .city(bexioEntry.getAddress().getCity())
-                        .country(bexioEntry.getAddress().getCountry())
-                        .emailAddress(
-                                !bexioEntry.getEmailAddressData().isEmpty()
-                                        ? bexioEntry.getEmailAddressData().get(0).getEmailAddress()
-                                        : ""
-                        )
-                        .phoneNumber(
-                                !bexioEntry.getPhoneNumberData().isEmpty()
-                                        ? bexioEntry.getPhoneNumberData().get(0).getPhoneNumber()
-                                        : ""
-                        )
-                        .build();
-                duplicateCheckEntries.add(duplicateCheckEntry);
-            }
-        }
-        return duplicateCheckEntries;
-    }
 }

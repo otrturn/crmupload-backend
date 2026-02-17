@@ -18,10 +18,56 @@
     </properties>
 
     <dependencies>
+
         <dependency>
             <groupId>com.crmupload</groupId>
             <artifactId>app-common</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.crmmacher-suite</groupId>
+            <artifactId>common-espo</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.crmmacher-suite</groupId>
+            <artifactId>espo-storage-handler</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.crmmacher-suite</groupId>
+            <artifactId>reader-bexio-excel</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.crmmacher-suite</groupId>
+            <artifactId>espo-importer-bexio-excel</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.crmmacher-suite</groupId>
+            <artifactId>reader-lexware-excel</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.crmmacher-suite</groupId>
+            <artifactId>espo-importer-lexware-excel</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.crmmacher-suite</groupId>
+            <artifactId>reader-my-excel</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.crmmacher-suite</groupId>
+            <artifactId>espo-importer-my-excel</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
     </dependencies>
 </project>

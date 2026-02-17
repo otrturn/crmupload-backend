@@ -33,6 +33,11 @@
             <artifactId>app-db-adapter-jdbc</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.crmupload</groupId>
+            <artifactId>app-duplicate-check-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>com.crmmacher-suite</groupId>

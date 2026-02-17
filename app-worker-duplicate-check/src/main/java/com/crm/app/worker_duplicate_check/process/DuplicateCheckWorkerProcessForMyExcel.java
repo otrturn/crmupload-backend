@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static com.crm.app.duplicate_check_common.verification.VerifyAndMap.verifyAndMapEntriesForMyExcel;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -47,7 +49,7 @@ public class DuplicateCheckWorkerProcessForMyExcel {
 
             Optional<Customer> customer = customerRepositoryPort.findCustomerByCustomerId(duplicateCheckContent.getCustomerId());
             if (customer.isPresent()) {
-                List<DuplicateCheckEntry> duplicateCheckEntries = verifyAndMapEntries(myExcelAccounts, errors);
+                List<DuplicateCheckEntry> duplicateCheckEntries = verifyAndMapEntriesForMyExcel(myExcelAccounts, errors);
                 log.info(String.format("processDuplicateCheck: %d entries mapped, now %d errors", duplicateCheckEntries.size(), errors.size()));
                 if (!ErrMsg.containsErrors(errors)) {
                     duplicateCheckContent.setContent(WorkerUtil.createVerifiedExcelAsBytes(duplicateCheckEntries));
@@ -66,39 +68,4 @@ public class DuplicateCheckWorkerProcessForMyExcel {
         }
     }
 
-    private List<DuplicateCheckEntry> verifyAndMapEntries(List<MyExcelAccount> myExcelEntries, List<ErrMsg> errors) {
-        List<DuplicateCheckEntry> duplicateCheckEntries = new ArrayList<>();
-        for (int i = 0; i < myExcelEntries.size(); i++) {
-            MyExcelAccount myExcelEntry = myExcelEntries.get(i);
-            if (myExcelEntry.getName() == null || myExcelEntry.getName().isBlank()) {
-                String msg = String.format("[Account] Zeile %d: Firmenname ist leer", i + 1);
-                errors.add(new ErrMsg(0, i, 0, "Firmenname", msg));
-            } else if (myExcelEntry.getBillingAddress().getPostcalCode() == null || myExcelEntry.getBillingAddress().getPostcalCode().isBlank()) {
-                String msg = String.format("[Account] Zeile %d: PLZ ist leer", i + 1);
-                errors.add(new ErrMsg(0, i, 0, "PLZ", msg));
-            } else {
-                DuplicateCheckEntry duplicateCheckEntry = DuplicateCheckEntry.builder()
-                        .cExternalReference(myExcelEntry.getcExternalReference())
-                        .accountName(myExcelEntry.getName())
-                        .postalCode(myExcelEntry.getBillingAddress().getPostcalCode())
-                        .street(myExcelEntry.getBillingAddress().getStreet())
-                        .city(myExcelEntry.getBillingAddress().getCity())
-                        .country(myExcelEntry.getBillingAddress().getCountry())
-                        .emailAddress(
-                                !myExcelEntry.getEmailAddressData().isEmpty()
-                                        ? myExcelEntry.getEmailAddressData().get(0).getEmailAddress()
-                                        : ""
-                        )
-                        .phoneNumber(
-                                !myExcelEntry.getPhoneNumberData().isEmpty()
-                                        ? myExcelEntry.getPhoneNumberData().get(0).getPhoneNumber()
-                                        : ""
-                        )
-                        .build();
-
-                duplicateCheckEntries.add(duplicateCheckEntry);
-            }
-        }
-        return duplicateCheckEntries;
-    }
 }
