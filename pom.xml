@@ -24,6 +24,7 @@
         <module>app-dev</module>
         <module>app-billing</module>
         <module>app-duplicate-check-single</module>
+        <module>app-duplicate-check-common</module>
     </modules>
 
     <parent>

@@ -136,26 +136,26 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: dev
 
- # crmupload-worker-duplicate-check-gpu-prod:
- #   image: crmupload-worker-duplicate-check-gpu:prod
- #   build:
- #     context: ./app-worker-duplicate-check-gpu
- #     dockerfile: Dockerfile
- #   container_name: crmupload-worker-duplicate-check-gpu-prod
- #   env_file:
- #     - .env
- #   restart: unless-stopped
- #   depends_on:
- #     crmupload-flyway:
- #       condition: service_completed_successfully
- #   networks:
- #     - crmuploadnet
- #   volumes:
- #     - /home/ralf/tmp:/data/tmp
- #   extra_hosts:
- #     - "host.docker.internal:host-gateway"
- #   environment:
- #     SPRING_PROFILES_ACTIVE: prod
+  # crmupload-worker-duplicate-check-gpu-prod:
+  #   image: crmupload-worker-duplicate-check-gpu:prod
+  #   build:
+  #     context: ./app-worker-duplicate-check-gpu
+  #     dockerfile: Dockerfile
+  #   container_name: crmupload-worker-duplicate-check-gpu-prod
+  #   env_file:
+  #     - .env
+  #   restart: unless-stopped
+  #   depends_on:
+  #     crmupload-flyway:
+  #       condition: service_completed_successfully
+  #   networks:
+  #     - crmuploadnet
+  #   volumes:
+  #     - /home/ralf/tmp:/data/tmp
+  #   extra_hosts:
+  #     - "host.docker.internal:host-gateway"
+  #   environment:
+  #     SPRING_PROFILES_ACTIVE: prod
 
   # --------------------------------------------------------------
   # MAILPIT (SMTP debugging)
