@@ -222,10 +222,8 @@ services:
       dockerfile: Dockerfile
     container_name: duplicate-check-single
     restart: "no"
-    networks:
-      - crmuploadnet
-    environment:
-      SPRING_PROFILES_ACTIVE: dev
+    volumes:
+      - ./data:/data
 
 networks:
   crmuploadnet:

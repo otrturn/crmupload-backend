@@ -1,4 +1,4 @@
 app:
   duplicate-check:
-    excel-path: /home/ralf/espocrm-demo/generated/MyExcelKunden_V001.xlsx
+    excel-path: /data/MyExcelKunden_V001.xlsx
     source-system: MyExcel
