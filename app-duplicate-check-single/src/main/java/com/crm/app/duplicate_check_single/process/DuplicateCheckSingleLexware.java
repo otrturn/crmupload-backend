@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.crm.app.duplicate_check_common.verification.VerifyAndMap.verifyAndMapEntriesForLexware;
+import static com.crm.app.duplicate_check_common.verification.VerifyAndMapEntries.verifyAndMapEntriesForLexware;
 
 @Slf4j
 @Service

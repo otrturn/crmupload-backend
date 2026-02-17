@@ -1,4 +1,4 @@
-package com.crm.app.worker_duplicate_check_gpu.dto;
+package com.crm.app.duplicate_check_common.dto;
 
 import com.crm.app.dto.DuplicateCheckEntry;
 import lombok.Getter;

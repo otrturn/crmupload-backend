@@ -1,11 +1,10 @@
-package com.crm.app.worker_duplicate_check_gpu.process;
+package com.crm.app.duplicate_check_common.workbook;
 
 import com.crm.app.dto.DuplicateCheckContent;
-import com.crm.app.worker_duplicate_check_gpu.config.DuplicateCheckGpuProperties;
-import com.crm.app.worker_duplicate_check_gpu.dto.AddressMatchCategory;
-import com.crm.app.worker_duplicate_check_gpu.dto.CompanyEmbedded;
-import com.crm.app.worker_duplicate_check_gpu.dto.SimilarCompany;
-import com.crm.app.worker_duplicate_check_gpu.error.WorkerDuplicateCheckGpuException;
+import com.crm.app.duplicate_check_common.dto.AddressMatchCategory;
+import com.crm.app.duplicate_check_common.dto.CompanyEmbedded;
+import com.crm.app.duplicate_check_common.dto.SimilarCompany;
+import com.crm.app.duplicate_check_common.error.DuplicateCheckGpuException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
@@ -26,27 +25,26 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class CreateResultWorkbook {
 
-    private final DuplicateCheckGpuProperties properties;
-
-    public void create(DuplicateCheckContent duplicateCheckContent, List<CompanyEmbedded> companiesEmbedded, Map<String, List<CompanyEmbedded>> emailDuplicates) {
+    public void create(DuplicateCheckContent duplicateCheckContent, List<CompanyEmbedded> companiesEmbedded, Map<String, List<CompanyEmbedded>> emailDuplicates, boolean isPerformAddressAnalysis
+    ) {
         try (Workbook workbook = new XSSFWorkbook();
              ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
 
-            duplicateAccountNameAndAddresses(companiesEmbedded, workbook);
+            duplicateAccountNameAndAddresses(companiesEmbedded, workbook, isPerformAddressAnalysis);
             duplicateEmails(emailDuplicates, workbook);
 
             workbook.write(bos);
             duplicateCheckContent.setContent(bos.toByteArray());
         } catch (IOException e) {
             log.error(String.format("createResultWorkbook: %s", e.getMessage()), e);
-            throw new WorkerDuplicateCheckGpuException("Error creating the excel workbook: ", e);
+            throw new DuplicateCheckGpuException("Error creating the excel workbook: ", e);
         }
     }
 
     /****************************************************************************************************
      * Account name and address
      ****************************************************************************************************/
-    private void duplicateAccountNameAndAddresses(List<CompanyEmbedded> companiesEmbedded, Workbook workbook) {
+    private void duplicateAccountNameAndAddresses(List<CompanyEmbedded> companiesEmbedded, Workbook workbook, boolean isPerformAddressAnalysis) {
         byte[] ocker = new byte[]{
                 (byte) 0xFF,
                 (byte) 0xFF,
@@ -112,7 +110,7 @@ public class CreateResultWorkbook {
         cell.setCellValue("Land");
         cell.setCellStyle(cellStyleHeaderCell);
 
-        if (properties.isPerformAddressAnalysis()) {
+        if (isPerformAddressAnalysis) {
             cell = row.createCell(7, CellType.STRING);
             cell.setCellValue("Ähnlichkeit");
             cell.setCellStyle(cellStyleCentered);
@@ -121,7 +119,7 @@ public class CreateResultWorkbook {
 
         rowIdx++;
 
-        if (properties.isPerformAddressAnalysis()) {
+        if (isPerformAddressAnalysis) {
             row = sheet.createRow(rowIdx);
 
             cell = row.createCell(7, CellType.STRING);

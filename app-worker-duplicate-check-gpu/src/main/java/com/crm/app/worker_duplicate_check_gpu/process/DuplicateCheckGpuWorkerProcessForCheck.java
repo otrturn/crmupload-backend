@@ -2,33 +2,23 @@ package com.crm.app.worker_duplicate_check_gpu.process;
 
 import com.crm.app.dto.Customer;
 import com.crm.app.dto.DuplicateCheckContent;
+import com.crm.app.duplicate_check_common.dto.AddressMatchCategory;
+import com.crm.app.duplicate_check_common.dto.CompanyEmbedded;
+import com.crm.app.duplicate_check_common.dto.EmbeddingMatchType;
+import com.crm.app.duplicate_check_common.dto.SimilarCompany;
+import com.crm.app.duplicate_check_common.embedding.EmbeddingService;
+import com.crm.app.duplicate_check_common.workbook.CreateResultWorkbook;
 import com.crm.app.port.customer.CustomerRepositoryPort;
 import com.crm.app.port.customer.DuplicateCheckRepositoryPort;
-import com.crm.app.util.AccountNameEmbeddingNormalizer;
 import com.crm.app.util.EmbeddingUtils;
-import com.crm.app.worker_common.util.WorkerUtil;
+import com.crm.app.worker_common.dto.StatisticsDuplicateCheck;
 import com.crm.app.worker_duplicate_check_gpu.config.DuplicateCheckGpuProperties;
-import com.crm.app.worker_duplicate_check_gpu.dto.AddressMatchCategory;
-import com.crm.app.worker_duplicate_check_gpu.dto.CompanyEmbedded;
-import com.crm.app.worker_duplicate_check_gpu.dto.EmbeddingMatchType;
-import com.crm.app.worker_duplicate_check_gpu.dto.SimilarCompany;
-import com.crm.app.worker_duplicate_check_gpu.error.WorkerDuplicateCheckGpuEmbeddingException;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.ki.rag.embedding.client.embed.EmbeddingClient;
-import com.ki.rag.embedding.client.embed.EmbeddingClientFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Component;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
@@ -41,9 +31,9 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
 
     private final DuplicateCheckRepositoryPort duplicateCheckRepositoryPort;
     private final CustomerRepositoryPort customerRepositoryPort;
-    private final EmbeddingClientFactory clientFactory;
     private final DuplicateCheckGpuProperties properties;
     private final CreateResultWorkbook createResultWorkbook;
+    private final EmbeddingService embeddingService;
 
     private static final String DURATION_FORMAT_STRING = "Duration: %02d:%02d:%02d";
 
@@ -57,7 +47,7 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
 
             log.info("Start embedding ...");
             Instant start = Instant.now();
-            List<CompanyEmbedded> companiesEmbedded = getEmbedding(duplicateCheckContent);
+            List<CompanyEmbedded> companiesEmbedded = embeddingService.getEmbedding(duplicateCheckContent);
             log.info("Finished embedding ...");
             Duration duration = Duration.between(start, Instant.now());
             log.info(String.format(DURATION_FORMAT_STRING, duration.toHours(), duration.toMinutesPart(), duration.toSecondsPart()));
@@ -77,7 +67,7 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
             duration = Duration.between(start, Instant.now());
             log.info(String.format(DURATION_FORMAT_STRING, duration.toHours(), duration.toMinutesPart(), duration.toSecondsPart()));
 
-            createResultWorkbook.create(duplicateCheckContent, companiesEmbedded, emailDuplicates);
+            createResultWorkbook.create(duplicateCheckContent, companiesEmbedded, emailDuplicates, properties.isPerformAddressAnalysis());
             Optional<Customer> customer = customerRepositoryPort.findCustomerByCustomerId(duplicateCheckContent.getCustomerId());
             if (customer.isPresent()) {
                 duplicateCheckRepositoryPort.markDuplicateCheckChecked(duplicateCheckContent.getDuplicateCheckId(), duplicateCheckContent.getContent(), GSON.toJson(setStatistics(companiesEmbedded, emailDuplicates)));
@@ -87,38 +77,6 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
         } catch (Exception ex) {
             log.error(String.format("ERROR=%s", ex.getMessage()), ex);
         }
-    }
-
-    private List<CompanyEmbedded> getEmbedding(DuplicateCheckContent duplicateCheckContent) {
-        List<CompanyEmbedded> companiesEmbedded = new ArrayList<>();
-        final EmbeddingClient client = clientFactory.forModel("tei-bge-m3");
-        try (InputStream fis = new ByteArrayInputStream(duplicateCheckContent.getContent());
-             Workbook workbook = new XSSFWorkbook(fis)) {
-            Sheet accountsheet = workbook.getSheetAt(0);
-            int idx = 0;
-            while (idx <= accountsheet.getLastRowNum()) {
-                Row row = accountsheet.getRow(idx);
-                CompanyEmbedded companyEmbedded = new CompanyEmbedded();
-                companyEmbedded.setAccountName(getCellValue(row.getCell(WorkerUtil.IDX_ACCOUNTNAME)));
-                companyEmbedded.setNormalisedAccountName(AccountNameEmbeddingNormalizer.normalizeCompanyName(companyEmbedded.getAccountName()));
-                companyEmbedded.setPostalCode(getCellValue(row.getCell(WorkerUtil.IDX_POSTCAL_CODE)));
-                companyEmbedded.setStreet(getCellValue(row.getCell(WorkerUtil.IDX_STREET)));
-                companyEmbedded.setCity(getCellValue(row.getCell(WorkerUtil.IDX_CITY)));
-                companyEmbedded.setCountry(getCellValue(row.getCell(WorkerUtil.IDX_COUNTRY)));
-                companyEmbedded.setEmailAddress(getCellValue(row.getCell(WorkerUtil.IDX_EMAIL_ADDRESS)));
-                companyEmbedded.setPhoneNumber(getCellValue(row.getCell(WorkerUtil.IDX_PHONE_NUMBER)));
-                companyEmbedded.setCExternalReference(getCellValue(row.getCell(WorkerUtil.IDX_EXTERNAL_REFERENCE)));
-
-                companyEmbedded.setVectorsAccountName(client.embedMany(List.of(companyEmbedded.getNormalisedAccountName())));
-
-                companiesEmbedded.add(companyEmbedded);
-                idx++;
-            }
-        } catch (IOException e) {
-            log.error(String.format("getEmbedding: %s", e.getMessage()), e);
-            throw new WorkerDuplicateCheckGpuEmbeddingException("Cannot get embedding", e);
-        }
-        return companiesEmbedded;
     }
 
     private void comparisonAnalysis(List<CompanyEmbedded> companiesEmbedded) {
@@ -160,9 +118,9 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
         double nameSim = cosineAccountName(a, b);
         boolean nameMatch = nameSim >= properties.getCosineSimilarityThresholdAccountName();
 
-        AddressMatcher.AddressKey addressKeyA = AddressMatcher.of(a.getStreet(), a.getCity());
-        AddressMatcher.AddressKey addressKeyB = AddressMatcher.of(b.getStreet(), b.getCity());
-        AddressMatcher.MatchResult addressMatchResult = AddressMatcher.match(addressKeyA, addressKeyB);
+        com.crm.app.duplicate_check_common.matcher.AddressMatcher.AddressKey addressKeyA = com.crm.app.duplicate_check_common.matcher.AddressMatcher.of(a.getStreet(), a.getCity());
+        com.crm.app.duplicate_check_common.matcher.AddressMatcher.AddressKey addressKeyB = com.crm.app.duplicate_check_common.matcher.AddressMatcher.of(b.getStreet(), b.getCity());
+        com.crm.app.duplicate_check_common.matcher.AddressMatcher.MatchResult addressMatchResult = com.crm.app.duplicate_check_common.matcher.AddressMatcher.match(addressKeyA, addressKeyB);
 
         return new EmbeddingMatchType(nameMatch, addressMatchResult.category());
     }
@@ -178,11 +136,7 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
         return companyEmbedded1.getPostalCode().charAt(0) == companyEmbedded2.getPostalCode().charAt(0);
     }
 
-    private String getCellValue(Cell cell) {
-        return cell != null ? cell.getStringCellValue() : "";
-    }
-
-    private com.crm.app.worker_common.dto.StatisticsDuplicateCheck setStatistics(List<CompanyEmbedded> companiesEmbedded, Map<String, List<CompanyEmbedded>> emailDuplicates) {
+    private StatisticsDuplicateCheck setStatistics(List<CompanyEmbedded> companiesEmbedded, Map<String, List<CompanyEmbedded>> emailDuplicates) {
         com.crm.app.worker_common.dto.StatisticsDuplicateCheck statisticsDuplicateCheck = new com.crm.app.worker_common.dto.StatisticsDuplicateCheck();
         statisticsDuplicateCheck.setNEntries(companiesEmbedded.size());
         long accountNameMatches = 0;

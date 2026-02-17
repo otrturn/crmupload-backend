@@ -25,6 +25,11 @@
         </dependency>
         <dependency>
             <groupId>com.crmupload</groupId>
+            <artifactId>app-duplicate-check-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.crmupload</groupId>
             <artifactId>app-worker-common</artifactId>
             <version>${project.version}</version>
         </dependency>

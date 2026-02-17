@@ -1,6 +1,6 @@
-package com.crm.app.worker_duplicate_check_gpu.process;
+package com.crm.app.duplicate_check_common.matcher;
 
-import com.crm.app.worker_duplicate_check_gpu.dto.AddressMatchCategory;
+import com.crm.app.duplicate_check_common.dto.AddressMatchCategory;
 
 import java.text.Normalizer;
 import java.util.*;

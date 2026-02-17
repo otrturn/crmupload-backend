@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.crm.app.duplicate_check_common.verification.VerifyAndMap.verifyAndMapEntriesForMyExcel;
+import static com.crm.app.duplicate_check_common.verification.VerifyAndMapEntries.verifyAndMapEntriesForMyExcel;
 
 @Slf4j
 @Component

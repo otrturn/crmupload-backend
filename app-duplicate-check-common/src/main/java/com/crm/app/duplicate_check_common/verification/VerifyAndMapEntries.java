@@ -12,14 +12,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class VerifyAndMap {
+public class VerifyAndMapEntries {
 
     private static final String LITERAL_FIRMENNAME_LEER = "[Account] Zeile %d: Firmenname ist leer";
     private static final String LITERAL_PLZ_LEER = "[Account] Zeile %d: PLZ ist leer";
     private static final String LITERAL_STRASSE_LEER = "[Account] Zeile %d: Strasse ist leer";
     private static final String LITERAL_LAND_LEER = "[Account] Zeile %d: Land ist leer";
 
-    private VerifyAndMap() {
+    private VerifyAndMapEntries() {
     }
 
     public static List<DuplicateCheckEntry> verifyAndMapEntriesForMyExcel(List<MyExcelAccount> myExcelEntries, List<ErrMsg> errors) {

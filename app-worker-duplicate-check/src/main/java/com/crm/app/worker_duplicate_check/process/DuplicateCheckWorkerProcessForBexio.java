@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.crm.app.duplicate_check_common.verification.VerifyAndMap.verifyAndMapEntriesForBexio;
+import static com.crm.app.duplicate_check_common.verification.VerifyAndMapEntries.verifyAndMapEntriesForBexio;
 
 @Slf4j
 @Component
