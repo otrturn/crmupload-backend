@@ -3,7 +3,6 @@ package com.crm.app.worker_duplicate_check_gpu.process;
 import com.crm.app.dto.Customer;
 import com.crm.app.dto.DuplicateCheckContent;
 import com.crm.app.duplicate_check_common.comparison.ComparisonAnalysis;
-import com.crm.app.duplicate_check_common.config.DuplicateCheckGpuProperties;
 import com.crm.app.duplicate_check_common.dto.CompanyEmbedded;
 import com.crm.app.duplicate_check_common.embedding.EmbeddingService;
 import com.crm.app.duplicate_check_common.workbook.CreateResultWorkbook;
@@ -28,7 +27,6 @@ public class DuplicateCheckGpuWorkerProcessForCheck {
 
     private final DuplicateCheckRepositoryPort duplicateCheckRepositoryPort;
     private final CustomerRepositoryPort customerRepositoryPort;
-    private final DuplicateCheckGpuProperties properties;
     private final CreateResultWorkbook createResultWorkbook;
     private final EmbeddingService embeddingService;
     private final ComparisonAnalysis comparisonAnalysis;

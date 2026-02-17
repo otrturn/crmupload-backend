@@ -222,6 +222,8 @@ services:
       dockerfile: Dockerfile
     container_name: duplicate-check-single
     restart: "no"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - ./data:/data
 

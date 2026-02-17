@@ -55,4 +55,8 @@ public class WorkbookUtils {
         }
     }
 
+    public static String setNameOfDuplicatesExcelFile(String filename) {
+        return filename.replaceAll("(?i)\\.xlsx$", "_Dubletten.xlsx");
+    }
+
 }

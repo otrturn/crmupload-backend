@@ -1,5 +1,6 @@
 package com.crm.app.duplicate_check_single;
 
+import com.crm.app.duplicate_check_common.config.DuplicateCheckGpuProperties;
 import com.crm.app.duplicate_check_single.process.DuplicateCheckSingleProcessFile;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -7,6 +8,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.ExitCodeGenerator;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -14,6 +16,7 @@ import java.time.Instant;
 @Slf4j
 @SpringBootApplication(scanBasePackages = "com.crm")
 @RequiredArgsConstructor
+@EnableConfigurationProperties({DuplicateCheckGpuProperties.class})
 public class AppDuplicateCheckSingle implements CommandLineRunner, ExitCodeGenerator {
 
     private int exitCode = 0;
@@ -31,7 +34,7 @@ public class AppDuplicateCheckSingle implements CommandLineRunner, ExitCodeGener
             Instant start = Instant.now();
             log.info("Starting duplicate check single …");
             duplicateCheckSingleProcessFile.processFile();
-            log.info("duplicate check single finished.");
+            log.info("Duplicate check single finished.");
             Duration duration = Duration.between(start, Instant.now());
             log.info(String.format("Duration: %02d:%02d:%02d", duration.toHours(), duration.toMinutesPart(), duration.toSecondsPart()));
         } catch (Exception e) {

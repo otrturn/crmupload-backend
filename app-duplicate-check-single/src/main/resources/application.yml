@@ -1,4 +1,20 @@
 app:
   duplicate-check:
-    excel-path: /data/MyExcelKunden_V001.xlsx
-    source-system: MyExcel
+    excel-path: /data/Lexware_Generated_Duplicate_Check_00001.xlsx
+    source-system: Lexware
+  duplicate-check-gpu:
+    poll-interval-ms: 10000
+    batch-size: 5
+    cosineSimilarityThresholdAccountName: 0.85
+    performAddressAnalysis: true
+  embedding:
+    models:
+      tei-bge-m3:
+        base-url: ${TEI_BGE_BASE_URL:http://host.docker.internal:7070}
+        model-id: BAAI/bge-m3
+        dims: 1024
+        dtype: float16
+        timeout-ms: 10000
+        max-inputs-per-request: 16
+        max-chars-per-request: 12000
+        weight: 1.0
