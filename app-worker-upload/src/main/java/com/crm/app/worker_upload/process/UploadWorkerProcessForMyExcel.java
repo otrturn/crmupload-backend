@@ -54,8 +54,8 @@ public class UploadWorkerProcessForMyExcel {
             log.info(String.format("MyExcel %d accounts mapped, %d errors", espoAccounts.size(), errors.size()));
 
             List<MyExcelContact> myExcelContacts = new MyExcelReadContacts().getContacts(myExcelAccounts, upload.getContent(), errors);
-            List<EspoContact> espoContacts = MyExcelToEspoContactMapper.toEspoContacts(myExcelContacts, errors);
-            VerifyMyExcelForEspo.verifyEspoContact(myExcelCtx, espoAccounts, espoContacts, errors);
+            List<EspoContact> espoContacts = MyExcelToEspoContactMapper.toEspoContacts(myExcelContacts, espoAccounts, errors);
+            VerifyMyExcelForEspo.verifyEspoContact(myExcelCtx,  espoContacts, errors);
 
             log.info(String.format("MyExcel %d contacts read, %d errors", espoContacts.size(), errors.size()));
             log.info(String.format("MyExcel %d contacts mapped, %d errors", espoContacts.size(), errors.size()));
