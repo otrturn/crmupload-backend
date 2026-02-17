@@ -1,0 +1,4 @@
+app:
+  duplicate-check:
+    excel-path: /home/ralf/espocrm-demo/generated/Lexware_Generated_Incorrect.xlsx
+    source-system: MyExcel

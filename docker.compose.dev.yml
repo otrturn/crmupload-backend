@@ -212,6 +212,21 @@ services:
       - /home/ralf/tmp:/data/tmp
       - /home/ralf/invoices:/data/invoices
 
+  # --------------------------------------------------------------
+  # Duplicate check single
+  # --------------------------------------------------------------
+  duplicate-check-single:
+    image: duplicate-check-single
+    build:
+      context: ./app-duplicate-check-single
+      dockerfile: Dockerfile
+    container_name: duplicate-check-single
+    restart: "no"
+    networks:
+      - crmuploadnet
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+
 networks:
   crmuploadnet:
     external: true

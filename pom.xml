@@ -23,6 +23,7 @@
         <module>app-worker-common</module>
         <module>app-dev</module>
         <module>app-billing</module>
+        <module>app-duplicate-check-single</module>
     </modules>
 
     <parent>
