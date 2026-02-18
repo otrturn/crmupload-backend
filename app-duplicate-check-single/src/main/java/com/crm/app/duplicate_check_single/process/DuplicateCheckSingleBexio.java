@@ -15,13 +15,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.crm.app.duplicate_check_common.verification.VerifyAndMapEntries.verifyAndMapEntriesForBexio;
+import static com.crm.app.duplicate_check_common.verification.VerifyAndMapEntriesBexio.verifyAndMapEntriesForBexio;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class DuplicateCheckSingleBexio {
     private final AppDuplicateCheckSingleConfig appDuplicateCheckSingleConfig;
+    private final DuplicateCheckSingleEmbeddAndCompare duplicateCheckSingleEmbeddAndCompare;
 
     public void processFile() {
         log.info(String.format("Processing duplicate check for Bexio [%s]", appDuplicateCheckSingleConfig.getExcelPath()));
@@ -32,5 +33,7 @@ public class DuplicateCheckSingleBexio {
         log.info(String.format("processDuplicateCheck: Bexio %d entries read, %d errors", bexioEntries.size(), errors.size()));
         List<DuplicateCheckEntry> duplicateCheckEntries = verifyAndMapEntriesForBexio(bexioEntries, indexMap, errors);
         log.info(String.format("processDuplicateCheck: Bexio %d entries mapped, now %d errors", duplicateCheckEntries.size(), errors.size()));
+
+        duplicateCheckSingleEmbeddAndCompare.processFile(duplicateCheckEntries, errors);
     }
 }

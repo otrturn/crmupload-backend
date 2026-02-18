@@ -13,20 +13,23 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.crm.app.duplicate_check_common.verification.VerifyAndMapEntries.verifyAndMapEntriesForMyExcel;
+import static com.crm.app.duplicate_check_common.verification.VerifyAndMapEntriesMyExcel.verifyAndMapEntriesForMyExcelAccounts;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class DuplicateCheckSingleMyExcel {
     private final AppDuplicateCheckSingleConfig appDuplicateCheckSingleConfig;
+    private final DuplicateCheckSingleEmbeddAndCompare duplicateCheckSingleEmbeddAndCompare;
 
     public void processFile() {
         log.info(String.format("Processing duplicate check for MyExcel [%s]", appDuplicateCheckSingleConfig.getExcelPath()));
         List<ErrMsg> errors = new ArrayList<>();
         List<MyExcelAccount> myExcelAccounts = new MyExcelReadAccounts().getAccounts(Paths.get(appDuplicateCheckSingleConfig.getExcelPath()), errors);
         log.info(String.format("processDuplicateCheck: MyExcel %d entries read, %d errors", myExcelAccounts.size(), errors.size()));
-        List<DuplicateCheckEntry> duplicateCheckEntries = verifyAndMapEntriesForMyExcel(myExcelAccounts, errors);
+        List<DuplicateCheckEntry> duplicateCheckEntries = verifyAndMapEntriesForMyExcelAccounts(myExcelAccounts, errors);
         log.info(String.format("processDuplicateCheck: MyExcel %d entries mapped, now %d errors", duplicateCheckEntries.size(), errors.size()));
+
+        duplicateCheckSingleEmbeddAndCompare.processFile(duplicateCheckEntries, errors);
     }
 }

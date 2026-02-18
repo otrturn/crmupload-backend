@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.crm.app.duplicate_check_common.verification.VerifyAndMapEntries.verifyAndMapEntriesForMyExcel;
+import static com.crm.app.duplicate_check_common.verification.VerifyAndMapEntriesMyExcel.verifyAndMapEntriesForMyExcelAccounts;
 
 @Slf4j
 @Component
@@ -49,7 +49,7 @@ public class DuplicateCheckWorkerProcessForMyExcel {
 
             Optional<Customer> customer = customerRepositoryPort.findCustomerByCustomerId(duplicateCheckContent.getCustomerId());
             if (customer.isPresent()) {
-                List<DuplicateCheckEntry> duplicateCheckEntries = verifyAndMapEntriesForMyExcel(myExcelAccounts, errors);
+                List<DuplicateCheckEntry> duplicateCheckEntries = verifyAndMapEntriesForMyExcelAccounts(myExcelAccounts, errors);
                 log.info(String.format("processDuplicateCheck: %d entries mapped, now %d errors", duplicateCheckEntries.size(), errors.size()));
                 if (!ErrMsg.containsErrors(errors)) {
                     duplicateCheckContent.setContent(WorkbookUtils.createVerifiedExcelAsBytes(duplicateCheckEntries));
