@@ -1,7 +1,7 @@
 app:
   duplicate-check:
-    excel-path: /data/Lexware_Generated_Duplicate_Check_00001.xlsx
-    source-system: Lexware
+    excel-path: /data/MyExcelKunden_V001.xlsx
+    source-system: MyExcel
   duplicate-check-gpu:
     poll-interval-ms: 10000
     batch-size: 5

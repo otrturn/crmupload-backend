@@ -30,6 +30,6 @@ public class DuplicateCheckSingleMyExcel {
         List<DuplicateCheckEntry> duplicateCheckEntries = verifyAndMapEntriesForMyExcelAccounts(myExcelAccounts, errors);
         log.info(String.format("processDuplicateCheck: MyExcel %d entries mapped, now %d errors", duplicateCheckEntries.size(), errors.size()));
 
-        duplicateCheckSingleEmbeddAndCompare.processFile(duplicateCheckEntries, errors);
+        duplicateCheckSingleEmbeddAndCompare.processFile(duplicateCheckEntries, errors, "Firmen");
     }
 }

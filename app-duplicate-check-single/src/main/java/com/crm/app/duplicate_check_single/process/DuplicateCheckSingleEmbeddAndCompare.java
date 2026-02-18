@@ -33,6 +33,10 @@ public class DuplicateCheckSingleEmbeddAndCompare {
     private static final String DURATION_FORMAT_STRING = "Duration: %02d:%02d:%02d";
 
     public void processFile(List<DuplicateCheckEntry> duplicateCheckEntries, List<ErrMsg> errors) {
+        processFile(duplicateCheckEntries, errors, null);
+    }
+
+    public void processFile(List<DuplicateCheckEntry> duplicateCheckEntries, List<ErrMsg> errors, String suffix) {
         if (ErrMsg.containsErrors(errors)) {
             flushMarkedFile(appDuplicateCheckSingleConfig.getExcelPath(), errors);
             return;
@@ -59,12 +63,17 @@ public class DuplicateCheckSingleEmbeddAndCompare {
         log.info("Start email analysis ...");
         start = Instant.now();
         Map<String, List<CompanyEmbedded>> emailDuplicates = comparisonAnalysis.emailAnalysis(companiesEmbedded);
-        log.info("Finished email analysis " + emailDuplicates.size() + " E-Mails");
+        log.info("Finished email analysis " + emailDuplicates.size() + " E-Mail Mehrrfachverwendungen");
         duration = Duration.between(start, Instant.now());
         log.info(String.format(DURATION_FORMAT_STRING, duration.toHours(), duration.toMinutesPart(), duration.toSecondsPart()));
 
         createResultWorkbook.create(duplicateCheckContent, companiesEmbedded, emailDuplicates);
 
-        flushDuplicatesFile(appDuplicateCheckSingleConfig.getExcelPath(), duplicateCheckContent);
+        if (suffix == null) {
+            flushDuplicatesFile(appDuplicateCheckSingleConfig.getExcelPath(), duplicateCheckContent);
+        } else {
+            flushDuplicatesFile(appDuplicateCheckSingleConfig.getExcelPath(), duplicateCheckContent, suffix);
+
+        }
     }
 }

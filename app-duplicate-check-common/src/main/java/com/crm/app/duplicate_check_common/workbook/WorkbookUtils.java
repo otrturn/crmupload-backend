@@ -82,4 +82,12 @@ public class WorkbookUtils {
             throw new DuplicateCheckGpuException(setNameOfDuplicatesExcelFile(excelPath), e);
         }
     }
+
+    public static void flushDuplicatesFile(String excelPath, DuplicateCheckContent duplicateCheckContent, String suffix) {
+        try {
+            Files.write(Path.of(setNameOfDuplicatesExcelFile(excelPath, suffix)), duplicateCheckContent.getContent());
+        } catch (Exception e) {
+            throw new DuplicateCheckGpuException(setNameOfDuplicatesExcelFile(excelPath, suffix), e);
+        }
+    }
 }
