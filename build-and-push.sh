@@ -35,6 +35,9 @@ mvn -pl app-worker-duplicate-check -am clean package -DskipTests
 echo ">>> Build crmupload-billing (Maven)"
 mvn -pl app-billing -am clean package -DskipTests
 
+echo ">>> Build crmupload-duplicate-check-single (Maven)"
+mvn -pl app-duplicate-check-single -am clean package -DskipTests
+
 # -------------------------------------------------------------------
 # Docker Login bei GHCR
 # -------------------------------------------------------------------
@@ -74,6 +77,14 @@ docker buildx build \
   -t ghcr.io/${GHCR_USER}/crmupload-billing:prod \
   -f app-billing/Dockerfile \
   app-billing/ \
+  --push
+
+echo ">>> Docker build+push crmupload-duplicate-check-single (multi-arch)..."
+docker buildx build \
+  --platform linux/amd64,linux/arm64/v8 \
+  -t ghcr.io/${GHCR_USER}/crmupload-duplicate-check-single:prod \
+  -f app-duplicate-check-single/Dockerfile \
+  app-duplicate-check-single/ \
   --push
 
 echo ">>> Docker build+push crmupload-flyway (multi-arch)..."
