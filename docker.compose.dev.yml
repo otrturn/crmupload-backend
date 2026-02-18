@@ -217,6 +217,7 @@ services:
   # --------------------------------------------------------------
   duplicate-check-single:
     image: duplicate-check-single
+    user: "1000:1000"
     build:
       context: ./app-duplicate-check-single
       dockerfile: Dockerfile
