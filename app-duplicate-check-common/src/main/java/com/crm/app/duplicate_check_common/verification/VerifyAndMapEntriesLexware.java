@@ -14,6 +14,7 @@ public class VerifyAndMapEntriesLexware {
     private static final String LITERAL_FIRMENNAME_LEER = "[Account] Zeile %d: Firmenname ist leer";
     private static final String LITERAL_PLZ_LEER = "[Account] Zeile %d: PLZ ist leer";
     private static final String LITERAL_STRASSE_LEER = "[Account] Zeile %d: Strasse ist leer";
+    private static final String LITERAL_ORT_LEER = "[Account] Zeile %d: STADT ist leer";
     private static final String LITERAL_LAND_LEER = "[Account] Zeile %d: Land ist leer";
 
     private VerifyAndMapEntriesLexware() {
@@ -65,6 +66,11 @@ public class VerifyAndMapEntriesLexware {
         if (lexwareEntry.getAddress().getStreet() == null || lexwareEntry.getAddress().getStreet().isBlank()) {
             String msg = String.format(LITERAL_STRASSE_LEER, i + 1);
             errors.add(new ErrMsg(0, i, indexMap.get(LexwareColumn.STRASSE), LexwareColumn.STRASSE.name(), msg));
+            isSuccess = false;
+        }
+        if (lexwareEntry.getAddress().getCity() == null || lexwareEntry.getAddress().getCity().isBlank()) {
+            String msg = String.format(LITERAL_ORT_LEER, i + 1);
+            errors.add(new ErrMsg(0, i, indexMap.get(LexwareColumn.ORT), LexwareColumn.ORT.name(), msg));
             isSuccess = false;
         }
         if (lexwareEntry.getAddress().getCity() == null || lexwareEntry.getAddress().getCity().isBlank()) {
