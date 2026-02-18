@@ -1,6 +1,7 @@
 package com.crm.app.duplicate_check_single.config;
 
 import com.crm.app.dto.SourceSystem;
+import com.crm.app.duplicate_check_single.dto.MyExcelSwitch;
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Component;
 public class AppDuplicateCheckSingleConfig {
     private String excelPath;
     private String sourceSystem;
+    private String myExcelSwitch;
 
     @PostConstruct
     public void init() {
@@ -25,6 +27,12 @@ public class AppDuplicateCheckSingleConfig {
         if (sourceSystem == null || sourceSystem.isBlank()) {
             throw new IllegalStateException("sourceSystem is blank");
         }
-        SourceSystem.fromString(sourceSystem);
+        SourceSystem thesourceSystem = SourceSystem.fromString(sourceSystem);
+        if (thesourceSystem.equals(SourceSystem.MYEXCEL) && (myExcelSwitch == null || myExcelSwitch.isBlank())) {
+            throw new IllegalStateException("sourceSystem is " + SourceSystem.MYEXCEL.name() + " and myExcelSwitch is blank");
+        }
+        if (myExcelSwitch != null) {
+            MyExcelSwitch.fromString(myExcelSwitch);
+        }
     }
 }

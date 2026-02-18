@@ -63,7 +63,7 @@ public class DuplicateCheckSingleEmbeddAndCompare {
         log.info("Start email analysis ...");
         start = Instant.now();
         Map<String, List<CompanyEmbedded>> emailDuplicates = comparisonAnalysis.emailAnalysis(companiesEmbedded);
-        log.info("Finished email analysis " + emailDuplicates.size() + " E-Mail Mehrrfachverwendungen");
+        log.info("Finished email analysis " + emailDuplicates.size() + " E-Mail Mehrfachverwendungen");
         duration = Duration.between(start, Instant.now());
         log.info(String.format(DURATION_FORMAT_STRING, duration.toHours(), duration.toMinutesPart(), duration.toSecondsPart()));
 

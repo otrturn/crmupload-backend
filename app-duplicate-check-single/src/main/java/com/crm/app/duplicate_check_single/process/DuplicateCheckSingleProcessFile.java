@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import static com.crm.app.dto.SourceSystem.availableSourceSystems;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -23,7 +25,7 @@ public class DuplicateCheckSingleProcessFile {
             case LEXWARE -> duplicateCheckSingleLexware.processFile();
             case MYEXCEL -> duplicateCheckSingleMyExcel.processFile();
             default -> {
-                String msg = String.format("Unknown sourceSystem '%s'", appDuplicateCheckSingleConfig.getSourceSystem());
+                String msg = String.format("Unknown sourceSystem '%s'", appDuplicateCheckSingleConfig.getSourceSystem() + " available: " + availableSourceSystems());
                 log.error(msg);
             }
         }

@@ -27,7 +27,7 @@ public enum CrmSystem {
                 .filter(v -> v.value.equalsIgnoreCase(raw.trim()))
                 .findFirst()
                 .orElseThrow(() ->
-                        new IllegalArgumentException("Unsupported CRM system: " + raw));
+                        new IllegalArgumentException("Unsupported CRM system: " + raw + ", available: " + availableCrmSystems()));
     }
 
     public static List<String> availableCrmSystems() {
