@@ -1,7 +1,11 @@
 package com.crm.app.duplicate_check_common.workbook;
 
+import com.crm.app.dto.DuplicateCheckContent;
 import com.crm.app.dto.DuplicateCheckEntry;
+import com.crm.app.duplicate_check_common.error.DuplicateCheckGpuException;
 import com.crm.app.duplicate_check_common.error.WorkbookUtilCheckException;
+import com.crmmacher.error.ErrMsg;
+import com.crmmacher.util.ExcelUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
@@ -11,7 +15,13 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+
+import static com.crmmacher.util.ExcelUtils.setNameOfDuplicatesExcelFile;
+import static com.crmmacher.util.ExcelUtils.setNameOfMarkedExcelFile;
 
 @Slf4j
 public class WorkbookUtils {
@@ -55,8 +65,21 @@ public class WorkbookUtils {
         }
     }
 
-    public static String setNameOfDuplicatesExcelFile(String filename) {
-        return filename.replaceAll("(?i)\\.xlsx$", "_Dubletten.xlsx");
+    public static void flushMarkedFile(String excelPath, List<ErrMsg> errors) {
+        byte[] byteArray = ExcelUtils.markExcelFile(Paths.get(excelPath), errors);
+        try {
+            Files.write(Path.of(setNameOfMarkedExcelFile(excelPath)), byteArray);
+        } catch (Exception e) {
+            throw new DuplicateCheckGpuException(setNameOfDuplicatesExcelFile(excelPath), e);
+        }
+
     }
 
+    public static void flushDuplicatesFile(String excelPath, DuplicateCheckContent duplicateCheckContent) {
+        try {
+            Files.write(Path.of(setNameOfDuplicatesExcelFile(excelPath)), duplicateCheckContent.getContent());
+        } catch (Exception e) {
+            throw new DuplicateCheckGpuException(setNameOfDuplicatesExcelFile(excelPath), e);
+        }
+    }
 }

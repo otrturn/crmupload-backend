@@ -5,7 +5,6 @@ import com.crm.app.dto.DuplicateCheckEntry;
 import com.crm.app.duplicate_check_common.comparison.ComparisonAnalysis;
 import com.crm.app.duplicate_check_common.dto.CompanyEmbedded;
 import com.crm.app.duplicate_check_common.embedding.EmbeddingService;
-import com.crm.app.duplicate_check_common.error.DuplicateCheckGpuException;
 import com.crm.app.duplicate_check_common.workbook.CreateResultWorkbook;
 import com.crm.app.duplicate_check_common.workbook.WorkbookUtils;
 import com.crm.app.duplicate_check_single.config.AppDuplicateCheckSingleConfig;
@@ -17,8 +16,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
@@ -27,7 +24,8 @@ import java.util.List;
 import java.util.Map;
 
 import static com.crm.app.duplicate_check_common.verification.VerifyAndMapEntries.verifyAndMapEntriesForLexware;
-import static com.crm.app.duplicate_check_common.workbook.WorkbookUtils.setNameOfDuplicatesExcelFile;
+import static com.crm.app.duplicate_check_common.workbook.WorkbookUtils.flushDuplicatesFile;
+import static com.crm.app.duplicate_check_common.workbook.WorkbookUtils.flushMarkedFile;
 
 @Slf4j
 @Service
@@ -49,10 +47,14 @@ public class DuplicateCheckSingleLexware {
         List<DuplicateCheckEntry> duplicateCheckEntries = verifyAndMapEntriesForLexware(lexwareEntries, indexMap, errors);
         log.info(String.format("processDuplicateCheck: Lexware %d entries mapped, now %d errors", duplicateCheckEntries.size(), errors.size()));
 
-        DuplicateCheckContent duplicateCheckContent = new DuplicateCheckContent(1L, 1L, "Lexware", WorkbookUtils.createVerifiedExcelAsBytes(duplicateCheckEntries));
-        Instant start = Instant.now();
+        if (ErrMsg.containsErrors(errors)) {
+            flushMarkedFile(appDuplicateCheckSingleConfig.getExcelPath(), errors);
+            return;
+        }
 
+        Instant start = Instant.now();
         log.info("Start embedding ...");
+        DuplicateCheckContent duplicateCheckContent = new DuplicateCheckContent(1L, 1L, "Lexware", WorkbookUtils.createVerifiedExcelAsBytes(duplicateCheckEntries));
         List<CompanyEmbedded> companiesEmbedded = embeddingService.getEmbedding(duplicateCheckContent);
         log.info("Finished embedding ...");
         Duration duration = Duration.between(start, Instant.now());
@@ -76,10 +78,7 @@ public class DuplicateCheckSingleLexware {
         log.info(String.format(DURATION_FORMAT_STRING, duration.toHours(), duration.toMinutesPart(), duration.toSecondsPart()));
 
         createResultWorkbook.create(duplicateCheckContent, companiesEmbedded, emailDuplicates);
-        try {
-            Files.write(Path.of(setNameOfDuplicatesExcelFile(appDuplicateCheckSingleConfig.getExcelPath())), duplicateCheckContent.getContent());
-        } catch (Exception e) {
-            throw new DuplicateCheckGpuException(setNameOfDuplicatesExcelFile(appDuplicateCheckSingleConfig.getExcelPath()), e);
-        }
+
+        flushDuplicatesFile(appDuplicateCheckSingleConfig.getExcelPath(), duplicateCheckContent);
     }
 }
