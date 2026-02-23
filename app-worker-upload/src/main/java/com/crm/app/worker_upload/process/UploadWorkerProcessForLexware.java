@@ -39,11 +39,11 @@ public class UploadWorkerProcessForLexware {
             List<ErrMsg> errors = new ArrayList<>();
 
             List<LexwareEntry> lexwareEntries = new ArrayList<>();
-            Map<LexwareColumn, Integer> indexMap = new ReadLexwareExcel().getEntries(upload.getContent(), lexwareEntries, errors);
+            new ReadLexwareExcel().getEntries(upload.getContent(), lexwareEntries, errors);
             log.info(String.format("Lexware %d entries read, %d errors", lexwareEntries.size(), errors.size()));
 
             EspoEntityPool espoEntityPool = new EspoEntityPool();
-            MyLexwareToEspoMapper.toEspoAccounts(lexwareCtx, lexwareEntries, espoEntityPool, errors, indexMap);
+            MyLexwareToEspoMapper.toEspoAccounts(lexwareCtx, lexwareEntries, espoEntityPool, errors);
             log.info(String.format("Lexware %d entries mapped, %d errors", lexwareEntries.size(), errors.size()));
 
             Optional<Customer> customer = customerRepositoryPort.findCustomerByCustomerId(upload.getCustomerId());
