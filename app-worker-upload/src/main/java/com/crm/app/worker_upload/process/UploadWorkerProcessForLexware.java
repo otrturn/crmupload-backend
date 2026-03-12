@@ -31,8 +31,6 @@ public class UploadWorkerProcessForLexware {
     private final UploadHandlingForEspo uploadHandlingForEspo;
     private final CustomerRepositoryPort customerRepositoryPort;
 
-    private final LexwareCtx lexwareCtx;
-
     public void processUploadForEspo(CrmUploadContent upload) {
         log.info(String.format("Processing crm_upload for Lexware uploadId=%d sourceSysten=%s crmSystem=%s", upload.getUploadId(), upload.getSourceSystem(), upload.getCrmSystem()));
         try {
@@ -43,7 +41,7 @@ public class UploadWorkerProcessForLexware {
             log.info(String.format("Lexware %d entries read, %d errors", lexwareEntries.size(), errors.size()));
 
             EspoEntityPool espoEntityPool = new EspoEntityPool();
-            MyLexwareToEspoMapper.toEspoAccounts(lexwareCtx, lexwareEntries, espoEntityPool, errors);
+            MyLexwareToEspoMapper.toEspoAccounts(lexwareEntries, espoEntityPool, errors);
             log.info(String.format("Lexware %d entries mapped, %d errors", lexwareEntries.size(), errors.size()));
 
             Optional<Customer> customer = customerRepositoryPort.findCustomerByCustomerId(upload.getCustomerId());

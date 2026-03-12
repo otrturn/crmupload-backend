@@ -30,7 +30,7 @@ public class VerifyAndMapEntriesLexware {
                 DuplicateCheckEntry duplicateCheckEntry = DuplicateCheckEntry.builder()
                         .cExternalReference(lexwareEntry.getcExternalReference())
                         .accountName(lexwareEntry.getAccountName())
-                        .postalCode(lexwareEntry.getAddress().getPostcalCode())
+                        .postalCode(lexwareEntry.getAddress().getPostalCode())
                         .street(lexwareEntry.getAddress().getStreet())
                         .city(lexwareEntry.getAddress().getCity())
                         .country(lexwareEntry.getAddress().getCountry())
@@ -58,7 +58,7 @@ public class VerifyAndMapEntriesLexware {
             errors.add(new ErrMsg(0, i, indexMap.get(LexwareColumn.FIRMENNAME), LexwareColumn.FIRMENNAME.name(), msg));
             isSuccess = false;
         }
-        if (lexwareEntry.getAddress().getPostcalCode() == null || lexwareEntry.getAddress().getPostcalCode().isBlank()) {
+        if (lexwareEntry.getAddress().getPostalCode() == null || lexwareEntry.getAddress().getPostalCode().isBlank()) {
             String msg = String.format(LITERAL_PLZ_LEER, i + 1);
             errors.add(new ErrMsg(0, i, indexMap.get(LexwareColumn.PLZ), LexwareColumn.PLZ.name(), msg));
             isSuccess = false;

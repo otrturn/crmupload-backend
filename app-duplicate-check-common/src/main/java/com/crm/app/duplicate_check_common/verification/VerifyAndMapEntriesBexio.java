@@ -30,7 +30,7 @@ public class VerifyAndMapEntriesBexio {
                 DuplicateCheckEntry duplicateCheckEntry = DuplicateCheckEntry.builder()
                         .cExternalReference(bexioEntry.getcExternalReference())
                         .accountName(bexioEntry.getAccountName())
-                        .postalCode(bexioEntry.getAddress().getPostcalCode())
+                        .postalCode(bexioEntry.getAddress().getPostalCode())
                         .street(bexioEntry.getAddress().getStreet())
                         .city(bexioEntry.getAddress().getCity())
                         .country(bexioEntry.getAddress().getCountry())
@@ -57,7 +57,7 @@ public class VerifyAndMapEntriesBexio {
             errors.add(new ErrMsg(0, i, indexMap.get(BexioColumn.FIRMENNAME), BexioColumn.FIRMENNAME.name(), msg));
             isSuccess = false;
         }
-        if (bexioEntry.getAddress().getPostcalCode() == null || bexioEntry.getAddress().getPostcalCode().isBlank()) {
+        if (bexioEntry.getAddress().getPostalCode() == null || bexioEntry.getAddress().getPostalCode().isBlank()) {
             String msg = String.format(LITERAL_PLZ_LEER, i + 1);
             errors.add(new ErrMsg(0, i, indexMap.get(BexioColumn.PLZ), BexioColumn.PLZ.name(), msg));
             isSuccess = false;

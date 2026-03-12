@@ -31,7 +31,7 @@ public class VerifyAndMapEntriesMyExcel {
                 DuplicateCheckEntry duplicateCheckEntry = DuplicateCheckEntry.builder()
                         .cExternalReference(myExcelEntry.getcExternalReference())
                         .accountName(myExcelEntry.getName())
-                        .postalCode(myExcelEntry.getBillingAddress().getPostcalCode())
+                        .postalCode(myExcelEntry.getBillingAddress().getPostalCode())
                         .street(myExcelEntry.getBillingAddress().getStreet())
                         .city(myExcelEntry.getBillingAddress().getCity())
                         .country(myExcelEntry.getBillingAddress().getCountry())
@@ -59,7 +59,7 @@ public class VerifyAndMapEntriesMyExcel {
             errors.add(new ErrMsg(0, i, MyExcelAccountColumn.NAME.index(), MyExcelAccountColumn.NAME.header(), msg));
             isSuccess = false;
         }
-        if (myExcelEntry.getBillingAddress().getPostcalCode() == null || myExcelEntry.getBillingAddress().getPostcalCode().isBlank()) {
+        if (myExcelEntry.getBillingAddress().getPostalCode() == null || myExcelEntry.getBillingAddress().getPostalCode().isBlank()) {
             String msg = String.format(LITERAL_PLZ_LEER, i + 1);
             errors.add(new ErrMsg(0, i, MyExcelAccountColumn.BILLINGADDRESS_PLZ.index(), MyExcelAccountColumn.BILLINGADDRESS_PLZ.header(), msg));
             isSuccess = false;
