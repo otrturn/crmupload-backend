@@ -9,7 +9,7 @@ import com.crm.app.port.customer.DuplicateCheckRepositoryPort;
 import com.crm.app.worker_common.dto.StatisticsError;
 import com.crm.app.worker_duplicate_check.mail.DuplicatecheckMailService;
 import com.crmmacher.error.ErrMsg;
-import com.crmmacher.espo.importer.lexware_excel.config.LexwareCtx;
+import com.crmmacher.lexware_excel.config.LexwareCtx;
 import com.crmmacher.lexware_excel.dto.LexwareColumn;
 import com.crmmacher.lexware_excel.dto.LexwareEntry;
 import com.crmmacher.lexware_excel.reader.ReadLexwareExcel;
@@ -31,12 +31,11 @@ import static com.crm.app.duplicate_check_common.verification.VerifyAndMapEntrie
 @Component
 @RequiredArgsConstructor
 public class DuplicateCheckWorkerProcessForLexware {
+    private final LexwareCtx ctx;
 
     private final DuplicateCheckRepositoryPort duplicateCheckRepositoryPort;
     private final CustomerRepositoryPort customerRepositoryPort;
     private final DuplicatecheckMailService duplicatecheckMailService;
-
-    private final LexwareCtx lexwareCtx;
 
     private static final Gson GSON = new GsonBuilder()
             .serializeNulls()
@@ -48,7 +47,7 @@ public class DuplicateCheckWorkerProcessForLexware {
             List<ErrMsg> errors = new ArrayList<>();
 
             List<LexwareEntry> lexwareEntries = new ArrayList<>();
-            Map<LexwareColumn, Integer> indexMap = new ReadLexwareExcel().getEntries(duplicateCheckContent.getContent(), lexwareEntries, errors);
+            Map<LexwareColumn, Integer> indexMap = new ReadLexwareExcel(ctx).getEntries(duplicateCheckContent.getContent(), lexwareEntries, errors);
             log.info(String.format("Lexware %d entries read, %d errors", lexwareEntries.size(), errors.size()));
 
             Optional<Customer> customer = customerRepositoryPort.findCustomerByCustomerId(duplicateCheckContent.getCustomerId());

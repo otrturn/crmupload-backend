@@ -2,9 +2,9 @@ package com.crm.app.worker_duplicate_check;
 
 import com.crm.app.adapter.jdbc.config.AppDataSourceProperties;
 import com.crm.app.worker_duplicate_check.config.DuplicateCheckProperties;
-import com.crmmacher.espo.importer.bexio_excel.config.BexioCtx;
-import com.crmmacher.espo.importer.lexware_excel.config.LexwareCtx;
+import com.crmmacher.bexio_excel.config.BexioCtx;
 import com.crmmacher.espo.importer.my_excel.config.MyExcelCtx;
+import com.crmmacher.lexware_excel.config.LexwareCtx;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;

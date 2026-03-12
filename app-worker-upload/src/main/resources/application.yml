@@ -12,8 +12,6 @@ spring:
   main:
     web-application-type: none
 
-ctx:
-
   bexio:
     accountType:
       - Customer

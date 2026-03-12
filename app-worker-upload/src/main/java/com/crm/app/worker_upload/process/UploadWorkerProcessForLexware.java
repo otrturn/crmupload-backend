@@ -7,9 +7,8 @@ import com.crm.app.port.customer.CustomerRepositoryPort;
 import com.crm.app.worker_upload.config.CrmUploadProperties;
 import com.crmmacher.error.ErrMsg;
 import com.crmmacher.espo.dto.EspoEntityPool;
-import com.crmmacher.espo.importer.lexware_excel.config.LexwareCtx;
 import com.crmmacher.espo.importer.lexware_excel.util.MyLexwareToEspoMapper;
-import com.crmmacher.lexware_excel.dto.LexwareColumn;
+import com.crmmacher.lexware_excel.config.LexwareCtx;
 import com.crmmacher.lexware_excel.dto.LexwareEntry;
 import com.crmmacher.lexware_excel.reader.ReadLexwareExcel;
 import lombok.RequiredArgsConstructor;
@@ -18,13 +17,13 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class UploadWorkerProcessForLexware {
+    private final LexwareCtx ctx;
 
     private final CrmUploadRepositoryPort repository;
     private final CrmUploadProperties properties;
@@ -37,7 +36,7 @@ public class UploadWorkerProcessForLexware {
             List<ErrMsg> errors = new ArrayList<>();
 
             List<LexwareEntry> lexwareEntries = new ArrayList<>();
-            new ReadLexwareExcel().getEntries(upload.getContent(), lexwareEntries, errors);
+            new ReadLexwareExcel(ctx).getEntries(upload.getContent(), lexwareEntries, errors);
             log.info(String.format("Lexware %d entries read, %d errors", lexwareEntries.size(), errors.size()));
 
             EspoEntityPool espoEntityPool = new EspoEntityPool();

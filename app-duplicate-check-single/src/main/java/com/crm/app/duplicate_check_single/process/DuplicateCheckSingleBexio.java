@@ -2,6 +2,7 @@ package com.crm.app.duplicate_check_single.process;
 
 import com.crm.app.dto.DuplicateCheckEntry;
 import com.crm.app.duplicate_check_single.config.AppDuplicateCheckSingleConfig;
+import com.crmmacher.bexio_excel.config.BexioCtx;
 import com.crmmacher.bexio_excel.dto.BexioColumn;
 import com.crmmacher.bexio_excel.dto.BexioEntry;
 import com.crmmacher.bexio_excel.reader.ReadBexioExcel;
@@ -21,6 +22,7 @@ import static com.crm.app.duplicate_check_common.verification.VerifyAndMapEntrie
 @Service
 @RequiredArgsConstructor
 public class DuplicateCheckSingleBexio {
+    private final BexioCtx ctx;
     private final AppDuplicateCheckSingleConfig appDuplicateCheckSingleConfig;
     private final DuplicateCheckSingleEmbeddAndCompare duplicateCheckSingleEmbeddAndCompare;
 
@@ -29,7 +31,7 @@ public class DuplicateCheckSingleBexio {
         List<ErrMsg> errors = new ArrayList<>();
 
         List<BexioEntry> bexioEntries = new ArrayList<>();
-        Map<BexioColumn, Integer> indexMap = new ReadBexioExcel().getEntries(Paths.get(appDuplicateCheckSingleConfig.getExcelPath()), bexioEntries, errors);
+        Map<BexioColumn, Integer> indexMap = new ReadBexioExcel(ctx).getEntries(Paths.get(appDuplicateCheckSingleConfig.getExcelPath()), bexioEntries, errors);
         log.info(String.format("processDuplicateCheck: Bexio %d entries read, %d errors", bexioEntries.size(), errors.size()));
         List<DuplicateCheckEntry> duplicateCheckEntries = verifyAndMapEntriesForBexio(bexioEntries, indexMap, errors);
         log.info(String.format("processDuplicateCheck: Bexio %d entries mapped, now %d errors", duplicateCheckEntries.size(), errors.size()));

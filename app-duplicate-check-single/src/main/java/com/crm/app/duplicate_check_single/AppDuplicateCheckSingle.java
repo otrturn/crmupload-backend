@@ -2,6 +2,8 @@ package com.crm.app.duplicate_check_single;
 
 import com.crm.app.duplicate_check_common.config.DuplicateCheckGpuProperties;
 import com.crm.app.duplicate_check_single.process.DuplicateCheckSingleProcessFile;
+import com.crmmacher.bexio_excel.config.BexioCtx;
+import com.crmmacher.lexware_excel.config.LexwareCtx;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
@@ -14,9 +16,9 @@ import java.time.Duration;
 import java.time.Instant;
 
 @Slf4j
-@SpringBootApplication(scanBasePackages = "com.crm")
+@SpringBootApplication(scanBasePackages = {"com.crm"})
 @RequiredArgsConstructor
-@EnableConfigurationProperties({DuplicateCheckGpuProperties.class})
+@EnableConfigurationProperties({DuplicateCheckGpuProperties.class, BexioCtx.class, LexwareCtx.class})
 public class AppDuplicateCheckSingle implements CommandLineRunner, ExitCodeGenerator {
 
     private int exitCode = 0;
